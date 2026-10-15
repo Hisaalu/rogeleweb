@@ -37,6 +37,39 @@
     --brand-accent: #f06724;
     --brand-primary: #7f2677;
   }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 47% 8%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 47% 8%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 285 54% 55%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 24 87% 54%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 62.8% 50.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 285 54% 55%;
+
+    --brand-accent: #f06724;
+    --brand-primary: #a34d9c;
+  }
 }
 
 @layer base {

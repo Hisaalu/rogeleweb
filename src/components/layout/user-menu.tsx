@@ -1,18 +1,16 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { LogOut, User as UserIcon } from 'lucide-react'
 import { getInitials } from '@/lib/utils'
 import type { SessionUser } from '@/lib/auth'
 
-export function UserMenu({ user }: { user: SessionUser }) {
+export function UserMenu({ user }: { user?: SessionUser | null }) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
-
-  const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ') || user.email
 
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
@@ -23,6 +21,12 @@ export function UserMenu({ user }: { user: SessionUser }) {
     document.addEventListener('mousedown', onDocClick)
     return () => document.removeEventListener('mousedown', onDocClick)
   }, [])
+
+  const safeUser = user ?? { id: 0, email: '', role: 'learner' }
+  const fullName =
+    [safeUser.first_name, safeUser.last_name].filter(Boolean).join(' ') ||
+    safeUser.email ||
+    'User'
 
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST' })
@@ -49,18 +53,20 @@ export function UserMenu({ user }: { user: SessionUser }) {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-lg border border-border bg-card shadow-lg">
+        <div className="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-lg border border-border bg-card shadow-lg">
           <div className="border-b border-border px-4 py-3">
             <p className="truncate text-sm font-medium">{fullName}</p>
-            <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+            {safeUser.email && (
+              <p className="truncate text-xs text-muted-foreground">{safeUser.email}</p>
+            )}
             <p className="mt-1 inline-block rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-              {user.role}
+              {safeUser.role}
             </p>
           </div>
           <Link
             href="/profile"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-muted"
+            className="flex items-center gap-2 px-4 py-2 text-sm transition hover:bg-muted"
           >
             <UserIcon size={16} />
             Profile
@@ -68,7 +74,7 @@ export function UserMenu({ user }: { user: SessionUser }) {
           <button
             type="button"
             onClick={handleLogout}
-            className="flex w-full items-center gap-2 border-t border-border px-4 py-2 text-left text-sm text-destructive hover:bg-destructive/10"
+            className="flex w-full items-center gap-2 border-t border-border px-4 py-2 text-left text-sm text-destructive transition hover:bg-destructive/10"
           >
             <LogOut size={16} />
             Sign out

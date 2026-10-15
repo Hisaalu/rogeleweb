@@ -9,9 +9,6 @@ import {
   HelpCircle,
   CreditCard,
   User,
-  Settings,
-  Users,
-  GraduationCap,
   Mail,
   X,
 } from 'lucide-react'
@@ -32,11 +29,18 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Lessons', href: '/lessons', icon: BookOpen, roles: ['*'] },
   { label: 'Homework', href: '/homework', icon: ClipboardList, roles: ['*'] },
   { label: 'Quizzes', href: '/quizzes', icon: HelpCircle, roles: ['*'] },
-  { label: 'Subscription', href: '/subscription', icon: CreditCard, roles: ['learner', 'external', 'admin'] },
-  { label: 'Users', href: '/admin/users', icon: Users, roles: ['admin'] },
-  { label: 'Classes', href: '/admin/classes', icon: GraduationCap, roles: ['admin'] },
-  { label: 'Email campaigns', href: '/admin/email-campaigns', icon: Mail, roles: ['admin'] },
-  { label: 'Settings', href: '/admin/settings', icon: Settings, roles: ['admin'] },
+  {
+    label: 'Subscription',
+    href: '/subscription',
+    icon: CreditCard,
+    roles: ['learner', 'external', 'admin'],
+  },
+  {
+    label: 'Email campaigns',
+    href: '/admin/email-campaigns',
+    icon: Mail,
+    roles: ['admin'],
+  },
   { label: 'Profile', href: '/profile', icon: User, roles: ['*'] },
 ]
 
@@ -45,14 +49,15 @@ export function Sidebar({
   mobileOpen,
   onClose,
 }: {
-  user: SessionUser
+  user?: SessionUser | null
   mobileOpen: boolean
   onClose: () => void
 }) {
   const pathname = usePathname()
+  const role = user?.role ?? 'learner'
 
   const items = NAV_ITEMS.filter(
-    (item) => item.roles.includes('*') || item.roles.includes(user.role),
+    (item) => item.roles.includes('*') || item.roles.includes(role),
   )
 
   return (
@@ -86,7 +91,10 @@ export function Sidebar({
         <nav className="flex-1 overflow-y-auto px-2 py-4">
           <ul className="space-y-1">
             {items.map((item) => {
-              const active = pathname === item.href || pathname.startsWith(item.href + '/')
+              const active =
+                item.href === '/dashboard'
+                  ? pathname === '/dashboard'
+                  : pathname === item.href || pathname.startsWith(item.href + '/')
               const Icon = item.icon
               return (
                 <li key={item.href}>
@@ -100,7 +108,10 @@ export function Sidebar({
                         : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                     )}
                   >
-                    <Icon size={18} className={active ? 'text-brand-primary' : 'text-brand-accent'} />
+                    <Icon
+                      size={18}
+                      className={active ? 'text-brand-primary' : 'text-brand-accent'}
+                    />
                     <span>{item.label}</span>
                   </Link>
                 </li>

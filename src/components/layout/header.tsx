@@ -2,6 +2,7 @@
 
 import { Menu } from 'lucide-react'
 import { UserMenu } from './user-menu'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { useBranding } from '@/components/brand/brand-provider'
 import type { SessionUser } from '@/lib/auth'
 
@@ -30,7 +31,10 @@ export function Header({
         </span>
       </div>
 
-      <UserMenu user={user} />
+      <div className="flex items-center gap-2">
+        <ThemeToggle compact />
+        <UserMenu user={user} />
+      </div>
     </header>
   )
 }

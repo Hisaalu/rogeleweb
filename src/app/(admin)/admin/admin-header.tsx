@@ -1,0 +1,34 @@
+'use client'
+
+import { Menu } from 'lucide-react'
+import { UserMenu } from '@/components/layout/user-menu'
+import { ThemeToggle } from '@/components/theme-toggle'
+import type { SessionUser } from '@/lib/auth'
+
+export function AdminHeader({
+  user,
+  onMenuClick,
+}: {
+  user: SessionUser
+  onMenuClick: () => void
+}) {
+  return (
+    <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b border-border bg-background/95 px-4 backdrop-blur sm:px-6 lg:px-8">
+      <div className="flex min-w-0 items-center gap-3">
+        <button
+          type="button"
+          onClick={onMenuClick}
+          className="-ml-1 flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-muted hover:text-foreground lg:hidden"
+          aria-label="Open menu"
+        >
+          <Menu size={20} />
+        </button>
+      </div>
+
+      <div className="flex shrink-0 items-center gap-2">
+        <ThemeToggle compact />
+        <UserMenu user={user} />
+      </div>
+    </header>
+  )
+}
