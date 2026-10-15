@@ -42,7 +42,6 @@ async function proxy(req: NextRequest, { params }: { params: { path: string[] } 
     )
   }
 
-  // 204 No Content and 304 Not Modified must not have a body
   if (upstream.status === 204 || upstream.status === 304) {
     return new NextResponse(null, { status: upstream.status })
   }
@@ -61,6 +60,8 @@ async function proxy(req: NextRequest, { params }: { params: { path: string[] } 
 
 export const GET = proxy
 export const POST = proxy
-export const PATCH = proxy
 export const PUT = proxy
+export const PATCH = proxy
 export const DELETE = proxy
+export const HEAD = proxy
+export const OPTIONS = proxy
