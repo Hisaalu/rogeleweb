@@ -42,9 +42,7 @@ export function LessonsView({
 
   const [formOpen, setFormOpen] = useState(false)
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null)
-
   const [deleteTarget, setDeleteTarget] = useState<Lesson | null>(null)
-
   const [materialsTarget, setMaterialsTarget] = useState<Lesson | null>(null)
 
   const classesById = useMemo(() => {
@@ -59,9 +57,13 @@ export function LessonsView({
     return m
   }, [subjects])
 
+  const filterableSubjects = useMemo(() => {
+    if (!classFilter) return subjects
+    return subjects.filter((s) => !s.class_id || s.class_id === classFilter)
+  }, [subjects, classFilter])
+
   const filtered = useMemo(() => {
     let list = lessons
-
     if (search.trim()) {
       const q = search.trim().toLowerCase()
       list = list.filter(
@@ -73,7 +75,6 @@ export function LessonsView({
     if (classFilter !== null) list = list.filter((l) => l.class_id === classFilter)
     if (subjectFilter !== null) list = list.filter((l) => l.subject_id === subjectFilter)
     if (publishedFilter !== null) list = list.filter((l) => l.is_published === publishedFilter)
-
     return list
   }, [lessons, search, classFilter, subjectFilter, publishedFilter])
 
@@ -148,10 +149,7 @@ export function LessonsView({
         </div>
 
         {canCreate && (
-          <Button
-            onClick={handleNew}
-            style={{ backgroundColor: branding.colorPrimary }}
-          >
+          <Button onClick={handleNew} style={{ backgroundColor: branding.colorPrimary }}>
             <Plus size={16} />
             New lesson
           </Button>
@@ -187,9 +185,10 @@ export function LessonsView({
 
             <select
               value={classFilter ?? ''}
-              onChange={(e) =>
+              onChange={(e) => {
                 setClassFilter(e.target.value ? Number(e.target.value) : null)
-              }
+                setSubjectFilter(null)
+              }}
               className="h-10 rounded-lg border border-input bg-background px-3 text-sm outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/25"
             >
               <option value="">All classes</option>
@@ -205,10 +204,11 @@ export function LessonsView({
               onChange={(e) =>
                 setSubjectFilter(e.target.value ? Number(e.target.value) : null)
               }
-              className="h-10 rounded-lg border border-input bg-background px-3 text-sm outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/25"
+              disabled={!classFilter}
+              className="h-10 rounded-lg border border-input bg-background px-3 text-sm outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/25 disabled:opacity-60"
             >
-              <option value="">All subjects</option>
-              {subjects.map((s) => (
+              <option value="">{classFilter ? 'All subjects' : 'Pick a class first'}</option>
+              {filterableSubjects.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.name}
                 </option>

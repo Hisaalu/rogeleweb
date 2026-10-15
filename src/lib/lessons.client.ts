@@ -7,13 +7,14 @@ import type {
   UpdateLessonPayload,
 } from '@/types/lesson'
 
-interface ListResponse<T> {
-  value: T[]
-  Count: number
-}
-
-function unwrap<T>(res: T[] | ListResponse<T>): T[] {
-  return Array.isArray(res) ? res : res.value ?? []
+function unwrap<T>(res: unknown): T[] {
+  if (Array.isArray(res)) return res as T[]
+  if (res && typeof res === 'object') {
+    const obj = res as Record<string, unknown>
+    if (Array.isArray(obj.data)) return obj.data as T[]
+    if (Array.isArray(obj.value)) return obj.value as T[]
+  }
+  return []
 }
 
 async function proxy<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -32,8 +33,7 @@ async function proxy<T>(path: string, init: RequestInit = {}): Promise<T> {
   const data = text ? JSON.parse(text) : null
 
   if (!res.ok) {
-    const message = data?.error?.message ?? 'Request failed'
-    throw new Error(message)
+    throw new Error(data?.error?.message ?? 'Request failed')
   }
 
   return data as T
@@ -54,8 +54,8 @@ export async function listLessonsClient(params: {
   if (params.subject_id) search.set('subject_id', String(params.subject_id))
   const query = search.toString()
   const path = query ? `/lessons?${query}` : '/lessons'
-  const res = await proxy<Lesson[] | ListResponse<Lesson>>(path)
-  return unwrap(res)
+  const res = await proxy<unknown>(path)
+  return unwrap<Lesson>(res)
 }
 
 export async function createLessonClient(payload: CreateLessonPayload): Promise<Lesson> {
@@ -98,20 +98,8 @@ export async function toggleBookmarkClient(id: number): Promise<{ bookmarked: bo
 }
 
 export async function listMaterialsClient(lessonId: number): Promise<LessonMaterial[]> {
-  const res = await proxy<LessonMaterial[] | ListResponse<LessonMaterial>>(
-    `/lessons/${lessonId}/materials`,
-  )
-  return unwrap(res)
-}
-
-export async function listClassesClient(): Promise<Class[]> {
-  const res = await proxy<Class[] | ListResponse<Class>>('/classes?per_page=100')
-  return unwrap(res)
-}
-
-export async function listSubjectsClient(): Promise<Subject[]> {
-  const res = await proxy<Subject[] | ListResponse<Subject>>('/subjects?per_page=100')
-  return unwrap(res)
+  const res = await proxy<unknown>(`/lessons/${lessonId}/materials`)
+  return unwrap<LessonMaterial>(res)
 }
 
 export interface AddMaterialPayload {
@@ -138,4 +126,14 @@ export async function deleteMaterialClient(
   await proxy<void>(`/lessons/${lessonId}/materials/${materialId}`, {
     method: 'DELETE',
   })
+}
+
+export async function listClassesClient(): Promise<Class[]> {
+  const res = await proxy<unknown>('/classes?per_page=100')
+  return unwrap<Class>(res)
+}
+
+export async function listSubjectsClient(): Promise<Subject[]> {
+  const res = await proxy<unknown>('/subjects?per_page=100')
+  return unwrap<Subject>(res)
 }

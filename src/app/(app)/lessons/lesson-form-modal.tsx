@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { File as FileIcon, Loader2, Trash2, Upload, X } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { File as FileIcon, Loader2, Trash2, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -68,7 +68,7 @@ export function LessonFormModal({
   const [values, setValues] = useState<LessonFormValues>(EMPTY)
   const [stagedFiles, setStagedFiles] = useState<File[]>([])
   const [submitting, setSubmitting] = useState(false)
-  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number; percent: number } | null>(null)
+  const [progress, setProgress] = useState<{ current: number; total: number; percent: number } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [dragOver, setDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -77,11 +77,25 @@ export function LessonFormModal({
     setValues(lesson ? fromLesson(lesson) : EMPTY)
     setStagedFiles([])
     setError(null)
-    setUploadProgress(null)
+    setProgress(null)
   }, [lesson, open])
+
+  const visibleSubjects = useMemo(() => {
+    if (!values.class_id) return subjects
+    return subjects.filter((s) => !s.class_id || s.class_id === values.class_id)
+  }, [subjects, values.class_id])
 
   function set<K extends keyof LessonFormValues>(key: K, value: LessonFormValues[K]) {
     setValues((v) => ({ ...v, [key]: value }))
+  }
+
+  function handleClassChange(raw: string) {
+    const newClassId = raw ? Number(raw) : null
+    setValues((v) => {
+      if (v.subject_id === null) return { ...v, class_id: newClassId }
+      const belongs = subjects.find((s) => s.id === v.subject_id)?.class_id === newClassId
+      return { ...v, class_id: newClassId, subject_id: belongs ? v.subject_id : null }
+    })
   }
 
   function addFiles(files: FileList | File[]) {
@@ -94,10 +108,6 @@ export function LessonFormModal({
       return true
     })
     setStagedFiles((prev) => [...prev, ...valid])
-  }
-
-  function removeFile(index: number) {
-    setStagedFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -116,11 +126,11 @@ export function LessonFormModal({
       if (stagedFiles.length > 0) {
         for (let i = 0; i < stagedFiles.length; i++) {
           const file = stagedFiles[i]
-          setUploadProgress({ current: i + 1, total: stagedFiles.length, percent: 0 })
+          setProgress({ current: i + 1, total: stagedFiles.length, percent: 0 })
 
           try {
             const uploaded = await uploadFile(file, 'lesson-materials', (percent) =>
-              setUploadProgress({ current: i + 1, total: stagedFiles.length, percent }),
+              setProgress({ current: i + 1, total: stagedFiles.length, percent }),
             )
             await addMaterialClient(savedLesson.id, {
               file_name: uploaded.fileName,
@@ -129,14 +139,13 @@ export function LessonFormModal({
               file_size: uploaded.fileSize,
             })
           } catch (err) {
-            console.error('[lesson-form] upload failed for', file.name, err)
             setError(
               `Lesson saved but "${file.name}" failed to upload: ${
                 err instanceof Error ? err.message : 'unknown error'
               }`,
             )
             setSubmitting(false)
-            setUploadProgress(null)
+            setProgress(null)
             return
           }
         }
@@ -147,7 +156,7 @@ export function LessonFormModal({
       setError(err instanceof Error ? err.message : 'Failed to save lesson')
     } finally {
       setSubmitting(false)
-      setUploadProgress(null)
+      setProgress(null)
     }
   }
 
@@ -177,7 +186,7 @@ export function LessonFormModal({
               <Select
                 id="class_id"
                 value={values.class_id ?? ''}
-                onChange={(e) => set('class_id', e.target.value ? Number(e.target.value) : null)}
+                onChange={(e) => handleClassChange(e.target.value)}
                 disabled={submitting}
               >
                 <option value="">Select a class</option>
@@ -194,11 +203,15 @@ export function LessonFormModal({
               <Select
                 id="subject_id"
                 value={values.subject_id ?? ''}
-                onChange={(e) => set('subject_id', e.target.value ? Number(e.target.value) : null)}
-                disabled={submitting}
+                onChange={(e) =>
+                  set('subject_id', e.target.value ? Number(e.target.value) : null)
+                }
+                disabled={submitting || !values.class_id}
               >
-                <option value="">Select a subject</option>
-                {subjects.map((s) => (
+                <option value="">
+                  {values.class_id ? 'Select a subject' : 'Pick a class first'}
+                </option>
+                {visibleSubjects.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.name}
                   </option>
@@ -267,9 +280,7 @@ export function LessonFormModal({
               }`}
             >
               <Upload size={20} className="text-brand-accent" />
-              <p className="text-sm font-medium">
-                Drop files here or click to browse
-              </p>
+              <p className="text-sm font-medium">Drop files here or click to browse</p>
               <p className="text-xs text-muted-foreground">
                 Max 5 MB each. PDFs, documents, images, short videos.
               </p>
@@ -301,7 +312,7 @@ export function LessonFormModal({
                     </div>
                     <button
                       type="button"
-                      onClick={() => removeFile(i)}
+                      onClick={() => setStagedFiles((prev) => prev.filter((_, idx) => idx !== i))}
                       disabled={submitting}
                       className="rounded p-1 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
                       aria-label={`Remove ${file.name}`}
@@ -313,19 +324,19 @@ export function LessonFormModal({
               </ul>
             )}
 
-            {uploadProgress && (
+            {progress && (
               <div className="mt-3 space-y-1.5">
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
                   <span>
-                    Uploading {uploadProgress.current} of {uploadProgress.total}
+                    Uploading {progress.current} of {progress.total}
                   </span>
-                  <span>{uploadProgress.percent}%</span>
+                  <span>{progress.percent}%</span>
                 </div>
                 <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
                   <div
                     className="h-full rounded-full transition-all"
                     style={{
-                      width: `${uploadProgress.percent}%`,
+                      width: `${progress.percent}%`,
                       backgroundColor: 'var(--brand-accent)',
                     }}
                   />

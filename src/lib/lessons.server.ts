@@ -2,13 +2,14 @@ import 'server-only'
 import { serverApiRequest } from './server-api'
 import type { Class, Lesson, LessonMaterial, Subject } from '@/types/lesson'
 
-interface ListResponse<T> {
-  value: T[]
-  Count: number
-}
-
-function unwrap<T>(res: T[] | ListResponse<T>): T[] {
-  return Array.isArray(res) ? res : res.value ?? []
+function unwrap<T>(res: unknown): T[] {
+  if (Array.isArray(res)) return res as T[]
+  if (res && typeof res === 'object') {
+    const obj = res as Record<string, unknown>
+    if (Array.isArray(obj.data)) return obj.data as T[]
+    if (Array.isArray(obj.value)) return obj.value as T[]
+  }
+  return []
 }
 
 export async function listLessonsServer(params: {
@@ -27,23 +28,21 @@ export async function listLessonsServer(params: {
 
   const query = search.toString()
   const path = query ? `/api/v1/lessons?${query}` : '/api/v1/lessons'
-  const res = await serverApiRequest<Lesson[] | ListResponse<Lesson>>(path)
-  return unwrap(res)
+  const res = await serverApiRequest<unknown>(path)
+  return unwrap<Lesson>(res)
 }
 
 export async function listClassesServer(): Promise<Class[]> {
-  const res = await serverApiRequest<Class[] | ListResponse<Class>>('/api/v1/classes?per_page=100')
-  return unwrap(res)
+  const res = await serverApiRequest<unknown>('/api/v1/classes?per_page=100')
+  return unwrap<Class>(res)
 }
 
 export async function listSubjectsServer(): Promise<Subject[]> {
-  const res = await serverApiRequest<Subject[] | ListResponse<Subject>>('/api/v1/subjects?per_page=100')
-  return unwrap(res)
+  const res = await serverApiRequest<unknown>('/api/v1/subjects?per_page=100')
+  return unwrap<Subject>(res)
 }
 
 export async function listMaterialsServer(lessonId: number): Promise<LessonMaterial[]> {
-  const res = await serverApiRequest<LessonMaterial[] | ListResponse<LessonMaterial>>(
-    `/api/v1/lessons/${lessonId}/materials`,
-  )
-  return unwrap(res)
+  const res = await serverApiRequest<unknown>(`/api/v1/lessons/${lessonId}/materials`)
+  return unwrap<LessonMaterial>(res)
 }
