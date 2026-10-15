@@ -1,24 +1,42 @@
 import type { Metadata } from 'next'
-import { EmptyState } from '@/components/ui/empty-state'
-import { BookOpen } from 'lucide-react'
+import {
+  listClassesServer,
+  listSubjectsServer,
+  listTeachersServer,
+} from '@/lib/subjects.server'
+import type { Class, Subject, TeacherOption } from '@/types/admin'
+import { SubjectsView } from './subjects-view'
 
-export const metadata: Metadata = { title: 'Subjects' }
+export const metadata: Metadata = {
+  title: 'Subjects',
+}
 
-export default function AdminSubjectsPage() {
+export default async function AdminSubjectsPage() {
+  let subjects: Subject[] = []
+  let classes: Class[] = []
+  let teachers: TeacherOption[] = []
+
+  try {
+    subjects = await listSubjectsServer({ per_page: 100 })
+  } catch {
+    subjects = []
+  }
+  try {
+    classes = await listClassesServer()
+  } catch {
+    classes = []
+  }
+  try {
+    teachers = await listTeachersServer()
+  } catch {
+    teachers = []
+  }
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold sm:text-3xl">Subjects</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Manage subjects and assign them to teachers.
-        </p>
-      </div>
-
-      <EmptyState
-        icon={BookOpen}
-        title="Subject management coming soon"
-        description="Create, edit, and delete subjects here."
-      />
-    </div>
+    <SubjectsView
+      initialSubjects={subjects}
+      classes={classes}
+      teachers={teachers}
+    />
   )
 }

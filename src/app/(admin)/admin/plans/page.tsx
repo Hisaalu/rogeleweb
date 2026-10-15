@@ -1,24 +1,19 @@
 import type { Metadata } from 'next'
-import { EmptyState } from '@/components/ui/empty-state'
-import { CreditCard } from 'lucide-react'
+import { listPlansServer } from '@/lib/plans.server'
+import type { SubscriptionPlan } from '@/types/admin'
+import { PlansView } from './plans-view'
 
-export const metadata: Metadata = { title: 'Subscription plans' }
+export const metadata: Metadata = {
+  title: 'Subscription plans',
+}
 
-export default function AdminPlansPage() {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold sm:text-3xl">Subscription plans</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Define the plans users can subscribe to.
-        </p>
-      </div>
+export default async function AdminPlansPage() {
+  let plans: SubscriptionPlan[] = []
+  try {
+    plans = await listPlansServer({ per_page: 100 })
+  } catch {
+    plans = []
+  }
 
-      <EmptyState
-        icon={CreditCard}
-        title="Plan management coming soon"
-        description="Create, edit, and toggle plans here."
-      />
-    </div>
-  )
+  return <PlansView initialPlans={plans} />
 }

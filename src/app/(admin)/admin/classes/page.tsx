@@ -1,24 +1,19 @@
 import type { Metadata } from 'next'
-import { EmptyState } from '@/components/ui/empty-state'
-import { GraduationCap } from 'lucide-react'
+import { listClassesServer } from '@/lib/classes.server'
+import type { Class } from '@/types/admin'
+import { ClassesView } from './classes-view'
 
-export const metadata: Metadata = { title: 'Classes' }
+export const metadata: Metadata = {
+  title: 'Classes',
+}
 
-export default function AdminClassesPage() {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold sm:text-3xl">Classes</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Define the classes used across lessons, homework, and quizzes.
-        </p>
-      </div>
+export default async function AdminClassesPage() {
+  let classes: Class[] = []
+  try {
+    classes = await listClassesServer({ per_page: 100 })
+  } catch {
+    classes = []
+  }
 
-      <EmptyState
-        icon={GraduationCap}
-        title="Class management coming soon"
-        description="Create, edit, and delete classes here."
-      />
-    </div>
-  )
+  return <ClassesView initialClasses={classes} />
 }

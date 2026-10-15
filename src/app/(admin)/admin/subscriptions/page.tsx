@@ -1,24 +1,19 @@
 import type { Metadata } from 'next'
-import { EmptyState } from '@/components/ui/empty-state'
-import { CreditCard } from 'lucide-react'
+import { listSubscriptionsServer } from '@/lib/subscriptions.server'
+import type { AdminSubscription } from '@/types/admin'
+import { SubscriptionsView } from './subscriptions-view'
 
-export const metadata: Metadata = { title: 'Subscriptions' }
+export const metadata: Metadata = {
+  title: 'Subscriptions',
+}
 
-export default function AdminSubscriptionsPage() {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold sm:text-3xl">Subscriptions</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Browse all user subscriptions.
-        </p>
-      </div>
+export default async function AdminSubscriptionsPage() {
+  let subscriptions: AdminSubscription[] = []
+  try {
+    subscriptions = await listSubscriptionsServer({ per_page: 200 })
+  } catch {
+    subscriptions = []
+  }
 
-      <EmptyState
-        icon={CreditCard}
-        title="Subscription browser coming soon"
-        description="Filter by status, user, or date."
-      />
-    </div>
-  )
+  return <SubscriptionsView initialSubscriptions={subscriptions} />
 }
