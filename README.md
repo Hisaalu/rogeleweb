@@ -1,4 +1,4 @@
-#ROGELE Web
+## ROGELE Web
 
 The web client for ROGELE, a learning management platform for schools.
 
