@@ -1,6 +1,6 @@
-# Rogele Web
+#ROGELE Web
 
-The web client for Rogele, a learning management platform for schools.
+The web client for ROGELE, a learning management platform for schools.
 
 This application is the browser interface for three audiences:
 
@@ -11,7 +11,7 @@ This application is the browser interface for three audiences:
 - Learners and external users, who browse lessons, submit homework, take
   quizzes, and manage their subscriptions.
 
-The web client communicates exclusively with the Rogele API. It never connects
+The web client communicates exclusively with the ROGELE API. It never connects
 directly to a database or any other backend service.
 
 ## Table of Contents
@@ -35,7 +35,7 @@ directly to a database or any other backend service.
 
 ## Overview
 
-The Rogele Web app is a Next.js application built with the App Router. It
+The ROGELE Web app is a Next.js application built with the App Router. It
 provides three distinct experiences behind a single authentication system:
 
 - `/` and `/dashboard` — the learner and teacher experience
@@ -100,7 +100,7 @@ Start the development server:
 
 The app is available at http://localhost:3000.
 
-The Rogele API must be running and reachable at `ROGELEDB_API_URL` for
+The ROGELE API must be running and reachable at `ROGELEDB_API_URL` for
 authentication and data to work.
 
 ## Project Structure
