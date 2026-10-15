@@ -3,6 +3,7 @@
 import { Menu } from 'lucide-react'
 import { UserMenu } from '@/components/layout/user-menu'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { NotificationBell } from '@/components/notifications/notification-bell'
 import type { SessionUser } from '@/lib/auth'
 
 export function AdminHeader({
@@ -26,6 +27,7 @@ export function AdminHeader({
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
+        <NotificationBell compact viewAllHref="/admin/notifications" />
         <ThemeToggle compact />
         <UserMenu user={user} />
       </div>

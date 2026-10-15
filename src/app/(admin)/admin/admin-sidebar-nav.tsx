@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import {
   ArrowLeft,
   BarChart3,
+  Bell,
   BookOpen,
   CreditCard,
   DollarSign,
@@ -29,6 +30,7 @@ const NAV: NavItem[] = [
   { label: 'Plans', href: '/admin/plans', icon: CreditCard },
   { label: 'Subscriptions', href: '/admin/subscriptions', icon: CreditCard },
   { label: 'Payments', href: '/admin/payments', icon: DollarSign },
+  { label: 'Notifications', href: '/admin/notifications', icon: Bell },
   { label: 'Email campaigns', href: '/admin/email-campaigns', icon: Mail },
   { label: 'Settings', href: '/admin/settings', icon: Settings },
 ]
