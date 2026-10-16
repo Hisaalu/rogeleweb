@@ -24,6 +24,7 @@ interface NavItem {
 
 const NAV: NavItem[] = [
   { label: 'Overview', href: '/admin', icon: BarChart3 },
+  { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
   { label: 'Users', href: '/admin/users', icon: Users },
   { label: 'Classes', href: '/admin/classes', icon: GraduationCap },
   { label: 'Subjects', href: '/admin/subjects', icon: BookOpen },
