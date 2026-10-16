@@ -62,7 +62,7 @@ export function AdminDashboardView({
       <div>
         <h1 className="text-2xl font-bold sm:text-3xl">Admin overview</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {branding.schoolName} · Platform statistics and recent activity
+          Platform statistics and recent activity
         </p>
       </div>
 
