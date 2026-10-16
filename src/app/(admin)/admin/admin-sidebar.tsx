@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { X } from 'lucide-react'
 import { BrandLogo } from '@/components/brand/brand-logo'
 import { AdminSidebarNav } from './admin-sidebar-nav'
@@ -14,20 +15,13 @@ export function AdminSidebar({
 }) {
   return (
     <>
-      {/* Desktop sidebar — always visible from lg up */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-border bg-card lg:flex">
         <div className="flex items-center border-b border-border px-4 py-4">
           <BrandLogo size={36} />
         </div>
-        <div className="border-b border-border px-4 py-3">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Admin panel
-          </p>
-        </div>
         <AdminSidebarNav />
       </aside>
 
-      {/* Mobile drawer */}
       {mobileOpen && (
         <>
           <div
@@ -52,13 +46,6 @@ export function AdminSidebar({
                 <X size={18} />
               </button>
             </div>
-
-            <div className="border-b border-border px-4 py-3">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Admin panel
-              </p>
-            </div>
-
             <div onClick={onClose}>
               <AdminSidebarNav />
             </div>

@@ -28,6 +28,9 @@ export function UserMenu({ user }: { user?: SessionUser | null }) {
     safeUser.email ||
     'User'
 
+  // Admins have their own profile route under the admin panel.
+  const profileHref = safeUser.role === 'admin' ? '/admin/profile' : '/profile'
+
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST' })
     router.replace('/login')
@@ -63,14 +66,16 @@ export function UserMenu({ user }: { user?: SessionUser | null }) {
               {safeUser.role}
             </p>
           </div>
+
           <Link
-            href="/profile"
+            href={profileHref}
             onClick={() => setOpen(false)}
             className="flex items-center gap-2 px-4 py-2 text-sm transition hover:bg-muted"
           >
             <UserIcon size={16} />
             Profile
           </Link>
+
           <button
             type="button"
             onClick={handleLogout}
