@@ -37,14 +37,6 @@ export function AdminSidebar({
           >
             <div className="flex items-center justify-between border-b border-border px-4 py-4">
               <BrandLogo size={36} />
-              <button
-                type="button"
-                onClick={onClose}
-                className="text-muted-foreground transition hover:text-foreground"
-                aria-label="Close menu"
-              >
-                <X size={18} />
-              </button>
             </div>
             <div onClick={onClose}>
               <AdminSidebarNav />

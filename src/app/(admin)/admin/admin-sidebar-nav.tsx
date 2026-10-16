@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
+  Activity,
   BarChart3,
   Bell,
   BookOpen,
@@ -27,6 +28,7 @@ interface NavItem {
 
 const NAV: NavItem[] = [
   { label: 'Overview', href: '/admin', icon: BarChart3 },
+  { label: 'Activity', href: '/admin/activity', icon: Activity },
   { label: 'Analytics', href: '/admin/analytics', icon: ClipboardList },
   { label: 'Users', href: '/admin/users', icon: Users },
   { label: 'Classes', href: '/admin/classes', icon: GraduationCap },

@@ -34,3 +34,21 @@ export async function getRecentActivityServer(limit = 20): Promise<AdminActivity
   if (Array.isArray(res)) return res as AdminActivityItem[]
   return []
 }
+
+export interface ClassLearnerCount {
+  class_id: number
+  class_name: string
+  learner_count: number
+}
+
+export async function getLearnersByClassServer(): Promise<ClassLearnerCount[]> {
+  const res = await serverApiRequest<unknown>('/api/v1/admin/learners-by-class')
+  return Array.isArray(res) ? (res as ClassLearnerCount[]) : []
+}
+
+export async function getRecentActivityServerV2(limit = 20): Promise<AdminActivityItem[]> {
+  const res = await serverApiRequest<unknown>(
+    `/api/v1/admin/activity?limit=${limit}`,
+  )
+  return Array.isArray(res) ? (res as AdminActivityItem[]) : []
+}

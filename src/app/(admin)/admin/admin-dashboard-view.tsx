@@ -1,7 +1,9 @@
 'use client'
 
+import Link from 'next/link'
 import {
   Activity,
+  ArrowRight,
   BookOpen,
   ClipboardList,
   DollarSign,
@@ -22,17 +24,21 @@ import type {
   AdminPaymentSummary,
   AdminUserSummary,
 } from '@/types/admin'
+import { LearnersByClassChart } from './components/learners-by-class-chart'
+import type { ClassLearnerCount } from '@/lib/admin.server'
 
 export function AdminDashboardView({
   overview,
   signups,
   payments,
   activity,
+  learnersByClass,
 }: {
   overview: AdminOverview | null
   signups: AdminUserSummary[]
   payments: AdminPaymentSummary[]
   activity: AdminActivityItem[]
+  learnersByClass: ClassLearnerCount[]
 }) {
   const branding = useBranding()
 
@@ -225,37 +231,59 @@ export function AdminDashboardView({
         </Panel>
       </div>
 
-      <Panel title="Recent activity" subtitle="Latest actions across the platform">
-        {activity.length === 0 ? (
-          <EmptyState
-            icon={Activity}
-            title="No activity yet"
-            description="Actions by users will be logged here."
-          />
-        ) : (
-          <ul className="divide-y divide-border">
-            {activity.map((a) => (
-              <li key={a.id} className="flex items-center gap-3 py-3">
-                <div
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
-                  style={{ backgroundColor: `${branding.colorAccent}20` }}
-                >
-                  <Activity size={14} style={{ color: branding.colorAccent }} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm">
-                    <span className="font-medium">{a.action}</span>
-                    {a.description ? ` — ${a.description}` : ''}
-                  </p>
-                  <p className="truncate text-xs text-muted-foreground">
-                    {a.user_email ?? 'system'} · {formatDate(a.created_at)}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Panel>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <LearnersByClassChart data={learnersByClass} />
+
+        <section className="rounded-xl border border-border bg-card">
+          <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
+            <div>
+              <h3 className="text-sm font-semibold">Recent activity</h3>
+              <p className="text-xs text-muted-foreground">
+                Latest actions across the platform
+              </p>
+            </div>
+            <Link
+              href="/admin/activity"
+              className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-brand-accent hover:text-foreground"
+            >
+              View all
+              <ArrowRight size={12} />
+            </Link>
+          </header>
+
+          <div className="px-5 py-2">
+            {activity.length === 0 ? (
+              <EmptyState
+                icon={Activity}
+                title="No activity yet"
+                description="Actions by users will be logged here."
+              />
+            ) : (
+              <ul className="divide-y divide-border">
+                {activity.slice(0, 5).map((a) => (
+                  <li key={a.id} className="flex items-center gap-3 py-3">
+                    <div
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
+                      style={{ backgroundColor: `${branding.colorAccent}20` }}
+                    >
+                      <Activity size={14} style={{ color: branding.colorAccent }} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm">
+                        <span className="font-medium">{a.action}</span>
+                        {a.description ? ` — ${a.description}` : ''}
+                      </p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {a.user_email ?? 'system'} · {formatDate(a.created_at)}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </section>
+      </div>
     </div>
   )
 }

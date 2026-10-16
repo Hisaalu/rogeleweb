@@ -41,7 +41,7 @@ export async function getRecentPaymentsClient(limit = 10): Promise<AdminPaymentS
   return Array.isArray(res) ? (res as AdminPaymentSummary[]) : []
 }
 
-export async function getRecentActivityClient(limit = 20): Promise<AdminActivityItem[]> {
+export async function getRecentActivityClient(limit = 200): Promise<AdminActivityItem[]> {
   const res = await proxy<unknown>(`/admin/activity?limit=${limit}`)
   return Array.isArray(res) ? (res as AdminActivityItem[]) : []
 }

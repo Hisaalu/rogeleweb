@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
 import {
   getAdminOverviewServer,
+  getLearnersByClassServer,
   getRecentActivityServer,
   getRecentPaymentsServer,
   getRecentSignupsServer,
+  type ClassLearnerCount,
 } from '@/lib/admin.server'
 import type {
   AdminActivityItem,
@@ -22,6 +24,7 @@ export default async function AdminPage() {
   let signups: AdminUserSummary[] = []
   let payments: AdminPaymentSummary[] = []
   let activity: AdminActivityItem[] = []
+  let learnersByClass: ClassLearnerCount[] = []
 
   try {
     overview = await getAdminOverviewServer()
@@ -29,19 +32,24 @@ export default async function AdminPage() {
     overview = null
   }
   try {
-    signups = await getRecentSignupsServer(8)
+    signups = await getRecentSignupsServer(5)
   } catch {
     signups = []
   }
   try {
-    payments = await getRecentPaymentsServer(8)
+    payments = await getRecentPaymentsServer(5)
   } catch {
     payments = []
   }
   try {
-    activity = await getRecentActivityServer(10)
+    activity = await getRecentActivityServer(5)
   } catch {
     activity = []
+  }
+  try {
+    learnersByClass = await getLearnersByClassServer()
+  } catch {
+    learnersByClass = []
   }
 
   return (
@@ -50,6 +58,7 @@ export default async function AdminPage() {
       signups={signups}
       payments={payments}
       activity={activity}
+      learnersByClass={learnersByClass}
     />
   )
 }
