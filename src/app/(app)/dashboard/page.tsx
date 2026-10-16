@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import { getSessionUser } from '@/lib/auth'
 import { serverApiRequest } from '@/lib/server-api'
-import type { FreeTrial, Subscription, User } from '@/types/api'
+import { getDashboardDataServer } from '@/lib/dashboard.server'
+import type { User } from '@/types/api'
 import { DashboardView } from './dashboard-view'
 
 export const metadata: Metadata = {
@@ -13,27 +14,23 @@ export default async function DashboardPage() {
   if (!session) return null
 
   let profile: User | null = null
-  let subscription: Subscription | null = null
-  let trial: FreeTrial | null = null
-
   try {
-    profile = await apiRequest<User>('/api/v1/auth/me')
+    profile = await serverApiRequest<User>('/api/v1/auth/me')
   } catch {
     profile = null
   }
 
-  if (session.role === 'learner' || session.role === 'external') {
-    try {
-      subscription = await apiRequest<Subscription>('/api/v1/subscriptions/me')
-    } catch {
-      subscription = null
-    }
-    try {
-      trial = await apiRequest<FreeTrial>('/api/v1/trials/me')
-    } catch {
-      trial = null
-    }
-  }
+  const isLearnerSide = session.role === 'learner' || session.role === 'external'
+  const dashboard = isLearnerSide
+    ? await getDashboardDataServer()
+    : { trial: null, subscription: null, events: [] }
 
-  return <DashboardView profile={profile} subscription={subscription} trial={trial} />
+  return (
+    <DashboardView
+      profile={profile}
+      trial={dashboard.trial}
+      subscription={dashboard.subscription}
+      events={dashboard.events}
+    />
+  )
 }

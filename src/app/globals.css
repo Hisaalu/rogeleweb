@@ -34,6 +34,25 @@
 
     --radius: 0.75rem;
 
+        --success-bg: #F0FDF4;
+    --success-border: #23a74c;
+    --success-fg: #065F46;
+    --success-accent: #047857;
+
+    --warning-bg: #FEF3C7;
+    --warning-border: #F59E0B;
+    --warning-fg: #92400E;
+    --warning-accent: #B45309;
+
+    --danger-bg: #FEF2F2;
+    --danger-border: #EF4444;
+    --danger-fg: #B91C1C;
+    --danger-accent: #B91C1C;
+
+    --locked-bg: #E2E8F0;
+    --locked-fg: #94A3B8;
+    --locked-text: #B91C1C;
+
     --brand-accent: #f06724;
     --brand-primary: #7f2677;
   }
@@ -66,6 +85,25 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 285 54% 55%;
+
+        --success-bg: color-mix(in srgb, #23a74c 15%, transparent);
+    --success-border: #23a74c;
+    --success-fg: #6ee7a8;
+    --success-accent: #a7f3c4;
+
+    --warning-bg: color-mix(in srgb, #F59E0B 15%, transparent);
+    --warning-border: #F59E0B;
+    --warning-fg: #fcd34d;
+    --warning-accent: #fde68a;
+
+    --danger-bg: color-mix(in srgb, #EF4444 15%, transparent);
+    --danger-border: #EF4444;
+    --danger-fg: #fca5a5;
+    --danger-accent: #fecaca;
+
+    --locked-bg: hsl(var(--muted));
+    --locked-fg: hsl(var(--muted-foreground));
+    --locked-text: #fca5a5;
 
     --brand-accent: #f06724;
     --brand-primary: #a34d9c;
