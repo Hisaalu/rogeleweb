@@ -33,6 +33,11 @@ export function Sidebar({ user }: { user?: SessionUser | null }) {
         ? '/learner/lessons'
         : '/learner/lessons'
 
+  const quizzesHref =
+    role === 'teacher'
+      ? '/teacher/quizzes'
+      : '/learner/quizzes'
+
   const NAV_ITEMS: NavItem[] = [
     {
       label: 'Dashboard',
@@ -42,7 +47,7 @@ export function Sidebar({ user }: { user?: SessionUser | null }) {
     },
     { label: 'Lessons', href: lessonHref, icon: BookOpen, roles: ['*'] },
     { label: 'Homework', href: '/homework', icon: ClipboardList, roles: ['*'] },
-    { label: 'Quizzes', href: '/quizzes', icon: HelpCircle, roles: ['*'] },
+    { label: 'Quizzes', href: quizzesHref, icon: HelpCircle, roles: ['*'] },
     {
       label: 'Subscription',
       href: '/subscription',
