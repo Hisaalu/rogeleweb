@@ -26,12 +26,15 @@ export function Sidebar({ user }: { user?: SessionUser | null }) {
   const pathname = usePathname()
   const role = user?.role ?? 'learner'
 
-  const lessonHref =
+  const lessonsHref =
     role === 'teacher'
       ? '/teacher/lessons'
-      : role === 'learner' || role === 'external'
-        ? '/learner/lessons'
-        : '/learner/lessons'
+      : '/learner/lessons'
+
+  const homeworkHref =
+    role === 'teacher'
+      ? '/teacher/homework'
+      : '/learner/homework'
 
   const quizzesHref =
     role === 'teacher'
@@ -45,8 +48,8 @@ export function Sidebar({ user }: { user?: SessionUser | null }) {
       icon: LayoutDashboard,
       roles: ['*'],
     },
-    { label: 'Lessons', href: lessonHref, icon: BookOpen, roles: ['*'] },
-    { label: 'Homework', href: '/homework', icon: ClipboardList, roles: ['*'] },
+    { label: 'Lessons', href: lessonsHref, icon: BookOpen, roles: ['*'] },
+    { label: 'Homework', href: homeworkHref, icon: ClipboardList, roles: ['*'] },
     { label: 'Quizzes', href: quizzesHref, icon: HelpCircle, roles: ['*'] },
     {
       label: 'Subscription',

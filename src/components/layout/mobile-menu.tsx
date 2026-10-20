@@ -28,18 +28,15 @@ export function MobileMenu({
   const pathname = usePathname()
   const router = useRouter()
 
-  const lessonHref =
-    user.role === 'teacher'
-      ? '/teacher/lessons'
-      : user.role === 'learner' || user.role === 'external'
-        ? '/learner/lessons'
-        : '/learner/lessons'
+  const lessonsHref = user.role === 'teacher' ? '/teacher/lessons' : '/learner/lessons'
+  const homeworkHref = user.role === 'teacher' ? '/teacher/homework' : '/learner/homework'
+  const quizzesHref = user.role === 'teacher' ? '/teacher/quizzes' : '/learner/quizzes'
 
   const NAV = [
     { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { label: 'Lessons', href: lessonHref, icon: BookOpen },
-    { label: 'Homework', href: '/homework', icon: ClipboardList },
-    { label: 'Quizzes', href: '/quizzes', icon: HelpCircle },
+    { label: 'Lessons', href: lessonsHref, icon: BookOpen },
+    { label: 'Homework', href: homeworkHref, icon: ClipboardList },
+    { label: 'Quizzes', href: quizzesHref, icon: HelpCircle },
     { label: 'Subscription', href: '/subscription', icon: CreditCard },
     { label: 'Profile', href: '/profile', icon: User },
   ]

@@ -1,16 +1,16 @@
-export type HomeworkStatus = 'pending' | 'submitted' | 'late' | 'graded'
-
 export interface Homework {
   id: number
-  teacher_id: number
-  class_id: number
-  subject_id: number
   title: string
-  description?: string
+  description?: string | null
+  class_id: number
+  class_name?: string | null
+  subject_id: number
+  subject_name?: string | null
+  teacher_id: number
   due_date: string
   is_active: boolean
+  submissions_count?: number
   created_at: string
-  updated_at?: string
 }
 
 export interface HomeworkAttachment {
@@ -18,48 +18,29 @@ export interface HomeworkAttachment {
   homework_id: number
   file_name: string
   file_path: string
-  file_type?: string
-  file_size?: number
-  uploaded_at: string
+  file_size: number
+  created_at: string
 }
 
 export interface HomeworkSubmission {
   id: number
   homework_id: number
   student_id: number
-  text_answer?: string
-  grade?: number
-  feedback?: string
-  status: HomeworkStatus
-  submitted_at?: string
-  graded_at?: string
-  created_at: string
-  updated_at?: string
+  student_first_name?: string
+  student_last_name?: string
+  student_email?: string
+  text_answer?: string | null
+  grade?: number | null
+  feedback?: string | null
+  status: 'pending' | 'submitted' | 'late' | 'graded'
+  submitted_at: string
+  files?: HomeworkSubmissionFile[]
 }
 
-export interface SubmissionFile {
+export interface HomeworkSubmissionFile {
   id: number
   submission_id: number
   file_name: string
   file_path: string
-  file_type?: string
-  file_size?: number
-  uploaded_at: string
-}
-
-export interface CreateHomeworkPayload {
-  class_id: number
-  subject_id: number
-  title: string
-  description?: string
-  due_date: string
-}
-
-export interface UpdateHomeworkPayload {
-  class_id?: number
-  subject_id?: number
-  title?: string
-  description?: string
-  due_date?: string
-  is_active?: boolean
+  file_size: number
 }
