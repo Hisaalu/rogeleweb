@@ -7,6 +7,7 @@ import { ArrowLeft, Save, UploadCloud, X, Paperclip, Trash2 } from 'lucide-react
 import type { Homework, HomeworkAttachment } from '@/types/homework'
 import type { Class, Subject } from '@/types/admin'
 import { createHomeworkClient, updateHomeworkClient, addHomeworkAttachmentClient, deleteHomeworkAttachmentClient } from '@/lib/homework.client'
+import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
 
 export function HomeworkForm({
   classes, subjects, mode, initial, initialAttachments = []
@@ -25,7 +26,15 @@ export function HomeworkForm({
   const [attachments, setAttachments] = useState<HomeworkAttachment[]>(initialAttachments)
   
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [toasts, setToasts] = useState<ToastMessage[]>([])
+
+  const pushToast = (message: string, tone: ToastTone) => {
+    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
+  }
+
+  const closeToast = (id: number) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id))
+  }
 
   const filteredSubjects = useMemo(() => {
     if (!classId) return []
@@ -36,17 +45,16 @@ export function HomeworkForm({
     if (!list) return
     const newFiles = Array.from(list)
     for (const f of newFiles) {
-      if (f.size > 5 * 1024 * 1024) return setError(`${f.name} exceeds 5MB`)
+      if (f.size > 5 * 1024 * 1024) return pushToast(`${f.name} exceeds 5MB`, 'error')
     }
     setFiles(prev => [...prev, ...newFiles])
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!title || !classId || !subjectId || !dueDate) return setError('Please fill all required fields')
+    if (!title || !classId || !subjectId || !dueDate) return pushToast('Please fill all required fields', 'error')
     
     setBusy(true)
-    setError(null)
     const payload = {
       title, 
       description, 
@@ -60,9 +68,11 @@ export function HomeworkForm({
       if (mode === 'create') {
         const created = await createHomeworkClient(payload)
         homeworkId = created.id
+        pushToast('Homework created successfully!', 'success')
       } else if (initial) {
         await updateHomeworkClient(initial.id, payload)
         homeworkId = initial.id
+        pushToast('Homework updated successfully!', 'success')
       } else {
         throw new Error('Invalid mode')
       }
@@ -71,10 +81,12 @@ export function HomeworkForm({
         await addHomeworkAttachmentClient(homeworkId, file)
       }
 
-      router.push('/teacher/homework')
-      router.refresh()
+      setTimeout(() => {
+        router.push('/teacher/homework')
+        router.refresh()
+      }, 1000)
     } catch (err: any) {
-      setError(err.message || 'Failed to save homework')
+      pushToast(err.message || 'Failed to save homework', 'error')
       setBusy(false)
     }
   }
@@ -84,8 +96,9 @@ export function HomeworkForm({
     try {
       await deleteHomeworkAttachmentClient(initial.id, id)
       setAttachments(prev => prev.filter(a => a.id !== id))
+      pushToast('Attachment deleted', 'success')
     } catch {
-      setError('Failed to delete attachment')
+      pushToast('Failed to delete attachment', 'error')
     }
   }
 
@@ -101,8 +114,6 @@ export function HomeworkForm({
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">{mode === 'create' ? 'Assign homework to your students' : `Editing: ${initial?.title}`}</p>
       </div>
-
-      {error && <div className="rounded-xl px-4 py-3 text-sm" style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-fg)' }}>{error}</div>}
 
       <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-border bg-card p-6 sm:p-8">
         <div>
@@ -181,6 +192,8 @@ export function HomeworkForm({
           </button>
         </div>
       </form>
+
+      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }

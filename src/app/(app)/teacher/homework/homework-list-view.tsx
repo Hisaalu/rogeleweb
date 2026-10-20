@@ -10,6 +10,7 @@ import {
 import type { Homework } from '@/types/homework'
 import type { Class } from '@/types/admin'
 import { deleteHomeworkClient } from '@/lib/homework.client'
+import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
 
 export function HomeworkListView({ homeworks: initial, classes }: { homeworks: Homework[], classes: Class[] }) {
   const [homeworks, setHomeworks] = useState(initial)
@@ -20,6 +21,14 @@ export function HomeworkListView({ homeworks: initial, classes }: { homeworks: H
   const [q, setQ] = useState(params.get('q') ?? '')
   const [classId, setClassId] = useState(params.get('class_id') ?? '')
   const status = params.get('status') ?? ''
+
+  const [toasts, setToasts] = useState<ToastMessage[]>([])
+  const pushToast = (message: string, tone: ToastTone) => {
+    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
+  }
+  const closeToast = (id: number) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id))
+  }
 
   useEffect(() => { setHomeworks(initial) }, [initial])
 
@@ -38,11 +47,17 @@ export function HomeworkListView({ homeworks: initial, classes }: { homeworks: H
 
   async function handleDelete(id: number) {
     if (!window.confirm('Are you sure you want to delete this homework?')) return
+    
     try {
       await deleteHomeworkClient(id)
+      
       setHomeworks(prev => prev.filter(h => h.id !== id))
-    } catch {
-      alert('Failed to delete homework')
+      
+      pushToast('Homework deleted successfully', 'success')
+      
+      router.refresh()
+    } catch (err: any) {
+      pushToast(err.message || 'Failed to delete homework', 'error')
     }
   }
 
@@ -103,8 +118,8 @@ export function HomeworkListView({ homeworks: initial, classes }: { homeworks: H
                 </div>
 
                 <div className="mb-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1"><GraduationCap size={13} style={{ color: 'var(--brand-accent)' }} /> {hw.class_name}</span>
-                  <span className="flex items-center gap-1"><Book size={13} style={{ color: 'var(--brand-accent)' }} /> {hw.subject_name}</span>
+                  <span className="flex items-center gap-1"><GraduationCap size={13} style={{ color: 'var(--brand-accent)' }} /> {hw.class_name ?? 'All'}</span>
+                  <span className="flex items-center gap-1"><Book size={13} style={{ color: 'var(--brand-accent)' }} /> {hw.subject_name ?? 'General'}</span>
                   <span className="flex items-center gap-1"><Calendar size={13} style={{ color: 'var(--brand-accent)' }} /> Due: {new Date(hw.due_date).toLocaleDateString()}</span>
                 </div>
 
@@ -130,6 +145,8 @@ export function HomeworkListView({ homeworks: initial, classes }: { homeworks: H
           })}
         </div>
       )}
+
+      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }

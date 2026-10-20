@@ -6,6 +6,7 @@ import { ArrowLeft, Download, Users, CheckCircle2, AlertTriangle, Star, Edit2, S
 import type { Homework, HomeworkSubmission } from '@/types/homework'
 import { gradeSubmissionClient } from '@/lib/homework.client'
 import { materialDownloadUrl, formatFileSize } from '@/lib/materials'
+import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
 
 export function SubmissionsView({ homework, submissions: initial }: { homework: Homework, submissions: HomeworkSubmission[] }) {
   const [submissions, setSubmissions] = useState(initial)
@@ -13,6 +14,14 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
   const [grades, setGrades] = useState<Record<number, string>>({})
   const [feedbacks, setFeedbacks] = useState<Record<number, string>>({})
   const [busyId, setBusyId] = useState<number | null>(null)
+  
+  const [toasts, setToasts] = useState<ToastMessage[]>([])
+  const pushToast = (message: string, tone: ToastTone) => {
+    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
+  }
+  const closeToast = (id: number) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id))
+  }
 
   const total = submissions.length
   const gradedCount = submissions.filter(s => s.status === 'graded').length
@@ -24,18 +33,19 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
   async function handleGrade(id: number) {
     const gradeVal = grades[id]
     const feedbackVal = feedbacks[id] || ''
-    if (!gradeVal) return alert('Please enter a grade')
+    if (!gradeVal) return pushToast('Please enter a grade', 'error')
     
     const num = Number(gradeVal)
-    if (isNaN(num) || num < 0 || num > 100) return alert('Grade must be 0-100')
+    if (isNaN(num) || num < 0 || num > 100) return pushToast('Grade must be 0-100', 'error')
 
     setBusyId(id)
     try {
       await gradeSubmissionClient(id, num, feedbackVal)
       setSubmissions(prev => prev.map(s => s.id === id ? { ...s, grade: num, feedback: feedbackVal, status: 'graded' } : s))
       setEditingId(null)
+      pushToast('Grade saved successfully!', 'success')
     } catch {
-      alert('Failed to save grade')
+      pushToast('Failed to save grade', 'error')
     } finally {
       setBusyId(null)
     }
@@ -73,14 +83,14 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
         <div className="space-y-4">
           {submissions.map(sub => {
             const isEditing = editingId === sub.id
-            const passed = (sub.grade ?? 0) >= 50 // Assuming 50 is pass mark
+            const passed = (sub.grade ?? 0) >= 50
 
             return (
               <div key={sub.id} className="rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:border-brand-accent">
                 <div className="mb-4 flex flex-wrap items-start justify-between gap-4 border-b border-border pb-4">
                   <div>
-                    <h3 className="font-bold text-foreground">{sub.student_first_name} {sub.student_last_name}</h3>
-                    <p className="text-sm text-muted-foreground">{sub.student_email}</p>
+                    <h3 className="font-bold text-foreground">{sub.student_first_name || 'Student'} {sub.student_last_name || ''}</h3>
+                    <p className="text-sm text-muted-foreground">{sub.student_email || 'No email'}</p>
                   </div>
                   <div>
                     <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
@@ -96,7 +106,7 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <p className="mb-1 text-xs font-semibold uppercase text-muted-foreground">Submitted At</p>
-                    <p className="text-sm font-medium text-foreground">{new Date(sub.submitted_at).toLocaleString()}</p>
+                    <p className="text-sm font-medium text-foreground">{sub.submitted_at ? new Date(sub.submitted_at).toLocaleString() : 'N/A'}</p>
                   </div>
                 </div>
 
@@ -154,6 +164,8 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
           })}
         </div>
       )}
+      
+      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }

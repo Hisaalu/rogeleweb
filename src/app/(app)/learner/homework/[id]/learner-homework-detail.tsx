@@ -66,27 +66,29 @@ export function LearnerHomeworkDetail({
       await submitHomeworkClient(homework.id, textAnswer, files)
       pushToast('Homework submitted successfully!', 'success')
       setFiles([])
-      setTimeout(() => router.refresh(), 1000)
+      setBusy(false)
+      router.refresh()
     } catch (err: any) {
       pushToast(err.message || 'Failed to submit homework', 'error')
       setBusy(false)
     }
   }
 
-  async function handleDelete() {
-    if (!initialSubmission) return
-    setBusy(true)
-    try {
-      await deleteSubmissionClient(homework.id, initialSubmission.id)
-      pushToast('Submission deleted successfully', 'success')
-      setShowDeleteModal(false)
-      setTimeout(() => router.refresh(), 1000)
-    } catch {
-      pushToast('Failed to delete submission', 'error')
-      setShowDeleteModal(false)
-      setBusy(false)
-    }
+async function handleDelete() {
+  if (!initialSubmission) return
+  setBusy(true)
+  try {
+    await deleteSubmissionClient(initialSubmission.id)
+    pushToast('Submission deleted successfully', 'success')
+    setShowDeleteModal(false)
+    setBusy(false)
+    router.refresh()
+  } catch (err: any) {
+    pushToast(err.message || 'Failed to delete submission', 'error')
+    setShowDeleteModal(false)
+    setBusy(false)
   }
+}
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">

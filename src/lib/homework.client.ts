@@ -11,12 +11,27 @@ async function proxyJson<T>(path: string, init: RequestInit = {}): Promise<T> {
       ...(init.headers ?? {}),
     },
   })
+  
   if (res.status === 204) return undefined as T
+  
   const text = await res.text()
-  const data = text ? JSON.parse(text) : null
+  if (!text) {
+    if (!res.ok) throw new Error(`Request failed with ${res.status}`)
+    return undefined as T
+  }
+
+  let data: any = null
+  try {
+    data = JSON.parse(text)
+  } catch {
+    if (!res.ok) throw new Error(text.slice(0, 100))
+    return undefined as T
+  }
+
   if (!res.ok) {
     throw new Error(data?.error?.message ?? `Request failed with ${res.status}`)
   }
+  
   return data as T
 }
 
@@ -128,6 +143,13 @@ export async function submitHomeworkClient(homeworkId: number, textAnswer: strin
   }
 }
 
-export async function deleteSubmissionClient(homeworkId: number, submissionId: number): Promise<void> {
-  await proxyJson(`/homework/submissions/${submissionId}`, { method: 'DELETE' })
+export async function deleteSubmissionClient(submissionId: number): Promise<void> {
+  try {
+    await proxyJson(`/homework/submissions/${submissionId}`, { method: 'DELETE' })
+  } catch (err: any) {
+    if (err.message && err.message.toLowerCase().includes('not found')) {
+      return
+    }
+    throw err
+  }
 }
