@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
 import { getSessionUser } from '@/lib/auth'
+import { getLearnerDashboardDataServer } from '@/lib/dashboard.server'
+import { getTeacherDashboardDataServer } from '@/lib/teacher-dashboard.server'
 import { serverApiRequest } from '@/lib/server-api'
-import { getDashboardDataServer } from '@/lib/dashboard.server'
 import type { User } from '@/types/api'
-import { DashboardView } from './dashboard-view'
+import { LearnerDashboardView } from './learner-dashboard-view'
+import { TeacherDashboardView } from './teacher-dashboard-view'
 
 export const metadata: Metadata = {
   title: 'Dashboard',
@@ -20,13 +22,16 @@ export default async function DashboardPage() {
     profile = null
   }
 
-  const isLearnerSide = session.role === 'learner' || session.role === 'external'
-  const dashboard = isLearnerSide
-    ? await getDashboardDataServer()
-    : { trial: null, subscription: null, events: [] }
+  // Teacher Dashboard
+  if (session.role === 'teacher') {
+    const dashboard = await getTeacherDashboardDataServer(session.id)
+    return <TeacherDashboardView profile={profile} data={dashboard} />
+  }
 
+  // Learner Dashboard
+  const dashboard = await getLearnerDashboardDataServer()
   return (
-    <DashboardView
+    <LearnerDashboardView
       profile={profile}
       trial={dashboard.trial}
       subscription={dashboard.subscription}

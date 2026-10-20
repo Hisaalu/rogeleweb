@@ -61,7 +61,7 @@ export async function getCalendarEventsServer(): Promise<CalendarEvent[]> {
   return []
 }
 
-export async function getDashboardDataServer(): Promise<DashboardData> {
+export async function getLearnerDashboardDataServer(): Promise<DashboardData> {
   const [trial, subscription, events] = await Promise.all([
     getTrialStatusServer(),
     getActiveSubscriptionServer(),
