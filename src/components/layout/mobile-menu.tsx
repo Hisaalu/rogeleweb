@@ -16,15 +16,6 @@ import {
 import { getInitials, cn } from '@/lib/utils'
 import type { SessionUser } from '@/lib/auth'
 
-const NAV = [
-  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Lessons', href: '/lessons', icon: BookOpen },
-  { label: 'Homework', href: '/homework', icon: ClipboardList },
-  { label: 'Quizzes', href: '/quizzes', icon: HelpCircle },
-  { label: 'Subscription', href: '/subscription', icon: CreditCard },
-  { label: 'Profile', href: '/profile', icon: User },
-]
-
 export function MobileMenu({
   user,
   open,
@@ -36,6 +27,22 @@ export function MobileMenu({
 }) {
   const pathname = usePathname()
   const router = useRouter()
+
+  const lessonHref =
+    user.role === 'teacher'
+      ? '/teacher/lessons'
+      : user.role === 'learner' || user.role === 'external'
+        ? '/learner/lessons'
+        : '/learner/lessons'
+
+  const NAV = [
+    { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { label: 'Lessons', href: lessonHref, icon: BookOpen },
+    { label: 'Homework', href: '/homework', icon: ClipboardList },
+    { label: 'Quizzes', href: '/quizzes', icon: HelpCircle },
+    { label: 'Subscription', href: '/subscription', icon: CreditCard },
+    { label: 'Profile', href: '/profile', icon: User },
+  ]
 
   useEffect(() => {
     if (open) document.body.style.overflow = 'hidden'
@@ -113,12 +120,12 @@ export function MobileMenu({
                     onClick={onClose}
                     className={cn(
                       'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition',
-                      active
-                        ? 'text-white'
-                        : 'text-foreground hover:bg-muted',
+                      active ? 'text-white' : 'text-foreground hover:bg-muted',
                     )}
                     style={
-                      active ? { backgroundColor: 'var(--brand-primary)' } : undefined
+                      active
+                        ? { backgroundColor: 'var(--brand-primary)' }
+                        : undefined
                     }
                   >
                     <Icon

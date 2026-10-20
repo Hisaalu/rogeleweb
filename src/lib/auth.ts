@@ -1,8 +1,11 @@
 import { cookies } from 'next/headers'
+import {
+  ACCESS_TOKEN_COOKIE,
+  REFRESH_TOKEN_COOKIE,
+  USER_COOKIE,
+} from './cookies'
 
-export const ACCESS_TOKEN_COOKIE = 'rogele_access_token'
-export const REFRESH_TOKEN_COOKIE = 'rogele_refresh_token'
-export const USER_COOKIE = 'rogele_user'
+export { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE, USER_COOKIE }
 
 export interface SessionUser {
   id: number
@@ -10,6 +13,7 @@ export interface SessionUser {
   first_name?: string
   last_name?: string
   role: string
+  class_id?: number | null
 }
 
 export async function getAccessToken(): Promise<string | null> {

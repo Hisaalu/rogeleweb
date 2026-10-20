@@ -2,23 +2,23 @@ export type UserRole = 'admin' | 'teacher' | 'learner' | 'external'
 
 export interface User {
   id: number
-  registration_number?: string
   email: string
   first_name?: string
   last_name?: string
+  role: string
+  class_id?: number | null
   phone?: string
   bio?: string
   qualification?: string
   specialization?: string
-  role: UserRole
-  class_id?: number
   profile_photo?: string
   is_active: boolean
   is_suspended: boolean
   email_verified: boolean
+  trial_start_date?: string
   last_login?: string
-  created_at: string
-  updated_at: string
+  created_at?: string
+  updated_at?: string
 }
 
 export interface AuthResponse {

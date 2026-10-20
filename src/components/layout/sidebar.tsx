@@ -22,29 +22,42 @@ interface NavItem {
   roles: string[]
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['*'] },
-  { label: 'Lessons', href: '/lessons', icon: BookOpen, roles: ['*'] },
-  { label: 'Homework', href: '/homework', icon: ClipboardList, roles: ['*'] },
-  { label: 'Quizzes', href: '/quizzes', icon: HelpCircle, roles: ['*'] },
-  {
-    label: 'Subscription',
-    href: '/subscription',
-    icon: CreditCard,
-    roles: ['learner', 'external', 'admin'],
-  },
-  {
-    label: 'Email campaigns',
-    href: '/admin/email-campaigns',
-    icon: Mail,
-    roles: ['admin'],
-  },
-  { label: 'Profile', href: '/profile', icon: User, roles: ['*'] },
-]
-
 export function Sidebar({ user }: { user?: SessionUser | null }) {
   const pathname = usePathname()
   const role = user?.role ?? 'learner'
+
+  const lessonHref =
+    role === 'teacher'
+      ? '/teacher/lessons'
+      : role === 'learner' || role === 'external'
+        ? '/learner/lessons'
+        : '/learner/lessons'
+
+  const NAV_ITEMS: NavItem[] = [
+    {
+      label: 'Dashboard',
+      href: '/dashboard',
+      icon: LayoutDashboard,
+      roles: ['*'],
+    },
+    { label: 'Lessons', href: lessonHref, icon: BookOpen, roles: ['*'] },
+    { label: 'Homework', href: '/homework', icon: ClipboardList, roles: ['*'] },
+    { label: 'Quizzes', href: '/quizzes', icon: HelpCircle, roles: ['*'] },
+    {
+      label: 'Subscription',
+      href: '/subscription',
+      icon: CreditCard,
+      roles: ['learner', 'external', 'admin'],
+    },
+    {
+      label: 'Email campaigns',
+      href: '/admin/email-campaigns',
+      icon: Mail,
+      roles: ['admin'],
+    },
+    { label: 'Profile', href: '/profile', icon: User, roles: ['*'] },
+  ]
+
   const items = NAV_ITEMS.filter(
     (item) => item.roles.includes('*') || item.roles.includes(role),
   )
@@ -69,9 +82,13 @@ export function Sidebar({ user }: { user?: SessionUser | null }) {
                   href={item.href}
                   className={cn(
                     'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition',
-                    active ? 'text-white' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                    active
+                      ? 'text-white'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                   )}
-                  style={active ? { backgroundColor: 'var(--brand-primary)' } : undefined}
+                  style={
+                    active ? { backgroundColor: 'var(--brand-primary)' } : undefined
+                  }
                 >
                   <Icon size={18} style={{ color: 'var(--brand-accent)' }} />
                   <span>{item.label}</span>

@@ -58,6 +58,7 @@ export async function POST(req: Request) {
       first_name: auth.user.first_name,
       last_name: auth.user.last_name,
       role: auth.user.role,
+      class_id: auth.user.class_id ?? null,
     }),
     sessionCookieOptions(60 * 60 * 24 * 7),
   )

@@ -1,17 +1,31 @@
 export interface Lesson {
   id: number
   title: string
-  content?: string
-  subject_id?: number
-  class_id?: number
-  teacher_id?: number
-  video_url?: string
-  duration?: number
+  content?: string | null
+  subject_id?: number | null
+  subject_name?: string | null
+  class_id?: number | null
+  class_name?: string | null
+  teacher_id?: number | null
+  teacher_name?: string | null
+  video_url?: string | null
+  duration?: number | null
   is_published: boolean
   is_approved: boolean
   views: number
+  materials_count: number
+  is_bookmarked: boolean
   created_at: string
-  updated_at?: string
+  updated_at?: string | null
+}
+
+export type LessonListItem = Lesson
+
+export interface LessonListMeta {
+  page: number
+  per_page: number
+  total: number
+  last_page: number
 }
 
 export interface LessonMaterial {
@@ -35,32 +49,4 @@ export interface CreateLessonPayload {
   is_published?: boolean
 }
 
-export interface UpdateLessonPayload {
-  title?: string
-  content?: string
-  subject_id?: number
-  class_id?: number
-  video_url?: string
-  duration?: number
-  is_published?: boolean
-}
-
-export interface Class {
-  id: number
-  name: string
-  level: string
-  description?: string
-  is_active: boolean
-  created_at: string
-}
-
-export interface Subject {
-  id: number
-  name: string
-  code?: string
-  description?: string
-  class_id?: number
-  teacher_id?: number
-  is_active: boolean
-  created_at: string
-}
+export type UpdateLessonPayload = Partial<CreateLessonPayload>

@@ -37,3 +37,20 @@ export function formatDateTime(date: string | Date | null | undefined): string {
     minute: '2-digit',
   })
 }
+
+export function getYoutubeId(url: string | null | undefined): string {
+  if (!url) return ''
+  const m = url.match(
+    /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/,
+  )
+  return m?.[1] ?? ''
+}
+
+export function truncate(text: string, max: number): string {
+  if (text.length <= max) return text
+  return text.slice(0, max).trimEnd() + '...'
+}
+
+export function formatNumber(n: number): string {
+  return new Intl.NumberFormat('en-US').format(n)
+}
