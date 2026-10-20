@@ -11,11 +11,21 @@ export interface Homework {
   is_active: boolean
   submissions_count?: number
   created_at: string
+  submission?: HomeworkSubmission | null
 }
 
 export interface HomeworkAttachment {
   id: number
   homework_id: number
+  file_name: string
+  file_path: string
+  file_size: number
+  created_at: string
+}
+
+export interface HomeworkSubmissionFile {
+  id: number
+  submission_id: number
   file_name: string
   file_path: string
   file_size: number
@@ -35,12 +45,4 @@ export interface HomeworkSubmission {
   status: 'pending' | 'submitted' | 'late' | 'graded'
   submitted_at: string
   files?: HomeworkSubmissionFile[]
-}
-
-export interface HomeworkSubmissionFile {
-  id: number
-  submission_id: number
-  file_name: string
-  file_path: string
-  file_size: number
 }

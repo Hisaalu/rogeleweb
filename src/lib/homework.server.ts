@@ -27,10 +27,17 @@ export async function listHomeworksServer(params: {
     let items = parseList<Homework>(res)
     
     const now = new Date().getTime()
+    const HOURS_24 = 24 * 60 * 60 * 1000
+
     if (params.status === 'active') {
       items = items.filter(h => new Date(h.due_date).getTime() >= now)
     } else if (params.status === 'expired') {
       items = items.filter(h => new Date(h.due_date).getTime() < now)
+    } else {
+      items = items.filter(h => {
+        const dueDate = new Date(h.due_date).getTime()
+        return now - dueDate <= HOURS_24
+      })
     }
     
     return items
@@ -39,9 +46,40 @@ export async function listHomeworksServer(params: {
   }
 }
 
+export async function listLearnerHomeworksServer(params: {
+  class_id: number
+  status?: string
+}): Promise<Homework[]> {
+  try {
+    const res = await serverApiRequest<unknown>(`/api/v1/homework?class_id=${params.class_id}&per_page=50`)
+    const items = parseList<Homework>(res)
+    
+    const submissionsRes = await serverApiRequest<unknown>('/api/v1/homework/my-submissions')
+    const submissions = parseList<HomeworkSubmission>(submissionsRes)
+
+    const merged = items.map(hw => {
+      const sub = submissions.find(s => s.homework_id === hw.id)
+      return { ...hw, submission: sub || null }
+    })
+
+    if (params.status === 'pending') {
+      return merged.filter(h => !h.submission || (h.submission.status !== 'graded' && h.submission.status !== 'submitted'))
+    }
+    if (params.status === 'graded') {
+      return merged.filter(h => h.submission?.status === 'graded')
+    }
+
+    return merged
+  } catch {
+    return []
+  }
+}
+
 export async function getHomeworkServer(id: number): Promise<Homework | null> {
   try {
-    return await serverApiRequest<Homework>(`/api/v1/homework/${id}`)
+    const res = await serverApiRequest<any>(`/api/v1/homework/${id}`)
+    if (!res) return null
+    return res as Homework
   } catch {
     return null
   }

@@ -82,3 +82,52 @@ export async function gradeSubmissionClient(submissionId: number, grade: number,
     body: JSON.stringify({ grade, feedback }),
   })
 }
+
+export async function submitHomeworkClient(homeworkId: number, textAnswer: string, files: File[]): Promise<void> {
+  const submission = await proxyJson<{ id: number }>(`/homework/${homeworkId}/submit`, {
+    method: 'POST',
+    body: JSON.stringify({ text_answer: textAnswer }),
+  })
+
+  for (const file of files) {
+    const presign = await proxyJson<{ upload_url: string; public_url: string }>('/uploads/presign', {
+      method: 'POST',
+      body: JSON.stringify({
+        file_name: file.name,
+        content_type: file.type || 'application/octet-stream',
+        size: file.size,
+      }),
+    })
+
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 15000)
+
+    try {
+      const uploadRes = await fetch(presign.upload_url, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type || 'application/octet-stream' },
+        body: file,
+        signal: controller.signal,
+      })
+      if (!uploadRes.ok) throw new Error('File upload to storage failed')
+    } catch (err: any) {
+      if (err.name === 'AbortError') throw new Error('File upload timed out. Please check your connection.')
+      throw new Error('Network error uploading file.')
+    } finally {
+      clearTimeout(timeoutId)
+    }
+
+    await proxyJson(`/homework/submissions/${submission.id}/files`, {
+      method: 'POST',
+      body: JSON.stringify({
+        file_name: file.name,
+        file_path: presign.public_url,
+        file_size: file.size,
+      }),
+    })
+  }
+}
+
+export async function deleteSubmissionClient(homeworkId: number, submissionId: number): Promise<void> {
+  await proxyJson(`/homework/submissions/${submissionId}`, { method: 'DELETE' })
+}

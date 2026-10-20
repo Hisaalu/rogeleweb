@@ -26,43 +26,18 @@ export function Sidebar({ user }: { user?: SessionUser | null }) {
   const pathname = usePathname()
   const role = user?.role ?? 'learner'
 
-  const lessonsHref =
-    role === 'teacher'
-      ? '/teacher/lessons'
-      : '/learner/lessons'
-
-  const homeworkHref =
-    role === 'teacher'
-      ? '/teacher/homework'
-      : '/learner/homework'
-
-  const quizzesHref =
-    role === 'teacher'
-      ? '/teacher/quizzes'
-      : '/learner/quizzes'
+  const dashboardHref = role === 'teacher' ? '/teacher/dashboard' : '/learner/dashboard'
+  const lessonsHref = role === 'teacher' ? '/teacher/lessons' : '/learner/lessons'
+  const homeworkHref = role === 'teacher' ? '/teacher/homework' : '/learner/homework'
+  const quizzesHref = role === 'teacher' ? '/teacher/quizzes' : '/learner/quizzes'
 
   const NAV_ITEMS: NavItem[] = [
-    {
-      label: 'Dashboard',
-      href: '/dashboard',
-      icon: LayoutDashboard,
-      roles: ['*'],
-    },
+    { label: 'Dashboard', href: dashboardHref, icon: LayoutDashboard, roles: ['*'] },
     { label: 'Lessons', href: lessonsHref, icon: BookOpen, roles: ['*'] },
     { label: 'Homework', href: homeworkHref, icon: ClipboardList, roles: ['*'] },
     { label: 'Quizzes', href: quizzesHref, icon: HelpCircle, roles: ['*'] },
-    {
-      label: 'Subscription',
-      href: '/subscription',
-      icon: CreditCard,
-      roles: ['learner', 'external', 'admin'],
-    },
-    {
-      label: 'Email campaigns',
-      href: '/admin/email-campaigns',
-      icon: Mail,
-      roles: ['admin'],
-    },
+    { label: 'Subscription', href: '/subscription', icon: CreditCard, roles: ['learner', 'external', 'admin'] },
+    { label: 'Email campaigns', href: '/admin/email-campaigns', icon: Mail, roles: ['admin'] },
     { label: 'Profile', href: '/profile', icon: User, roles: ['*'] },
   ]
 
@@ -79,10 +54,9 @@ export function Sidebar({ user }: { user?: SessionUser | null }) {
       <nav className="flex-1 overflow-y-auto px-2 py-4">
         <ul className="space-y-1">
           {items.map((item) => {
-            const active =
-              item.href === '/dashboard'
-                ? pathname === '/dashboard'
-                : pathname === item.href || pathname.startsWith(item.href + '/')
+            const active = item.href === dashboardHref
+              ? pathname === dashboardHref
+              : pathname === item.href || pathname.startsWith(item.href + '/')
             const Icon = item.icon
             return (
               <li key={item.href}>
@@ -94,9 +68,7 @@ export function Sidebar({ user }: { user?: SessionUser | null }) {
                       ? 'text-white'
                       : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                   )}
-                  style={
-                    active ? { backgroundColor: 'var(--brand-primary)' } : undefined
-                  }
+                  style={active ? { backgroundColor: 'var(--brand-primary)' } : undefined}
                 >
                   <Icon size={18} style={{ color: 'var(--brand-accent)' }} />
                   <span>{item.label}</span>
