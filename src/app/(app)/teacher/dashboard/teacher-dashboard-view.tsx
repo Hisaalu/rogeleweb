@@ -12,7 +12,6 @@ import {
   Calendar,
   Eye,
   Clock,
-  CheckCircle2,
   FileText,
 } from 'lucide-react'
 import { useBranding } from '@/components/brand/brand-provider'
@@ -80,7 +79,7 @@ export function TeacherDashboardView({
         <StatCard
           icon={Activity}
           label="Avg. Score"
-          value="0%"
+          value={`${data.averageScore}%`}
         />
       </div>
 

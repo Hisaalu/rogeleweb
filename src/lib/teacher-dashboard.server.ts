@@ -2,11 +2,13 @@ import 'server-only'
 import { serverApiRequest } from './server-api'
 import type { Lesson } from '@/types/lesson'
 import type { Quiz } from '@/types/quiz'
+import type { AdminOverview } from '@/types/admin'
 
 export interface TeacherDashboardData {
   totalLessons: number
   totalQuizzes: number
   totalStudents: number
+  averageScore: number
   recentLessons: Lesson[]
   recentQuizzes: Quiz[]
 }
@@ -22,24 +24,30 @@ function parseList<T>(res: unknown): T[] {
 export async function getTeacherDashboardDataServer(
   teacherId: number,
 ): Promise<TeacherDashboardData> {
-  const [lessonsRes, quizzesRes, studentsRes] = await Promise.all([
-    // Get the 5 most recent lessons
+  const [lessonsRes, quizzesRes, statsRes, globalQuizStatsRes] = await Promise.all([
     serverApiRequest<unknown>('/api/v1/lessons?limit=5&per_page=5').catch(() => []),
-    // Get the 5 most recent quizzes
     serverApiRequest<unknown>('/api/v1/quizzes?limit=5&per_page=5').catch(() => []),
-    // Get total students (learners)
-    serverApiRequest<unknown>('/api/v1/users?role=learner&per_page=1').catch(() => []),
+    serverApiRequest<AdminOverview>('/api/v1/admin/stats').catch(() => null),
+    serverApiRequest<{ average_score: number }>('/api/v1/quizzes/global-stats').catch(() => ({ average_score: 0 })),
   ])
 
   const lessons = parseList<Lesson>(lessonsRes)
   const quizzes = parseList<Quiz>(quizzesRes)
-  const studentsMeta = (studentsRes as { meta?: { total?: number } })?.meta
-  const totalStudents = studentsMeta?.total ?? parseList(studentsRes).length
+  
+  let totalStudents = 0
+  if (statsRes) {
+    const learners = statsRes.users_by_role?.learner ?? 0
+    const externals = statsRes.users_by_role?.external ?? 0
+    totalStudents = learners + externals
+  }
+
+  const averageScore = globalQuizStatsRes?.average_score ?? 0
 
   return {
     totalLessons: lessons.length,
     totalQuizzes: quizzes.length,
     totalStudents,
+    averageScore,
     recentLessons: lessons.slice(0, 4),
     recentQuizzes: quizzes.slice(0, 4),
   }
