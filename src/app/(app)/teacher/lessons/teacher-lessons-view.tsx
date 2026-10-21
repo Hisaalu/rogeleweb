@@ -6,11 +6,7 @@ import { BookOpen, PlusCircle } from 'lucide-react'
 import type { Class, Subject } from '@/types/admin'
 import type { Lesson, LessonListMeta } from '@/types/lesson'
 import { deleteLesson, publishLesson } from '@/lib/lessons.mutations'
-import {
-  ToastViewport,
-  type ToastMessage,
-  type ToastTone,
-} from '@/components/ui/toast'
+import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
 import { TeacherHeader } from './components/teacher-header'
 import { TeacherFilters } from './components/teacher-filters'
 import { TeacherLessonCard } from './components/teacher-lesson-card'
@@ -30,36 +26,29 @@ export function TeacherLessonsView({
   const [lessons, setLessons] = useState(initial)
   const [toasts, setToasts] = useState<ToastMessage[]>([])
 
-  useEffect(() => {
-    setLessons(initial)
-  }, [initial])
-
   const pushToast = useCallback((message: string, tone: ToastTone) => {
-    setToasts((prev) => [
-      ...prev,
-      { id: Date.now() + Math.random(), message, tone },
-    ])
+    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
   }, [])
 
   const closeToast = useCallback((id: number) => {
     setToasts((prev) => prev.filter((t) => t.id !== id))
   }, [])
 
+  useEffect(() => {
+    setLessons(initial)
+  }, [initial])
+
   const handleDelete = useCallback(
     async (id: number) => {
-      if (
-        !window.confirm(
-          'Are you sure you want to delete this lesson? This action cannot be undone.',
-        )
-      ) {
+      if (!window.confirm('Are you sure you want to delete this lesson? This action cannot be undone.')) {
         return
       }
       try {
         await deleteLesson(id)
         setLessons((list) => list.filter((l) => l.id !== id))
-        pushToast('Lesson deleted', 'success')
-      } catch {
-        pushToast('Could not delete lesson', 'error')
+        pushToast('Lesson deleted successfully', 'success')
+      } catch (err: any) {
+        pushToast(err.message || 'Could not delete lesson', 'error')
       }
     },
     [pushToast],
@@ -75,11 +64,11 @@ export function TeacherLessonsView({
           ),
         )
         pushToast(
-          published ? 'Lesson published' : 'Lesson moved to drafts',
+          published ? 'Lesson published successfully' : 'Lesson moved to drafts',
           'success',
         )
-      } catch {
-        pushToast('Could not update lesson', 'error')
+      } catch (err: any) {
+        pushToast(err.message || 'Could not update lesson status', 'error')
       }
     },
     [pushToast],
@@ -96,17 +85,14 @@ export function TeacherLessonsView({
           <div
             className="mx-auto mb-5 flex h-24 w-24 items-center justify-center rounded-full"
             style={{
-              backgroundColor:
-                'color-mix(in srgb, var(--brand-accent) 12%, transparent)',
+              backgroundColor: 'color-mix(in srgb, var(--brand-accent) 12%, transparent)',
             }}
           >
             <BookOpen size={40} style={{ color: 'var(--brand-accent)' }} />
           </div>
-          <h3 className="mb-2 text-xl font-semibold text-foreground">
-            No Lessons Yet
-          </h3>
+          <h3 className="mb-2 text-xl font-semibold text-foreground">No Lessons Yet</h3>
           <p className="mx-auto mb-6 max-w-md text-sm text-muted-foreground">
-            You haven&apos;t created any lessons matching this search.
+            You haven&apos;t created any lessons. Start by creating your first lesson!
           </p>
           <Link
             href="/teacher/lessons/create"
@@ -114,7 +100,7 @@ export function TeacherLessonsView({
             style={{ backgroundColor: 'var(--brand-primary)' }}
           >
             <PlusCircle size={15} />
-            Create a New Lesson
+            Create Your First Lesson
           </Link>
         </div>
       ) : (
