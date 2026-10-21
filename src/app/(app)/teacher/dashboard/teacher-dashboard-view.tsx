@@ -14,10 +14,19 @@ import {
   Clock,
   FileText,
 } from 'lucide-react'
-import { useBranding } from '@/components/brand/brand-provider'
 import type { User } from '@/types/api'
 import type { TeacherDashboardData } from '@/lib/teacher-dashboard.server'
 import { formatDate } from '@/lib/utils'
+
+const iconAccent = { color: 'var(--brand-accent)' } as const
+const iconSoftBg = {
+  backgroundColor: 'color-mix(in srgb, var(--brand-accent) 10%, transparent)',
+} as const
+const pillPublished = { backgroundColor: '#F0FDF4', color: '#166534' } as const
+const pillDraft = {
+  backgroundColor: 'hsl(var(--muted))',
+  color: 'hsl(var(--muted-foreground))',
+} as const
 
 export function TeacherDashboardView({
   profile,
@@ -35,14 +44,13 @@ export function TeacherDashboardView({
   })
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 pb-10">
-      {/* Welcome Banner */}
+    <div className="mx-auto max-w-7xl space-y-6 pb-10 sm:space-y-8">
       <div
-        className="flex flex-wrap items-center justify-between gap-6 rounded-2xl p-8 text-white shadow-lg"
+        className="flex flex-col gap-4 rounded-2xl p-5 text-white shadow-lg sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-6 sm:p-8"
         style={{ backgroundColor: 'var(--brand-primary)' }}
       >
-        <div>
-          <h1 className="text-2xl font-bold sm:text-3xl">
+        <div className="min-w-0">
+          <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
             Welcome back, Tr.{' '}
             <span className="inline-block rounded-full bg-white/20 px-3 py-1">
               {firstName}
@@ -53,42 +61,25 @@ export function TeacherDashboardView({
             Here&apos;s what&apos;s happening with your classes today
           </p>
         </div>
-        <div className="flex items-center gap-2 rounded-full bg-white/20 px-5 py-3 text-sm font-medium backdrop-blur-sm">
-          <Calendar size={18} />
-          <span>{today}</span>
+        <div className="flex shrink-0 items-center gap-2 self-start rounded-full bg-white/20 px-4 py-2.5 text-sm font-medium backdrop-blur-sm sm:self-auto sm:px-5 sm:py-3">
+          <Calendar size={16} className="shrink-0 sm:hidden" />
+          <Calendar size={18} className="hidden shrink-0 sm:block" />
+          <span className="whitespace-nowrap">{today}</span>
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          icon={BookOpen}
-          label="Total Lessons"
-          value={data.totalLessons}
-        />
-        <StatCard
-          icon={HelpCircle}
-          label="Total Quizzes"
-          value={data.totalQuizzes}
-        />
-        <StatCard
-          icon={Users}
-          label="Total Students"
-          value={data.totalStudents}
-        />
-        <StatCard
-          icon={Activity}
-          label="Avg. Score"
-          value={`${data.averageScore}%`}
-        />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
+        <StatCard icon={BookOpen} label="Total Lessons" value={data.totalLessons} />
+        <StatCard icon={HelpCircle} label="Total Quizzes" value={data.totalQuizzes} />
+        <StatCard icon={Users} label="Total Students" value={data.totalStudents} />
+        <StatCard icon={Activity} label="Avg. Score" value={`${data.averageScore}%`} />
       </div>
 
-      {/* Quick Actions */}
       <section>
-        <h2 className="mb-4 text-xl font-semibold text-foreground">
+        <h2 className="mb-3 text-lg font-semibold text-foreground sm:mb-4 sm:text-xl">
           Quick Actions
         </h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
           <ActionCard
             href="/teacher/lessons/create"
             icon={PlusCircle}
@@ -116,23 +107,21 @@ export function TeacherDashboardView({
         </div>
       </section>
 
-      {/* Recent Activity */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Recent Lessons */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 lg:gap-6">
         <div className="overflow-hidden rounded-2xl border border-border bg-card">
-          <div className="flex items-center justify-between border-b border-border px-6 py-4">
-            <h3 className="flex items-center gap-2 text-base font-semibold text-foreground">
-              <BookOpen size={18} style={{ color: 'var(--brand-accent)' }} />
-              Recent Lessons
+          <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3.5 sm:px-6 sm:py-4">
+            <h3 className="flex min-w-0 items-center gap-2 text-sm font-semibold text-foreground sm:text-base">
+              <BookOpen size={18} style={iconAccent} className="shrink-0" />
+              <span className="truncate">Recent Lessons</span>
             </h3>
             <Link
               href="/teacher/lessons"
-              className="flex items-center gap-1 text-sm font-semibold text-muted-foreground transition hover:text-brand-accent"
+              className="flex shrink-0 items-center gap-1 text-xs font-semibold text-muted-foreground transition hover:text-brand-accent sm:text-sm"
             >
               View All <ArrowRight size={14} />
             </Link>
           </div>
-          <div className="p-4">
+          <div className="p-3 sm:p-4">
             {data.recentLessons.length === 0 ? (
               <EmptyState
                 icon={FileText}
@@ -141,26 +130,23 @@ export function TeacherDashboardView({
                 actionLabel="Create Your First Lesson"
               />
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-1.5 sm:space-y-2">
                 {data.recentLessons.map((lesson) => (
                   <div
                     key={lesson.id}
-                    className="flex items-center gap-4 rounded-xl p-3 transition hover:bg-muted"
+                    className="flex items-center gap-3 rounded-xl p-2.5 transition hover:bg-muted sm:gap-4 sm:p-3"
                   >
                     <div
-                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
-                      style={{
-                        backgroundColor:
-                          'color-mix(in srgb, var(--brand-accent) 10%, transparent)',
-                      }}
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl sm:h-11 sm:w-11"
+                      style={iconSoftBg}
                     >
-                      <BookOpen size={18} style={{ color: 'var(--brand-accent)' }} />
+                      <BookOpen size={18} style={iconAccent} />
                     </div>
                     <div className="min-w-0 flex-1">
                       <h4 className="truncate text-sm font-semibold text-foreground">
                         {lesson.title}
                       </h4>
-                      <div className="mt-1 flex items-center gap-4 text-xs text-muted-foreground">
+                      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground sm:gap-4">
                         <span className="flex items-center gap-1">
                           <Clock size={12} />
                           {formatDate(lesson.created_at)}
@@ -172,12 +158,8 @@ export function TeacherDashboardView({
                       </div>
                     </div>
                     <span
-                      className="rounded-full px-2.5 py-1 text-xs font-semibold"
-                      style={
-                        lesson.is_published
-                          ? { backgroundColor: '#F0FDF4', color: '#166534' }
-                          : { backgroundColor: 'hsl(var(--muted))', color: 'hsl(var(--muted-foreground))' }
-                      }
+                      className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold sm:px-2.5 sm:py-1 sm:text-xs"
+                      style={lesson.is_published ? pillPublished : pillDraft}
                     >
                       {lesson.is_published ? 'Published' : 'Draft'}
                     </span>
@@ -188,21 +170,20 @@ export function TeacherDashboardView({
           </div>
         </div>
 
-        {/* Recent Quizzes */}
         <div className="overflow-hidden rounded-2xl border border-border bg-card">
-          <div className="flex items-center justify-between border-b border-border px-6 py-4">
-            <h3 className="flex items-center gap-2 text-base font-semibold text-foreground">
-              <HelpCircle size={18} style={{ color: 'var(--brand-accent)' }} />
-              Recent Quizzes
+          <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3.5 sm:px-6 sm:py-4">
+            <h3 className="flex min-w-0 items-center gap-2 text-sm font-semibold text-foreground sm:text-base">
+              <HelpCircle size={18} style={iconAccent} className="shrink-0" />
+              <span className="truncate">Recent Quizzes</span>
             </h3>
             <Link
               href="/teacher/quizzes"
-              className="flex items-center gap-1 text-sm font-semibold text-muted-foreground transition hover:text-brand-accent"
+              className="flex shrink-0 items-center gap-1 text-xs font-semibold text-muted-foreground transition hover:text-brand-accent sm:text-sm"
             >
               View All <ArrowRight size={14} />
             </Link>
           </div>
-          <div className="p-4">
+          <div className="p-3 sm:p-4">
             {data.recentQuizzes.length === 0 ? (
               <EmptyState
                 icon={HelpCircle}
@@ -211,39 +192,38 @@ export function TeacherDashboardView({
                 actionLabel="Create Your First Quiz"
               />
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-1.5 sm:space-y-2">
                 {data.recentQuizzes.map((quiz) => (
                   <div
                     key={quiz.id}
-                    className="flex items-center gap-4 rounded-xl p-3 transition hover:bg-muted"
+                    className="flex flex-col gap-2 rounded-xl p-2.5 transition hover:bg-muted sm:flex-row sm:items-center sm:gap-4 sm:p-3"
                   >
-                    <div
-                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
-                      style={{
-                        backgroundColor:
-                          'color-mix(in srgb, var(--brand-accent) 10%, transparent)',
-                      }}
-                    >
-                      <HelpCircle size={18} style={{ color: 'var(--brand-accent)' }} />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h4 className="truncate text-sm font-semibold text-foreground">
-                        {quiz.title}
-                      </h4>
-                      <div className="mt-1 flex items-center gap-4 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Clock size={12} />
-                          {formatDate(quiz.created_at)}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Users size={12} />
-                          {quiz.attempt_count ?? 0} attempts
-                        </span>
+                    <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
+                      <div
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl sm:h-11 sm:w-11"
+                        style={iconSoftBg}
+                      >
+                        <HelpCircle size={18} style={iconAccent} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h4 className="truncate text-sm font-semibold text-foreground">
+                          {quiz.title}
+                        </h4>
+                        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground sm:gap-4">
+                          <span className="flex items-center gap-1">
+                            <Clock size={12} />
+                            {formatDate(quiz.created_at)}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Users size={12} />
+                            {quiz.attempt_count ?? 0} attempts
+                          </span>
+                        </div>
                       </div>
                     </div>
                     <Link
                       href={`/teacher/quizzes/${quiz.id}/results`}
-                      className="rounded-full px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90"
+                      className="shrink-0 self-end rounded-full px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90 sm:self-auto"
                       style={{ backgroundColor: 'var(--brand-accent)' }}
                     >
                       View Results
@@ -259,8 +239,6 @@ export function TeacherDashboardView({
   )
 }
 
-/* Helper Components */
-
 function StatCard({
   icon: Icon,
   label,
@@ -271,16 +249,17 @@ function StatCard({
   value: number | string
 }) {
   return (
-    <div className="flex items-center gap-5 rounded-2xl border border-border bg-card p-6 transition hover:-translate-y-1 hover:shadow-lg">
+    <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 transition hover:-translate-y-1 hover:shadow-lg sm:gap-5 sm:p-6">
       <div
-        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl text-white"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white sm:h-14 sm:w-14"
         style={{ backgroundColor: 'var(--brand-accent)' }}
       >
-        <Icon size={24} />
+        <Icon size={20} className="sm:hidden" />
+        <Icon size={24} className="hidden sm:block" />
       </div>
-      <div>
-        <p className="text-sm text-muted-foreground">{label}</p>
-        <p className="text-2xl font-bold text-foreground">{value}</p>
+      <div className="min-w-0">
+        <p className="text-xs text-muted-foreground sm:text-sm">{label}</p>
+        <p className="truncate text-xl font-bold text-foreground sm:text-2xl">{value}</p>
       </div>
     </div>
   )
@@ -300,25 +279,23 @@ function ActionCard({
   return (
     <Link
       href={href}
-      className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-5 transition hover:-translate-y-0.5 hover:border-brand-accent hover:shadow-md"
+      className="group flex items-center gap-3 rounded-2xl border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:border-brand-accent hover:shadow-md sm:gap-4 sm:p-5"
     >
       <div
-        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl"
-        style={{
-          backgroundColor:
-            'color-mix(in srgb, var(--brand-accent) 10%, transparent)',
-        }}
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl sm:h-12 sm:w-12"
+        style={iconSoftBg}
       >
-        <Icon size={20} style={{ color: 'var(--brand-accent)' }} />
+        <Icon size={18} style={iconAccent} className="sm:hidden" />
+        <Icon size={20} style={iconAccent} className="hidden sm:block" />
       </div>
       <div className="min-w-0 flex-1">
         <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-        <p className="text-xs text-muted-foreground truncate">{description}</p>
+        <p className="truncate text-xs text-muted-foreground">{description}</p>
       </div>
       <ArrowRight
         size={16}
-        className="shrink-0 text-muted-foreground opacity-0 transition group-hover:translate-x-1 group-hover:opacity-100"
-        style={{ color: 'var(--brand-accent)' }}
+        className="hidden shrink-0 text-muted-foreground opacity-0 transition group-hover:translate-x-1 group-hover:opacity-100 sm:block"
+        style={iconAccent}
       />
     </Link>
   )
@@ -336,9 +313,13 @@ function EmptyState({
   actionLabel: string
 }) {
   return (
-    <div className="flex flex-col items-center justify-center py-10 text-center">
-      <Icon size={40} style={{ color: 'var(--brand-accent)' }} className="mb-3 opacity-50" />
-      <p className="mb-4 text-sm text-muted-foreground">{title}</p>
+    <div className="flex flex-col items-center justify-center py-8 text-center sm:py-10">
+      <Icon
+        size={40}
+        style={iconAccent}
+        className="mb-3 opacity-50"
+      />
+      <p className="mb-4 px-2 text-sm text-muted-foreground">{title}</p>
       <Link
         href={actionHref}
         className="rounded-full px-5 py-2 text-sm font-semibold text-white transition hover:opacity-90"

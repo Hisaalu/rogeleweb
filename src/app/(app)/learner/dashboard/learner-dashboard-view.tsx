@@ -1,7 +1,6 @@
 'use client'
 
 import { BookOpen, HelpCircle, CreditCard, Calendar } from 'lucide-react'
-import { useBranding } from '@/components/brand/brand-provider'
 import type { User } from '@/types/api'
 import type {
   CalendarEvent,
@@ -12,6 +11,8 @@ import { AccessBanner } from './components/access-banner'
 import { NavCard } from './components/nav-card'
 import { EventCalendar } from './components/event-calendar'
 import { EventFeed } from './components/event-feed'
+
+const accentIcon = { color: 'var(--brand-accent)' } as const
 
 export function LearnerDashboardView({
   profile,
@@ -24,8 +25,6 @@ export function LearnerDashboardView({
   trial: TrialStatus | null
   events: CalendarEvent[]
 }) {
-  const branding = useBranding()
-
   const firstName = profile?.first_name ?? 'there'
   const hasActiveSubscription = subscription?.status === 'active'
   const isInTrial =
@@ -33,14 +32,14 @@ export function LearnerDashboardView({
   const hasAccess = hasActiveSubscription || isInTrial
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold sm:text-3xl">
+    <div className="space-y-5 sm:space-y-6">
+      <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
         Welcome back,{' '}
-        <span style={{ color: branding.colorPrimary }}>{firstName}</span>!
+        <span style={{ color: 'var(--brand-primary)' }}>{firstName}</span>!
       </h1>
 
-      <div className="rounded-2xl border border-border bg-card p-6">
-        <h2 className="mb-5 text-lg font-semibold">Overview</h2>
+      <div className="rounded-2xl border border-border bg-card p-4 sm:p-6">
+        <h2 className="mb-4 text-base font-semibold sm:mb-5 sm:text-lg">Overview</h2>
 
         {hasActiveSubscription && subscription && (
           <AccessBanner
@@ -73,7 +72,7 @@ export function LearnerDashboardView({
           />
         )}
 
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:mt-8 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
           <NavCard
             href={hasAccess ? '/learner/lessons' : '#'}
             icon={<BookOpen size={26} />}
@@ -109,19 +108,19 @@ export function LearnerDashboardView({
           />
         </div>
 
-        <h3 className="mt-10 flex items-center gap-2 border-b-2 border-border pb-3 text-lg font-semibold">
-          <Calendar size={18} style={{ color: 'var(--brand-accent)' }} />
+        <h3 className="mt-8 flex items-center gap-2 border-b-2 border-border pb-3 text-base font-semibold sm:mt-10 sm:text-lg">
+          <Calendar size={18} style={accentIcon} />
           Institutional Calendar &amp; Events
         </h3>
 
-        <div className="mt-5 grid gap-6 rounded-2xl border border-border bg-muted/30 p-5 lg:grid-cols-2">
+        <div className="mt-4 grid gap-4 rounded-2xl border border-border bg-muted/30 p-3 sm:mt-5 sm:gap-6 sm:p-5 lg:grid-cols-2">
           <EventCalendar events={events} />
           <EventFeed events={events} />
         </div>
 
         {!hasAccess && (
           <div
-            className="mt-8 rounded-xl p-5 text-center"
+            className="mt-6 rounded-xl p-4 text-center sm:mt-8 sm:p-5"
             style={{ backgroundColor: 'var(--danger-bg)' }}
           >
             <p className="mb-4 text-sm" style={{ color: 'var(--danger-fg)' }}>
@@ -130,7 +129,7 @@ export function LearnerDashboardView({
             </p>
             <a
               href="/subscription"
-              className="inline-block rounded-full px-8 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+              className="inline-block rounded-full px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 sm:px-8 sm:py-3"
               style={{ backgroundColor: '#23a74c' }}
             >
               View Plans
