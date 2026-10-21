@@ -9,7 +9,9 @@ import {
   HelpCircle,
   CreditCard,
   User,
-  Mail,
+  Users,
+  BarChart3,
+  Settings,
 } from 'lucide-react'
 import { BrandLogo } from '@/components/brand/brand-logo'
 import { cn } from '@/lib/utils'
@@ -19,59 +21,63 @@ interface NavItem {
   label: string
   href: string
   icon: typeof LayoutDashboard
-  roles: string[]
 }
 
-export function Sidebar({ user }: { user?: SessionUser | null }) {
+export function Sidebar({ user }: { user: SessionUser }) {
   const pathname = usePathname()
-  const role = user?.role ?? 'learner'
+  const isTeacher = user.role === 'teacher'
 
-  const dashboardHref = role === 'teacher' ? '/teacher/dashboard' : '/learner/dashboard'
-  const lessonsHref = role === 'teacher' ? '/teacher/lessons' : '/learner/lessons'
-  const homeworkHref = role === 'teacher' ? '/teacher/homework' : '/learner/homework'
-  const quizzesHref = role === 'teacher' ? '/teacher/quizzes' : '/learner/quizzes'
-  const profileHref = role === 'teacher' ? '/teacher/profile' : '/learner/profile'
-
-  const NAV_ITEMS: NavItem[] = [
-    { label: 'Dashboard', href: dashboardHref, icon: LayoutDashboard, roles: ['*'] },
-    { label: 'Lessons', href: lessonsHref, icon: BookOpen, roles: ['*'] },
-    { label: 'Homework', href: homeworkHref, icon: ClipboardList, roles: ['*'] },
-    { label: 'Quizzes', href: quizzesHref, icon: HelpCircle, roles: ['*'] },
-    { label: 'Subscription', href: '/subscription', icon: CreditCard, roles: ['learner', 'external', 'admin'] },
-    { label: 'Email campaigns', href: '/admin/email-campaigns', icon: Mail, roles: ['admin'] },
-    { label: 'Profile', href: profileHref, icon: User, roles: ['*'] },
+  const TEACHER_NAV: NavItem[] = [
+    { label: 'Dashboard', href: '/teacher/dashboard', icon: LayoutDashboard },
+    { label: 'Students', href: '/teacher/students', icon: Users },
+    { label: 'Analytics', href: '/teacher/analytics', icon: BarChart3 },
+    { label: 'Lessons', href: '/teacher/lessons', icon: BookOpen },
+    { label: 'Quizzes', href: '/teacher/quizzes', icon: HelpCircle },
+    { label: 'Homework', href: '/teacher/homework', icon: ClipboardList },
+    { label: 'Profile', href: '/teacher/profile', icon: User },
+    { label: 'Settings', href: '/teacher/settings', icon: Settings },
   ]
 
-  const items = NAV_ITEMS.filter(
-    (item) => item.roles.includes('*') || item.roles.includes(role),
-  )
+  const LEARNER_NAV: NavItem[] = [
+    { label: 'Dashboard', href: '/learner/dashboard', icon: LayoutDashboard },
+    { label: 'Subscription', href: '/subscription', icon: CreditCard },
+    { label: 'Lessons', href: '/learner/lessons', icon: BookOpen },
+    { label: 'Quizzes', href: '/learner/quizzes', icon: HelpCircle },
+    { label: 'Homework', href: '/learner/homework', icon: ClipboardList },
+    { label: 'Bookmarks', href: '/learner/bookmarks', icon: BookOpen },
+    { label: 'Profile', href: '/learner/profile', icon: User },
+    { label: 'Settings', href: '/learner/settings', icon: Settings },
+  ]
+
+  const items = isTeacher ? TEACHER_NAV : LEARNER_NAV
 
   return (
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-border bg-card lg:flex">
-      <div className="flex items-center border-b border-border px-4 py-4">
-        <BrandLogo size={36} />
+      <div className="flex h-[80px] shrink-0 items-center border-b border-border px-4">
+        <BrandLogo size={42} />
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-2 py-4">
+      <nav className="flex-1 overflow-y-auto px-3 py-6">
         <ul className="space-y-1">
           {items.map((item) => {
-            const active = item.href === dashboardHref
-              ? pathname === dashboardHref
-              : pathname === item.href || pathname.startsWith(item.href + '/')
+            const active =
+              pathname === item.href || pathname.startsWith(item.href + '/')
             const Icon = item.icon
             return (
               <li key={item.href}>
                 <Link
                   href={item.href}
                   className={cn(
-                    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition',
+                    'flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-medium transition',
                     active
-                      ? 'text-white'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                      ? 'text-brand-accent bg-brand-primary/10'
+                      : 'text-foreground hover:bg-muted hover:text-brand-accent',
                   )}
-                  style={active ? { backgroundColor: 'var(--brand-primary)' } : undefined}
                 >
-                  <Icon size={18} style={{ color: 'var(--brand-accent)' }} />
+                  <Icon
+                    size={18}
+                    className={active ? 'text-brand-accent' : 'text-brand-accent/70'}
+                  />
                   <span>{item.label}</span>
                 </Link>
               </li>

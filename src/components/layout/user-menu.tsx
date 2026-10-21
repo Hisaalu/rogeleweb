@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { LogOut, User as UserIcon } from 'lucide-react'
+import { LogOut, User as UserIcon, Settings } from 'lucide-react'
 import { getInitials } from '@/lib/utils'
 import type { SessionUser } from '@/lib/auth'
 
@@ -28,7 +28,7 @@ export function UserMenu({ user }: { user?: SessionUser | null }) {
     safeUser.email ||
     'User'
 
-  const profileHref = safeUser.role === 'teacher' ? '/teacher/profile' : '/learner/profile'
+  const rolePath = safeUser.role === 'teacher' ? '/teacher' : '/learner'
 
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST' })
@@ -41,48 +41,46 @@ export function UserMenu({ user }: { user?: SessionUser | null }) {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 rounded-full border border-border bg-card py-1 pl-1 pr-3 text-sm transition hover:border-brand-accent"
+        className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-white transition hover:scale-105 hover:shadow-md"
+        style={{ backgroundColor: 'var(--brand-accent)' }}
       >
-        <span
-          className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold text-white"
-          style={{ backgroundColor: 'var(--brand-accent)' }}
-        >
-          {getInitials(fullName)}
-        </span>
-        <span className="hidden max-w-[140px] truncate font-medium sm:block">
-          {fullName}
-        </span>
+        {getInitials(fullName)}
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-lg border border-border bg-card shadow-lg">
-          <div className="border-b border-border px-4 py-3">
-            <p className="truncate text-sm font-medium">{fullName}</p>
-            {safeUser.email && (
-              <p className="truncate text-xs text-muted-foreground">{safeUser.email}</p>
-            )}
-            <p className="mt-1 inline-block rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-              {safeUser.role}
-            </p>
+        <div className="absolute right-0 top-full z-50 mt-2 w-60 overflow-hidden rounded-xl border border-border bg-card shadow-xl">
+          <div className="border-b border-border bg-muted/30 px-4 py-3">
+            <p className="truncate text-sm font-bold text-foreground">{fullName}</p>
+            <p className="truncate text-xs text-muted-foreground">{safeUser.email}</p>
           </div>
 
-          <Link
-            href={profileHref}
-            onClick={() => setOpen(false)}
-            className="flex items-center gap-2 px-4 py-2 text-sm transition hover:bg-muted"
-          >
-            <UserIcon size={16} />
-            Profile
-          </Link>
-
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="flex w-full items-center gap-2 border-t border-border px-4 py-2 text-left text-sm text-destructive transition hover:bg-destructive/10"
-          >
-            <LogOut size={16} />
-            Sign out
-          </button>
+          <div className="p-1">
+            <Link
+              href={`${rolePath}/profile`}
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted hover:text-brand-accent"
+            >
+              <UserIcon size={16} style={{ color: 'var(--brand-accent)' }} />
+              Profile
+            </Link>
+            <Link
+              href={`${rolePath}/settings`}
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted hover:text-brand-accent"
+            >
+              <Settings size={16} style={{ color: 'var(--brand-accent)' }} />
+              Settings
+            </Link>
+            <div className="my-1 h-px bg-border" />
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-bold text-red-600 transition hover:bg-red-50"
+            >
+              <LogOut size={16} />
+              Logout
+            </button>
+          </div>
         </div>
       )}
     </div>

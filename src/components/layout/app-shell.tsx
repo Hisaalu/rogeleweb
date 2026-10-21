@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, type ReactNode } from 'react'
-import { Menu } from 'lucide-react'
 import { Sidebar } from './sidebar'
 import { Header } from './header'
 import { MobileMenu } from './mobile-menu'
@@ -32,16 +31,6 @@ export function AppShell({
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
       />
-
-      <button
-        type="button"
-        aria-label="Open menu"
-        onClick={() => setMobileOpen(true)}
-        className="fixed bottom-6 right-6 z-20 flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg lg:hidden"
-        style={{ backgroundColor: 'var(--brand-primary)' }}
-      >
-        <Menu size={20} />
-      </button>
     </div>
   )
 }
