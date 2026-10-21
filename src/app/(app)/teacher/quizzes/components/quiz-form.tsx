@@ -3,20 +3,15 @@
 import { useRouter } from 'next/navigation'
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Save, Info, Cog, Globe, CheckCircle2, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, Save, Info, Cog, Globe, AlertTriangle } from 'lucide-react'
 import type { Quiz } from '@/types/quiz'
 import type { Class, Subject } from '@/types/admin'
+import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
 
 export function QuizForm({ 
-  classes, 
-  subjects, 
-  mode, 
-  initial 
+  classes, subjects, mode, initial 
 }: { 
-  classes: Class[], 
-  subjects: Subject[], 
-  mode: 'create' | 'edit', 
-  initial?: Quiz 
+  classes: Class[], subjects: Subject[], mode: 'create' | 'edit', initial?: Quiz 
 }) {
   const router = useRouter()
   
@@ -31,7 +26,14 @@ export function QuizForm({
   const [isPublished, setIsPublished] = useState(initial?.is_published ?? true)
 
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [toasts, setToasts] = useState<ToastMessage[]>([])
+  
+  const pushToast = (message: string, tone: ToastTone) => {
+    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
+  }
+  const closeToast = (id: number) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id))
+  }
 
   const filteredSubjects = useMemo(() => {
     if (!classId) return []
@@ -40,10 +42,9 @@ export function QuizForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!title || !classId || !subjectId || !endDate) return setError('Please fill all required fields')
+    if (!title || !classId || !subjectId || !endDate) return pushToast('Please fill all required fields', 'error')
     
     setBusy(true)
-    setError(null)
     const payload = {
       title, description, 
       class_id: Number(classId), 
@@ -67,10 +68,13 @@ export function QuizForm({
       
       if (!res.ok) throw new Error('Failed to save quiz')
       
-      router.push('/teacher/quizzes')
-      router.refresh()
+      pushToast(mode === 'create' ? 'Quiz created successfully' : 'Quiz updated successfully', 'success')
+      setTimeout(() => {
+        router.push('/teacher/quizzes')
+        router.refresh()
+      }, 1000)
     } catch (err: any) {
-      setError(err.message)
+      pushToast(err.message || 'Failed to save quiz', 'error')
       setBusy(false)
     }
   }
@@ -87,8 +91,6 @@ export function QuizForm({
           <span style={{ color: 'var(--brand-primary)' }}>{mode === 'create' ? 'Create New Quiz' : 'Edit Quiz'}</span>
         </h1>
       </div>
-
-      {error && <div className="rounded-xl px-4 py-3 text-sm" style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-fg)' }}>{error}</div>}
 
       <form onSubmit={handleSubmit} className="space-y-8 rounded-2xl border border-border bg-card p-6 sm:p-8">
         <Section icon={Info} title="Basic Information">
@@ -152,6 +154,8 @@ export function QuizForm({
           </button>
         </div>
       </form>
+      
+      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }

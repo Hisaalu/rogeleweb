@@ -6,7 +6,8 @@ import { useState, useEffect } from 'react'
 import { Search, PlusCircle, HelpCircle, Clock, Users, Trophy, CalendarX, CalendarCheck, Edit, Eye, BarChart2, Trash2 } from 'lucide-react'
 import type { Quiz } from '@/types/quiz'
 import type { Class } from '@/types/admin'
-import { deleteQuizClient, publishQuizClient } from '@/lib/quizzes.client'
+import { deleteQuizClient } from '@/lib/quizzes.client'
+import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
 
 export function TeacherQuizzesView({ quizzes: initial, classes }: { quizzes: Quiz[], classes: Class[] }) {
   const [quizzes, setQuizzes] = useState(initial)
@@ -17,11 +18,15 @@ export function TeacherQuizzesView({ quizzes: initial, classes }: { quizzes: Qui
   const [q, setQ] = useState(params.get('q') ?? '')
   const [classId, setClassId] = useState(params.get('class_id') ?? '')
 
-  useEffect(() => {
-    setQuizzes(initial)
-    setQ(params.get('q') ?? '')
-    setClassId(params.get('class_id') ?? '')
-  }, [initial, params])
+  const [toasts, setToasts] = useState<ToastMessage[]>([])
+  const pushToast = (message: string, tone: ToastTone) => {
+    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
+  }
+  const closeToast = (id: number) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id))
+  }
+
+  useEffect(() => { setQuizzes(initial) }, [initial])
 
   function push(next: { q?: string, class_id?: string }) {
     const sp = new URLSearchParams(params.toString())
@@ -37,8 +42,9 @@ export function TeacherQuizzesView({ quizzes: initial, classes }: { quizzes: Qui
     try {
       await deleteQuizClient(id)
       setQuizzes(prev => prev.filter(q => q.id !== id))
-    } catch {
-      alert('Failed to delete quiz')
+      pushToast('Quiz deleted successfully', 'success')
+    } catch (err: any) {
+      pushToast(err.message || 'Failed to delete quiz', 'error')
     }
   }
 
@@ -58,9 +64,7 @@ export function TeacherQuizzesView({ quizzes: initial, classes }: { quizzes: Qui
       </div>
 
       <div className="rounded-2xl border border-border bg-card p-5">
-        <form onSubmit={(e) => {e.preventDefault(); const sp = new URLSearchParams(); if (q) sp.set('q', q); if (classId) sp.set('class_id', classId); router.push(`/teacher/quizzes?${sp.toString()}`); }} 
-  className="flex flex-wrap items-center gap-3"
->
+        <form onSubmit={(e) => { e.preventDefault(); push({}) }} className="flex flex-wrap items-center gap-3">
           <div className="relative min-w-[240px] flex-1">
             <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input type="text" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search quizzes by title..." className="w-full rounded-xl border border-border bg-background py-3 pl-11 pr-4 text-sm outline-none transition focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/30" />
@@ -94,8 +98,8 @@ export function TeacherQuizzesView({ quizzes: initial, classes }: { quizzes: Qui
             return (
               <div key={quiz.id} className="relative flex flex-col rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:-translate-y-1 hover:border-brand-primary hover:shadow-md">
                 <div className="mb-3 flex items-start justify-between gap-2">
-                  <div className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white ${quiz.is_published ? 'bg-[#23a74c]' : 'bg-[#f06724]'}`}>
-                    {quiz.is_published ? 'Published' : 'Draft'}
+                  <div className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white ${quiz.is_published && !isExpired ? 'bg-[#23a74c]' : 'bg-[#f06724]'}`}>
+                    {quiz.is_published && !isExpired ? 'Published' : 'Draft'}
                   </div>
                 </div>
                 <h3 className="mb-2 text-lg font-bold leading-tight text-foreground">{quiz.title}</h3>
@@ -145,6 +149,7 @@ export function TeacherQuizzesView({ quizzes: initial, classes }: { quizzes: Qui
           })}
         </div>
       )}
+      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }

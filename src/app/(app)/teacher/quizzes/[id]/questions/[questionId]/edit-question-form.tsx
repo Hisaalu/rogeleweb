@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Save } from 'lucide-react'
 import type { QuizQuestion } from '@/types/quiz'
+import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
 
 export function EditQuestionForm({ quizId, question }: { quizId: number, question: QuizQuestion }) {
   const router = useRouter()
@@ -17,6 +18,14 @@ export function EditQuestionForm({ quizId, question }: { quizId: number, questio
   const [correct, setCorrect] = useState(['A','B','C','D'][question.correct_option] || 'A')
   const [points, setPoints] = useState(question.points)
   const [explanation, setExplanation] = useState(question.explanation || '')
+
+  const [toasts, setToasts] = useState<ToastMessage[]>([])
+  const pushToast = (message: string, tone: ToastTone) => {
+    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
+  }
+  const closeToast = (id: number) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id))
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -40,10 +49,13 @@ export function EditQuestionForm({ quizId, question }: { quizId: number, questio
       
       if (!res.ok) throw new Error('Failed to update question')
       
-      router.push(`/teacher/quizzes/${quizId}/questions`)
-      router.refresh()
+      pushToast('Question updated successfully', 'success')
+      setTimeout(() => {
+        router.push(`/teacher/quizzes/${quizId}/questions`)
+        router.refresh()
+      }, 1000)
     } catch {
-      alert('Error updating question')
+      pushToast('Error updating question', 'error')
       setBusy(false)
     }
   }
@@ -84,6 +96,8 @@ export function EditQuestionForm({ quizId, question }: { quizId: number, questio
           <Save size={15} /> {busy ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
+      
+      <ToastViewport toasts={toasts} onClose={closeToast} />
     </form>
   )
 }

@@ -5,11 +5,20 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Save, PlusCircle, X, HelpCircle } from 'lucide-react'
 import type { Quiz } from '@/types/quiz'
+import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
 
 export function AddQuestionsView({ quiz }: { quiz: Quiz }) {
   const router = useRouter()
   const [questions, setQuestions] = useState([{ id: 1 }])
   const [busy, setBusy] = useState(false)
+
+  const [toasts, setToasts] = useState<ToastMessage[]>([])
+  const pushToast = (message: string, tone: ToastTone) => {
+    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
+  }
+  const closeToast = (id: number) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id))
+  }
 
   function addQuestion() {
     setQuestions(prev => [...prev, { id: Date.now() }])
@@ -42,10 +51,13 @@ export function AddQuestionsView({ quiz }: { quiz: Quiz }) {
       })
       if (!res.ok) throw new Error('Failed to add questions')
       
-      router.push(`/teacher/quizzes`)
-      router.refresh()
+      pushToast('Questions added successfully', 'success')
+      setTimeout(() => {
+        router.push(`/teacher/quizzes`)
+        router.refresh()
+      }, 1000)
     } catch {
-      alert('Error adding questions')
+      pushToast('Error adding questions', 'error')
       setBusy(false)
     }
   }
@@ -115,6 +127,8 @@ export function AddQuestionsView({ quiz }: { quiz: Quiz }) {
           </button>
         </div>
       </form>
+
+      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }
