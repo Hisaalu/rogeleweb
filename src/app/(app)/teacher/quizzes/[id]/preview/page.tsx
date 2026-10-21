@@ -25,7 +25,7 @@ export default async function PreviewQuizPage({ params }: { params: { id: string
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <Link href="/teacher/quizzes" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft size={14} /> Back to Quizzes
+            <ArrowLeft size={14} /> Quizzes
           </Link>
           <h1 className="mt-2 flex items-center gap-2 text-2xl font-bold">
             <Eye size={22} style={{ color: 'var(--brand-primary)' }} /> Preview: {quiz.title}

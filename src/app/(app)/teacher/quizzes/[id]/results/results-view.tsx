@@ -47,7 +47,7 @@ export function ResultsView({ quiz, attempts }: { quiz: Quiz, attempts: QuizAtte
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <Link href="/teacher/quizzes" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft size={14} /> Back to Quizzes
+            <ArrowLeft size={14} /> Quizzes
           </Link>
           <h1 className="mt-2 text-2xl font-bold text-foreground">Results: {quiz.title}</h1>
         </div>
