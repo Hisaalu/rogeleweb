@@ -10,7 +10,7 @@ export default async function TeacherLayout({
   if (!user) redirect('/login')
   if (user.role === 'admin') redirect('/admin')
   if (user.role === 'learner' || user.role === 'external') {
-    redirect('/learner/lessons')
+    redirect('/learner/dashboard')
   }
   return <>{children}</>
 }

@@ -9,6 +9,6 @@ export default async function LearnerLayout({
   const user = await getSessionUser()
   if (!user) redirect('/login')
   if (user.role === 'admin') redirect('/admin')
-  if (user.role === 'teacher') redirect('/teacher/lessons')
+  if (user.role === 'teacher') redirect('/teacher/dashboard')
   return <>{children}</>
 }

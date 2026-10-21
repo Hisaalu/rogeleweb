@@ -15,6 +15,7 @@ export function MobileMenu({ user, open, onClose }: { user: SessionUser, open: b
   const lessonsHref = user.role === 'teacher' ? '/teacher/lessons' : '/learner/lessons'
   const homeworkHref = user.role === 'teacher' ? '/teacher/homework' : '/learner/homework'
   const quizzesHref = user.role === 'teacher' ? '/teacher/quizzes' : '/learner/quizzes'
+  const profileHref = user.role === 'teacher' ? '/teacher/profile' : '/learner/profile'
 
   const NAV = [
     { label: 'Dashboard', href: dashboardHref, icon: LayoutDashboard },
@@ -22,7 +23,7 @@ export function MobileMenu({ user, open, onClose }: { user: SessionUser, open: b
     { label: 'Homework', href: homeworkHref, icon: ClipboardList },
     { label: 'Quizzes', href: quizzesHref, icon: HelpCircle },
     { label: 'Subscription', href: '/subscription', icon: CreditCard },
-    { label: 'Profile', href: '/profile', icon: User },
+    { label: 'Profile', href: profileHref, icon: User },
   ]
 
   useEffect(() => {

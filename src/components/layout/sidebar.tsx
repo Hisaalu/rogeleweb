@@ -30,6 +30,7 @@ export function Sidebar({ user }: { user?: SessionUser | null }) {
   const lessonsHref = role === 'teacher' ? '/teacher/lessons' : '/learner/lessons'
   const homeworkHref = role === 'teacher' ? '/teacher/homework' : '/learner/homework'
   const quizzesHref = role === 'teacher' ? '/teacher/quizzes' : '/learner/quizzes'
+  const profileHref = role === 'teacher' ? '/teacher/profile' : '/learner/profile'
 
   const NAV_ITEMS: NavItem[] = [
     { label: 'Dashboard', href: dashboardHref, icon: LayoutDashboard, roles: ['*'] },
@@ -38,7 +39,7 @@ export function Sidebar({ user }: { user?: SessionUser | null }) {
     { label: 'Quizzes', href: quizzesHref, icon: HelpCircle, roles: ['*'] },
     { label: 'Subscription', href: '/subscription', icon: CreditCard, roles: ['learner', 'external', 'admin'] },
     { label: 'Email campaigns', href: '/admin/email-campaigns', icon: Mail, roles: ['admin'] },
-    { label: 'Profile', href: '/profile', icon: User, roles: ['*'] },
+    { label: 'Profile', href: profileHref, icon: User, roles: ['*'] },
   ]
 
   const items = NAV_ITEMS.filter(
