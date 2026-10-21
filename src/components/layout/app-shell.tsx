@@ -19,9 +19,9 @@ export function AppShell({
     <div className="flex min-h-screen bg-muted/30">
       <Sidebar user={user} />
 
-      <div className="flex flex-1 flex-col lg:pl-64">
+      <div className="flex min-w-0 flex-1 flex-col lg:pl-64">
         <Header user={user} onMenuClick={() => setMobileOpen(true)} />
-        <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+        <main className="flex-1 px-3 py-4 sm:px-5 sm:py-6 lg:px-8">
           <div className="mx-auto max-w-7xl">{children}</div>
         </main>
       </div>

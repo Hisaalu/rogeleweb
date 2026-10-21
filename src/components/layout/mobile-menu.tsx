@@ -1,12 +1,13 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   X,
   LayoutDashboard,
   BookOpen,
+  BookmarkCheck,
   ClipboardList,
   HelpCircle,
   CreditCard,
@@ -15,9 +16,38 @@ import {
   Users,
   BarChart3,
   Settings,
+  type LucideIcon,
 } from 'lucide-react'
 import { getInitials, cn } from '@/lib/utils'
 import type { SessionUser } from '@/lib/auth'
+
+interface NavItem {
+  label: string
+  href: string
+  icon: LucideIcon
+}
+
+const TEACHER_NAV: NavItem[] = [
+  { label: 'Dashboard', href: '/teacher/dashboard', icon: LayoutDashboard },
+  { label: 'Students', href: '/teacher/students', icon: Users },
+  { label: 'Analytics', href: '/teacher/analytics', icon: BarChart3 },
+  { label: 'Lessons', href: '/teacher/lessons', icon: BookOpen },
+  { label: 'Quizzes', href: '/teacher/quizzes', icon: HelpCircle },
+  { label: 'Homework', href: '/teacher/homework', icon: ClipboardList },
+  { label: 'Profile', href: '/teacher/profile', icon: User },
+  { label: 'Settings', href: '/teacher/settings', icon: Settings },
+]
+
+const LEARNER_NAV: NavItem[] = [
+  { label: 'Dashboard', href: '/learner/dashboard', icon: LayoutDashboard },
+  { label: 'Subscription', href: '/subscription', icon: CreditCard },
+  { label: 'Lessons', href: '/learner/lessons', icon: BookOpen },
+  { label: 'Quizzes', href: '/learner/quizzes', icon: HelpCircle },
+  { label: 'Homework', href: '/learner/homework', icon: ClipboardList },
+  { label: 'Bookmarks', href: '/learner/bookmarks', icon: BookmarkCheck },
+  { label: 'Profile', href: '/learner/profile', icon: User },
+  { label: 'Settings', href: '/learner/settings', icon: Settings },
+]
 
 export function MobileMenu({
   user,
@@ -30,39 +60,30 @@ export function MobileMenu({
 }) {
   const pathname = usePathname()
   const router = useRouter()
-  const isTeacher = user.role === 'teacher'
+  const items = user.role === 'teacher' ? TEACHER_NAV : LEARNER_NAV
 
-  const TEACHER_NAV = [
-    { label: 'Dashboard', href: '/teacher/dashboard', icon: LayoutDashboard },
-    { label: 'Students', href: '/teacher/students', icon: Users },
-    { label: 'Analytics', href: '/teacher/analytics', icon: BarChart3 },
-    { label: 'Lessons', href: '/teacher/lessons', icon: BookOpen },
-    { label: 'Quizzes', href: '/teacher/quizzes', icon: HelpCircle },
-    { label: 'Homework', href: '/teacher/homework', icon: ClipboardList },
-    { label: 'Profile', href: '/teacher/profile', icon: User },
-    { label: 'Settings', href: '/teacher/settings', icon: Settings },
-  ]
-
-  const LEARNER_NAV = [
-    { label: 'Dashboard', href: '/learner/dashboard', icon: LayoutDashboard },
-    { label: 'Subscription', href: '/subscription', icon: CreditCard },
-    { label: 'Lessons', href: '/learner/lessons', icon: BookOpen },
-    { label: 'Quizzes', href: '/learner/quizzes', icon: HelpCircle },
-    { label: 'Homework', href: '/learner/homework', icon: ClipboardList },
-    { label: 'Bookmarks', href: '/learner/bookmarks', icon: BookOpen },
-    { label: 'Profile', href: '/learner/profile', icon: User },
-    { label: 'Settings', href: '/learner/settings', icon: Settings },
-  ]
-
-  const NAV = isTeacher ? TEACHER_NAV : LEARNER_NAV
+  const closeRef = useRef<HTMLButtonElement>(null)
+  const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    if (open) document.body.style.overflow = 'hidden'
-    else document.body.style.overflow = ''
-    return () => {
-      document.body.style.overflow = ''
+    if (!open) {
+      setVisible(false)
+      return
     }
-  }, [open])
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    requestAnimationFrame(() => setVisible(true))
+    closeRef.current?.focus()
+
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = prev
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open, onClose])
 
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST' })
@@ -73,41 +94,48 @@ export function MobileMenu({
   const fullName =
     [user.first_name, user.last_name].filter(Boolean).join(' ') || user.email
 
+  if (!open) return null
+
   return (
-    <>
-      {open && (
-        <div
-          className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm lg:hidden"
-          onClick={onClose}
-          aria-hidden="true"
-        />
-      )}
+    <div className="fixed inset-0 z-[60] lg:hidden">
+      <div
+        className={cn(
+          'absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-200',
+          visible ? 'opacity-100' : 'opacity-0',
+        )}
+        onClick={onClose}
+        aria-hidden="true"
+      />
 
       <aside
+        role="dialog"
+        aria-modal="true"
+        aria-label="Navigation menu"
         className={cn(
-          'fixed inset-y-0 right-0 z-[70] flex w-[85%] max-w-[380px] flex-col bg-card shadow-2xl transition-transform duration-300 lg:hidden',
-          open ? 'translate-x-0' : 'translate-x-full',
+          'absolute inset-y-0 right-0 flex w-[85%] max-w-[360px] flex-col bg-card shadow-2xl transition-transform duration-300',
+          visible ? 'translate-x-0' : 'translate-x-full',
         )}
       >
         <div
-          className="relative px-6 py-6"
+          className="relative px-5 py-5 sm:px-6 sm:py-6"
           style={{ backgroundColor: 'var(--brand-primary)' }}
         >
           <button
+            ref={closeRef}
             type="button"
             onClick={onClose}
             aria-label="Close menu"
-            className="absolute right-5 top-5 flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white transition hover:rotate-90 hover:bg-white/30"
+            className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white transition hover:rotate-90 hover:bg-white/30"
           >
             <X size={18} />
           </button>
 
-          <div className="mt-8 flex items-center gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-white bg-white/20 text-lg font-semibold text-white">
+          <div className="mt-7 flex items-center gap-3 sm:mt-8 sm:gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-white bg-white/20 text-base font-semibold text-white sm:h-14 sm:w-14 sm:text-lg">
               {getInitials(fullName)}
             </div>
             <div className="min-w-0">
-              <p className="truncate text-base font-semibold text-white">
+              <p className="truncate text-sm font-semibold text-white sm:text-base">
                 {fullName}
               </p>
               <p className="truncate text-xs capitalize text-white/80">
@@ -117,18 +145,20 @@ export function MobileMenu({
           </div>
         </div>
 
-        <nav className="flex-1 overflow-y-auto p-4">
-          <ul className="space-y-1">
-            {NAV.map((item) => {
-              const active = pathname === item.href || pathname.startsWith(item.href + '/')
+        <nav className="flex-1 overflow-y-auto p-3 sm:p-4">
+          <ul className="space-y-0.5 sm:space-y-1">
+            {items.map((item) => {
+              const active =
+                pathname === item.href || pathname.startsWith(item.href + '/')
               const Icon = item.icon
               return (
                 <li key={item.href}>
                   <Link
                     href={item.href}
                     onClick={onClose}
+                    aria-current={active ? 'page' : undefined}
                     className={cn(
-                      'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition',
+                      'flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition sm:py-3',
                       active
                         ? 'bg-brand-primary/15 text-brand-accent'
                         : 'text-foreground hover:bg-muted',
@@ -138,16 +168,16 @@ export function MobileMenu({
                       size={18}
                       className={active ? 'text-brand-accent' : 'text-brand-accent/70'}
                     />
-                    {item.label}
+                    <span className="truncate">{item.label}</span>
                   </Link>
                 </li>
               )
             })}
-            <li className="pt-4 mt-4 border-t border-border">
+            <li className="mt-3 border-t border-border pt-3 sm:mt-4 sm:pt-4">
               <button
                 type="button"
                 onClick={handleLogout}
-                className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50"
+                className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50 sm:py-3"
               >
                 <LogOut size={18} />
                 Logout
@@ -156,6 +186,6 @@ export function MobileMenu({
           </ul>
         </nav>
       </aside>
-    </>
+    </div>
   )
 }

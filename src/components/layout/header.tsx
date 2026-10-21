@@ -1,8 +1,9 @@
 'use client'
 
-import { Menu } from 'lucide-react'
+import Link from 'next/link'
+import { Menu, Zap } from 'lucide-react'
+import { BrandLogo } from '@/components/brand/brand-logo'
 import { UserMenu } from './user-menu'
-import { ThemeToggle } from '@/components/theme-toggle'
 import { NotificationBell } from '@/components/notifications/notification-bell'
 import type { SessionUser } from '@/lib/auth'
 
@@ -14,29 +15,34 @@ export function Header({
   onMenuClick: () => void
 }) {
   return (
-    <header className="sticky top-0 z-30 flex h-[70px] items-center justify-between gap-4 border-b border-border bg-background/95 px-4 backdrop-blur sm:px-6 lg:px-8">
-      <div className="flex min-w-0 items-center gap-3">
+    <header className="sticky top-0 z-30 flex h-[60px] items-center justify-between gap-2 border-b border-border bg-background/95 px-3 backdrop-blur sm:h-[70px] sm:gap-4 sm:px-5 lg:px-8">
+      <div className="flex min-w-0 items-center gap-2 sm:gap-3">
         <button
           type="button"
           onClick={onMenuClick}
-          className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-muted lg:hidden"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-muted lg:hidden"
           aria-label="Open menu"
         >
           <Menu size={22} />
         </button>
+
+        <Link href="/dashboard" className="flex min-w-0 items-center lg:hidden">
+          <BrandLogo size={34} showText={false} />
+        </Link>
       </div>
 
-      <div className="flex shrink-0 items-center gap-3">
+      <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
         {user.role !== 'teacher' && (
-          <a
+          <Link
             href="/subscription"
-            className="hidden items-center gap-2 rounded-full bg-emerald-500 px-4 py-1.5 text-xs font-bold text-white transition hover:bg-emerald-600 sm:flex lg:hidden"
+            className="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-bold text-white transition hover:opacity-90 sm:gap-2 sm:px-4 sm:text-xs"
+            style={{ backgroundColor: 'var(--success-border)' }}
           >
-            Upgrade
-          </a>
+            <Zap size={12} className="shrink-0 sm:hidden" />
+            <span>Upgrade</span>
+          </Link>
         )}
         <NotificationBell compact />
-        <ThemeToggle compact />
         <UserMenu user={user} />
       </div>
     </header>
