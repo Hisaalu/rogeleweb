@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getLessonServer } from '@/lib/lessons.server'
-import { listMaterials } from '@/lib/lessons.mutations'
+import { getLessonServer, listMaterialsServer } from '@/lib/lessons.server'
 import { LearnerLessonDetail } from './learner-lesson-detail'
 
 export const metadata: Metadata = {
@@ -16,8 +15,11 @@ export default async function LearnerLessonPage({
   const id = Number(params.id)
   if (!Number.isFinite(id)) notFound()
 
-  const lesson = await getLessonServer(id)
+  const [lesson, materials] = await Promise.all([
+    getLessonServer(id),
+    listMaterialsServer(id),
+  ])
   if (!lesson) notFound()
 
-  return <LearnerLessonDetail lesson={lesson} />
+  return <LearnerLessonDetail lesson={lesson} materials={materials} />
 }

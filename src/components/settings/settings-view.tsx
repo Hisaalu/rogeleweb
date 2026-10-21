@@ -80,7 +80,7 @@ export function SettingsView({ role }: { role: string }) {
           <Shield size={28} style={{ color: 'var(--brand-primary)' }} />
           Settings
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">Manage your account settings and preferences</p>
+        <p className="mt-1 text-sm text-muted-foreground">Manage your Account Settings</p>
       </div>
 
       <div className="flex flex-wrap gap-3">

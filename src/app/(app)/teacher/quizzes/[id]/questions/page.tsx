@@ -14,7 +14,7 @@ export default async function ManageQuestionsPage({ params }: { params: { id: st
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <Link href="/teacher/quizzes" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft size={14} /> Back to Quizzes
+          <ArrowLeft size={14} /> Quizzes
         </Link>
         <Link href={`/teacher/quizzes/${quiz.id}/questions/add`} className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90" style={{ backgroundColor: 'var(--brand-primary)' }}>
           <PlusCircle size={16} /> Add Questions

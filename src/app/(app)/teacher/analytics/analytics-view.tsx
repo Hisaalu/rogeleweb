@@ -97,7 +97,7 @@ export function AnalyticsView({
             <span className="truncate">Analytics Dashboard</span>
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Track your teaching performance and student engagement
+            Track Performance and Engagement
           </p>
         </div>
         <select

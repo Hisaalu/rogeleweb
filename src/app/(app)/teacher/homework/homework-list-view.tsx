@@ -64,12 +64,12 @@ export function HomeworkListView({ homeworks: initial, classes }: { homeworks: H
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold sm:text-3xl">
             <FileText size={26} style={{ color: 'var(--brand-primary)' }} />
-            <span style={{ color: 'var(--brand-primary)' }}>Homework Management</span>
+            <span style={{ color: 'var(--brand-primary)' }}>Homework</span>
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">Create and manage homework for your students</p>
+          <p className="mt-1 text-sm text-muted-foreground">Create and Manage Homework</p>
         </div>
         <Link href="/teacher/homework/create" className="inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90" style={{ backgroundColor: 'var(--brand-primary)' }}>
-          <PlusCircle size={16} /> Create New Homework
+          <PlusCircle size={16} /> Create Homework
         </Link>
       </div>
 

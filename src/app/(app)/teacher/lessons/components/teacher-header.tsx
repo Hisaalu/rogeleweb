@@ -9,10 +9,10 @@ export function TeacherHeader() {
       <div className="min-w-0 flex-1">
         <h1 className="flex items-center gap-3 text-2xl font-bold sm:text-3xl">
           <BookOpen size={26} style={{ color: 'var(--brand-accent)' }} />
-          <span style={{ color: 'var(--brand-primary)' }}>My Lessons</span>
+          <span style={{ color: 'var(--brand-primary)' }}>Lessons</span>
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Manage and organize your teaching materials
+          Manage and organize your Lessons
         </p>
       </div>
 
@@ -28,7 +28,7 @@ export function TeacherHeader() {
         }}
       >
         <PlusCircle size={16} />
-        Create New Lesson
+        Create Lesson
       </Link>
     </div>
   )

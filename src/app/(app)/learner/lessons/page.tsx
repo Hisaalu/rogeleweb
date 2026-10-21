@@ -11,6 +11,12 @@ export const metadata: Metadata = {
   title: 'Learning Materials',
 }
 
+function parsePositiveInt(value: string | undefined): number | undefined {
+  if (!value) return undefined
+  const n = Number(value)
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : undefined
+}
+
 export default async function LearnerLessonsPage({
   searchParams,
 }: {
@@ -19,11 +25,9 @@ export default async function LearnerLessonsPage({
   const session = await getSessionUser()
   if (!session) return null
 
-  const q = searchParams.q ?? ''
-  const subjectId = searchParams.subject_id
-    ? Number(searchParams.subject_id)
-    : undefined
-  const page = searchParams.page ? Number(searchParams.page) : 1
+  const q = searchParams.q?.trim() ?? ''
+  const subjectId = parsePositiveInt(searchParams.subject_id)
+  const page = parsePositiveInt(searchParams.page) ?? 1
 
   const [result, subjects, bookmarks] = await Promise.all([
     listLessonsServer({

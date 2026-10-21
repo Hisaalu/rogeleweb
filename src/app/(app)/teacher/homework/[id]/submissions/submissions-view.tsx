@@ -56,7 +56,7 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <Link href="/teacher/homework" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft size={14} /> Back to Homework
+            <ArrowLeft size={14} /> Homework
           </Link>
           <h1 className="mt-2 text-2xl font-bold text-foreground">Homework Submissions</h1>
           <p className="text-sm text-muted-foreground">{homework.title}</p>

@@ -97,7 +97,7 @@ export function LearnerProfileView({
           <UserCircle size={28} />
           <span>My Profile</span>
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">Manage your personal information and account settings</p>
+        <p className="mt-1 text-sm text-muted-foreground">Manage your Personal Information</p>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[350px_1fr]">

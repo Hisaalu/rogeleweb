@@ -36,7 +36,7 @@ export function BookmarksView({ lessons: initial }: { lessons: Lesson[] }) {
           className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm font-semibold text-muted-foreground transition hover:bg-muted"
         >
           <ArrowLeft size={14} />
-          All lessons
+          Lessons
         </Link>
       </div>
 

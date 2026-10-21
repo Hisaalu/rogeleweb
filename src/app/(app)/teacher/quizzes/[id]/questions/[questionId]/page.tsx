@@ -17,7 +17,7 @@ export default async function EditQuestionPage({ params }: { params: { id: strin
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
       <Link href={`/teacher/quizzes/${quiz.id}/questions`} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft size={14} /> Back to Questions
+        <ArrowLeft size={14} /> Questions
       </Link>
 
       <div>

@@ -117,7 +117,7 @@ export function LessonForm({
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-6">
       <Link href="/teacher/lessons" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground">
-        <ArrowLeft size={14} /> Back to Lessons
+        <ArrowLeft size={14} /> Lessons
       </Link>
 
       <div>

@@ -54,12 +54,12 @@ export function TeacherQuizzesView({ quizzes: initial, classes }: { quizzes: Qui
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold sm:text-3xl">
             <HelpCircle size={26} style={{ color: 'var(--brand-primary)' }} />
-            <span style={{ color: 'var(--brand-primary)' }}>My Quizzes</span>
+            <span style={{ color: 'var(--brand-primary)' }}>Quizzes</span>
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">Create and manage quizzes for your students</p>
+          <p className="mt-1 text-sm text-muted-foreground">Create and Manage Quizzes</p>
         </div>
         <Link href="/teacher/quizzes/create" className="inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90" style={{ backgroundColor: 'var(--brand-primary)' }}>
-          <PlusCircle size={16} /> Create New Quiz
+          <PlusCircle size={16} /> Create Quiz
         </Link>
       </div>
 

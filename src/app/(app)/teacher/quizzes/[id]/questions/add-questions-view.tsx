@@ -65,7 +65,7 @@ export function AddQuestionsView({ quiz }: { quiz: Quiz }) {
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">
       <Link href="/teacher/quizzes" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft size={14} /> Back to Quizzes
+        <ArrowLeft size={14} /> Quizzes
       </Link>
 
       <h1 className="text-2xl font-bold text-foreground">Add Questions to: {quiz.title}</h1>
