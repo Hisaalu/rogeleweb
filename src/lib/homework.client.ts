@@ -144,12 +144,5 @@ export async function submitHomeworkClient(homeworkId: number, textAnswer: strin
 }
 
 export async function deleteSubmissionClient(submissionId: number): Promise<void> {
-  try {
-    await proxyJson(`/homework/submissions/${submissionId}`, { method: 'DELETE' })
-  } catch (err: any) {
-    if (err.message && err.message.toLowerCase().includes('not found')) {
-      return
-    }
-    throw err
-  }
+  await proxyJson(`/homework/submissions/${submissionId}`, { method: 'DELETE' })
 }

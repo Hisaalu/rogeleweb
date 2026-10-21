@@ -29,11 +29,9 @@ export function LearnerHomeworkDetail({
   const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   const [toasts, setToasts] = useState<ToastMessage[]>([])
-
   const pushToast = (message: string, tone: ToastTone) => {
     setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
   }
-
   const closeToast = (id: number) => {
     setToasts((prev) => prev.filter((t) => t.id !== id))
   }
@@ -67,28 +65,32 @@ export function LearnerHomeworkDetail({
       pushToast('Homework submitted successfully!', 'success')
       setFiles([])
       setBusy(false)
-      router.refresh()
+      window.location.reload() 
     } catch (err: any) {
       pushToast(err.message || 'Failed to submit homework', 'error')
       setBusy(false)
     }
   }
 
-async function handleDelete() {
-  if (!initialSubmission) return
-  setBusy(true)
-  try {
-    await deleteSubmissionClient(initialSubmission.id)
-    pushToast('Submission deleted successfully', 'success')
-    setShowDeleteModal(false)
-    setBusy(false)
-    router.refresh()
-  } catch (err: any) {
-    pushToast(err.message || 'Failed to delete submission', 'error')
-    setShowDeleteModal(false)
-    setBusy(false)
+  async function handleDelete() {
+    if (!initialSubmission) return
+    setBusy(true)
+    try {
+      await deleteSubmissionClient(initialSubmission.id)
+      pushToast('Submission deleted successfully', 'success')
+      setShowDeleteModal(false)
+      setBusy(false)
+      window.location.href = `/learner/homework/${homework.id}`
+    } catch (err: any) {
+      if (err.message && err.message.toLowerCase().includes('not found')) {
+        window.location.href = `/learner/homework/${homework.id}`
+        return
+      }
+      pushToast(err.message || 'Failed to delete submission', 'error')
+      setShowDeleteModal(false)
+      setBusy(false)
+    }
   }
-}
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">
@@ -164,7 +166,7 @@ async function handleDelete() {
                 <button onClick={() => setShowDeleteModal(true)} className="inline-flex items-center gap-1.5 rounded-lg bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-600 hover:text-white"><Trash2 size={13} /> Delete</button>
               )}
             </div>
-            <p className="mb-4 text-xs text-muted-foreground">Submitted on {new Date(initialSubmission.submitted_at).toLocaleString()}</p>
+            <p className="mb-4 text-xs text-muted-foreground">Submitted on {initialSubmission.submitted_at ? new Date(initialSubmission.submitted_at).toLocaleString() : 'N/A'}</p>
             {initialSubmission.text_answer && (
               <div className="mb-4">
                 <p className="mb-1 text-sm font-semibold text-foreground">Submitted Response</p>

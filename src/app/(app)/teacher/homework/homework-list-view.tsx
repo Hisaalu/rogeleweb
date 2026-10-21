@@ -50,11 +50,8 @@ export function HomeworkListView({ homeworks: initial, classes }: { homeworks: H
     
     try {
       await deleteHomeworkClient(id)
-      
       setHomeworks(prev => prev.filter(h => h.id !== id))
-      
       pushToast('Homework deleted successfully', 'success')
-      
       router.refresh()
     } catch (err: any) {
       pushToast(err.message || 'Failed to delete homework', 'error')

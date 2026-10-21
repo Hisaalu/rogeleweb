@@ -11,7 +11,7 @@ export default async function TeacherHomeworkPage({ searchParams }: { searchPara
     listHomeworksServer({
       q: searchParams.q,
       class_id: searchParams.class_id ? Number(searchParams.class_id) : undefined,
-      status: searchParams.status,
+      status: searchParams.status, 
     }),
     listClassesServer(),
   ])

@@ -10,9 +10,17 @@ export default async function LearnerHomeworkPage() {
   const session = await getSessionUser()
   if (!session) return null
 
-  const homeworks = await listHomeworksServer({
+  const allHomeworks = await listHomeworksServer({
     class_id: session.class_id ?? undefined,
   })
 
-  return <LearnerHomeworkView homeworks={homeworks} />
+  const now = new Date().getTime()
+  const HOURS_24 = 24 * 60 * 60 * 1000
+
+  const visibleHomeworks = allHomeworks.filter(hw => {
+    const dueDate = new Date(hw.due_date).getTime()
+    return dueDate >= (now - HOURS_24)
+  })
+
+  return <LearnerHomeworkView homeworks={visibleHomeworks} />
 }

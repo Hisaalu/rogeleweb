@@ -18,7 +18,7 @@ export async function listHomeworksServer(params: {
 }): Promise<Homework[]> {
   const sp = new URLSearchParams()
   sp.set('page', String(params.page ?? 1))
-  sp.set('per_page', '50')
+  sp.set('per_page', '100')
   if (params.q) sp.set('q', params.q)
   if (params.class_id) sp.set('class_id', String(params.class_id))
   
@@ -27,19 +27,13 @@ export async function listHomeworksServer(params: {
     let items = parseList<Homework>(res)
     
     const now = new Date().getTime()
-    const HOURS_24 = 24 * 60 * 60 * 1000
 
     if (params.status === 'active') {
       items = items.filter(h => new Date(h.due_date).getTime() >= now)
     } else if (params.status === 'expired') {
       items = items.filter(h => new Date(h.due_date).getTime() < now)
-    } else {
-      items = items.filter(h => {
-        const dueDate = new Date(h.due_date).getTime()
-        return now - dueDate <= HOURS_24
-      })
     }
-    
+
     return items
   } catch {
     return []
