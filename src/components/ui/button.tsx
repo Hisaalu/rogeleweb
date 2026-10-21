@@ -13,7 +13,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variants: Record<Variant, string> = {
   primary:
-    'text-white shadow-sm hover:opacity-90 focus-visible:ring-2 focus-visible:ring-offset-2',
+    'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
   secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
   outline: 'border border-input bg-background hover:bg-muted',
   ghost: 'hover:bg-muted',
@@ -28,17 +28,10 @@ const sizes: Record<Size, string> = {
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', size = 'md', style, ...props }, ref) => {
-    const isPrimary = variant === 'primary'
-
+  ({ className, variant = 'primary', size = 'md', ...props }, ref) => {
     return (
       <button
         ref={ref}
-        style={
-          isPrimary
-            ? { backgroundColor: 'var(--brand-primary)', ...style }
-            : style
-        }
         className={cn(
           'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition disabled:cursor-not-allowed disabled:opacity-60',
           variants[variant],
