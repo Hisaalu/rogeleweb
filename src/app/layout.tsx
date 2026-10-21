@@ -29,6 +29,16 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+              :root {
+                --brand-accent: ${branding.colorAccent};
+                --brand-primary: ${branding.colorPrimary};
+              }
+            `,
+          }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
