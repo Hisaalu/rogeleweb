@@ -1,25 +1,18 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { BookOpen, Bookmark } from 'lucide-react'
 import type { Subject } from '@/types/admin'
 import type { Lesson } from '@/types/lesson'
-import {
-  getBookmarkCountClient,
-  toggleLessonBookmarkClient,
-} from '@/lib/lessons.client'
-import {
-  ToastViewport,
-  type ToastMessage,
-  type ToastTone,
-} from '@/components/ui/toast'
+import { getBookmarkCountClient, toggleLessonBookmarkClient } from '@/lib/lessons.client'
+import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
 import { LearnerHeader } from './components/learner-header'
 import { LearnerFilters } from './components/learner-filters'
 import { LearnerLessonCard } from './components/learner-lesson-card'
 
 export function LearnerLessonsView({
-  lessons,
+  lessons: initialLessons,
   subjects,
   bookmarkCount: initialCount,
 }: {
@@ -27,19 +20,21 @@ export function LearnerLessonsView({
   subjects: Subject[]
   bookmarkCount: number
 }) {
+  const [lessons, setLessons] = useState(initialLessons)
   const [bookmarkCount, setBookmarkCount] = useState(initialCount)
   const [toasts, setToasts] = useState<ToastMessage[]>([])
 
   const pushToast = useCallback((message: string, tone: ToastTone) => {
-    setToasts((prev) => [
-      ...prev,
-      { id: Date.now() + Math.random(), message, tone },
-    ])
+    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
   }, [])
 
   const closeToast = useCallback((id: number) => {
     setToasts((prev) => prev.filter((t) => t.id !== id))
   }, [])
+
+  useEffect(() => {
+    setLessons(initialLessons)
+  }, [initialLessons])
 
   const handleToggleBookmark = useCallback(
     async (lessonId: number) => {
@@ -47,6 +42,7 @@ export function LearnerLessonsView({
         const res = await toggleLessonBookmarkClient(lessonId)
         const next = await getBookmarkCountClient()
         setBookmarkCount(next)
+        
         pushToast(
           res.bookmarked ? 'Added to bookmarks' : 'Removed from bookmarks',
           'success',
@@ -68,29 +64,13 @@ export function LearnerLessonsView({
 
       {lessons.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
-          <div
-            className="mx-auto mb-5 flex h-24 w-24 items-center justify-center rounded-full"
-            style={{
-              backgroundColor:
-                'color-mix(in srgb, var(--brand-accent) 12%, transparent)',
-            }}
-          >
+          <div className="mx-auto mb-5 flex h-24 w-24 items-center justify-center rounded-full" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-accent) 12%, transparent)' }}>
             <BookOpen size={40} style={{ color: 'var(--brand-accent)' }} />
           </div>
-          <h3 className="mb-2 text-xl font-semibold text-foreground">
-            No Lessons Found
-          </h3>
-          <p className="mx-auto mb-6 max-w-md text-sm text-muted-foreground">
-            We couldn&apos;t find any lessons matching your criteria. Try
-            adjusting your search or check back later!
-          </p>
-          <Link
-            href="/learner/bookmarks"
-            className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5"
-            style={{ backgroundColor: 'var(--brand-primary)' }}
-          >
-            <Bookmark size={15} />
-            View Bookmarks
+          <h3 className="mb-2 text-xl font-semibold text-foreground">No Lessons Found</h3>
+          <p className="mx-auto mb-6 max-w-md text-sm text-muted-foreground">We couldn&apos;t find any lessons matching your criteria. Try adjusting your search or check back later!</p>
+          <Link href="/learner/bookmarks" className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5" style={{ backgroundColor: 'var(--brand-primary)' }}>
+            <Bookmark size={15} /> View Bookmarks
           </Link>
         </div>
       ) : (
