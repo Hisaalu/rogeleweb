@@ -3,20 +3,20 @@ export type UserRole = 'admin' | 'teacher' | 'learner' | 'external'
 export interface User {
   id: number
   email: string
-  first_name?: string
-  last_name?: string
+  first_name?: string | null
+  last_name?: string | null
   role: string
   class_id?: number | null
-  phone?: string
-  bio?: string
-  qualification?: string
-  specialization?: string
-  profile_photo?: string
+  phone?: string | null
+  bio?: string | null
+  qualification?: string | null
+  specialization?: string | null
+  profile_photo?: string | null
   is_active: boolean
   is_suspended: boolean
   email_verified: boolean
   trial_start_date?: string
-  last_login?: string
+  last_login?: string | null
   created_at?: string
   updated_at?: string
 }

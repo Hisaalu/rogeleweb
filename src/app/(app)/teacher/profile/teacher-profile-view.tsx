@@ -3,7 +3,8 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { 
-  UserCircle, Camera, Calendar, Clock, Edit, Save, User, Mail, Phone, GraduationCap, Loader2
+  UserCircle, Camera, Calendar, Clock, Edit, Save, User, Mail, Phone, 
+  GraduationCap, Loader2, Star, BookOpen, Users, AlignLeft
 } from 'lucide-react'
 import type { User as ProfileUser } from '@/types/api'
 import type { Class } from '@/types/admin'
@@ -14,9 +15,13 @@ import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/u
 export function TeacherProfileView({
   profile,
   classes,
+  totalLessons,
+  totalStudents,
 }: {
   profile: ProfileUser | null
   classes: Class[]
+  totalLessons: number
+  totalStudents: number
 }) {
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -36,14 +41,19 @@ export function TeacherProfileView({
   const [lastName, setLastName] = useState(profile?.last_name ?? '')
   const [email, setEmail] = useState(profile?.email ?? '')
   const [phone, setPhone] = useState(profile?.phone ?? '')
-  const [classId, setClassId] = useState(profile?.class_id ? String(profile.class_id) : '')
+  const [bio, setBio] = useState(profile?.bio ?? '')
+  const [qualification, setQualification] = useState(profile?.qualification ?? '')
+  const [specialization, setSpecialization] = useState(profile?.specialization ?? '')
 
   const initials = [firstName, lastName].filter(Boolean).map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'T'
 
   async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 5 * 1024 * 1024) return pushToast('Image exceeds 5MB limit', 'error')
+    
+    if (file.size > 2 * 1024 * 1024) {
+      return pushToast('Image exceeds 2MB limit', 'error')
+    }
 
     setPhotoBusy(true)
     try {
@@ -60,7 +70,12 @@ export function TeacherProfileView({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!firstName.trim() || !lastName.trim() || !email.trim()) {
-      return pushToast('Name and Email are required', 'error')
+      return pushToast('First name, last name, and email are required', 'error')
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      return pushToast('Please enter a valid email address', 'error')
     }
 
     setBusy(true)
@@ -70,7 +85,9 @@ export function TeacherProfileView({
         last_name: lastName,
         email: email,
         phone: phone || undefined,
-        class_id: classId ? Number(classId) : undefined,
+        bio: bio || undefined,
+        qualification: qualification || undefined,
+        specialization: specialization || undefined,
       })
       pushToast('Profile updated successfully!', 'success')
       router.refresh()
@@ -89,7 +106,7 @@ export function TeacherProfileView({
           <UserCircle size={28} />
           <span>My Profile</span>
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">Manage your personal information</p>
+        <p className="mt-1 text-sm text-muted-foreground">Manage your personal information and account settings</p>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[350px_1fr]">
@@ -120,18 +137,13 @@ export function TeacherProfileView({
                 type="file" 
                 ref={fileInputRef} 
                 onChange={handlePhotoUpload} 
-                accept="image/*" 
+                accept="image/jpeg,image/png,image/gif" 
                 className="hidden" 
               />
             </div>
 
             <h2 className="text-xl font-bold text-foreground">{firstName} {lastName}</h2>
             <p className="capitalize text-muted-foreground">{profile?.role ?? 'Teacher'}</p>
-            
-            <div className="mx-auto mt-4 inline-flex items-center gap-2 rounded-full bg-muted px-4 py-1.5 text-xs text-muted-foreground">
-              <Camera size={13} style={{ color: 'var(--brand-accent)' }} />
-              Click icon to change photo
-            </div>
           </div>
 
           <div className="space-y-2 border-t border-border pt-6">
@@ -154,6 +166,26 @@ export function TeacherProfileView({
                 <p className="text-sm font-semibold text-foreground">{profile?.last_login ? formatDate(profile.last_login) : 'Today'}</p>
               </div>
             </div>
+
+            <div className="flex items-center gap-4 rounded-xl p-3 transition hover:bg-muted/50">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-primary">
+                <BookOpen size={18} />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Lessons Taught</p>
+                <p className="text-sm font-semibold text-foreground">{totalLessons}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 rounded-xl p-3 transition hover:bg-muted/50">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-primary">
+                <Users size={18} />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Total Students</p>
+                <p className="text-sm font-semibold text-foreground">{totalStudents}</p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -165,7 +197,7 @@ export function TeacherProfileView({
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid gap-6 sm:grid-cols-2">
-              <Field label="First Name" icon={User}>
+              <Field label="First Name" icon={User} required>
                 <input 
                   type="text" 
                   value={firstName} 
@@ -175,7 +207,7 @@ export function TeacherProfileView({
                   className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-brand-accent" 
                 />
               </Field>
-              <Field label="Last Name" icon={User}>
+              <Field label="Last Name" icon={User} required>
                 <input 
                   type="text" 
                   value={lastName} 
@@ -187,7 +219,7 @@ export function TeacherProfileView({
               </Field>
             </div>
 
-            <Field label="Email Address" icon={Mail}>
+            <Field label="Email Address" icon={Mail} required>
               <input 
                 type="email" 
                 value={email} 
@@ -208,17 +240,34 @@ export function TeacherProfileView({
               />
             </Field>
 
-            <Field label="Class / Club (Optional)" icon={GraduationCap}>
-              <select 
-                value={classId} 
-                onChange={e => setClassId(e.target.value)}
-                className="w-full cursor-pointer appearance-none rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-brand-accent"
-              >
-                <option value="">Select your class</option>
-                {classes.map(c => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
+            <Field label="Bio / About" icon={AlignLeft}>
+              <textarea 
+                value={bio} 
+                onChange={e => setBio(e.target.value)} 
+                rows={4} 
+                placeholder="Tell your students a little about yourself..."
+                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-brand-accent resize-y min-h-[100px]" 
+              />
+            </Field>
+
+            <Field label="Qualifications" icon={GraduationCap}>
+              <input 
+                type="text" 
+                value={qualification} 
+                onChange={e => setQualification(e.target.value)} 
+                placeholder="e.g., Bachelor of Education"
+                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-brand-accent" 
+              />
+            </Field>
+
+            <Field label="Specialization" icon={Star}>
+              <input 
+                type="text" 
+                value={specialization} 
+                onChange={e => setSpecialization(e.target.value)} 
+                placeholder="e.g., Mathematics, Science"
+                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-brand-accent" 
+              />
             </Field>
 
             <div className="flex justify-end border-t border-border pt-6">
@@ -241,12 +290,12 @@ export function TeacherProfileView({
   )
 }
 
-function Field({ label, icon: Icon, children }: { label: string, icon: any, children: React.ReactNode }) {
+function Field({ label, icon: Icon, required, children }: { label: string, icon: any, required?: boolean, children: React.ReactNode }) {
   return (
     <div>
       <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
         <Icon size={14} style={{ color: 'var(--brand-accent)' }} />
-        {label}
+        {label} {required && <span className="text-red-500">*</span>}
       </label>
       {children}
     </div>

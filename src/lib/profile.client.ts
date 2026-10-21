@@ -23,6 +23,9 @@ export async function updateProfileClient(payload: {
   last_name: string
   email: string
   phone?: string
+  bio?: string
+  qualification?: string
+  specialization?: string
   class_id?: number
 }): Promise<void> {
   await proxyJson('/auth/me', {
