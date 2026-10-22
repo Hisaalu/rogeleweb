@@ -177,7 +177,7 @@ export function SubscriptionsView({
                     {s.plan_type}
                   </td>
                   <td className="px-4 py-3 font-semibold">
-                    {s.amount != null ? s.amount.toFixed(2) : '—'}
+                    {s.amount != null ? Math.round(s.amount).toLocaleString('en-US') : '—'}
                   </td>
                   <td className="px-4 py-3">
                     <Badge

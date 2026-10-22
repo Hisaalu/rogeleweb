@@ -40,7 +40,7 @@ const TEACHER_NAV: NavItem[] = [
 
 const LEARNER_NAV: NavItem[] = [
   { label: 'Dashboard', href: '/learner/dashboard', icon: LayoutDashboard },
-  { label: 'Subscription', href: '/subscription', icon: CreditCard },
+  { label: 'Subscription', href: '/learner/subscription', icon: CreditCard },
   { label: 'Lessons', href: '/learner/lessons', icon: BookOpen },
   { label: 'Quizzes', href: '/learner/quizzes', icon: HelpCircle },
   { label: 'Homework', href: '/learner/homework', icon: ClipboardList },

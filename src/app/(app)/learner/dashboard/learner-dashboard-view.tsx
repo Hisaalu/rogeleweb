@@ -51,7 +51,7 @@ export function LearnerDashboardView({
             description="You have full access to all premium features."
             endDate={subscription.end_date}
             actionLabel="Manage Plan"
-            actionHref="/subscription"
+            actionHref="/learner/subscription"
           />
         )}
 
@@ -61,7 +61,7 @@ export function LearnerDashboardView({
             title={`Trial Period: ${trial.days_remaining} day${trial.days_remaining === 1 ? '' : 's'} remaining`}
             description={`You have ${trial.days_remaining} day${trial.days_remaining === 1 ? '' : 's'} to explore all features.`}
             actionLabel="Subscribe Now"
-            actionHref="/subscription"
+            actionHref="/learner/subscription"
           />
         )}
 
@@ -71,7 +71,7 @@ export function LearnerDashboardView({
             title="Trial or Subscription Ended!"
             description="Kindly subscribe now to continue accessing lessons, quizzes & more!"
             actionLabel="Subscribe Now"
-            actionHref="/subscription"
+            actionHref="/learner/subscription"
           />
         )}
 
