@@ -160,7 +160,7 @@ export function MobileMenu({
                     className={cn(
                       'flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition sm:py-3',
                       active
-                        ? 'bg-brand-primary/15 text-brand-accent'
+                        ? 'nav-active font-semibold'
                         : 'text-foreground hover:bg-muted',
                     )}
                   >

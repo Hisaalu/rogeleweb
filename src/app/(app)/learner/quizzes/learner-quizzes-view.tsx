@@ -17,36 +17,6 @@ export function LearnerQuizzesView({ quizzes, attempts }: { quizzes: Quiz[], att
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-8">
-      
-      {completedAttempts.length > 0 && (
-        <div className="flex flex-wrap items-center justify-between gap-6 rounded-2xl bg-gradient-to-br from-brand-primary to-purple-900 p-6 text-white shadow-xl sm:p-8">
-          <div className="flex items-center gap-5">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-400/20 text-emerald-300 backdrop-blur-sm">
-              {isTopPerformer ? <Crown size={28} /> : <LineChart size={28} />}
-            </div>
-            <div>
-              <h3 className="text-lg font-bold">
-                {isTopPerformer ? 'You are a Top Performer!' : 'Keep Practicing to Earn the Badge!'}
-              </h3>
-              <p className="mt-1 text-sm text-white/90">
-                Your overall average score is <strong className="text-white">{avgScore}%</strong>. 
-                {!isTopPerformer && ' Reach 80% or higher to unlock the Top Performer badge.'}
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-4 rounded-xl bg-white/15 px-5 py-3 backdrop-blur-sm">
-            <div className="text-center">
-              <span className="block text-xl font-bold">{avgScore}%</span>
-              <span className="text-[10px] uppercase tracking-wider opacity-80">Average</span>
-            </div>
-            <div className="w-px bg-white/20" />
-            <div className="text-center">
-              <span className="block text-xl font-bold">{completedAttempts.length}</span>
-              <span className="text-[10px] uppercase tracking-wider opacity-80">Completed</span>
-            </div>
-          </div>
-        </div>
-      )}
 
       <div className="text-center">
         <h1 className="flex items-center justify-center gap-2 text-2xl font-bold text-foreground sm:text-3xl">

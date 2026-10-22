@@ -2,7 +2,7 @@
 
 import { memo } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard,
   BookOpen,
@@ -14,6 +14,7 @@ import {
   Users,
   BarChart3,
   Settings,
+  LogOut,
   type LucideIcon,
 } from 'lucide-react'
 import { BrandLogo } from '@/components/brand/brand-logo'
@@ -50,7 +51,14 @@ const LEARNER_NAV: NavItem[] = [
 
 export const Sidebar = memo(function Sidebar({ user }: { user: SessionUser }) {
   const pathname = usePathname()
+  const router = useRouter()
   const items = user.role === 'teacher' ? TEACHER_NAV : LEARNER_NAV
+
+  async function handleLogout() {
+    await fetch('/api/auth/logout', { method: 'POST' })
+    router.replace('/login')
+    router.refresh()
+  }
 
   return (
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-border bg-card lg:flex">
@@ -65,6 +73,17 @@ export const Sidebar = memo(function Sidebar({ user }: { user: SessionUser }) {
           ))}
         </ul>
       </nav>
+
+      <div className="shrink-0 border-t border-border p-3">
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50"
+        >
+          <LogOut size={18} className="shrink-0" />
+          <span className="truncate">Logout</span>
+        </button>
+      </div>
     </aside>
   )
 })
@@ -88,7 +107,7 @@ const NavLink = memo(function NavLink({
         className={cn(
           'flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-medium transition',
           active
-            ? 'text-brand-accent bg-brand-primary/10'
+            ? 'nav-active font-semibold'
             : 'text-foreground hover:bg-muted hover:text-brand-accent',
         )}
       >

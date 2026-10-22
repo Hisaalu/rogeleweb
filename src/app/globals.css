@@ -148,3 +148,28 @@
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand-accent) 25%, transparent);
   }
 }
+
+@layer components {
+  .nav-active {
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--brand-accent) 14%, transparent),
+      color-mix(in srgb, var(--brand-primary) 14%, transparent)
+    );
+    box-shadow:
+      0 1px 3px color-mix(in srgb, var(--brand-accent) 12%, transparent),
+      inset 3px 0 0 var(--brand-accent);
+    color: var(--brand-accent);
+  }
+
+  .dark .nav-active {
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--brand-accent) 20%, transparent),
+      color-mix(in srgb, var(--brand-primary) 20%, transparent)
+    );
+    box-shadow:
+      0 1px 3px color-mix(in srgb, var(--brand-accent) 18%, transparent),
+      inset 3px 0 0 var(--brand-accent);
+  }
+}
