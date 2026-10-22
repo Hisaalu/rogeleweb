@@ -175,11 +175,10 @@ export function LearnerProfileView({
                 <Gift size={16} className="sm:h-[18px] sm:w-[18px]" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Trial Status</p>
+                <p className="text-xs text-muted-foreground">Status</p>
                 {hasActiveSubscription ? (
                   <>
                     <p className="text-sm font-bold text-emerald-500">Active Subscription</p>
-                    <span className="text-[10px] text-emerald-600">No trial needed</span>
                   </>
                 ) : isInTrial ? (
                   <>
