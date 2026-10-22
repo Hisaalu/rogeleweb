@@ -61,19 +61,21 @@ export function PlanCard({
   plan,
   allPlans,
   recommended,
-  hasActiveSubscription,
+  isCurrentPlan,
+  showButton,
+  buttonLabel,
   onSelect,
 }: {
   plan: SubscriptionPlan
   allPlans: SubscriptionPlan[]
   recommended: boolean
-  hasActiveSubscription: boolean
+  isCurrentPlan: boolean
+  showButton: boolean
+  buttonLabel: string
   onSelect: () => void
 }) {
   const tier = tierFor(plan.duration_days)
   const savings = computeSavings(plan, allPlans)
-  
-  // Calculate the monthly equivalent for termly and yearly plans
   const months = Math.max(1, Math.round(plan.duration_days / 30))
   const perMonth = plan.price / months
 
@@ -140,7 +142,6 @@ export function PlanCard({
       
       <div className="mt-1 flex flex-col gap-0.5 text-xs text-muted-foreground">
         <p>{periodLabel(plan.duration_days)}</p>
-        {/* Show the per month equivalent if it's not the monthly plan */}
         {tier !== 'monthly' && (
           <p className="font-medium text-foreground/80">
             (approx. {fmtMoney(perMonth)} UGX / month)
@@ -170,7 +171,13 @@ export function PlanCard({
         })}
       </ul>
 
-      {!hasActiveSubscription && (
+      {isCurrentPlan && (
+         <div className="mt-6 w-full rounded-full bg-muted py-2.5 text-center text-sm font-semibold text-muted-foreground">
+            Current Plan
+         </div>
+      )}
+
+      {!isCurrentPlan && showButton && (
         <button
           type="button"
           onClick={onSelect}
@@ -181,7 +188,7 @@ export function PlanCard({
               : 'var(--brand-accent)',
           }}
         >
-          Select Plan
+          {buttonLabel}
         </button>
       )}
     </div>

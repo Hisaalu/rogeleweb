@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { CreditCard, Loader2, X } from 'lucide-react'
-import { initiatePaymentClient, getPaymentStatusClient } from '@/lib/payments.client'
+import { initiatePaymentClient, getPaymentStatusClient, previewPaymentClient } from '@/lib/payments.client'
 import type { PaymentMethod, SubscriptionPlan } from '@/types/subscription'
 import { formatMoneyUGX } from '@/lib/format-money'
 
@@ -30,6 +30,23 @@ export function PaymentModal({
   const [submitting, setSubmitting] = useState(false)
   const [statusText, setStatusText] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  const [amountToPay, setAmountToPay] = useState<number | null>(null)
+  const [loadingPreview, setLoadingPreview] = useState(true)
+
+  useEffect(() => {
+    async function fetchPreview() {
+      try {
+        const res = await previewPaymentClient(plan.id)
+        setAmountToPay(res.amount)
+      } catch {
+        setAmountToPay(plan.price)
+      } finally {
+        setLoadingPreview(false)
+      }
+    }
+    fetchPreview()
+  }, [plan.id, plan.price])
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -80,7 +97,6 @@ export function PaymentModal({
             return
           }
         } catch {
-          // ignore transient errors, keep polling
         }
         if (attempts >= MAX_POLLS) {
           clearInterval(interval)
@@ -106,17 +122,13 @@ export function PaymentModal({
       <div
         role="dialog"
         aria-modal="true"
-        aria-labelledby="payment-modal-title"
         className="relative z-10 w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
       >
         <div
           className="flex items-center justify-between px-5 py-4"
           style={{ backgroundColor: 'var(--brand-primary)' }}
         >
-          <h3
-            id="payment-modal-title"
-            className="flex items-center gap-2 text-sm font-semibold text-white sm:text-base"
-          >
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-white sm:text-base">
             <CreditCard size={18} />
             Complete Payment
           </h3>
@@ -124,7 +136,6 @@ export function PaymentModal({
             type="button"
             onClick={onClose}
             disabled={submitting}
-            aria-label="Close"
             className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white transition hover:bg-white/30 disabled:opacity-50"
           >
             <X size={16} />
@@ -137,9 +148,16 @@ export function PaymentModal({
               You&apos;re subscribing to
             </p>
             <p className="mt-1 text-base font-bold text-foreground">{plan.name} Plan</p>
-            <p className="mt-2 text-lg font-bold" style={{ color: 'var(--brand-primary)' }}>
-              {formatMoneyUGX(plan.price)}
-            </p>
+            
+            <div className="mt-2 text-lg font-bold" style={{ color: 'var(--brand-primary)' }}>
+              {loadingPreview ? (
+                <span className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 size={14} className="animate-spin" /> Calculating balance...
+                </span>
+              ) : (
+                formatMoneyUGX(amountToPay ?? plan.price)
+              )}
+            </div>
           </div>
 
           <div>
@@ -170,7 +188,7 @@ export function PaymentModal({
                 value={phone}
                 onChange={(e) => setPhone(formatPhone(e.target.value))}
                 placeholder="772 123 456"
-                disabled={submitting}
+                disabled={submitting || loadingPreview}
                 className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-brand-accent disabled:opacity-60"
               />
             </div>
@@ -214,7 +232,7 @@ export function PaymentModal({
             </button>
             <button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || loadingPreview}
               className="flex flex-1 items-center justify-center gap-2 rounded-full py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
               style={{ backgroundColor: 'var(--brand-primary)' }}
             >

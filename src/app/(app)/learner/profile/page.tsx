@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { getSessionUser } from '@/lib/auth'
-import { getProfileServer, getClassesServer, getTrialStatusServer, getActiveSubscriptionServer } from '@/lib/profile.server'
+import { getProfileServer, getClassesServer } from '@/lib/profile.server'
+import { getTrialStatusServer, getActiveSubscriptionServer } from '@/lib/dashboard.server'
+import { hasAccess } from '@/lib/access'
 import { LearnerProfileView } from './learner-profile-view'
 
 export const metadata: Metadata = { title: 'My Profile' }
@@ -17,12 +19,15 @@ export default async function LearnerProfilePage() {
     getActiveSubscriptionServer(),
   ])
 
+  const userHasAccess = hasAccess(subscription, trial)
+
   return (
     <LearnerProfileView 
       profile={profile} 
       classes={classes} 
       trial={trial} 
-      subscription={subscription} 
+      subscription={subscription}
+      hasAccess={userHasAccess} 
     />
   )
 }

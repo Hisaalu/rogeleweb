@@ -7,6 +7,7 @@ export async function listActivePlansServer(): Promise<SubscriptionPlan[]> {
   const all = await listPlansServer({ per_page: 100 })
   return all
     .filter((p) => p.is_active !== false)
+    .filter((p) => p.price > 0)
     .sort((a, b) => a.price - b.price)
 }
 

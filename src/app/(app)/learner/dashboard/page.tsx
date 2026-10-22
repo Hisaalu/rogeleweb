@@ -6,6 +6,7 @@ import type { User } from '@/types/api'
 import { LearnerDashboardView } from './learner-dashboard-view'
 
 export const metadata: Metadata = { title: 'Dashboard' }
+export const dynamic = 'force-dynamic'
 
 export default async function LearnerDashboardPage() {
   const session = await getSessionUser()

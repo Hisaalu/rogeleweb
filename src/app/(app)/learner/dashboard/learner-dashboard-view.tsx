@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { BookOpen, HelpCircle, CreditCard, Calendar } from 'lucide-react'
+import { BookOpen, HelpCircle, CreditCard, Calendar, Clock } from 'lucide-react'
 import type { User } from '@/types/api'
 import type {
   CalendarEvent,
@@ -34,6 +34,15 @@ export function LearnerDashboardView({
     !hasActiveSubscription && !!trial && trial.is_in_trial && trial.days_remaining > 0
   const hasAccess = hasActiveSubscription || isInTrial
 
+  const trialProgress =
+    trial && trial.total_days > 0
+      ? Math.min(100, Math.max(0, ((trial.total_days - trial.days_remaining) / trial.total_days) * 100))
+      : 0
+
+  const isMonthly = subscription?.plan_type === 'monthly'
+  const isTermly = subscription?.plan_type === 'termly'
+  const canUpgrade = hasActiveSubscription && (isMonthly || isTermly)
+
   return (
     <div className="space-y-5 sm:space-y-6">
       <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
@@ -50,19 +59,69 @@ export function LearnerDashboardView({
             title="Subscribed."
             description="You have full access to all premium features."
             endDate={subscription.end_date}
-            actionLabel="Manage Plan"
+            actionLabel={canUpgrade ? "Upgrade Plan" : "Manage Plan"}
             actionHref="/learner/subscription"
           />
         )}
 
         {isInTrial && trial && (
-          <AccessBanner
-            variant="trial"
-            title={`Trial Period: ${trial.days_remaining} day${trial.days_remaining === 1 ? '' : 's'} remaining`}
-            description={`You have ${trial.days_remaining} day${trial.days_remaining === 1 ? '' : 's'} to explore all features.`}
-            actionLabel="Subscribe Now"
-            actionHref="/learner/subscription"
-          />
+          <div
+            className="rounded-xl border-l-4 p-5"
+            style={{ backgroundColor: 'var(--warning-bg)', borderLeftColor: 'var(--warning-border)' }}
+          >
+            <div className="flex flex-wrap items-center gap-4">
+              <div
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
+                style={{ backgroundColor: 'var(--warning-border)' }}
+              >
+                <Clock size={22} className="text-white" />
+              </div>
+              <div className="min-w-[200px] flex-1">
+                <p className="font-semibold" style={{ color: 'var(--warning-fg)' }}>
+                  Free Trial: {trial.days_remaining} day{trial.days_remaining === 1 ? '' : 's'} remaining
+                </p>
+                <p className="text-sm" style={{ color: 'var(--warning-accent)' }}>
+                  You have {trial.days_remaining} days to explore all features.
+                </p>
+                {trial.end_date && (
+                  <p className="mt-0.5 text-xs" style={{ color: 'var(--warning-accent)' }}>
+                    Ends on{' '}
+                    {new Date(trial.end_date).toLocaleDateString('en-US', {
+                      month: 'long',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
+                  </p>
+                )}
+              </div>
+              <a
+                href="/learner/subscription"
+                className="shrink-0 rounded-full px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+                style={{ backgroundColor: 'var(--brand-accent)' }}
+              >
+                Subscribe Now
+              </a>
+            </div>
+
+            <div className="mt-4">
+              <div
+                className="mb-1 flex justify-between text-xs font-medium"
+                style={{ color: 'var(--warning-fg)' }}
+              >
+                <span>{trial.days_remaining} days left</span>
+                <span>{trial.total_days} total days</span>
+              </div>
+              <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/40">
+                <div
+                  className="h-full rounded-full transition-all duration-500 ease-out"
+                  style={{
+                    width: `${trialProgress}%`,
+                    backgroundColor: 'var(--warning-border)',
+                  }}
+                />
+              </div>
+            </div>
+          </div>
         )}
 
         {!hasAccess && (
@@ -97,7 +156,7 @@ export function LearnerDashboardView({
             locked={!hasAccess}
           />
           <NavCard
-            href="/subscription"
+            href="/learner/subscription"
             icon={<CreditCard size={26} />}
             title="Subscription"
             description={
@@ -139,7 +198,7 @@ export function LearnerDashboardView({
               please choose a subscription plan!
             </p>
             <a
-              href="/subscription"
+              href="/learner/subscription"
               className="inline-block rounded-full px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 sm:px-8 sm:py-3"
               style={{ backgroundColor: '#23a74c' }}
             >

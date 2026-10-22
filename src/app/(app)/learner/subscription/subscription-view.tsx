@@ -2,12 +2,12 @@
 
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { CheckCircle2 } from 'lucide-react'
 import type { Payment, Subscription, SubscriptionPlan } from '@/types/subscription'
 import { PlanCard } from './plan-card'
 import { PaymentModal } from './payment-modal'
 import { PaymentHistory } from './payment-history'
 import { ActiveBanner } from './active-banner'
+import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
 
 export function SubscriptionView({
   plans,
@@ -20,7 +20,14 @@ export function SubscriptionView({
 }) {
   const router = useRouter()
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null)
-  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  
+  const [toasts, setToasts] = useState<ToastMessage[]>([])
+  const pushToast = (message: string, tone: ToastTone) => {
+    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
+  }
+  const closeToast = (id: number) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id))
+  }
 
   const recommendedId = useMemo(() => {
     if (plans.length < 2) return null
@@ -29,11 +36,17 @@ export function SubscriptionView({
 
   function handleSuccess() {
     setSelectedPlan(null)
-    setSuccessMessage('Payment confirmed! Your subscription is now active.')
+    pushToast('Payment confirmed! Your subscription is now active.', 'success')
     router.refresh()
   }
 
   const hasActiveSubscription = subscription?.status === 'active'
+
+  const currentPlanIndex = plans.findIndex(
+    (p) =>
+      String(p.id) === subscription?.plan_type ||
+      p.name.toLowerCase() === subscription?.plan_type?.toLowerCase()
+  )
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-3 py-6 sm:px-4 sm:py-10">
@@ -55,20 +68,6 @@ export function SubscriptionView({
         </p>
       </div>
 
-      {successMessage && (
-        <div
-          className="flex items-center gap-3 rounded-xl border px-4 py-3 text-sm"
-          style={{
-            backgroundColor: 'var(--success-bg)',
-            borderColor: 'var(--success-border)',
-            color: 'var(--success-fg)',
-          }}
-        >
-          <CheckCircle2 size={18} />
-          <span>{successMessage}</span>
-        </div>
-      )}
-
       {hasActiveSubscription && subscription && (
         <ActiveBanner subscription={subscription} plans={plans} />
       )}
@@ -84,16 +83,28 @@ export function SubscriptionView({
           id="plans"
           className="grid grid-cols-1 gap-4 pt-2 sm:gap-6 md:grid-cols-2 lg:grid-cols-3"
         >
-          {plans.map((plan) => (
-            <PlanCard
-              key={plan.id}
-              plan={plan}
-              allPlans={plans}
-              recommended={plan.id === recommendedId}
-              hasActiveSubscription={hasActiveSubscription}
-              onSelect={() => setSelectedPlan(plan)}
-            />
-          ))}
+          {plans.map((plan, index) => {
+            const isCurrentPlan =
+              hasActiveSubscription &&
+              (String(plan.id) === subscription?.plan_type ||
+                plan.name.toLowerCase() === subscription?.plan_type?.toLowerCase())
+
+            const isUpgrade = hasActiveSubscription && currentPlanIndex >= 0 && index > currentPlanIndex
+            const showButton = !hasActiveSubscription || isUpgrade
+
+            return (
+              <PlanCard
+                key={plan.id}
+                plan={plan}
+                allPlans={plans}
+                recommended={plan.id === recommendedId}
+                isCurrentPlan={isCurrentPlan}
+                showButton={showButton}
+                buttonLabel={isUpgrade ? `Upgrade to ${plan.name}` : "Select Plan"}
+                onSelect={() => setSelectedPlan(plan)}
+              />
+            )
+          })}
         </div>
       )}
 
@@ -106,6 +117,8 @@ export function SubscriptionView({
           onSuccess={handleSuccess}
         />
       )}
+
+      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }

@@ -49,3 +49,10 @@ export async function listMyPaymentsClient(): Promise<Payment[]> {
   }
   return []
 }
+
+export async function previewPaymentClient(plan_id: number): Promise<{ amount: number }> {
+  return proxy<{ amount: number }>('/payments/preview', {
+    method: 'POST',
+    body: JSON.stringify({ plan_id }),
+  })
+}
