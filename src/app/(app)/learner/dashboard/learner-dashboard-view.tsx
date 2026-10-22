@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { BookOpen, HelpCircle, CreditCard, Calendar, Clock } from 'lucide-react'
+import { BookOpen, HelpCircle, CreditCard, Calendar, Clock, Crown } from 'lucide-react'
 import type { User } from '@/types/api'
 import type {
   CalendarEvent,
@@ -39,9 +39,12 @@ export function LearnerDashboardView({
       ? Math.min(100, Math.max(0, ((trial.total_days - trial.days_remaining) / trial.total_days) * 100))
       : 0
 
-  const isMonthly = subscription?.plan_type === 'monthly'
-  const isTermly = subscription?.plan_type === 'termly'
+  const isMonthly = subscription?.plan_type === 'monthly' || subscription?.plan_type === '1'
+  const isTermly = subscription?.plan_type === 'termly' || subscription?.plan_type === '2'
+  const isYearly = subscription?.plan_type === 'yearly' || subscription?.plan_type === '3'
+  
   const canUpgrade = hasActiveSubscription && (isMonthly || isTermly)
+  const buttonLabel = hasActiveSubscription ? (isYearly ? "Pro" : "Upgrade Plan") : "Subscribe Now"
 
   return (
     <div className="space-y-5 sm:space-y-6">
@@ -59,8 +62,9 @@ export function LearnerDashboardView({
             title="Subscribed."
             description="You have full access to all premium features."
             endDate={subscription.end_date}
-            actionLabel={canUpgrade ? "Upgrade Plan" : "Manage Plan"}
+            actionLabel={buttonLabel}
             actionHref="/learner/subscription"
+            showCrown={isYearly}
           />
         )}
 

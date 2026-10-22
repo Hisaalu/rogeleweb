@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { CheckCircle2, Clock, AlertCircle } from 'lucide-react'
+import { CheckCircle2, Clock, AlertCircle, Crown } from 'lucide-react'
 
 type Variant = 'active' | 'trial' | 'expired'
 
@@ -42,6 +42,7 @@ export function AccessBanner({
   endDate,
   actionLabel,
   actionHref,
+  showCrown,
 }: {
   variant: Variant
   title: string
@@ -49,6 +50,7 @@ export function AccessBanner({
   endDate?: string | null
   actionLabel: string
   actionHref: string
+  showCrown?: boolean
 }) {
   const c = CONFIG[variant]
   const Icon = c.icon
@@ -86,9 +88,10 @@ export function AccessBanner({
 
       <Link
         href={actionHref}
-        className="shrink-0 rounded-full px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-        style={{ backgroundColor: c.buttonBg }}
+        className="flex shrink-0 items-center gap-1.5 rounded-full px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+        style={{ backgroundColor: showCrown ? 'var(--brand-primary)' : c.buttonBg }}
       >
+        {showCrown && <Crown size={14} className="shrink-0" />}
         {actionLabel}
       </Link>
     </div>
