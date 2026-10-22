@@ -175,7 +175,7 @@ export function LearnerProfileView({
                 <Gift size={16} className="sm:h-[18px] sm:w-[18px]" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Status</p>
+                <p className="text-xs text-muted-foreground">Plan Status</p>
                 {hasActiveSubscription ? (
                   <>
                     <p className="text-sm font-bold text-emerald-500">Active Subscription</p>
