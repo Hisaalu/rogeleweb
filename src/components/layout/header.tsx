@@ -35,10 +35,10 @@ export function Header({
         {user.role !== 'teacher' && (
           <Link
             href="/subscription"
-            className="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-bold text-white transition hover:opacity-90 sm:gap-2 sm:px-4 sm:text-xs"
+            className="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-bold text-white transition hover:opacity-90 sm:gap-2 sm:px-4 sm:py-2 sm:text-xs"
             style={{ backgroundColor: 'var(--success-border)' }}
           >
-            <Zap size={12} className="shrink-0 sm:hidden" />
+            <Zap size={13} className="shrink-0" />
             <span>Upgrade</span>
           </Link>
         )}
