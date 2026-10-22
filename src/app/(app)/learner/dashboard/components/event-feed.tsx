@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Clock } from 'lucide-react'
+import { Clock, X } from 'lucide-react'
 import type { CalendarEvent } from '@/types/dashboard'
 
 function monthShort(iso: string): string {
@@ -12,20 +12,59 @@ function dayNum(iso: string): string {
   return String(new Date(iso).getDate()).padStart(2, '0')
 }
 
-export function EventFeed({ events }: { events: CalendarEvent[] }) {
-  const sorted = [...events].sort(
+function dayKey(iso: string): string {
+  return iso.slice(0, 10)
+}
+
+export function EventFeed({
+  events,
+  selectedDate,
+  onClearFilter,
+}: {
+  events: CalendarEvent[]
+  selectedDate: string | null
+  onClearFilter: () => void
+}) {
+  const filtered = selectedDate
+    ? events.filter((e) => dayKey(e.date) === selectedDate)
+    : events
+
+  const sorted = [...filtered].sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   )
 
+  const headerLabel = selectedDate
+    ? `Events on ${new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+      })}`
+    : 'Upcoming Deadlines & Events'
+
   return (
-    <div className="flex flex-col">
-      <h4 className="mb-4 text-sm font-semibold text-foreground">
-        Upcoming Deadlines &amp; Events
-      </h4>
+    <div id="dashboard-event-feed" className="flex flex-col scroll-mt-24">
+      <div className="mb-4 flex items-center justify-between gap-2">
+        <h4 className="text-sm font-semibold text-foreground">
+          {headerLabel}
+        </h4>
+        {selectedDate && (
+          <button
+            type="button"
+            onClick={onClearFilter}
+            aria-label="Clear date filter"
+            className="flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-xs font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          >
+            <X size={12} />
+            Clear
+          </button>
+        )}
+      </div>
 
       {sorted.length === 0 ? (
         <p className="text-sm italic text-muted-foreground">
-          No scheduled events or deadlines at the moment.
+          {selectedDate
+            ? 'No events on this date.'
+            : 'No scheduled events or deadlines at the moment.'}
         </p>
       ) : (
         <div className="flex max-h-[280px] flex-col gap-3 overflow-y-auto pr-1">

@@ -14,7 +14,15 @@ function toKey(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
-export function EventCalendar({ events }: { events: CalendarEvent[] }) {
+export function EventCalendar({
+  events,
+  selectedDate,
+  onDaySelect,
+}: {
+  events: CalendarEvent[]
+  selectedDate: string | null
+  onDaySelect: (dateKey: string | null) => void
+}) {
   const today = new Date()
   const [current, setCurrent] = useState(
     new Date(today.getFullYear(), today.getMonth(), 1),
@@ -49,20 +57,15 @@ export function EventCalendar({ events }: { events: CalendarEvent[] }) {
     setCurrent((prev) => new Date(prev.getFullYear(), prev.getMonth() + delta, 1))
   }
 
-  function handleDayClick(dayEvents: CalendarEvent[]) {
+  function handleDayClick(dayKey: string, dayEvents: CalendarEvent[]) {
     if (dayEvents.length === 1) {
       window.location.href = dayEvents[0].url
       return
     }
-    if (dayEvents.length > 1) {
-      const list = dayEvents.map((e, i) => `${i + 1}. ${e.title}`).join('\n')
-      const choice = window.prompt(
-        `Multiple deadlines on this day:\n\n${list}\n\nType the number of the task to open:`,
-      )
-      const idx = Number(choice) - 1
-      if (!Number.isNaN(idx) && dayEvents[idx]) {
-        window.location.href = dayEvents[idx].url
-      }
+    onDaySelect(selectedDate === dayKey ? null : dayKey)
+    const feed = document.getElementById('dashboard-event-feed')
+    if (feed) {
+      feed.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   }
 
@@ -107,6 +110,7 @@ export function EventCalendar({ events }: { events: CalendarEvent[] }) {
           const dayEvents = eventsByDate.get(cell.key) ?? []
           const hasEvents = dayEvents.length > 0
           const isToday = cell.key === toKey(today)
+          const isSelected = cell.key === selectedDate
 
           const style: React.CSSProperties = {
             padding: '8px 0',
@@ -130,16 +134,36 @@ export function EventCalendar({ events }: { events: CalendarEvent[] }) {
             style.fontWeight = 700
           }
 
+          if (isSelected && !isToday) {
+            style.outline = '2px solid var(--brand-primary)'
+            style.outlineOffset = '1px'
+          }
+
           return (
             <button
               type="button"
               key={i}
-              onClick={() => hasEvents && handleDayClick(dayEvents)}
+              onClick={() => handleDayClick(cell.key!, dayEvents)}
               disabled={!hasEvents}
-              title={hasEvents ? `Click to view ${dayEvents.length} event(s)` : undefined}
+              aria-pressed={isSelected}
+              title={
+                hasEvents
+                  ? dayEvents.length === 1
+                    ? dayEvents[0].title
+                    : `${dayEvents.length} events — click to filter`
+                  : undefined
+              }
               style={style}
             >
               {cell.day}
+              {hasEvents && dayEvents.length > 1 && (
+                <span
+                  className="absolute right-0.5 top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full text-[9px] font-bold text-white"
+                  style={{ backgroundColor: 'var(--brand-accent)' }}
+                >
+                  {dayEvents.length}
+                </span>
+              )}
             </button>
           )
         })}

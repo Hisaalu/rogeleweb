@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { BookOpen, HelpCircle, CreditCard, Calendar } from 'lucide-react'
 import type { User } from '@/types/api'
 import type {
@@ -25,6 +26,8 @@ export function LearnerDashboardView({
   trial: TrialStatus | null
   events: CalendarEvent[]
 }) {
+  const [selectedDate, setSelectedDate] = useState<string | null>(null)
+
   const firstName = profile?.first_name ?? 'there'
   const hasActiveSubscription = subscription?.status === 'active'
   const isInTrial =
@@ -114,8 +117,16 @@ export function LearnerDashboardView({
         </h3>
 
         <div className="mt-4 grid gap-4 rounded-2xl border border-border bg-muted/30 p-3 sm:mt-5 sm:gap-6 sm:p-5 lg:grid-cols-2">
-          <EventCalendar events={events} />
-          <EventFeed events={events} />
+          <EventCalendar
+            events={events}
+            selectedDate={selectedDate}
+            onDaySelect={setSelectedDate}
+          />
+          <EventFeed
+            events={events}
+            selectedDate={selectedDate}
+            onClearFilter={() => setSelectedDate(null)}
+          />
         </div>
 
         {!hasAccess && (
