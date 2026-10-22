@@ -84,7 +84,7 @@ export function PlanCard({
     benefits.push('Practice quizzes & assessments')
     benefits.push('Homework support')
     benefits.push('Progress tracking dashboard')
-    benefits.push('Institutional calendar & reminders')
+    benefits.push('Change from one class to the next')
   }
 
   if (tier === 'termly') {

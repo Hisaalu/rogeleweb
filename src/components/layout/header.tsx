@@ -34,7 +34,7 @@ export function Header({
       <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
         {user.role !== 'teacher' && (
           <Link
-            href="/subscription"
+            href="/learner/subscription"
             className="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-bold text-white transition hover:opacity-90 sm:gap-2 sm:px-4 sm:py-2 sm:text-xs"
             style={{ backgroundColor: 'var(--success-border)' }}
           >
