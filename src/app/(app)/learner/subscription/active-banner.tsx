@@ -20,12 +20,18 @@ export function ActiveBanner({
   subscription: Subscription
   plans: SubscriptionPlan[]
 }) {
-  const planName =
-    plans.find((p) => String(p.id) === subscription.plan_type)?.name ??
-    subscription.plan_type ??
-    'Subscription'
-
-  const currentIndex = plans.findIndex((p) => String(p.id) === subscription.plan_type)
+  const currentPlan = plans.find(
+    (p) =>
+      String(p.id) === subscription.plan_type ||
+      p.name.toLowerCase() === subscription.plan_type?.toLowerCase()
+  )
+  const planName = currentPlan?.name ?? subscription.plan_type ?? 'Subscription'
+  
+  const currentIndex = plans.findIndex(
+    (p) =>
+      String(p.id) === subscription.plan_type ||
+      p.name.toLowerCase() === subscription.plan_type?.toLowerCase()
+  )
   const nextPlan = currentIndex >= 0 ? plans[currentIndex + 1] : undefined
 
   return (
