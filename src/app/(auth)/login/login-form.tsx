@@ -75,7 +75,7 @@ export function LoginForm() {
       <div className="flex flex-col items-center text-center">
         <BrandLogo size={150} showText={false} className="mb-4" />
         <h1 className="text-2xl font-semibold text-foreground">
-          Login to {branding.schoolName || 'ROGELE'}
+          Login to {branding.schoolName}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {branding.tagline || 'Rays of Grace E-Learning'}

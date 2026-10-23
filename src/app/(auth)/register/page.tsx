@@ -4,7 +4,7 @@ import type { Class } from '@/types/admin'
 import { RegisterForm } from './register-form'
 
 export const metadata: Metadata = {
-  title: 'Create Account | ROGELE',
+  title: 'Create Account',
 }
 
 export default async function RegisterPage() {
