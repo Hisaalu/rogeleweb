@@ -125,9 +125,9 @@ export function MobileMenu({
             type="button"
             onClick={onClose}
             aria-label="Close menu"
-            className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white transition hover:rotate-90 hover:bg-white/30"
+            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white transition hover:rotate-90 hover:bg-white/30"
           >
-            <X size={18} />
+            <X size={20} />
           </button>
 
           <div className="mt-7 flex items-center gap-3 sm:mt-8 sm:gap-4">

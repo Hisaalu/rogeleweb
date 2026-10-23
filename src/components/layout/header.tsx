@@ -22,10 +22,10 @@ export function Header({
         <button
           type="button"
           onClick={onMenuClick}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-muted lg:hidden"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-foreground transition hover:bg-muted lg:hidden"
           aria-label="Open menu"
         >
-          <Menu size={22} />
+          <Menu size={24} />
         </button>
 
         <Link href="/dashboard" className="flex min-w-0 items-center lg:hidden">
