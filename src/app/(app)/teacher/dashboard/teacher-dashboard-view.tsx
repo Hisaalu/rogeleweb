@@ -72,7 +72,7 @@ export function TeacherDashboardView({
         <StatCard icon={BookOpen} label="Total Lessons" value={data.totalLessons} />
         <StatCard icon={HelpCircle} label="Total Quizzes" value={data.totalQuizzes} />
         <StatCard icon={Users} label="Total Students" value={data.totalStudents} />
-        <StatCard icon={Activity} label="Avg. Score" value={`${data.averageScore}%`} />
+        <StatCard icon={Activity} label="Avg. Score" value={`${Math.round(data.averageScore)}%`} />
       </div>
 
       <section>

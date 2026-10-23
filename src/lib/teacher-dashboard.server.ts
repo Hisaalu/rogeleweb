@@ -21,14 +21,28 @@ function parseList<T>(res: unknown): T[] {
   return []
 }
 
+const PYTHON_URL = process.env.ANALYTICS_API_URL ?? 'http://localhost:9000'
+
+async function fetchPython(endpoint: string, params: Record<string, string> = {}) {
+  const search = new URLSearchParams(params).toString()
+  const url = `${PYTHON_URL}/analytics/${endpoint}${search ? `?${search}` : ''}`
+  try {
+    const res = await fetch(url, { cache: 'no-store' })
+    if (!res.ok) return null
+    return res.json()
+  } catch {
+    return null
+  }
+}
+
 export async function getTeacherDashboardDataServer(
   teacherId: number,
 ): Promise<TeacherDashboardData> {
-  const [lessonsRes, quizzesRes, statsRes, globalQuizStatsRes] = await Promise.all([
+  const [lessonsRes, quizzesRes, statsRes, scoresData] = await Promise.all([
     serverApiRequest<unknown>('/api/v1/lessons?limit=5&per_page=5').catch(() => []),
     serverApiRequest<unknown>('/api/v1/quizzes?limit=5&per_page=5').catch(() => []),
     serverApiRequest<AdminOverview>('/api/v1/admin/stats').catch(() => null),
-    serverApiRequest<{ average_score: number }>('/api/v1/quizzes/global-stats').catch(() => ({ average_score: 0 })),
+    fetchPython('score-distribution').catch(() => null),
   ])
 
   const lessons = parseList<Lesson>(lessonsRes)
@@ -41,7 +55,7 @@ export async function getTeacherDashboardDataServer(
     totalStudents = learners + externals
   }
 
-  const averageScore = globalQuizStatsRes?.average_score ?? 0
+  const averageScore = scoresData?.average ?? 0
 
   return {
     totalLessons: lessons.length,
