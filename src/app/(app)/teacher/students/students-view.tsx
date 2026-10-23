@@ -21,6 +21,23 @@ interface StudentListItem {
   avg_score: number
 }
 
+function getInitials(first?: string, last?: string, fullName?: string): string {
+  if (first && last) {
+    return (first[0] + last[0]).toUpperCase()
+  }
+  if (first) {
+    return first.slice(0, 2).toUpperCase()
+  }
+  if (fullName) {
+    const parts = fullName.trim().split(/\s+/)
+    if (parts.length > 1) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+    }
+    return parts[0].slice(0, 2).toUpperCase()
+  }
+  return 'ST'
+}
+
 export function StudentsView({ students, classes }: { students: StudentListItem[], classes: Class[] }) {
   const router = useRouter()
   const pathname = usePathname()
@@ -141,6 +158,7 @@ export function StudentsView({ students, classes }: { students: StudentListItem[
           {filteredStudents.map(student => {
             const name = [student.first_name, student.last_name].filter(Boolean).join(' ') || 'Student'
             const classObj = classes.find(c => c.id === student.class_id)
+            const initials = getInitials(student.first_name, student.last_name, name)
             
             const avgScore = Math.round(student.avg_score)
             const quizzesTaken = student.quizzes_taken
@@ -153,7 +171,7 @@ export function StudentsView({ students, classes }: { students: StudentListItem[
                     {student.profile_photo ? (
                       <img src={student.profile_photo} alt={name} className="h-full w-full rounded-full object-cover" />
                     ) : (
-                      <span>{name.slice(0, 2).toUpperCase()}</span>
+                      <span>{initials}</span>
                     )}
                   </div>
                   
