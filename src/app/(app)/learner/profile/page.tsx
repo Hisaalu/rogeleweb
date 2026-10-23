@@ -5,7 +5,7 @@ import { getTrialStatusServer, getActiveSubscriptionServer } from '@/lib/dashboa
 import { hasAccess } from '@/lib/access'
 import { LearnerProfileView } from './learner-profile-view'
 
-export const metadata: Metadata = { title: 'My Profile' }
+export const metadata: Metadata = { title: 'Profile' }
 export const dynamic = 'force-dynamic'
 
 export default async function LearnerProfilePage() {

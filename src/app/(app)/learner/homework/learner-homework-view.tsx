@@ -47,7 +47,7 @@ export function LearnerHomeworkView({ homeworks }: { homeworks: Homework[] }) {
       <div>
         <h1 className="flex items-center gap-2 text-2xl font-bold sm:text-3xl">
           <ClipboardList size={26} style={{ color: 'var(--brand-primary)' }} />
-          <span style={{ color: 'var(--brand-primary)' }}>My Homework</span>
+          <span style={{ color: 'var(--brand-primary)' }}>Homework</span>
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">View and submit your assignments</p>
       </div>

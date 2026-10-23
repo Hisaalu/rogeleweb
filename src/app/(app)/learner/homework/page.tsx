@@ -3,7 +3,7 @@ import { getSessionUser } from '@/lib/auth'
 import { listHomeworksServer } from '@/lib/homework.server'
 import { LearnerHomeworkView } from './learner-homework-view'
 
-export const metadata: Metadata = { title: 'My Homework' }
+export const metadata: Metadata = { title: 'Homework' }
 export const dynamic = 'force-dynamic'
 
 export default async function LearnerHomeworkPage() {

@@ -5,7 +5,7 @@ import { getProfileServer } from '@/lib/profile.server'
 import type { AdminOverview } from '@/types/admin'
 import { TeacherProfileView } from './teacher-profile-view'
 
-export const metadata: Metadata = { title: 'My Profile' }
+export const metadata: Metadata = { title: 'Profile' }
 export const dynamic = 'force-dynamic'
 
 export default async function TeacherProfilePage() {

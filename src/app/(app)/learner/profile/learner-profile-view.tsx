@@ -101,14 +101,13 @@ export function LearnerProfileView({
       <div>
         <h1 className="flex items-center gap-2 text-xl font-bold sm:text-2xl lg:text-3xl" style={{ color: 'var(--brand-primary)' }}>
           <UserCircle size={26} className="shrink-0 sm:h-7 sm:w-7" />
-          <span>My Profile</span>
+          <span>Profile</span>
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">Manage your Personal Information</p>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[350px_1fr] lg:gap-8">
         
-        {/* Left Sidebar */}
         <div className="space-y-6 rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md sm:p-8">
           <div className="text-center">
             <div className="relative mx-auto mb-5 h-32 w-32 sm:h-[150px] sm:w-[150px]">
