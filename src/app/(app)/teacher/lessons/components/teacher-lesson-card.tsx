@@ -53,9 +53,9 @@ export function TeacherLessonCard({
         <button
           type="button"
           onClick={() => onPublishToggle(lesson.id, !lesson.is_published)}
-          className="absolute right-2.5 top-2.5 rounded-full px-3 py-1 text-xs font-semibold text-white"
+          className="absolute right-2.5 top-2.5 rounded-full px-3 py-1 text-xs font-semibold text-white transition hover:opacity-80"
           style={{
-            backgroundColor: lesson.is_published ? '#23a74c' : 'var(--brand-accent)',
+            backgroundColor: lesson.is_published ? 'var(--success-border)' : 'var(--brand-accent)',
           }}
         >
           {lesson.is_published ? 'Published' : 'Draft'}
@@ -63,7 +63,7 @@ export function TeacherLessonCard({
       </div>
 
       <div className="flex flex-1 flex-col p-5">
-        <h3 className="mb-2.5 text-base font-semibold text-foreground">
+        <h3 className="mb-2.5 line-clamp-2 text-base font-semibold text-foreground">
           {lesson.title}
         </h3>
 
@@ -79,12 +79,12 @@ export function TeacherLessonCard({
         </div>
 
         {lesson.content ? (
-          <p className="mb-3 text-sm leading-relaxed text-muted-foreground">
+          <p className="mb-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
             {truncate(lesson.content, 120)}
           </p>
         ) : null}
 
-        <div className="mb-4 flex flex-wrap gap-4 border-y border-border py-2.5 text-xs text-muted-foreground">
+        <div className="mb-4 flex flex-wrap gap-x-4 gap-y-2 border-y border-border py-2.5 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1">
             <Eye size={12} style={{ color: 'var(--brand-accent)' }} />
             {formatNumber(lesson.views)}
@@ -108,7 +108,7 @@ export function TeacherLessonCard({
         <div className="mt-auto flex gap-2">
           <Link
             href={`/teacher/lessons/${lesson.id}/edit`}
-            className="flex h-10 w-10 items-center justify-center rounded-lg transition"
+            className="flex h-10 w-10 items-center justify-center rounded-lg transition hover:opacity-80"
             style={{
               backgroundColor: 'hsl(var(--muted))',
               color: 'hsl(var(--foreground))',
@@ -120,7 +120,7 @@ export function TeacherLessonCard({
           <button
             type="button"
             onClick={() => onDelete(lesson.id)}
-            className="flex h-10 w-10 items-center justify-center rounded-lg transition"
+            className="flex h-10 w-10 items-center justify-center rounded-lg transition hover:opacity-80"
             style={{
               backgroundColor: 'var(--danger-bg)',
               color: 'var(--danger-fg)',
@@ -132,7 +132,7 @@ export function TeacherLessonCard({
           <Link
             href={`/teacher/lessons/${lesson.id}/preview`}
             target="_blank"
-            className="flex h-10 flex-1 items-center justify-center gap-2 rounded-lg px-3 text-xs font-semibold text-white transition"
+            className="flex h-10 flex-1 items-center justify-center gap-2 rounded-lg px-3 text-xs font-semibold text-white transition hover:opacity-90"
             style={{ backgroundColor: 'var(--brand-primary)' }}
           >
             Preview

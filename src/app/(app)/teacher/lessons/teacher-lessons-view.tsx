@@ -7,6 +7,7 @@ import type { Class, Subject } from '@/types/admin'
 import type { Lesson, LessonListMeta } from '@/types/lesson'
 import { deleteLesson, publishLesson } from '@/lib/lessons.mutations'
 import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { TeacherHeader } from './components/teacher-header'
 import { TeacherFilters } from './components/teacher-filters'
 import { TeacherLessonCard } from './components/teacher-lesson-card'
@@ -25,6 +26,9 @@ export function TeacherLessonsView({
 }) {
   const [lessons, setLessons] = useState(initial)
   const [toasts, setToasts] = useState<ToastMessage[]>([])
+  
+  const [deleteTarget, setDeleteTarget] = useState<number | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const pushToast = useCallback((message: string, tone: ToastTone) => {
     setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
@@ -38,21 +42,24 @@ export function TeacherLessonsView({
     setLessons(initial)
   }, [initial])
 
-  const handleDelete = useCallback(
-    async (id: number) => {
-      if (!window.confirm('Are you sure you want to delete this lesson? This action cannot be undone.')) {
-        return
-      }
-      try {
-        await deleteLesson(id)
-        setLessons((list) => list.filter((l) => l.id !== id))
-        pushToast('Lesson deleted successfully', 'success')
-      } catch (err: any) {
-        pushToast(err.message || 'Could not delete lesson', 'error')
-      }
-    },
-    [pushToast],
-  )
+  const handleDeleteClick = useCallback((id: number) => {
+    setDeleteTarget(id)
+  }, [])
+
+  const confirmDelete = useCallback(async () => {
+    if (!deleteTarget) return
+    setIsDeleting(true)
+    try {
+      await deleteLesson(deleteTarget)
+      setLessons((list) => list.filter((l) => l.id !== deleteTarget))
+      pushToast('Lesson deleted successfully', 'success')
+      setDeleteTarget(null)
+    } catch (err: any) {
+      pushToast(err.message || 'Could not delete lesson', 'error')
+    } finally {
+      setIsDeleting(false)
+    }
+  }, [deleteTarget, pushToast])
 
   const handlePublishToggle = useCallback(
     async (id: number, published: boolean) => {
@@ -75,9 +82,8 @@ export function TeacherLessonsView({
   )
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-7xl space-y-6 px-3 py-5 sm:space-y-8 sm:px-5 sm:py-6 lg:px-8">
       <TeacherHeader />
-
       <TeacherFilters classes={classes} subjects={subjects} />
 
       {lessons.length === 0 ? (
@@ -104,12 +110,12 @@ export function TeacherLessonsView({
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
           {lessons.map((lesson) => (
             <TeacherLessonCard
               key={lesson.id}
               lesson={lesson}
-              onDelete={handleDelete}
+              onDelete={() => handleDeleteClick(lesson.id)}
               onPublishToggle={handlePublishToggle}
             />
           ))}
@@ -117,6 +123,17 @@ export function TeacherLessonsView({
       )}
 
       <Pagination meta={meta} />
+      
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        title="Delete Lesson"
+        description="Are you sure you want to delete this lesson? This action cannot be undone and will permanently remove all associated materials."
+        confirmLabel="Delete"
+        destructive
+        loading={isDeleting}
+        onConfirm={confirmDelete}
+      />
 
       <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>

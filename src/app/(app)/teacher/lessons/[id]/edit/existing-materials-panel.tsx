@@ -8,11 +8,14 @@ import {
 } from '@/lib/lessons.mutations'
 import { formatFileSize, materialDownloadUrl } from '@/lib/materials'
 import type { LessonMaterial } from '@/types/lesson'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 
 export function ExistingMaterialsPanel({ lessonId }: { lessonId: number }) {
   const [materials, setMaterials] = useState<LessonMaterial[]>([])
   const [loading, setLoading] = useState(true)
   const [busyId, setBusyId] = useState<number | null>(null)
+  
+  const [deleteTarget, setDeleteTarget] = useState<number | null>(null)
 
   useEffect(() => {
     let mounted = true
@@ -27,12 +30,13 @@ export function ExistingMaterialsPanel({ lessonId }: { lessonId: number }) {
     }
   }, [lessonId])
 
-  async function handleRemove(id: number) {
-    if (!window.confirm('Delete this material?')) return
-    setBusyId(id)
+  async function confirmDelete() {
+    if (!deleteTarget) return
+    setBusyId(deleteTarget)
     try {
-      await deleteMaterial(lessonId, id)
-      setMaterials((prev) => prev.filter((m) => m.id !== id))
+      await deleteMaterial(lessonId, deleteTarget)
+      setMaterials((prev) => prev.filter((m) => m.id !== deleteTarget))
+      setDeleteTarget(null)
     } finally {
       setBusyId(null)
     }
@@ -74,9 +78,9 @@ export function ExistingMaterialsPanel({ lessonId }: { lessonId: number }) {
             </span>
             <button
               type="button"
-              onClick={() => handleRemove(m.id)}
+              onClick={() => setDeleteTarget(m.id)}
               disabled={busyId === m.id}
-              className="text-xs"
+              className="text-xs transition hover:opacity-70"
               style={{ color: 'var(--danger-fg)' }}
             >
               {busyId === m.id ? (
@@ -88,6 +92,17 @@ export function ExistingMaterialsPanel({ lessonId }: { lessonId: number }) {
           </li>
         ))}
       </ul>
+
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        title="Delete Material"
+        description="Are you sure you want to delete this file? Students will no longer be able to download it."
+        confirmLabel="Delete"
+        destructive
+        loading={busyId !== null}
+        onConfirm={confirmDelete}
+      />
     </div>
   )
 }
