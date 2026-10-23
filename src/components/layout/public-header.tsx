@@ -87,6 +87,23 @@ export function PublicHeader() {
             {navLinks.map((link) => {
               const active = getIsActive(link.href)
               const Icon = link.icon
+              const isHashLink = link.href.startsWith('/#')
+              
+              if (isHashLink) {
+                return (
+                  <a 
+                    key={link.name}
+                    href={link.href.replace('/', '')} // Converts '/#about' to '#about'
+                    onClick={() => handleNavClick(link.href)}
+                    className={`flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-brand-accent ${
+                      active ? 'text-brand-accent' : 'text-foreground'
+                    }`}
+                  >
+                    <Icon size={16} /> {link.name}
+                  </a>
+                )
+              }
+
               return (
                 <Link 
                   key={link.name}
@@ -121,9 +138,31 @@ export function PublicHeader() {
         <div className="fixed inset-0 z-[100] flex justify-end bg-black/50 backdrop-blur-sm lg:hidden">
           <div className="flex h-full w-[80%] max-w-sm flex-col bg-background">
             <div className="flex items-center justify-between border-b border-border p-4">
-              <span className="text-sm font-bold truncate" style={{ color: 'var(--brand-primary)' }}>
-                {branding.schoolName}
-              </span>
+              <div className="flex items-center gap-3">
+                <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg">
+                  {branding.logoUrl ? (
+                    <img 
+                      src={branding.logoUrl} 
+                      alt={branding.schoolName} 
+                      className="h-full w-full object-contain" 
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-brand-primary text-xs text-white font-bold">
+                      {branding.schoolName.slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex flex-col justify-center">
+                  <span className="text-sm font-bold leading-tight truncate max-w-[150px]" style={{ color: 'var(--brand-primary)' }}>
+                    {branding.schoolName}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground leading-tight truncate max-w-[150px]">
+                    {branding.tagline}
+                  </span>
+                </div>
+              </div>
+              
               <button onClick={() => setIsOpen(false)} className="rounded-full bg-muted p-2">
                 <X size={20} />
               </button>
@@ -133,6 +172,23 @@ export function PublicHeader() {
               {navLinks.map((link) => {
                 const active = getIsActive(link.href)
                 const Icon = link.icon
+                const isHashLink = link.href.startsWith('/#')
+
+                if (isHashLink) {
+                  return (
+                    <a 
+                      key={link.name}
+                      href={link.href.replace('/', '')}
+                      onClick={() => handleNavClick(link.href)}
+                      className={`flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium transition-colors ${
+                        active ? 'bg-brand-accent/10 text-brand-accent' : 'hover:bg-muted text-foreground'
+                      }`}
+                    >
+                      <Icon size={18} /> {link.name}
+                    </a>
+                  )
+                }
+
                 return (
                   <Link 
                     key={link.name}

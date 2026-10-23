@@ -16,7 +16,7 @@ import {
 } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'ROGELE | Quality Education For Every Child',
+  title: 'Quality Education For Every Child',
   description:
     'Join our innovative Rays of Grace E-Learning Environment. Interactive lessons, smart quizzes, and progress tracking.',
 }
@@ -94,7 +94,6 @@ export default async function HomePage() {
 
   return (
     <div className="flex w-full flex-col overflow-hidden">
-      {/* HERO */}
       <section
         className="relative w-full overflow-hidden py-16 sm:py-24 lg:py-32"
         style={{ backgroundColor: 'var(--brand-primary)' }}
@@ -165,7 +164,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ABOUT / STEPS */}
       <section id="about" className="scroll-mt-20 bg-background py-20">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
           <span
@@ -203,7 +201,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* FEATURES */}
       <section className="bg-muted/30 py-20">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
           <span
@@ -246,7 +243,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* PRICING */}
       <section id="pricing" className="scroll-mt-20 bg-background py-20">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
           <span
@@ -275,7 +271,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* FAQ */}
       <section className="bg-muted/30 py-20">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
           <span
@@ -311,7 +306,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="py-20" style={{ backgroundColor: 'var(--brand-primary)' }}>
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
           <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
