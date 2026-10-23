@@ -10,8 +10,8 @@ The application is the browser interface for three audiences:
 - Learners and external users, who browse lessons, submit homework, take
   quizzes, and manage subscriptions.
 
-The web client communicates exclusively with the ROGELE API. It never connects
-directly to a database or any other backend service.
+The web client communicates exclusively with the ROGELE API and the ROGELE
+Analytics service. It never connects directly to a database.
 
 ## Table of Contents
 
@@ -22,9 +22,11 @@ directly to a database or any other backend service.
 - [Configuration](#configuration)
 - [Running Locally](#running-locally)
 - [Project Structure](#project-structure)
+- [Public Pages](#public-pages)
 - [Authentication](#authentication)
 - [Branding and Theming](#branding-and-theming)
 - [Notifications](#notifications)
+- [Analytics](#analytics)
 - [API Communication](#api-communication)
 - [Roles and Routes](#roles-and-routes)
 - [Development Workflow](#development-workflow)
@@ -35,10 +37,12 @@ directly to a database or any other backend service.
 ## Overview
 
 ROGELE Web is a Next.js application built with the App Router. It provides
-three distinct experiences behind a single authentication system:
+four distinct experiences:
 
-- `/dashboard` and related pages — the learner and teacher experience
-- `/admin` and sub-pages — the administration panel
+- `/` and related pages — public marketing (Home, Pricing, About, Contact,
+  Privacy Policy, Terms of Service)
+- `/(app)` — the learner and teacher experience
+- `/admin` — the administration panel
 - `/login` and related pages — public authentication flows
 
 The layout is responsive, supports light and dark themes, and pulls its
@@ -75,10 +79,13 @@ Configuration lives in `.env.local` at the project root and is not committed.
     NEXT_PUBLIC_API_URL=http://localhost:8080
     SESSION_SECRET=change-me-to-a-long-random-string-at-least-32-chars
     NEXT_PUBLIC_APP_URL=http://localhost:3000
+    ROGELE_SERVICE_TOKEN=your-service-token-from-the-go-api
 
 `ROGELEDB_API_URL` is used by server components and the internal proxy route.
 `ANALYTICS_API_URL` points to the Python analytics service.
 `SESSION_SECRET` signs the auth cookies and must be at least 32 characters.
+`ROGELE_SERVICE_TOKEN` is used for server-side fetching of public data (plans,
+stats) when no user is logged in.
 
 ## Running Locally
 
@@ -92,30 +99,19 @@ and reachable at `ROGELEDB_API_URL`.
     src/
       app/
         (auth)/                Public auth pages
+        (marketing)/           Public pages (Home, Contact, Legal)
         (app)/                 Learner and teacher experience
         (admin)/               Admin panel
-          admin/
-            page.tsx           Overview
-            analytics/
-            activity/
-            users/
-            classes/
-            subjects/
-            plans/
-            subscriptions/
-            payments/
-            notifications/
-            email-campaigns/
-            settings/
-            profile/
         api/
           auth/                Login, logout, refresh
           proxy/               Catch-all proxy to the Go API
           analytics/           Proxy to the Python service
       components/
         brand/                 Logo, branding provider
-        layout/                Sidebar, header, user menu
+        home/                  Public page components (HeroLogo)
+        layout/                Sidebar, header, user menu, public header
         notifications/         Bell, list
+        subscription/          PlanCard, PaymentModal, ActiveBanner
         ui/                    Buttons, dialogs, inputs, tables
       lib/
         api-client.ts          Typed fetch wrapper
@@ -125,6 +121,19 @@ and reachable at `ROGELEDB_API_URL`.
         *.server.ts            Server-only fetchers per resource
         *.client.ts            Client mutators per resource
       types/                   TypeScript models matching the API DTOs
+
+## Public Pages
+
+The `(marketing)` route group contains all public-facing pages. They are fully
+server-rendered, data-driven, and theme-aware:
+
+- `/` — Home page with dynamic hero, pricing plans, and live stats
+- `/contact` — Contact form (Formspree integration)
+- `/privacy-policy` — Legal page with internal and external links
+- `/terms-of-service` — Legal page with internal and external links
+
+The `PublicHeader` component includes dynamic logo, tagline, mobile drawer,
+active state handling, and deep linking to `#about` and `#pricing`.
 
 ## Authentication
 
@@ -143,6 +152,9 @@ The web app uses httpOnly cookies. The browser never sees the JWT directly.
 5. Client components call `/api/proxy/...`, which forwards to the API with the
    cookie token attached.
 
+Public routes (`/`, `/contact`, `/privacy-policy`, `/terms-of-service`) are
+explicitly allowed in the middleware so unauthenticated users can access them.
+
 ## Branding and Theming
 
 Branding is loaded at runtime from `GET /api/v1/config/public`:
@@ -151,8 +163,8 @@ Branding is loaded at runtime from `GET /api/v1/config/public`:
       "branding": {
         "school_name": "Rays of Grace",
         "tagline": "E-Learning",
-        "logo_url": "",
-        "favicon_url": "",
+        "logo_url": "https://...",
+        "favicon_url": "https://...",
         "color_primary": "#7f2677",
         "color_accent": "#f06724",
         "support_email": "",
@@ -164,12 +176,14 @@ Branding is loaded at runtime from `GET /api/v1/config/public`:
 variables `--brand-primary` and `--brand-accent` on the document root. Next.js
 metadata uses the school name and favicon for the title and tab icon.
 
+The logo is used in:
+- The public header (desktop and mobile drawer)
+- The hero section (via `<HeroLogo>`)
+- The authenticated sidebar and header
+- The favicon (in `app/layout.tsx` metadata)
+
 Admins edit branding at `/admin/settings`. Changes take effect within 60
 seconds.
-
-The theme (light, dark, or system) is stored in `localStorage` under
-`rogele.theme` and applied before first paint by an inline script in the root
-layout. There is no flash of the wrong theme.
 
 ## Notifications
 
@@ -186,18 +200,32 @@ The full list lives at `/notifications` with filters by type and unread-only.
 The admin bell's "View all" goes to `/admin/notifications`, which provides a
 composer for broadcasts and a history of everything sent.
 
+Notifications link directly to the correct pages (e.g., `/learner/lessons/1`,
+`/learner/quizzes/1`) based on the recipient's role.
+
+## Analytics
+
+The teacher analytics page (`/teacher/analytics`) is powered by the Python
+analytics service (`ANALYTICS_API_URL`). It fetches:
+
+- Enrollment trend
+- At-risk learners (with risk scoring)
+- Score distribution
+- Activity heatmap
+
+The frontend renders these with Recharts and includes dynamic recommendations
+based on the at-risk data.
+
 ## API Communication
 
-Server components use `serverApiRequest` from `src/lib/server-api.ts`, which
-reads the access token cookie and injects the `Authorization` header.
+Server components use `serverApiRequest` from `src/lib/server-api.ts`. It
+attempts to read the user's access token cookie. If there is no user session,
+it falls back to `ROGELE_SERVICE_TOKEN` so that public pages (home, contact)
+can still fetch data like plans and stats without requiring login.
 
 Client components use the `*.client.ts` helpers, which call `/api/proxy/...`.
 The proxy reads the same cookie, forwards to the Go API, and returns the
-response body. It exports handlers for `GET`, `POST`, `PUT`, `PATCH`, `DELETE`,
-`HEAD`, and `OPTIONS`.
-
-Non-JSON responses are handled defensively: plain text responses are wrapped
-as error messages instead of throwing a JSON parse exception.
+response body.
 
 ## Roles and Routes
 
@@ -209,8 +237,9 @@ Two layout guards enforce access:
 - The `(admin)` group requires `role === 'admin'` and redirects non-admins to
   `/dashboard`. It wraps every page under `/admin`.
 
-`/login`, `/register`, `/forgot-password`, and `/reset-password` are public.
-Middleware redirects signed-in users away from them.
+`/login`, `/register`, `/forgot-password`, `/reset-password`, `/`,
+`/contact`, `/privacy-policy`, and `/terms-of-service` are public.
+Middleware redirects signed-in users away from the auth pages.
 
 ## Development Workflow
 
@@ -230,13 +259,6 @@ Before committing, make sure `pnpm type-check` and `pnpm build` both pass.
 The build produces `.next/`. Serve it with `pnpm start`, or place it behind a
 reverse proxy (nginx, Caddy, Cloudflare) that terminates TLS and forwards to
 `localhost:3000`.
-
-Environment variables at runtime:
-
-- `ROGELEDB_API_URL` — URL of the Go API
-- `ANALYTICS_API_URL` — URL of the Python analytics service
-- `SESSION_SECRET` — must match between builds for cookies to remain valid
-- `NEXT_PUBLIC_APP_URL` — public URL of this app
 
 ## Deployment
 
