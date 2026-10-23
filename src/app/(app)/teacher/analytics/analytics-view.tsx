@@ -12,6 +12,14 @@ import {
   BarChart, Bar
 } from 'recharts'
 
+const customTooltipStyle = {
+  backgroundColor: 'hsl(var(--card))',
+  borderColor: 'hsl(var(--border))',
+  color: 'hsl(var(--foreground))',
+  fontSize: 12,
+  borderRadius: '8px',
+}
+
 export function AnalyticsView({
   stats,
   lessons,
@@ -122,17 +130,34 @@ export function AnalyticsView({
 
       {recommendations.length > 0 && (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {recommendations.map((rec: any, i) => (
-            <div key={i} className={`flex gap-3 rounded-xl border p-4 ${
-              rec.tone === 'danger' ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'
-            }`}>
-              <Lightbulb size={20} className={`shrink-0 ${rec.tone === 'danger' ? 'text-red-500' : 'text-amber-500'}`} />
-              <div>
-                <h4 className="text-sm font-semibold text-foreground">{rec.title}</h4>
-                <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{rec.description}</p>
+          {recommendations.map((rec: any, i) => {
+            const isDanger = rec.tone === 'danger'
+            return (
+              <div 
+                key={i} 
+                className={`flex gap-3 rounded-xl border p-4 ${
+                  isDanger ? 'border-destructive/20' : 'border-warning/20'
+                }`}
+                style={{ 
+                  backgroundColor: isDanger ? 'var(--danger-bg)' : 'var(--warning-bg)' 
+                }}
+              >
+                <Lightbulb 
+                  size={20} 
+                  className={`shrink-0 ${isDanger ? 'text-destructive' : 'text-warning'}`} 
+                  style={{ color: isDanger ? 'var(--danger-fg)' : 'var(--warning-fg)' }}
+                />
+                <div>
+                  <h4 className="text-sm font-semibold" style={{ color: isDanger ? 'var(--danger-fg)' : 'var(--warning-fg)' }}>
+                    {rec.title}
+                  </h4>
+                  <p className="mt-1 text-xs leading-relaxed" style={{ color: isDanger ? 'var(--danger-fg)' : 'var(--warning-fg)', opacity: 0.9 }}>
+                    {rec.description}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
 
@@ -158,7 +183,7 @@ export function AnalyticsView({
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                   <XAxis dataKey="period" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
                   <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" width={30} />
-                  <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', fontSize: 12 }} />
+                  <Tooltip contentStyle={customTooltipStyle} />
                   <Line type="monotone" dataKey="count" name="Signups" stroke="var(--brand-primary)" strokeWidth={2} dot={{ r: 3 }} />
                   <Line type="monotone" dataKey="moving_average" name="Trend" stroke="var(--brand-accent)" strokeWidth={2} strokeDasharray="5 5" dot={false} />
                 </LineChart>
@@ -180,7 +205,7 @@ export function AnalyticsView({
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                   <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
                   <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" width={30} />
-                  <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', fontSize: 12 }} cursor={{ fill: 'hsl(var(--muted))' }} />
+                  <Tooltip contentStyle={customTooltipStyle} cursor={{ fill: 'hsl(var(--muted))' }} />
                   <Bar dataKey="students" name="Students" fill="var(--brand-primary)" radius={0} />
                 </BarChart>
               </ResponsiveContainer>
@@ -203,7 +228,7 @@ export function AnalyticsView({
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                   <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
                   <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" width={30} />
-                  <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', fontSize: 12 }} cursor={{ fill: 'hsl(var(--muted))' }} />
+                  <Tooltip contentStyle={customTooltipStyle} cursor={{ fill: 'hsl(var(--muted))' }} />
                   <Bar dataKey="views" name="Views" fill="var(--brand-accent)" radius={0} />
                 </BarChart>
               </ResponsiveContainer>
@@ -219,7 +244,9 @@ export function AnalyticsView({
               </h3>
               <p className="text-xs text-muted-foreground">Ranked by risk score.</p>
             </div>
-            <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-700">
+            <span className="rounded-full px-3 py-1 text-xs font-bold"
+              style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-fg)' }}
+            >
               {atRiskCount} At Risk
             </span>
           </div>
@@ -227,7 +254,7 @@ export function AnalyticsView({
           <div className="flex-1 overflow-y-auto">
             {!atRisk?.learners || atRisk.learners.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center py-8 text-center">
-                <ShieldCheck size={32} className="mb-2 text-emerald-500 opacity-50" />
+                <ShieldCheck size={32} className="mb-2 opacity-50" style={{ color: 'var(--success-border)' }} />
                 <p className="text-sm font-semibold text-foreground">All Clear!</p>
                 <p className="text-xs text-muted-foreground">No students at risk.</p>
               </div>
