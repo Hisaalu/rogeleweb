@@ -1,13 +1,14 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Save, UploadCloud, X, Paperclip, Trash2 } from 'lucide-react'
 import type { Homework, HomeworkAttachment } from '@/types/homework'
 import type { Class, Subject } from '@/types/admin'
 import { createHomeworkClient, updateHomeworkClient, addHomeworkAttachmentClient, deleteHomeworkAttachmentClient } from '@/lib/homework.client'
 import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 
 export function HomeworkForm({
   classes, subjects, mode, initial, initialAttachments = []
@@ -27,14 +28,17 @@ export function HomeworkForm({
   
   const [busy, setBusy] = useState(false)
   const [toasts, setToasts] = useState<ToastMessage[]>([])
+  
+  const [deleteTarget, setDeleteTarget] = useState<number | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
-  const pushToast = (message: string, tone: ToastTone) => {
+  const pushToast = useCallback((message: string, tone: ToastTone) => {
     setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
-  }
+  }, [])
 
-  const closeToast = (id: number) => {
+  const closeToast = useCallback((id: number) => {
     setToasts((prev) => prev.filter((t) => t.id !== id))
-  }
+  }, [])
 
   const filteredSubjects = useMemo(() => {
     if (!classId) return []
@@ -91,47 +95,51 @@ export function HomeworkForm({
     }
   }
 
-  async function handleRemoveAttachment(id: number) {
-    if (!initial || !window.confirm('Delete this attachment?')) return
+  async function confirmRemoveAttachment() {
+    if (!initial || !deleteTarget) return
+    setIsDeleting(true)
     try {
-      await deleteHomeworkAttachmentClient(initial.id, id)
-      setAttachments(prev => prev.filter(a => a.id !== id))
+      await deleteHomeworkAttachmentClient(initial.id, deleteTarget)
+      setAttachments(prev => prev.filter(a => a.id !== deleteTarget))
       pushToast('Attachment deleted', 'success')
+      setDeleteTarget(null)
     } catch {
       pushToast('Failed to delete attachment', 'error')
+    } finally {
+      setIsDeleting(false)
     }
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
+    <div className="mx-auto max-w-3xl space-y-6 px-3 py-5 sm:px-4 sm:py-8">
       <Link href="/teacher/homework" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft size={14} /> Homework
       </Link>
 
       <div>
-        <h1 className="flex items-center gap-2 text-2xl font-bold">
+        <h1 className="flex items-center gap-2 text-xl font-bold sm:text-2xl">
           <span style={{ color: 'var(--brand-primary)' }}>{mode === 'create' ? 'Create New Homework' : 'Edit Homework'}</span>
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">{mode === 'create' ? 'Assign homework to your students' : `Editing: ${initial?.title}`}</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-border bg-card p-6 sm:p-8">
+      <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-border bg-card p-5 sm:space-y-8 sm:p-8">
         <div>
-          <label className="mb-2 block text-sm font-semibold text-foreground">Homework Title <span className="text-red-500">*</span></label>
-          <input type="text" value={title} onChange={e => setTitle(e.target.value)} required className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-brand-accent" />
+          <label className="mb-2 block text-sm font-semibold text-foreground">Homework Title <span style={{ color: 'var(--danger-fg)' }}>*</span></label>
+          <input type="text" value={title} onChange={e => setTitle(e.target.value)} required className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-brand-accent" />
         </div>
 
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
           <div>
-            <label className="mb-2 block text-sm font-semibold text-foreground">Class <span className="text-red-500">*</span></label>
-            <select value={classId} onChange={e => { setClassId(e.target.value); setSubjectId('') }} required className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none">
+            <label className="mb-2 block text-sm font-semibold text-foreground">Class <span style={{ color: 'var(--danger-fg)' }}>*</span></label>
+            <select value={classId} onChange={e => { setClassId(e.target.value); setSubjectId('') }} required className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-brand-accent">
               <option value="">Select Class</option>
               {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
           <div>
-            <label className="mb-2 block text-sm font-semibold text-foreground">Subject <span className="text-red-500">*</span></label>
-            <select value={subjectId} onChange={e => setSubjectId(e.target.value)} required disabled={!classId} className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none disabled:opacity-50">
+            <label className="mb-2 block text-sm font-semibold text-foreground">Subject <span style={{ color: 'var(--danger-fg)' }}>*</span></label>
+            <select value={subjectId} onChange={e => setSubjectId(e.target.value)} required disabled={!classId} className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-brand-accent disabled:opacity-50">
               <option value="">Select Subject</option>
               {filteredSubjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
@@ -140,12 +148,12 @@ export function HomeworkForm({
 
         <div>
           <label className="mb-2 block text-sm font-semibold text-foreground">Description</label>
-          <textarea value={description} onChange={e => setDescription(e.target.value)} rows={4} className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-brand-accent" />
+          <textarea value={description} onChange={e => setDescription(e.target.value)} rows={4} className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-brand-accent" />
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-foreground">Due Date <span className="text-red-500">*</span></label>
-          <input type="datetime-local" value={dueDate} onChange={e => setDueDate(e.target.value)} required className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-brand-accent" />
+          <label className="mb-2 block text-sm font-semibold text-foreground">Due Date <span style={{ color: 'var(--danger-fg)' }}>*</span></label>
+          <input type="datetime-local" value={dueDate} onChange={e => setDueDate(e.target.value)} required className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-brand-accent" />
         </div>
 
         {mode === 'edit' && attachments.length > 0 && (
@@ -155,11 +163,11 @@ export function HomeworkForm({
               {attachments.map(a => (
                 <li key={a.id} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted px-4 py-2 text-sm">
                   <div className="flex items-center gap-2 overflow-hidden">
-                    <Paperclip size={14} style={{ color: 'var(--brand-accent)' }} />
+                    <Paperclip size={14} style={{ color: 'var(--brand-accent)' }} className="shrink-0" />
                     <span className="truncate font-medium">{a.file_name}</span>
-                    <span className="text-xs text-muted-foreground">({(a.file_size / 1024).toFixed(2)} KB)</span>
+                    <span className="text-xs text-muted-foreground shrink-0">({(a.file_size / 1024).toFixed(2)} KB)</span>
                   </div>
-                  <button type="button" onClick={() => handleRemoveAttachment(a.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
+                  <button type="button" onClick={() => setDeleteTarget(a.id)} className="shrink-0 transition hover:opacity-70" style={{ color: 'var(--danger-fg)' }}><Trash2 size={15} /></button>
                 </li>
               ))}
             </ul>
@@ -179,7 +187,7 @@ export function HomeworkForm({
               {files.map((f, i) => (
                 <li key={i} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background px-4 py-2 text-sm">
                   <span className="truncate">{f.name}</span>
-                  <button type="button" onClick={() => setFiles(prev => prev.filter((_, idx) => idx !== i))} className="text-red-500"><X size={15} /></button>
+                  <button type="button" onClick={() => setFiles(prev => prev.filter((_, idx) => idx !== i))} className="shrink-0 transition hover:opacity-70" style={{ color: 'var(--danger-fg)' }}><X size={15} /></button>
                 </li>
               ))}
             </ul>
@@ -187,11 +195,22 @@ export function HomeworkForm({
         </div>
 
         <div className="flex justify-end border-t border-border pt-4">
-          <button type="submit" disabled={busy} className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50" style={{ backgroundColor: 'var(--brand-primary)' }}>
+          <button type="submit" disabled={busy} className="inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50 sm:w-auto" style={{ backgroundColor: 'var(--brand-primary)' }}>
             <Save size={16} /> {busy ? 'Saving...' : mode === 'create' ? 'Create Homework' : 'Save Changes'}
           </button>
         </div>
       </form>
+
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        title="Delete Attachment"
+        description="Are you sure you want to remove this attachment? Students will no longer be able to download it."
+        confirmLabel="Delete"
+        destructive
+        loading={isDeleting}
+        onConfirm={confirmRemoveAttachment}
+      />
 
       <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
