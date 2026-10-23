@@ -121,7 +121,7 @@ export function PlanCard({
 
   return (
     <div
-      className="relative flex h-full flex-col rounded-3xl border-2 bg-card p-6 transition hover:-translate-y-1 hover:shadow-lg"
+      className="relative flex h-full flex-col items-start text-left rounded-3xl border-2 bg-card p-6 transition hover:-translate-y-1 hover:shadow-lg"
       style={{
         borderColor: recommended ? 'var(--brand-accent)' : 'hsl(var(--border))',
         background: recommended
@@ -140,9 +140,11 @@ export function PlanCard({
 
       <PlanIcon tier={tier} />
 
-      <h3 className="text-lg font-bold text-foreground sm:text-xl">{plan.name}</h3>
+      <h3 className="text-lg font-bold text-foreground sm:text-xl text-left w-full">
+        {plan.name}
+      </h3>
       {plan.description && (
-        <p className="mt-1 min-h-[40px] text-sm text-muted-foreground">
+        <p className="mt-1 min-h-[40px] text-sm text-muted-foreground text-left w-full">
           {plan.description}
         </p>
       )}
@@ -165,11 +167,11 @@ export function PlanCard({
         </div>
       </div>
 
-      <ul className="mt-6 flex-1 space-y-2.5 text-sm">
+      <ul className="mt-6 flex w-full flex-1 flex-col space-y-2.5 text-sm text-left">
         {benefits.map((b) => {
           const isSavings = b.startsWith('Save')
           return (
-            <li key={b} className="flex items-start gap-2.5 text-muted-foreground">
+            <li key={b} className="flex w-full items-start gap-2.5 text-left text-muted-foreground">
               <span
                 className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-white"
                 style={{ backgroundColor: 'var(--success-border)' }}
@@ -177,7 +179,7 @@ export function PlanCard({
                 <Check size={10} strokeWidth={3} />
               </span>
               <span
-                className={isSavings ? 'font-semibold' : ''}
+                className={`flex-1 text-left ${isSavings ? 'font-semibold' : ''}`}
                 style={{ color: isSavings ? 'var(--success-fg)' : undefined }}
               >
                 {b}
@@ -206,7 +208,7 @@ export function PlanCard({
           <button
             type="button"
             onClick={onSelect}
-            className="mt-6 w-full rounded-full py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+            className="mt-6 w-full rounded-full py-2.5 text-center text-sm font-semibold text-white transition hover:opacity-90"
             style={buttonStyles}
           >
             {buttonLabel}

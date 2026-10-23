@@ -1,5 +1,6 @@
 import 'server-only'
 import { serverApiRequest } from './server-api'
+import type { SubscriptionPlan } from '@/types/subscription'
 
 export async function getHomePageData() {
   try {
@@ -10,7 +11,8 @@ export async function getHomePageData() {
     ])
 
     const rawPlans = Array.isArray(plansRes) ? plansRes : (plansRes?.data || [])
-    const plans = rawPlans
+    
+    const plans: SubscriptionPlan[] = rawPlans
       .filter((p: any) => p.is_active !== false && p.price > 0)
       .sort((a: any, b: any) => a.price - b.price)
 
@@ -32,7 +34,7 @@ export async function getHomePageData() {
   } catch (error) {
     console.error('Failed to load homepage data:', error)
     return {
-      plans: [],
+      plans: [] as SubscriptionPlan[],
       classes: [],
       stats: { students: 0, teachers: 0, lessons: 0 }
     }

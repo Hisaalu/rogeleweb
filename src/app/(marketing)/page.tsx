@@ -111,7 +111,7 @@ export default async function HomePage() {
 
               <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
                 Quality Education
-                <span className="mt-2 block" style={{ color: 'var(--brand-accent)' }}>
+                <span className="mt-2 block">
                   For Every Child
                 </span>
               </h1>

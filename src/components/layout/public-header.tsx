@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, X, LogIn, UserPlus, Home, Info, Tags, Mail } from 'lucide-react'
+import { Menu, X, Fingerprint, UserPlus, Home, Info, Tags, Mail } from 'lucide-react'
 import { useBranding } from '@/components/brand/brand-provider'
 
 export function PublicHeader() {
@@ -93,7 +93,7 @@ export function PublicHeader() {
                 return (
                   <a 
                     key={link.name}
-                    href={link.href.replace('/', '')} // Converts '/#about' to '#about'
+                    href={link.href.replace('/', '')}
                     onClick={() => handleNavClick(link.href)}
                     className={`flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-brand-accent ${
                       active ? 'text-brand-accent' : 'text-foreground'
@@ -120,11 +120,11 @@ export function PublicHeader() {
           </nav>
 
           <div className="hidden items-center gap-3 lg:flex">
-            <Link href="/login" className="rounded-full border-2 border-brand-primary px-5 py-2 text-sm font-semibold text-brand-primary hover:bg-brand-primary hover:text-white">
-              Login
+            <Link href="/login" className="flex items-center gap-2 rounded-full border-2 border-brand-primary px-5 py-2 text-sm font-semibold text-brand-primary transition hover:bg-brand-primary hover:text-white">
+              <Fingerprint size={16} /> Login
             </Link>
-            <Link href="/register" className="rounded-full px-5 py-2 text-sm font-semibold text-white shadow-md" style={{ backgroundColor: 'var(--brand-primary)' }}>
-              Sign Up
+            <Link href="/register" className="flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold text-white shadow-md transition hover:opacity-90" style={{ backgroundColor: 'var(--brand-primary)' }}>
+              <UserPlus size={16} /> Sign Up
             </Link>
           </div>
 
@@ -205,10 +205,10 @@ export function PublicHeader() {
             </div>
 
             <div className="border-t border-border p-4 space-y-3">
-              <Link href="/login" onClick={() => setIsOpen(false)} className="flex w-full items-center justify-center rounded-full border-2 border-brand-primary py-3 text-sm font-semibold text-brand-primary hover:bg-brand-primary hover:text-white">
-                <LogIn size={16} className="mr-2" /> Login
+              <Link href="/login" onClick={() => setIsOpen(false)} className="flex w-full items-center justify-center rounded-full border-2 border-brand-primary py-3 text-sm font-semibold text-brand-primary transition hover:bg-brand-primary hover:text-white">
+                <Fingerprint size={16} className="mr-2" /> Login
               </Link>
-              <Link href="/register" onClick={() => setIsOpen(false)} className="flex w-full items-center justify-center rounded-full py-3 text-sm font-semibold text-white" style={{ backgroundColor: 'var(--brand-primary)' }}>
+              <Link href="/register" onClick={() => setIsOpen(false)} className="flex w-full items-center justify-center rounded-full py-3 text-sm font-semibold text-white transition hover:opacity-90" style={{ backgroundColor: 'var(--brand-primary)' }}>
                 <UserPlus size={16} className="mr-2" /> Sign Up
               </Link>
             </div>
