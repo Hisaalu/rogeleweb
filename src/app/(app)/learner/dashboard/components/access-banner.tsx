@@ -13,7 +13,7 @@ const CONFIG = {
     accent: 'var(--success-accent)',
     icon: CheckCircle2,
     iconColor: 'var(--success-border)',
-    buttonBg: 'var(--success-border)',
+    buttonBg: 'var(--success-border)', 
   },
   trial: {
     bg: 'var(--warning-bg)',
@@ -22,7 +22,7 @@ const CONFIG = {
     accent: 'var(--warning-accent)',
     icon: Clock,
     iconColor: 'var(--warning-border)',
-    buttonBg: 'var(--brand-accent)',
+    buttonBg: 'var(--brand-accent)', 
   },
   expired: {
     bg: 'var(--danger-bg)',
@@ -31,7 +31,7 @@ const CONFIG = {
     accent: 'var(--danger-accent)',
     icon: AlertCircle,
     iconColor: 'var(--danger-border)',
-    buttonBg: 'var(--success-border)',
+    buttonBg: 'var(--success-border)', 
   },
 } as const
 
@@ -43,6 +43,7 @@ export function AccessBanner({
   actionLabel,
   actionHref,
   showCrown,
+  isPro,
 }: {
   variant: Variant
   title: string
@@ -51,6 +52,7 @@ export function AccessBanner({
   actionLabel: string
   actionHref: string
   showCrown?: boolean
+  isPro?: boolean
 }) {
   const c = CONFIG[variant]
   const Icon = c.icon
@@ -89,7 +91,7 @@ export function AccessBanner({
       <Link
         href={actionHref}
         className="flex shrink-0 items-center gap-1.5 rounded-full px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-        style={{ backgroundColor: showCrown ? 'var(--brand-primary)' : c.buttonBg }}
+        style={{ backgroundColor: 'var(--success-border)' }}
       >
         {showCrown && <Crown size={14} className="shrink-0" />}
         {actionLabel}

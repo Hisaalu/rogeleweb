@@ -65,6 +65,7 @@ export function LearnerDashboardView({
             actionLabel={buttonLabel}
             actionHref="/learner/subscription"
             showCrown={isYearly}
+            isPro={isYearly}
           />
         )}
 
@@ -204,7 +205,7 @@ export function LearnerDashboardView({
             <a
               href="/learner/subscription"
               className="inline-block rounded-full px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 sm:px-8 sm:py-3"
-              style={{ backgroundColor: '#23a74c' }}
+              style={{ backgroundColor: 'var(--success-border)' }}
             >
               View Plans
             </a>

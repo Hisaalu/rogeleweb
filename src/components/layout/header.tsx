@@ -37,8 +37,8 @@ export function Header({
         {user.role !== 'teacher' && (
           isPro ? (
             <div
-              className="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-bold text-white sm:gap-2 sm:px-4 sm:py-2 sm:text-xs"
-              style={{ backgroundColor: 'var(--brand-primary)' }}
+              className="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-bold text-white shadow-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-xs"
+              style={{ backgroundColor: 'var(--success-border)' }}
             >
               <Crown size={13} className="shrink-0" />
               <span>Pro</span>
