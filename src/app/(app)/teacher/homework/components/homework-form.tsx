@@ -1,14 +1,14 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Save, UploadCloud, X, Paperclip, Trash2 } from 'lucide-react'
 import type { Homework, HomeworkAttachment } from '@/types/homework'
 import type { Class, Subject } from '@/types/admin'
 import { createHomeworkClient, updateHomeworkClient, addHomeworkAttachmentClient, deleteHomeworkAttachmentClient } from '@/lib/homework.client'
-import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { useToast } from '@/components/ui/toast-provider'
 
 export function HomeworkForm({
   classes, subjects, mode, initial, initialAttachments = []
@@ -16,6 +16,7 @@ export function HomeworkForm({
   classes: Class[], subjects: Subject[], mode: 'create' | 'edit', initial?: Homework, initialAttachments?: HomeworkAttachment[]
 }) {
   const router = useRouter()
+  const { showToast } = useToast()
   
   const [title, setTitle] = useState(initial?.title ?? '')
   const [description, setDescription] = useState(initial?.description ?? '')
@@ -27,18 +28,9 @@ export function HomeworkForm({
   const [attachments, setAttachments] = useState<HomeworkAttachment[]>(initialAttachments)
   
   const [busy, setBusy] = useState(false)
-  const [toasts, setToasts] = useState<ToastMessage[]>([])
   
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
-
-  const pushToast = useCallback((message: string, tone: ToastTone) => {
-    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
-  }, [])
-
-  const closeToast = useCallback((id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id))
-  }, [])
 
   const filteredSubjects = useMemo(() => {
     if (!classId) return []
@@ -49,14 +41,14 @@ export function HomeworkForm({
     if (!list) return
     const newFiles = Array.from(list)
     for (const f of newFiles) {
-      if (f.size > 5 * 1024 * 1024) return pushToast(`${f.name} exceeds 5MB`, 'error')
+      if (f.size > 5 * 1024 * 1024) return showToast(`${f.name} exceeds 5MB`, 'error')
     }
     setFiles(prev => [...prev, ...newFiles])
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!title || !classId || !subjectId || !dueDate) return pushToast('Please fill all required fields', 'error')
+    if (!title || !classId || !subjectId || !dueDate) return showToast('Please fill all required fields', 'error')
     
     setBusy(true)
     const payload = {
@@ -72,11 +64,11 @@ export function HomeworkForm({
       if (mode === 'create') {
         const created = await createHomeworkClient(payload)
         homeworkId = created.id
-        pushToast('Homework created successfully!', 'success')
+        showToast('Homework created successfully!', 'success')
       } else if (initial) {
         await updateHomeworkClient(initial.id, payload)
         homeworkId = initial.id
-        pushToast('Homework updated successfully!', 'success')
+        showToast('Homework updated successfully!', 'success')
       } else {
         throw new Error('Invalid mode')
       }
@@ -89,8 +81,9 @@ export function HomeworkForm({
         router.push('/teacher/homework')
         router.refresh()
       }, 1000)
-    } catch (err: any) {
-      pushToast(err.message || 'Failed to save homework', 'error')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to save homework'
+      showToast(message, 'error')
       setBusy(false)
     }
   }
@@ -101,10 +94,11 @@ export function HomeworkForm({
     try {
       await deleteHomeworkAttachmentClient(initial.id, deleteTarget)
       setAttachments(prev => prev.filter(a => a.id !== deleteTarget))
-      pushToast('Attachment deleted', 'success')
+      showToast('Attachment deleted', 'success')
       setDeleteTarget(null)
-    } catch {
-      pushToast('Failed to delete attachment', 'error')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to delete attachment'
+      showToast(message, 'error')
     } finally {
       setIsDeleting(false)
     }
@@ -212,7 +206,6 @@ export function HomeworkForm({
         onConfirm={confirmRemoveAttachment}
       />
 
-      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }

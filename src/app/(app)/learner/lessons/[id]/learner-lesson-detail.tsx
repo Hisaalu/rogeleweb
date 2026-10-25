@@ -19,8 +19,8 @@ import {
 import { getYoutubeId, formatNumber, formatDate } from '@/lib/utils'
 import { toggleLessonBookmarkClient } from '@/lib/lessons.client'
 import { formatFileSize, materialDownloadUrl } from '@/lib/materials'
+import { useToast } from '@/components/ui/toast-provider'
 import type { Lesson, LessonMaterial } from '@/types/lesson'
-import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
 
 const accentIcon = { color: 'var(--brand-accent)' } as const
 const bookmarkOn = {
@@ -52,16 +52,9 @@ export function LearnerLessonDetail({
   lesson: Lesson
   materials: LessonMaterial[]
 }) {
+  const { showToast } = useToast()
   const [bookmarked, setBookmarked] = useState(lesson.is_bookmarked)
   const [busy, setBusy] = useState(false)
-
-  const [toasts, setToasts] = useState<ToastMessage[]>([])
-  const pushToast = (message: string, tone: ToastTone) => {
-    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
-  }
-  const closeToast = (id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id))
-  }
 
   const youtubeId = getYoutubeId(lesson.video_url)
   const edited = isRealEdit(lesson.created_at, lesson.updated_at)
@@ -72,12 +65,14 @@ export function LearnerLessonDetail({
     try {
       const res = await toggleLessonBookmarkClient(lesson.id)
       setBookmarked(res.bookmarked)
-      pushToast(
+      showToast(
         res.bookmarked ? 'Added to bookmarks' : 'Removed from bookmarks',
-        'success',
+        res.bookmarked ? 'success' : 'info',
       )
-    } catch {
-      pushToast('Could not update bookmark', 'error')
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Could not update bookmark'
+      showToast(message, 'error', { title: 'Action failed' })
     } finally {
       setBusy(false)
     }
@@ -227,8 +222,6 @@ export function LearnerLessonDetail({
           </ul>
         </section>
       ) : null}
-
-      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }

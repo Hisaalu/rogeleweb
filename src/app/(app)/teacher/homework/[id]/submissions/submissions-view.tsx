@@ -1,27 +1,20 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Download, Users, CheckCircle2, AlertTriangle, Star, Edit2, Save } from 'lucide-react'
+import { ArrowLeft, Download, Users, CheckCircle2, AlertTriangle, Star, Edit2, Save, type LucideIcon } from 'lucide-react'
 import type { Homework, HomeworkSubmission } from '@/types/homework'
 import { gradeSubmissionClient } from '@/lib/homework.client'
 import { materialDownloadUrl, formatFileSize } from '@/lib/materials'
-import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
+import { useToast } from '@/components/ui/toast-provider'
 
 export function SubmissionsView({ homework, submissions: initial }: { homework: Homework, submissions: HomeworkSubmission[] }) {
+  const { showToast } = useToast()
   const [submissions, setSubmissions] = useState(initial)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [grades, setGrades] = useState<Record<number, string>>({})
   const [feedbacks, setFeedbacks] = useState<Record<number, string>>({})
   const [busyId, setBusyId] = useState<number | null>(null)
-  
-  const [toasts, setToasts] = useState<ToastMessage[]>([])
-  const pushToast = useCallback((message: string, tone: ToastTone) => {
-    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
-  }, [])
-  const closeToast = useCallback((id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id))
-  }, [])
 
   const total = submissions.length
   const gradedCount = submissions.filter(s => s.status === 'graded').length
@@ -33,19 +26,20 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
   async function handleGrade(id: number) {
     const gradeVal = grades[id]
     const feedbackVal = feedbacks[id] || ''
-    if (!gradeVal) return pushToast('Please enter a grade', 'error')
+    if (!gradeVal) return showToast('Please enter a grade', 'error')
     
     const num = Number(gradeVal)
-    if (isNaN(num) || num < 0 || num > 100) return pushToast('Grade must be 0-100', 'error')
+    if (isNaN(num) || num < 0 || num > 100) return showToast('Grade must be 0-100', 'error')
 
     setBusyId(id)
     try {
       await gradeSubmissionClient(id, num, feedbackVal)
       setSubmissions(prev => prev.map(s => s.id === id ? { ...s, grade: num, feedback: feedbackVal, status: 'graded' } : s))
       setEditingId(null)
-      pushToast('Grade saved successfully!', 'success')
-    } catch {
-      pushToast('Failed to save grade', 'error')
+      showToast('Grade saved successfully!', 'success')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to save grade'
+      showToast(message, 'error')
     } finally {
       setBusyId(null)
     }
@@ -97,7 +91,7 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
         <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
           <Users size={40} className="mx-auto mb-4 opacity-30" style={{ color: 'var(--brand-accent)' }} />
           <h3 className="text-xl font-bold text-foreground">No Submissions Yet</h3>
-          <p className="mt-1 text-sm text-muted-foreground">Students haven't submitted this homework yet.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Students haven&apos;t submitted this homework yet.</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -184,12 +178,11 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
         </div>
       )}
       
-      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }
 
-function StatCard({ icon: Icon, label, value, tone }: { icon: any, label: string, value: any, tone: 'brand' | 'success' | 'warning' | 'primary' }) {
+function StatCard({ icon: Icon, label, value, tone }: { icon: LucideIcon, label: string, value: string | number, tone: 'brand' | 'success' | 'warning' | 'primary' }) {
   const colors = {
     brand: { bg: 'var(--brand-accent)', fg: 'white' },
     primary: { bg: 'var(--brand-primary)', fg: 'white' },

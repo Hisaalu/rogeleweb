@@ -7,6 +7,7 @@ import {
   User, ArrowRight, Loader2,
 } from 'lucide-react'
 import { getYoutubeId, truncate, formatNumber } from '@/lib/utils'
+import { useToast } from '@/components/ui/toast-provider'
 import type { Lesson } from '@/types/lesson'
 
 export function LearnerLessonCard({
@@ -18,6 +19,7 @@ export function LearnerLessonCard({
   onToggleBookmark: (id: number) => Promise<boolean>
   from?: string
 }) {
+  const { showToast } = useToast()
   const [bookmarked, setBookmarked] = useState(lesson.is_bookmarked)
   const [busy, setBusy] = useState(false)
 
@@ -31,6 +33,17 @@ export function LearnerLessonCard({
     try {
       const result = await onToggleBookmark(lesson.id)
       setBookmarked(result)
+      if (result) {
+        showToast('Lesson bookmarked', 'success', {
+          title: 'Saved for later',
+        })
+      } else {
+        showToast('Removed from bookmarks', 'info')
+      }
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Could not update bookmark'
+      showToast(message, 'error', { title: 'Bookmark update failed' })
     } finally {
       setBusy(false)
     }

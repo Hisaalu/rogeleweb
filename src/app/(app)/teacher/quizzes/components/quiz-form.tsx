@@ -1,12 +1,12 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Save, Info, Cog, Globe, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, Save, Info, Cog, Globe, AlertTriangle, type LucideIcon } from 'lucide-react'
 import type { Quiz } from '@/types/quiz'
 import type { Class, Subject } from '@/types/admin'
-import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
+import { useToast } from '@/components/ui/toast-provider'
 
 export function QuizForm({ 
   classes, subjects, mode, initial 
@@ -14,6 +14,7 @@ export function QuizForm({
   classes: Class[], subjects: Subject[], mode: 'create' | 'edit', initial?: Quiz 
 }) {
   const router = useRouter()
+  const { showToast } = useToast()
   
   const [title, setTitle] = useState(initial?.title ?? '')
   const [description, setDescription] = useState(initial?.description ?? '')
@@ -26,14 +27,6 @@ export function QuizForm({
   const [isPublished, setIsPublished] = useState(initial?.is_published ?? true)
 
   const [busy, setBusy] = useState(false)
-  const [toasts, setToasts] = useState<ToastMessage[]>([])
-  
-  const pushToast = useCallback((message: string, tone: ToastTone) => {
-    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
-  }, [])
-  const closeToast = useCallback((id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id))
-  }, [])
 
   const filteredSubjects = useMemo(() => {
     if (!classId) return []
@@ -42,7 +35,7 @@ export function QuizForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!title || !classId || !subjectId || !endDate) return pushToast('Please fill all required fields', 'error')
+    if (!title || !classId || !subjectId || !endDate) return showToast('Please fill all required fields', 'error')
     
     setBusy(true)
     const payload = {
@@ -68,13 +61,14 @@ export function QuizForm({
       
       if (!res.ok) throw new Error('Failed to save quiz')
       
-      pushToast(mode === 'create' ? 'Quiz created successfully' : 'Quiz updated successfully', 'success')
+      showToast(mode === 'create' ? 'Quiz created successfully' : 'Quiz updated successfully', 'success')
       setTimeout(() => {
         router.push('/teacher/quizzes')
         router.refresh()
       }, 1000)
-    } catch (err: any) {
-      pushToast(err.message || 'Failed to save quiz', 'error')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to save quiz'
+      showToast(message, 'error')
       setBusy(false)
     }
   }
@@ -143,7 +137,7 @@ export function QuizForm({
           {!isPublished && (
             <div className="mt-4 flex items-start gap-3 rounded-xl p-4 text-sm" style={{ backgroundColor: 'var(--warning-bg)', color: 'var(--warning-fg)' }}>
               <AlertTriangle size={18} className="shrink-0" />
-              <p>Don't forget to add questions after creating the quiz. Students will only see the quiz once you've added questions and published it.</p>
+              <p>Don&apos;t forget to add questions after creating the quiz. Students will only see the quiz once you&apos;ve added questions and published it.</p>
             </div>
           )}
         </Section>
@@ -155,12 +149,11 @@ export function QuizForm({
         </div>
       </form>
       
-      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }
 
-function Section({ icon: Icon, title, children }: { icon: any, title: string, children: React.ReactNode }) {
+function Section({ icon: Icon, title, children }: { icon: LucideIcon, title: string, children: React.ReactNode }) {
   return (
     <div className="space-y-4 border-b border-border pb-6 last:border-b-0 last:pb-0 sm:space-y-5">
       <h2 className="flex items-center gap-2 text-base font-semibold text-foreground">

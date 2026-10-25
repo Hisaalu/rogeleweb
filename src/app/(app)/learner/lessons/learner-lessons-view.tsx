@@ -6,7 +6,6 @@ import { BookOpen, Bookmark } from 'lucide-react'
 import type { Subject } from '@/types/admin'
 import type { Lesson } from '@/types/lesson'
 import { getBookmarkCountClient, toggleLessonBookmarkClient } from '@/lib/lessons.client'
-import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
 import { LearnerHeader } from './components/learner-header'
 import { LearnerFilters } from './components/learner-filters'
 import { LearnerLessonCard } from './components/learner-lesson-card'
@@ -22,15 +21,6 @@ export function LearnerLessonsView({
 }) {
   const [lessons, setLessons] = useState(initialLessons)
   const [bookmarkCount, setBookmarkCount] = useState(initialCount)
-  const [toasts, setToasts] = useState<ToastMessage[]>([])
-
-  const pushToast = useCallback((message: string, tone: ToastTone) => {
-    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
-  }, [])
-
-  const closeToast = useCallback((id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id))
-  }, [])
 
   useEffect(() => {
     setLessons(initialLessons)
@@ -42,18 +32,12 @@ export function LearnerLessonsView({
         const res = await toggleLessonBookmarkClient(lessonId)
         const next = await getBookmarkCountClient()
         setBookmarkCount(next)
-        
-        pushToast(
-          res.bookmarked ? 'Added to bookmarks' : 'Removed from bookmarks',
-          'success',
-        )
         return res.bookmarked
-      } catch {
-        pushToast('Could not update bookmark', 'error')
-        throw new Error('bookmark failed')
+      } catch (err) {
+        throw err
       }
     },
-    [pushToast],
+    [],
   )
 
   return (
@@ -80,12 +64,11 @@ export function LearnerLessonsView({
               key={lesson.id}
               lesson={lesson}
               onToggleBookmark={handleToggleBookmark}
+              from="lessons"
             />
           ))}
         </div>
       )}
-
-      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }

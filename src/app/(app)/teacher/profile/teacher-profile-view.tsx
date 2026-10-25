@@ -1,15 +1,15 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { 
   UserCircle, Camera, Calendar, Clock, Edit, Save, User, Mail, Phone, 
-  GraduationCap, Loader2, Star, BookOpen, Users, AlignLeft
+  GraduationCap, Loader2, Star, BookOpen, Users, AlignLeft, type LucideIcon
 } from 'lucide-react'
 import type { User as ProfileUser } from '@/types/api'
 import { updateProfileClient, uploadAvatarClient } from '@/lib/profile.client'
 import { formatDate } from '@/lib/utils'
-import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
+import { useToast } from '@/components/ui/toast-provider'
 
 export function TeacherProfileView({
   profile,
@@ -21,18 +21,11 @@ export function TeacherProfileView({
   totalStudents: number
 }) {
   const router = useRouter()
+  const { showToast } = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [busy, setBusy] = useState(false)
   const [photoBusy, setPhotoBusy] = useState(false)
-  
-  const [toasts, setToasts] = useState<ToastMessage[]>([])
-  const pushToast = useCallback((message: string, tone: ToastTone) => {
-    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
-  }, [])
-  const closeToast = useCallback((id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id))
-  }, [])
 
   const [firstName, setFirstName] = useState(profile?.first_name ?? '')
   const [lastName, setLastName] = useState(profile?.last_name ?? '')
@@ -49,16 +42,17 @@ export function TeacherProfileView({
     if (!file) return
     
     if (file.size > 2 * 1024 * 1024) {
-      return pushToast('Image exceeds 2MB limit', 'error')
+      return showToast('Image exceeds 2MB limit', 'error')
     }
 
     setPhotoBusy(true)
     try {
       await uploadAvatarClient(file)
-      pushToast('Profile photo updated!', 'success')
+      showToast('Profile photo updated!', 'success')
       router.refresh()
-    } catch (err: any) {
-      pushToast(err.message || 'Failed to upload photo', 'error')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to upload photo'
+      showToast(message, 'error')
     } finally {
       setPhotoBusy(false)
       if (fileInputRef.current) fileInputRef.current.value = ''
@@ -68,12 +62,12 @@ export function TeacherProfileView({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!firstName.trim() || !lastName.trim() || !email.trim()) {
-      return pushToast('First name, last name, and email are required', 'error')
+      return showToast('First name, last name, and email are required', 'error')
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
-      return pushToast('Please enter a valid email address', 'error')
+      return showToast('Please enter a valid email address', 'error')
     }
 
     setBusy(true)
@@ -87,10 +81,11 @@ export function TeacherProfileView({
         qualification: qualification || undefined,
         specialization: specialization || undefined,
       })
-      pushToast('Profile updated successfully!', 'success')
+      showToast('Profile updated successfully!', 'success')
       router.refresh()
-    } catch (err: any) {
-      pushToast(err.message || 'Failed to update profile', 'error')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to update profile'
+      showToast(message, 'error')
     } finally {
       setBusy(false)
     }
@@ -287,12 +282,11 @@ export function TeacherProfileView({
 
       </div>
 
-      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }
 
-function Field({ label, icon: Icon, required, children }: { label: string, icon: any, required?: boolean, children: React.ReactNode }) {
+function Field({ label, icon: Icon, required, children }: { label: string, icon: LucideIcon, required?: boolean, children: React.ReactNode }) {
   return (
     <div>
       <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { 
   PlusCircle, Search, FileText, Calendar, GraduationCap, Book, 
   List, Clock, CalendarX, Eye, Edit, Trash2, Users
@@ -10,26 +10,19 @@ import {
 import type { Homework } from '@/types/homework'
 import type { Class } from '@/types/admin'
 import { deleteHomeworkClient } from '@/lib/homework.client'
-import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { useToast } from '@/components/ui/toast-provider'
 
 export function HomeworkListView({ homeworks: initial, classes }: { homeworks: Homework[], classes: Class[] }) {
   const [homeworks, setHomeworks] = useState(initial)
   const router = useRouter()
   const pathname = usePathname()
   const params = useSearchParams()
+  const { showToast } = useToast()
 
   const [q, setQ] = useState(params.get('q') ?? '')
   const [classId, setClassId] = useState(params.get('class_id') ?? '')
   const status = params.get('status') ?? ''
-
-  const [toasts, setToasts] = useState<ToastMessage[]>([])
-  const pushToast = useCallback((message: string, tone: ToastTone) => {
-    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
-  }, [])
-  const closeToast = useCallback((id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id))
-  }, [])
 
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -55,11 +48,12 @@ export function HomeworkListView({ homeworks: initial, classes }: { homeworks: H
     try {
       await deleteHomeworkClient(deleteTarget)
       setHomeworks(prev => prev.filter(h => h.id !== deleteTarget))
-      pushToast('Homework deleted successfully', 'success')
+      showToast('Homework deleted successfully', 'success')
       setDeleteTarget(null)
       router.refresh()
-    } catch (err: any) {
-      pushToast(err.message || 'Failed to delete homework', 'error')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to delete homework'
+      showToast(message, 'error')
     } finally {
       setIsDeleting(false)
     }
@@ -161,7 +155,6 @@ export function HomeworkListView({ homeworks: initial, classes }: { homeworks: H
         onConfirm={confirmDelete}
       />
 
-      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }

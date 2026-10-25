@@ -10,7 +10,8 @@ import {
 import type { Homework, HomeworkAttachment, HomeworkSubmission } from '@/types/homework'
 import { submitHomeworkClient, deleteSubmissionClient } from '@/lib/homework.client'
 import { materialDownloadUrl, formatFileSize } from '@/lib/materials'
-import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
+import { useToast, type ToastTone } from '@/components/ui/toast-provider'
+
 
 export function LearnerHomeworkDetail({
   homework,
@@ -27,14 +28,6 @@ export function LearnerHomeworkDetail({
   const [files, setFiles] = useState<File[]>([])
   const [busy, setBusy] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
-
-  const [toasts, setToasts] = useState<ToastMessage[]>([])
-  const pushToast = (message: string, tone: ToastTone) => {
-    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
-  }
-  const closeToast = (id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id))
-  }
 
   const dueDate = new Date(homework.due_date)
   const isExpired = dueDate.getTime() < new Date().getTime()
@@ -248,7 +241,6 @@ export function LearnerHomeworkDetail({
         </div>
       )}
 
-      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }

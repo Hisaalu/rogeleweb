@@ -50,6 +50,16 @@ const config: Config = {
           accent: 'var(--brand-accent)',
           primary: 'var(--brand-primary)',
         },
+        success: {
+          bg: 'color-mix(in srgb, var(--success-bg) 70%, transparent)',
+          fg: 'var(--success-fg)',
+          border: 'var(--success-border)',
+        },
+        danger: {
+          bg: 'color-mix(in srgb, var(--danger-bg) 70%, transparent)',
+          fg: 'var(--danger-fg)',
+          border: 'var(--danger-border)',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',

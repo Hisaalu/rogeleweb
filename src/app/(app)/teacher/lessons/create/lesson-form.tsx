@@ -5,12 +5,12 @@ import { useMemo, useState, useCallback } from 'react'
 import Link from 'next/link'
 import {
   ArrowLeft, AlignLeft, Book, Clock, CloudUpload, FileText, Globe,
-  GraduationCap, Info, PlusCircle, Save, Type, Video, X,
+  GraduationCap, Info, PlusCircle, Save, Type, Video, X, type LucideIcon
 } from 'lucide-react'
 import type { Class, Subject } from '@/types/admin'
 import type { CreateLessonPayload, Lesson } from '@/types/lesson'
 import { createLesson, updateLesson, addMaterialFromFile } from '@/lib/lessons.mutations'
-import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
+import { useToast } from '@/components/ui/toast-provider'
 
 const ACCEPTED = '.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png'
 
@@ -26,6 +26,7 @@ export function LessonForm({
   initial?: Lesson
 }) {
   const router = useRouter()
+  const { showToast } = useToast()
 
   const [title, setTitle] = useState(initial?.title ?? '')
   const [classId, setClassId] = useState<string>(initial?.class_id != null ? String(initial.class_id) : '')
@@ -37,14 +38,6 @@ export function LessonForm({
 
   const [files, setFiles] = useState<File[]>([])
   const [busy, setBusy] = useState(false)
-
-  const [toasts, setToasts] = useState<ToastMessage[]>([])
-  const pushToast = useCallback((message: string, tone: ToastTone) => {
-    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
-  }, [])
-  const closeToast = useCallback((id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id))
-  }, [])
 
   const filteredSubjects = useMemo(() => {
     if (!classId) return []
@@ -68,9 +61,9 @@ export function LessonForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
-    if (!title.trim()) return pushToast('Please enter a lesson title', 'error')
-    if (!classId) return pushToast('Please select a class', 'error')
-    if (!subjectId) return pushToast('Please select a subject', 'error')
+    if (!title.trim()) return showToast('Please enter a lesson title', 'error')
+    if (!classId) return showToast('Please select a class', 'error')
+    if (!subjectId) return showToast('Please select a subject', 'error')
 
     const payload: CreateLessonPayload = {
       title: title.trim(),
@@ -99,17 +92,18 @@ export function LessonForm({
         try {
           await addMaterialFromFile(lessonId, file)
         } catch {
-          pushToast(`Failed to upload ${file.name}`, 'error')
+          showToast(`Failed to upload ${file.name}`, 'error')
         }
       }
 
-      pushToast(mode === 'create' ? 'Lesson created successfully' : 'Lesson updated successfully', 'success')
+      showToast(mode === 'create' ? 'Lesson created successfully' : 'Lesson updated successfully', 'success')
       setTimeout(() => {
         router.push('/teacher/lessons')
         router.refresh()
       }, 1000)
-    } catch (err: any) {
-      pushToast(err.message || 'Could not save lesson', 'error')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Could not save lesson'
+      showToast(message, 'error')
       setBusy(false)
     }
   }
@@ -202,12 +196,11 @@ export function LessonForm({
         </div>
       </form>
       
-      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }
 
-function Section({ icon: Icon, title, children }: { icon: any, title: string, children: React.ReactNode }) {
+function Section({ icon: Icon, title, children }: { icon: LucideIcon, title: string, children: React.ReactNode }) {
   return (
     <div className="space-y-4 border-b border-border pb-6 last:border-b-0 last:pb-0 sm:space-y-5">
       <h2 className="flex items-center gap-2 text-base font-semibold text-foreground">
@@ -218,7 +211,7 @@ function Section({ icon: Icon, title, children }: { icon: any, title: string, ch
   )
 }
 
-function Field({ label, icon: Icon, required, children }: { label: string, icon: any, required?: boolean, children: React.ReactNode }) {
+function Field({ label, icon: Icon, required, children }: { label: string, icon: LucideIcon, required?: boolean, children: React.ReactNode }) {
   return (
     <div>
       <label className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">

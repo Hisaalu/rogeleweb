@@ -9,11 +9,7 @@ import { z } from 'zod'
 
 import { BrandLogo } from '@/components/brand/brand-logo'
 import { useBranding } from '@/components/brand/brand-provider'
-import {
-  ToastViewport,
-  type ToastMessage,
-  type ToastTone,
-} from '@/components/ui/toast'
+import { useToast } from '@/components/ui/toast-provider'
 
 const schema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -27,15 +23,9 @@ export function LoginForm() {
   const params = useSearchParams()
   const nextPath = params.get('next') ?? '/dashboard'
   const branding = useBranding()
+  const { showToast } = useToast()
 
   const [showPassword, setShowPassword] = useState(false)
-  const [toasts, setToasts] = useState<ToastMessage[]>([])
-  const pushToast = (message: string, tone: ToastTone) => {
-    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
-  }
-  const closeToast = (id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id))
-  }
 
   const {
     register,
@@ -57,7 +47,7 @@ export function LoginForm() {
       const data = await res.json().catch(() => null)
 
       if (!res.ok) {
-        pushToast(data?.error?.message ?? 'Invalid credentials', 'error')
+        showToast(data?.error?.message ?? 'Invalid credentials', 'error')
         return
       }
 
@@ -66,7 +56,7 @@ export function LoginForm() {
         router.refresh()
       }, 800)
     } catch {
-      pushToast('Something went wrong. Please try again.', 'error')
+      showToast('Something went wrong. Please try again.', 'error')
     }
   }
 
@@ -147,7 +137,6 @@ export function LoginForm() {
         </form>
       </div>
 
-      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }

@@ -1,14 +1,15 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ShieldCheck, Lock, LogOut, Loader2, Eye, EyeOff } from 'lucide-react'
 import { changePasswordClient } from '@/lib/settings.client'
-import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { useToast } from '@/components/ui/toast-provider'
 
 export function SettingsView({ role }: { role: string }) {
   const router = useRouter()
+  const { showToast } = useToast()
   
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -23,24 +24,16 @@ export function SettingsView({ role }: { role: string }) {
   const [logoutOpen, setLogoutOpen] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
-  const [toasts, setToasts] = useState<ToastMessage[]>([])
-  const pushToast = useCallback((message: string, tone: ToastTone) => {
-    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
-  }, [])
-  const closeToast = useCallback((id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id))
-  }, [])
-
   async function handlePasswordChange(e: React.FormEvent) {
     e.preventDefault()
     if (!currentPassword || !newPassword || !confirmPassword) {
-      return pushToast('Please fill out all fields', 'error')
+      return showToast('Please fill out all fields', 'error')
     }
     if (newPassword !== confirmPassword) {
-      return pushToast('New passwords do not match', 'error')
+      return showToast('New passwords do not match', 'error')
     }
     if (newPassword.length < 8) {
-      return pushToast('Password must be at least 8 characters', 'error')
+      return showToast('Password must be at least 8 characters', 'error')
     }
 
     setBusy(true)
@@ -49,12 +42,13 @@ export function SettingsView({ role }: { role: string }) {
         current_password: currentPassword,
         new_password: newPassword,
       })
-      pushToast('Password changed successfully', 'success')
+      showToast('Password changed successfully', 'success')
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
-    } catch (err: any) {
-      pushToast(err.message || 'Failed to change password', 'error')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to change password'
+      showToast(message, 'error')
     } finally {
       setBusy(false)
     }
@@ -67,7 +61,7 @@ export function SettingsView({ role }: { role: string }) {
       router.replace('/login')
       router.refresh()
     } catch {
-      pushToast('Failed to log out', 'error')
+      showToast('Failed to log out', 'error')
       setIsLoggingOut(false)
     }
   }
@@ -193,8 +187,6 @@ export function SettingsView({ role }: { role: string }) {
         loading={isLoggingOut}
         onConfirm={handleLogout}
       />
-
-      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }

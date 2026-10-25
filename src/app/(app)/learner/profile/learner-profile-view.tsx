@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useMemo, useCallback } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { 
@@ -11,7 +11,7 @@ import type { Class } from '@/types/admin'
 import type { SubscriptionSummary, TrialStatus } from '@/types/dashboard'
 import { updateProfileClient, uploadAvatarClient } from '@/lib/profile.client'
 import { formatDate } from '@/lib/utils'
-import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
+import { useToast } from '@/components/ui/toast-provider'
 
 export function LearnerProfileView({
   profile,
@@ -27,18 +27,11 @@ export function LearnerProfileView({
   hasAccess: boolean
 }) {
   const router = useRouter()
+  const { showToast } = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [busy, setBusy] = useState(false)
   const [photoBusy, setPhotoBusy] = useState(false)
-  
-  const [toasts, setToasts] = useState<ToastMessage[]>([])
-  const pushToast = useCallback((message: string, tone: ToastTone) => {
-    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
-  }, [])
-  const closeToast = useCallback((id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id))
-  }, [])
 
   const [firstName, setFirstName] = useState(profile?.first_name ?? '')
   const [lastName, setLastName] = useState(profile?.last_name ?? '')
@@ -56,15 +49,19 @@ export function LearnerProfileView({
   async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 5 * 1024 * 1024) return pushToast('Image exceeds 5MB limit', 'error')
+    
+    if (file.size > 5 * 1024 * 1024) {
+      return showToast('Image exceeds 5MB limit', 'error')
+    }
 
     setPhotoBusy(true)
     try {
       await uploadAvatarClient(file)
-      pushToast('Profile photo updated!', 'success')
+      showToast('Profile photo updated!', 'success')
       router.refresh()
-    } catch (err: any) {
-      pushToast(err.message || 'Failed to upload photo', 'error')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to upload photo'
+      showToast(message, 'error')
     } finally {
       setPhotoBusy(false)
       if (fileInputRef.current) fileInputRef.current.value = ''
@@ -74,7 +71,7 @@ export function LearnerProfileView({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!firstName.trim() || !lastName.trim() || !email.trim()) {
-      return pushToast('Name and Email are required', 'error')
+      return showToast('Name and Email are required', 'error')
     }
 
     setBusy(true)
@@ -86,10 +83,11 @@ export function LearnerProfileView({
         phone: phone || undefined,
         class_id: classId ? Number(classId) : undefined,
       })
-      pushToast('Profile updated successfully!', 'success')
+      showToast('Profile updated successfully!', 'success')
       router.refresh()
-    } catch (err: any) {
-      pushToast(err.message || 'Failed to update profile', 'error')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to update profile'
+      showToast(message, 'error')
     } finally {
       setBusy(false)
     }
@@ -192,7 +190,6 @@ export function LearnerProfileView({
           </div>
         </div>
 
-        {/* Right Main Content */}
         <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-8 lg:p-10">
           <h3 className="mb-6 flex items-center gap-2 border-b border-border pb-4 text-base font-bold text-foreground sm:mb-8 sm:text-lg">
             <Edit size={18} style={{ color: 'var(--brand-accent)' }} className="shrink-0" />
@@ -299,7 +296,6 @@ export function LearnerProfileView({
 
       </div>
 
-      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }

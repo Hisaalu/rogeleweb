@@ -6,8 +6,8 @@ import { BookOpen, PlusCircle } from 'lucide-react'
 import type { Class, Subject } from '@/types/admin'
 import type { Lesson, LessonListMeta } from '@/types/lesson'
 import { deleteLesson, publishLesson } from '@/lib/lessons.mutations'
-import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { useToast } from '@/components/ui/toast-provider'
 import { TeacherHeader } from './components/teacher-header'
 import { TeacherFilters } from './components/teacher-filters'
 import { TeacherLessonCard } from './components/teacher-lesson-card'
@@ -24,19 +24,11 @@ export function TeacherLessonsView({
   classes: Class[]
   subjects: Subject[]
 }) {
+  const { showToast } = useToast()
   const [lessons, setLessons] = useState(initial)
-  const [toasts, setToasts] = useState<ToastMessage[]>([])
   
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
-
-  const pushToast = useCallback((message: string, tone: ToastTone) => {
-    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
-  }, [])
-
-  const closeToast = useCallback((id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id))
-  }, [])
 
   useEffect(() => {
     setLessons(initial)
@@ -52,14 +44,15 @@ export function TeacherLessonsView({
     try {
       await deleteLesson(deleteTarget)
       setLessons((list) => list.filter((l) => l.id !== deleteTarget))
-      pushToast('Lesson deleted successfully', 'success')
+      showToast('Lesson deleted successfully', 'success')
       setDeleteTarget(null)
-    } catch (err: any) {
-      pushToast(err.message || 'Could not delete lesson', 'error')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Could not delete lesson'
+      showToast(message, 'error')
     } finally {
       setIsDeleting(false)
     }
-  }, [deleteTarget, pushToast])
+  }, [deleteTarget, showToast])
 
   const handlePublishToggle = useCallback(
     async (id: number, published: boolean) => {
@@ -70,15 +63,16 @@ export function TeacherLessonsView({
             l.id === id ? { ...l, ...updated, is_published: published } : l,
           ),
         )
-        pushToast(
+        showToast(
           published ? 'Lesson published successfully' : 'Lesson moved to drafts',
           'success',
         )
-      } catch (err: any) {
-        pushToast(err.message || 'Could not update lesson status', 'error')
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Could not update lesson status'
+        showToast(message, 'error')
       }
     },
-    [pushToast],
+    [showToast],
   )
 
   return (
@@ -135,7 +129,6 @@ export function TeacherLessonsView({
         onConfirm={confirmDelete}
       />
 
-      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }

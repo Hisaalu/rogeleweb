@@ -8,11 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 
 import { BrandLogo } from '@/components/brand/brand-logo'
-import {
-  ToastViewport,
-  type ToastMessage,
-  type ToastTone,
-} from '@/components/ui/toast'
+import { useToast } from '@/components/ui/toast-provider'
 
 const schema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -21,16 +17,9 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>
 
 export function ForgotPasswordForm() {
+  const { showToast } = useToast()
   const [submitted, setSubmitted] = useState(false)
   const [submittedEmail, setSubmittedEmail] = useState('')
-
-  const [toasts, setToasts] = useState<ToastMessage[]>([])
-  const pushToast = (message: string, tone: ToastTone) => {
-    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
-  }
-  const closeToast = (id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id))
-  }
 
   const {
     register,
@@ -51,15 +40,15 @@ export function ForgotPasswordForm() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => null)
-        pushToast(data?.error?.message ?? 'Failed to send reset email', 'error')
+        showToast(data?.error?.message ?? 'Failed to send reset email', 'error')
         return
       }
 
-      pushToast('Reset link sent to your email', 'success')
+      showToast('Reset link sent to your email', 'success')
       setSubmittedEmail(values.email)
       setSubmitted(true)
     } catch {
-      pushToast('Something went wrong. Please try again.', 'error')
+      showToast('Something went wrong. Please try again.', 'error')
     }
   }
 
@@ -75,8 +64,8 @@ export function ForgotPasswordForm() {
       <div className="rounded-[10px] bg-card p-8 shadow-[0_2px_10px_rgba(0,0,0,0.05)] sm:p-10">
         {submitted ? (
           <div className="flex flex-col items-center text-center">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-950/40">
-              <CheckCircle2 size={32} className="text-green-600 dark:text-green-400" />
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full" style={{ backgroundColor: 'var(--success-bg)' }}>
+              <CheckCircle2 size={32} style={{ color: 'var(--success-fg)' }} />
             </div>
             <h2 className="text-xl font-semibold text-foreground">Check your email</h2>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -127,7 +116,6 @@ export function ForgotPasswordForm() {
         )}
       </div>
 
-      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }

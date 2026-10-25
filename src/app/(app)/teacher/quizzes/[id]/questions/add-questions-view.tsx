@@ -5,20 +5,13 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Save, PlusCircle, X, HelpCircle } from 'lucide-react'
 import type { Quiz } from '@/types/quiz'
-import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
+import { useToast } from '@/components/ui/toast-provider'
 
 export function AddQuestionsView({ quiz }: { quiz: Quiz }) {
   const router = useRouter()
+  const { showToast } = useToast()
   const [questions, setQuestions] = useState([{ id: 1 }])
   const [busy, setBusy] = useState(false)
-
-  const [toasts, setToasts] = useState<ToastMessage[]>([])
-  const pushToast = (message: string, tone: ToastTone) => {
-    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
-  }
-  const closeToast = (id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id))
-  }
 
   function addQuestion() {
     setQuestions(prev => [...prev, { id: Date.now() }])
@@ -51,13 +44,13 @@ export function AddQuestionsView({ quiz }: { quiz: Quiz }) {
       })
       if (!res.ok) throw new Error('Failed to add questions')
       
-      pushToast('Questions added successfully', 'success')
+      showToast('Questions added successfully', 'success')
       setTimeout(() => {
         router.push(`/teacher/quizzes`)
         router.refresh()
       }, 1000)
     } catch {
-      pushToast('Error adding questions', 'error')
+      showToast('Error adding questions', 'error')
       setBusy(false)
     }
   }
@@ -78,7 +71,7 @@ export function AddQuestionsView({ quiz }: { quiz: Quiz }) {
                 <HelpCircle size={18} style={{ color: 'var(--brand-accent)' }} /> Question {idx + 1}
               </h3>
               {questions.length > 1 && (
-                <button type="button" onClick={() => removeQuestion(q.id)} className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white dark:bg-red-950/30">
+                <button type="button" onClick={() => removeQuestion(q.id)} className="flex h-8 w-8 items-center justify-center rounded-lg transition hover:opacity-80" style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-fg)' }}>
                   <X size={16} />
                 </button>
               )}
@@ -86,19 +79,19 @@ export function AddQuestionsView({ quiz }: { quiz: Quiz }) {
 
             <div className="space-y-4">
               <div>
-                <label className="mb-1 block text-sm font-semibold">Question Text <span className="text-red-500">*</span></label>
+                <label className="mb-1 block text-sm font-semibold">Question Text <span style={{ color: 'var(--danger-fg)' }}>*</span></label>
                 <textarea name={`q_${idx}_text`} rows={2} required className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-brand-accent" />
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <div><label className="mb-1 block text-sm font-semibold">Option A <span className="text-red-500">*</span></label><input name={`q_${idx}_a`} required className="w-full rounded-xl border border-border px-4 py-2 text-sm outline-none focus:border-brand-accent" /></div>
-                <div><label className="mb-1 block text-sm font-semibold">Option B <span className="text-red-500">*</span></label><input name={`q_${idx}_b`} required className="w-full rounded-xl border border-border px-4 py-2 text-sm outline-none focus:border-brand-accent" /></div>
-                <div><label className="mb-1 block text-sm font-semibold">Option C</label><input name={`q_${idx}_c`} className="w-full rounded-xl border border-border px-4 py-2 text-sm outline-none focus:border-brand-accent" /></div>
-                <div><label className="mb-1 block text-sm font-semibold">Option D</label><input name={`q_${idx}_d`} className="w-full rounded-xl border border-border px-4 py-2 text-sm outline-none focus:border-brand-accent" /></div>
+                <div><label className="mb-1 block text-sm font-semibold">Option A <span style={{ color: 'var(--danger-fg)' }}>*</span></label><input name={`q_${idx}_a`} required className="w-full rounded-xl border border-border bg-background px-4 py-2 text-sm outline-none focus:border-brand-accent" /></div>
+                <div><label className="mb-1 block text-sm font-semibold">Option B <span style={{ color: 'var(--danger-fg)' }}>*</span></label><input name={`q_${idx}_b`} required className="w-full rounded-xl border border-border bg-background px-4 py-2 text-sm outline-none focus:border-brand-accent" /></div>
+                <div><label className="mb-1 block text-sm font-semibold">Option C</label><input name={`q_${idx}_c`} className="w-full rounded-xl border border-border bg-background px-4 py-2 text-sm outline-none focus:border-brand-accent" /></div>
+                <div><label className="mb-1 block text-sm font-semibold">Option D</label><input name={`q_${idx}_d`} className="w-full rounded-xl border border-border bg-background px-4 py-2 text-sm outline-none focus:border-brand-accent" /></div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-sm font-semibold">Correct Answer <span className="text-red-500">*</span></label>
-                  <select name={`q_${idx}_correct`} required className="w-full rounded-xl border border-border px-4 py-2 text-sm outline-none focus:border-brand-accent">
+                  <label className="mb-1 block text-sm font-semibold">Correct Answer <span style={{ color: 'var(--danger-fg)' }}>*</span></label>
+                  <select name={`q_${idx}_correct`} required className="w-full rounded-xl border border-border bg-background px-4 py-2 text-sm outline-none focus:border-brand-accent">
                     <option value="">Select...</option>
                     <option value="A">A</option>
                     <option value="B">B</option>
@@ -108,7 +101,7 @@ export function AddQuestionsView({ quiz }: { quiz: Quiz }) {
                 </div>
                 <div>
                   <label className="mb-1 block text-sm font-semibold">Points</label>
-                  <input type="number" name={`q_${idx}_points`} defaultValue={1} min={1} max={10} className="w-full rounded-xl border border-border px-4 py-2 text-sm outline-none focus:border-brand-accent" />
+                  <input type="number" name={`q_${idx}_points`} defaultValue={1} min={1} max={10} className="w-full rounded-xl border border-border bg-background px-4 py-2 text-sm outline-none focus:border-brand-accent" />
                 </div>
               </div>
             </div>
@@ -128,7 +121,6 @@ export function AddQuestionsView({ quiz }: { quiz: Quiz }) {
         </div>
       </form>
 
-      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }

@@ -2,30 +2,23 @@
 
 import Link from 'next/link'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { Search, PlusCircle, HelpCircle, Clock, Users, Trophy, CalendarX, CalendarCheck, Edit, Eye, BarChart2, Trash2 } from 'lucide-react'
 import type { Quiz } from '@/types/quiz'
 import type { Class } from '@/types/admin'
 import { deleteQuizClient } from '@/lib/quizzes.client'
-import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { useToast } from '@/components/ui/toast-provider'
 
 export function TeacherQuizzesView({ quizzes: initial, classes }: { quizzes: Quiz[], classes: Class[] }) {
   const [quizzes, setQuizzes] = useState(initial)
   const router = useRouter()
   const pathname = usePathname()
   const params = useSearchParams()
+  const { showToast } = useToast()
 
   const [q, setQ] = useState(params.get('q') ?? '')
   const [classId, setClassId] = useState(params.get('class_id') ?? '')
-
-  const [toasts, setToasts] = useState<ToastMessage[]>([])
-  const pushToast = useCallback((message: string, tone: ToastTone) => {
-    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
-  }, [])
-  const closeToast = useCallback((id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id))
-  }, [])
 
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -47,10 +40,11 @@ export function TeacherQuizzesView({ quizzes: initial, classes }: { quizzes: Qui
     try {
       await deleteQuizClient(deleteTarget)
       setQuizzes(prev => prev.filter(q => q.id !== deleteTarget))
-      pushToast('Quiz deleted successfully', 'success')
+      showToast('Quiz deleted successfully', 'success')
       setDeleteTarget(null)
-    } catch (err: any) {
-      pushToast(err.message || 'Failed to delete quiz', 'error')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to delete quiz'
+      showToast(message, 'error')
     } finally {
       setIsDeleting(false)
     }
@@ -172,7 +166,6 @@ export function TeacherQuizzesView({ quizzes: initial, classes }: { quizzes: Qui
         onConfirm={confirmDelete}
       />
       
-      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }

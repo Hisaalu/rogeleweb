@@ -7,7 +7,7 @@ import { PlanCard } from './plan-card'
 import { PaymentModal } from './payment-modal'
 import { PaymentHistory } from './payment-history'
 import { ActiveBanner } from './active-banner'
-import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
+import { useToast } from '@/components/ui/toast-provider'
 
 export function SubscriptionView({
   plans,
@@ -19,15 +19,8 @@ export function SubscriptionView({
   payments: Payment[]
 }) {
   const router = useRouter()
+  const { showToast } = useToast()
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null)
-  
-  const [toasts, setToasts] = useState<ToastMessage[]>([])
-  const pushToast = (message: string, tone: ToastTone) => {
-    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
-  }
-  const closeToast = (id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id))
-  }
 
   const recommendedId = useMemo(() => {
     if (plans.length < 2) return null
@@ -36,7 +29,9 @@ export function SubscriptionView({
 
   function handleSuccess() {
     setSelectedPlan(null)
-    pushToast('Payment confirmed! Your subscription is now active.', 'success')
+    showToast('Payment confirmed! Your subscription is now active.', 'success', {
+      title: 'Subscription active',
+    })
     router.refresh()
   }
 
@@ -118,7 +113,6 @@ export function SubscriptionView({
         />
       )}
 
-      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }

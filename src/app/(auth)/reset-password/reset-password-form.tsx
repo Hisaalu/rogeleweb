@@ -9,7 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { BrandLogo } from '@/components/brand/brand-logo'
 import { useBranding } from '@/components/brand/brand-provider'
-import { ToastViewport, type ToastMessage, type ToastTone } from '@/components/ui/toast'
+import { useToast } from '@/components/ui/toast-provider'
 
 const schema = z.object({
   password: z.string().min(8, 'Password must be at least 8 characters'),
@@ -26,17 +26,10 @@ export function ResetPasswordForm() {
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
   const branding = useBranding()
+  const { showToast } = useToast()
 
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
-  
-  const [toasts, setToasts] = useState<ToastMessage[]>([])
-  const pushToast = (message: string, tone: ToastTone) => {
-    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
-  }
-  const closeToast = (id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id))
-  }
 
   const {
     register,
@@ -49,7 +42,7 @@ export function ResetPasswordForm() {
 
   async function onSubmit(values: FormValues) {
     if (!token) {
-      pushToast('Invalid or missing reset token. Please request a new link.', 'error')
+      showToast('Invalid or missing reset token. Please request a new link.', 'error')
       return
     }
 
@@ -69,13 +62,14 @@ export function ResetPasswordForm() {
         throw new Error(data?.error?.message ?? 'Failed to reset password')
       }
 
-      pushToast('Password reset successfully! Redirecting to login...', 'success')
+      showToast('Password reset successfully! Redirecting to login...', 'success')
       
       setTimeout(() => {
         router.push('/login')
       }, 1500)
-    } catch (err: any) {
-      pushToast(err.message || 'Something went wrong', 'error')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Something went wrong'
+      showToast(message, 'error')
     }
   }
 
@@ -161,7 +155,6 @@ export function ResetPasswordForm() {
         </form>
       </div>
 
-      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }

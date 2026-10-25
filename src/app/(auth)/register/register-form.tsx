@@ -9,11 +9,7 @@ import { z } from 'zod'
 
 import { BrandLogo } from '@/components/brand/brand-logo'
 import { useBranding } from '@/components/brand/brand-provider'
-import {
-  ToastViewport,
-  type ToastMessage,
-  type ToastTone,
-} from '@/components/ui/toast'
+import { useToast } from '@/components/ui/toast-provider'
 import type { Class } from '@/types/admin'
 
 const schema = z.object({
@@ -34,17 +30,10 @@ type FormValues = z.infer<typeof schema>
 export function RegisterForm({ classes }: { classes: Class[] }) {
   const router = useRouter()
   const branding = useBranding()
+  const { showToast } = useToast()
 
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
-
-  const [toasts, setToasts] = useState<ToastMessage[]>([])
-  const pushToast = (message: string, tone: ToastTone) => {
-    setToasts((prev) => [...prev, { id: Date.now() + Math.random(), message, tone }])
-  }
-  const closeToast = (id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id))
-  }
 
   const {
     register,
@@ -84,7 +73,7 @@ export function RegisterForm({ classes }: { classes: Class[] }) {
       const regData = await regRes.json().catch(() => null)
 
       if (!regRes.ok) {
-        pushToast(regData?.error?.message ?? 'Registration failed', 'error')
+        showToast(regData?.error?.message ?? 'Registration failed', 'error')
         return
       }
       const loginRes = await fetch('/api/auth/login', {
@@ -94,18 +83,18 @@ export function RegisterForm({ classes }: { classes: Class[] }) {
       })
 
       if (!loginRes.ok) {
-        pushToast('Account created. Please log in.', 'success')
+        showToast('Account created. Please log in.', 'success')
         setTimeout(() => router.push('/login'), 1200)
         return
       }
 
-      pushToast('Account created successfully', 'success')
+      showToast('Account created successfully', 'success')
       setTimeout(() => {
         router.replace('/dashboard')
         router.refresh()
       }, 800)
     } catch {
-      pushToast('Something went wrong. Please try again.', 'error')
+      showToast('Something went wrong. Please try again.', 'error')
     }
   }
 
@@ -253,7 +242,6 @@ export function RegisterForm({ classes }: { classes: Class[] }) {
         </form>
       </div>
 
-      <ToastViewport toasts={toasts} onClose={closeToast} />
     </div>
   )
 }
