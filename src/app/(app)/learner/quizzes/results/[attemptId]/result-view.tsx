@@ -18,20 +18,22 @@ export function ResultView({ attempt }: { attempt: QuizResultDetails }) {
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">
       <div className="rounded-3xl border border-border bg-card p-8 text-center shadow-lg sm:p-12">
-        <div className={`mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full ${
-          passed ? 'bg-emerald-100 dark:bg-emerald-950/50' : 'bg-red-100 dark:bg-red-950/50'
-        }`}>
+        <div 
+          className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full"
+          style={{ backgroundColor: passed ? 'var(--success-bg)' : 'var(--danger-bg)' }}
+        >
           {passed ? (
-            <Trophy size={40} className="text-emerald-600 dark:text-emerald-400" />
+            <Trophy size={40} style={{ color: 'var(--success-fg)' }} />
           ) : (
-            <XCircle size={40} className="text-red-600 dark:text-red-400" />
+            <XCircle size={40} style={{ color: 'var(--danger-fg)' }} />
           )}
         </div>
 
         <div className="mb-2 flex items-center justify-center gap-3">
-          <span className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1 text-sm font-bold tracking-wide text-white ${
-            passed ? 'bg-emerald-500' : 'bg-red-500'
-          }`}>
+          <span 
+            className="inline-flex items-center gap-1.5 rounded-full px-4 py-1 text-sm font-bold tracking-wide text-white"
+            style={{ backgroundColor: passed ? 'var(--success-border)' : 'var(--danger-border)' }}
+          >
             {passed ? 'PASSED' : 'FAILED'}
           </span>
           <span className="text-sm font-medium text-muted-foreground">Pass Mark: {attempt.passing_score ?? 70}%</span>
@@ -49,9 +51,8 @@ export function ResultView({ attempt }: { attempt: QuizResultDetails }) {
             <circle cx="50" cy="50" r="45" className="stroke-muted stroke-[8px] fill-none" />
             <circle 
               cx="50" cy="50" r="45" 
-              className={`fill-none stroke-[8px] stroke-linecap-round ${
-                passed ? 'stroke-emerald-500' : 'stroke-red-500'
-              }`}
+              className="fill-none stroke-[8px] stroke-linecap-round"
+              stroke={passed ? 'var(--success-border)' : 'var(--danger-border)'}
               strokeDasharray="283" 
               strokeDashoffset={283 - (score / 100) * 283} 
               style={{ transition: 'stroke-dashoffset 1s ease-out' }}
@@ -64,15 +65,15 @@ export function ResultView({ attempt }: { attempt: QuizResultDetails }) {
 
         <div className="grid grid-cols-3 gap-4 border-t border-border pt-8">
           <div>
-            <div className="mb-1 text-xl font-bold text-emerald-500">{correct}</div>
+            <div className="mb-1 text-xl font-bold" style={{ color: 'var(--success-fg)' }}>{correct}</div>
             <div className="text-xs font-medium text-muted-foreground">Correct</div>
           </div>
           <div>
-            <div className="mb-1 text-xl font-bold text-red-500">{incorrect}</div>
+            <div className="mb-1 text-xl font-bold" style={{ color: 'var(--danger-fg)' }}>{incorrect}</div>
             <div className="text-xs font-medium text-muted-foreground">Incorrect</div>
           </div>
           <div>
-            <div className="mb-1 text-xl font-bold text-amber-500">{timeFormatted}</div>
+            <div className="mb-1 text-xl font-bold" style={{ color: 'var(--warning-fg)' }}>{timeFormatted}</div>
             <div className="text-xs font-medium text-muted-foreground">Time Taken</div>
           </div>
         </div>
@@ -93,16 +94,19 @@ export function ResultView({ attempt }: { attempt: QuizResultDetails }) {
             return (
               <div 
                 key={q.id} 
-                className={`rounded-2xl border-l-4 bg-muted/30 p-5 ${
-                  isCorrect ? 'border-emerald-500' : 'border-red-500'
-                }`}
+                className="rounded-2xl border-l-4 bg-muted/30 p-5"
+                style={{ borderLeftColor: isCorrect ? 'var(--success-border)' : 'var(--danger-border)' }}
               >
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-3">
                     <span className="font-bold text-foreground">Question {idx + 1}</span>
-                    <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                      isCorrect ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400'
-                    }`}>
+                    <span 
+                      className="rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                      style={{
+                        backgroundColor: isCorrect ? 'var(--success-bg)' : 'var(--danger-bg)',
+                        color: isCorrect ? 'var(--success-fg)' : 'var(--danger-fg)'
+                      }}
+                    >
                       {isCorrect ? 'Correct' : 'Incorrect'}
                     </span>
                   </div>
@@ -116,27 +120,48 @@ export function ResultView({ attempt }: { attempt: QuizResultDetails }) {
                     const isAns = optIdx === q.correct_option
                     const isUser = optIdx === userAnswer
                     
-                    let cls = 'border-border bg-background'
-                    if (isAns) cls = 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30'
-                    else if (isUser) cls = 'border-red-500 bg-red-50 dark:bg-red-950/30'
+                    let borderColor = 'var(--border)'
+                    let bgColor = 'hsl(var(--background))'
+                    if (isAns) {
+                      borderColor = 'var(--success-border)'
+                      bgColor = 'var(--success-bg)'
+                    } else if (isUser) {
+                      borderColor = 'var(--danger-border)'
+                      bgColor = 'var(--danger-bg)'
+                    }
 
                     return (
-                      <div key={optIdx} className={`flex items-center gap-3 rounded-xl border p-3 ${cls}`}>
-                        <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-                          isAns ? 'bg-emerald-500 text-white' : isUser ? 'bg-red-500 text-white' : 'bg-muted text-muted-foreground'
-                        }`}>
+                      <div 
+                        key={optIdx} 
+                        className="flex items-center gap-3 rounded-xl border p-3"
+                        style={{ borderColor, backgroundColor: bgColor }}
+                      >
+                        <div 
+                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+                          style={{
+                            backgroundColor: isAns ? 'var(--success-border)' : isUser ? 'var(--danger-border)' : 'hsl(var(--muted))',
+                            color: (isAns || isUser) ? 'white' : 'hsl(var(--muted-foreground))'
+                          }}
+                        >
                           {['A', 'B', 'C', 'D'][optIdx]}
                         </div>
                         <span className="flex-1 text-sm text-foreground">{opt}</span>
-                        {isAns && <span className="text-xs font-bold text-emerald-600">Correct Answer</span>}
-                        {isUser && !isAns && <span className="text-xs font-bold text-red-600">Your Answer</span>}
+                        {isAns && <span className="text-xs font-bold" style={{ color: 'var(--success-fg)' }}>Correct Answer</span>}
+                        {isUser && !isAns && <span className="text-xs font-bold" style={{ color: 'var(--danger-fg)' }}>Your Answer</span>}
                       </div>
                     )
                   })}
                 </div>
 
                 {q.explanation && (
-                  <div className="rounded-xl border-l-2 border-amber-500 bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+                  <div 
+                    className="rounded-xl border-l-2 p-3 text-sm"
+                    style={{ 
+                      borderLeftColor: 'var(--warning-border)', 
+                      backgroundColor: 'var(--warning-bg)', 
+                      color: 'var(--warning-fg)' 
+                    }}
+                  >
                     <strong className="mb-1 block">Explanation:</strong>
                     {q.explanation}
                   </div>
@@ -147,10 +172,10 @@ export function ResultView({ attempt }: { attempt: QuizResultDetails }) {
         </div>
 
         <div className="mt-8 flex flex-wrap justify-center gap-4">
-          <Link href="/learner/quizzes" className="inline-flex items-center gap-2 rounded-full border-2 border-brand-primary px-6 py-2.5 text-sm font-bold text-brand-primary transition hover:bg-brand-primary hover:text-white">
+          <Link href="/learner/quizzes" className="inline-flex items-center gap-2 rounded-full border-2 px-6 py-2.5 text-sm font-bold transition hover:opacity-90" style={{ borderColor: 'var(--brand-primary)', color: 'var(--brand-primary)' }}>
             Try Another Quiz
           </Link>
-          <Link href="/learner/lessons" className="inline-flex items-center gap-2 rounded-full bg-brand-primary px-6 py-2.5 text-sm font-bold text-white transition hover:opacity-90">
+          <Link href="/learner/lessons" className="inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-bold text-white transition hover:opacity-90" style={{ backgroundColor: 'var(--brand-primary)' }}>
             <BookOpen size={16} /> Continue Learning
           </Link>
         </div>
