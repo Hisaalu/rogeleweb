@@ -40,9 +40,11 @@ export function LearnerQuizzesView({ quizzes, attempts }: { quizzes: Quiz[], att
             const finishedAttempts = quizAttempts.filter(a => a.status === 'completed' || a.status === 'expired')
             const attemptCount = finishedAttempts.length
             
-            // FIX: Strictly check for 'in_progress'
+            const maxAttempts = quiz.max_attempts ?? 3
+            const remainingAttempts = Math.max(0, maxAttempts - attemptCount)
+            
             const inProgressAttempt = quizAttempts.find(a => a.status === 'in_progress')
-            const hasInProgress = !!inProgressAttempt
+            const hasInProgress = !!inProgressAttempt && remainingAttempts > 0
             
             const bestScore = finishedAttempts.reduce((max, a) => Math.max(max, a.score || 0), 0)
             
@@ -51,8 +53,6 @@ export function LearnerQuizzesView({ quizzes, attempts }: { quizzes: Quiz[], att
             )
             const latestAttemptId = sortedFinished.length > 0 ? sortedFinished[0].id : null
             
-            const maxAttempts = quiz.max_attempts ?? 3
-            const remainingAttempts = Math.max(0, maxAttempts - attemptCount)
             const passingScore = quiz.passing_score ?? 70
             const hasQuestions = (quiz.question_count ?? 0) > 0
             const endDate = quiz.end_date

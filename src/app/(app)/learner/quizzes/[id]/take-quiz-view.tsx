@@ -22,6 +22,7 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz, questions: QuizQ
   
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const hasAutoSubmitted = useRef(false)
+  const hasFetchedAttempt = useRef(false)
   const storageKey = `quiz_state_${quiz.id}`
 
   const handleAutoSubmit = useCallback(async () => {
@@ -59,16 +60,23 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz, questions: QuizQ
       } catch (e) {}
     }
 
+    if (hasFetchedAttempt.current) return
+    hasFetchedAttempt.current = true
+
     startAttemptClient(quiz.id)
       .then(res => {
         setAttemptId(res.id)
         setLoading(false)
       })
       .catch((err: any) => {
-        setError(err.message || 'Could not start quiz attempt.')
+        const msg = err.message || 'Could not start quiz attempt.'
+        setError(msg)
         setLoading(false)
-        if (err.message?.includes('expired') || err.message?.includes('attempts')) {
-           showToast(err.message, 'error')
+        
+        if (msg.includes('expired')) {
+           showToast(msg, 'error')
+           router.push('/learner/quizzes')
+        } else if (msg.includes('attempts')) {
            router.push('/learner/quizzes')
         }
       })
