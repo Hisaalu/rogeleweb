@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { getSessionUser } from '@/lib/auth'
 import { serverApiRequest } from '@/lib/server-api'
-import type { AdminUser } from '@/types/admin'
+import type { AdminUser, Class } from '@/types/admin'
 import { StudentsView } from './students-view'
 
 export const metadata: Metadata = { title: 'My Students' }
@@ -12,12 +12,12 @@ export default async function TeacherStudentsPage() {
   if (!session) return null
 
   let students: AdminUser[] = []
-  let classes: any[] = []
+  let classes: Class[] = []
 
   try {
     const res = await serverApiRequest<unknown>('/api/v1/admin/students')
     const r = (res ?? {}) as { data?: AdminUser[]; value?: AdminUser[] }
-    if (Array.isArray(res)) students = res
+    if (Array.isArray(res)) students = res as AdminUser[]
     else if (Array.isArray(r.data)) students = r.data
     else if (Array.isArray(r.value)) students = r.value
   } catch {
@@ -26,8 +26,8 @@ export default async function TeacherStudentsPage() {
 
   try {
     const res = await serverApiRequest<unknown>('/api/v1/classes?per_page=100')
-    const r = (res ?? {}) as { data?: any[]; value?: any[] }
-    if (Array.isArray(res)) classes = res
+    const r = (res ?? {}) as { data?: Class[]; value?: Class[] }
+    if (Array.isArray(res)) classes = res as Class[]
     else if (Array.isArray(r.data)) classes = r.data
     else if (Array.isArray(r.value)) classes = r.value
   } catch {

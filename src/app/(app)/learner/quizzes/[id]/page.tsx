@@ -1,11 +1,17 @@
 import { notFound, redirect } from 'next/navigation'
 import { getQuizServer, listQuestionsServer } from '@/lib/quizzes.server'
-import { getTrialStatusServer, getActiveSubscriptionServer } from '@/lib/dashboard.server'
-import { hasAccess } from '@/lib/access'
-import { UpgradePrompt } from '@/components/upgrade-prompt'
+import {
+  getTrialStatusServer,
+  getActiveSubscriptionServer,
+} from '@/lib/dashboard.server'
+import { getAccessReason } from '@/lib/access'
 import { TakeQuizView } from './take-quiz-view'
 
-export default async function TakeQuizPage({ params }: { params: { id: string } }) {
+export default async function TakeQuizPage({
+  params,
+}: {
+  params: { id: string }
+}) {
   const id = Number(params.id)
   if (!Number.isFinite(id)) notFound()
 
@@ -13,8 +19,10 @@ export default async function TakeQuizPage({ params }: { params: { id: string } 
     getTrialStatusServer(),
     getActiveSubscriptionServer(),
   ])
-  if (!hasAccess(subscription, trial)) {
-    return <UpgradePrompt title="Quiz Locked" description="Subscribe to a plan to take quizzes and test your knowledge." />
+
+  const reason = getAccessReason(subscription, trial)
+  if (reason !== 'ok') {
+    redirect(`/learner/quizzes?locked=${reason}`)
   }
 
   const [quiz, questions] = await Promise.all([
@@ -26,7 +34,9 @@ export default async function TakeQuizPage({ params }: { params: { id: string } 
     return (
       <div className="p-10 text-center">
         <h2 className="text-xl font-bold">No Questions Found</h2>
-        <p className="text-muted-foreground">This quiz doesn't have any questions yet.</p>
+        <p className="text-muted-foreground">
+          This quiz doesn&apos;t have any questions yet.
+        </p>
       </div>
     )
   }

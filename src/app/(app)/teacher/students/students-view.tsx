@@ -3,9 +3,9 @@
 import Link from 'next/link'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useState, useMemo } from 'react'
-import { 
-  Search, Users, GraduationCap, Mail, BarChart2, 
-  User, Crown, Star 
+import {
+  Search, Users, GraduationCap, Mail, BarChart2,
+  User, Crown, Star
 } from 'lucide-react'
 import type { Class } from '@/types/admin'
 
@@ -17,8 +17,8 @@ interface StudentListItem {
   role: string
   class_id?: number
   profile_photo?: string
-  quizzes_taken: number
-  avg_score: number
+  quizzes_taken?: number
+  avg_score?: number
 }
 
 function getInitials(first?: string, last?: string, fullName?: string): string {
@@ -48,22 +48,24 @@ export function StudentsView({ students, classes }: { students: StudentListItem[
 
   const filteredStudents = useMemo(() => {
     return students.filter(s => {
-      const matchesSearch = 
+      const matchesSearch =
         (s.first_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
         (s.last_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
         s.email.toLowerCase().includes(searchTerm.toLowerCase())
-      
+
       const matchesClass = selectedClass ? String(s.class_id) === selectedClass : true
-      
+
       return matchesSearch && matchesClass
     })
   }, [students, searchTerm, selectedClass])
 
   const totalStudents = filteredStudents.length
   const avgPerformance = useMemo(() => {
-    const valid = filteredStudents.filter(s => s.quizzes_taken > 0)
+    const valid = filteredStudents.filter(s => (s.quizzes_taken ?? 0) > 0)
     if (valid.length === 0) return 0
-    return Math.round(valid.reduce((sum, s) => sum + s.avg_score, 0) / valid.length)
+    return Math.round(
+      valid.reduce((sum, s) => sum + (s.avg_score ?? 0), 0) / valid.length,
+    )
   }, [filteredStudents])
 
   function handleSearch(e: React.FormEvent) {
@@ -82,14 +84,13 @@ export function StudentsView({ students, classes }: { students: StudentListItem[
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 sm:py-10">
-      
       <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold sm:text-3xl" style={{ color: 'var(--brand-primary)' }}>
             <Users size={28} className="shrink-0" />
             <span className="truncate">My Students</span>
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">View and track your students' progress</p>
+          <p className="mt-1 text-sm text-muted-foreground">View and track your students&apos; progress</p>
         </div>
 
         {totalStudents > 0 && (
@@ -151,7 +152,7 @@ export function StudentsView({ students, classes }: { students: StudentListItem[
         <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
           <Users size={48} className="mx-auto mb-4 opacity-20" style={{ color: 'var(--brand-accent)' }} />
           <h3 className="text-xl font-bold text-foreground">No Students Found</h3>
-          <p className="mt-1 text-sm text-muted-foreground">You don't have any students assigned to your classes yet.</p>
+          <p className="mt-1 text-sm text-muted-foreground">You don&apos;t have any students assigned to your classes yet.</p>
         </div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -159,9 +160,9 @@ export function StudentsView({ students, classes }: { students: StudentListItem[
             const name = [student.first_name, student.last_name].filter(Boolean).join(' ') || 'Student'
             const classObj = classes.find(c => c.id === student.class_id)
             const initials = getInitials(student.first_name, student.last_name, name)
-            
-            const avgScore = Math.round(student.avg_score)
-            const quizzesTaken = student.quizzes_taken
+
+            const avgScore = Math.round(student.avg_score ?? 0)
+            const quizzesTaken = student.quizzes_taken ?? 0
             const passed = avgScore >= 50
 
             return (
@@ -174,7 +175,7 @@ export function StudentsView({ students, classes }: { students: StudentListItem[
                       <span>{initials}</span>
                     )}
                   </div>
-                  
+
                   {avgScore >= 80 && (
                     <div className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full shadow-lg" style={{ backgroundColor: 'var(--warning-border)', color: 'white' }} title="Top Performer">
                       <Crown size={14} />
@@ -189,7 +190,7 @@ export function StudentsView({ students, classes }: { students: StudentListItem[
 
                 <div className="flex flex-1 flex-col p-6 pt-12 text-center">
                   <h3 className="text-lg font-bold text-foreground">{name}</h3>
-                  
+
                   <div className="mt-1 mb-3">
                     <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold" style={{ backgroundColor: 'var(--success-bg)', color: 'var(--success-fg)' }}>
                       {student.role === 'learner' ? <GraduationCap size={12} /> : <User size={12} />}
@@ -198,11 +199,11 @@ export function StudentsView({ students, classes }: { students: StudentListItem[
                   </div>
 
                   <p className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                    <GraduationCap size={14} style={{ color: 'var(--brand-accent)' }} /> 
+                    <GraduationCap size={14} style={{ color: 'var(--brand-accent)' }} />
                     {classObj?.name ?? 'No Class'}
                   </p>
                   <p className="mb-4 flex items-center justify-center gap-2 text-sm text-muted-foreground truncate px-2">
-                    <Mail size={14} style={{ color: 'var(--brand-accent)' }} /> 
+                    <Mail size={14} style={{ color: 'var(--brand-accent)' }} />
                     {student.email}
                   </p>
 
@@ -212,12 +213,12 @@ export function StudentsView({ students, classes }: { students: StudentListItem[
                       <span className="font-bold text-foreground">{avgScore}%</span>
                     </div>
                     <div className="h-2 w-full overflow-hidden rounded-full bg-border">
-                      <div 
-                        className="h-full rounded-full transition-all" 
-                        style={{ 
-                          width: `${avgScore}%`, 
-                          backgroundColor: avgScore >= 70 ? 'var(--success-border)' : avgScore >= 50 ? 'var(--warning-border)' : 'var(--danger-border)' 
-                        }} 
+                      <div
+                        className="h-full rounded-full transition-all"
+                        style={{
+                          width: `${avgScore}%`,
+                          backgroundColor: avgScore >= 70 ? 'var(--success-border)' : avgScore >= 50 ? 'var(--warning-border)' : 'var(--danger-border)'
+                        }}
                       />
                     </div>
                   </div>

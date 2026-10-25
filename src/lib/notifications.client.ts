@@ -1,4 +1,8 @@
-import type { Notification } from '@/types/notification'
+import type {
+  Notification,
+  SendBroadcastPayload,
+  SendBroadcastResponse,
+} from '@/types/notification'
 
 function unwrap<T>(res: unknown): T[] {
   if (Array.isArray(res)) return res as T[]
@@ -77,12 +81,6 @@ export async function markAllNotificationsReadClient(): Promise<number> {
   })
   return res?.marked ?? 0
 }
-
-import type {
-  Notification,
-  SendBroadcastPayload,
-  SendBroadcastResponse,
-} from '@/types/notification'
 
 export async function sendBroadcastClient(
   payload: SendBroadcastPayload,

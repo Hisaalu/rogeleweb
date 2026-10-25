@@ -48,14 +48,16 @@ export default async function LearnerLessonsPage({
     listBookmarksServer(),
   ])
 
-  return (
+    return (
     <>
       <LearnerLessonsView
         lessons={result.lessons}
         subjects={subjects}
         bookmarkCount={bookmarks.length}
       />
-      {lockedReason && <PremiumGate open reason={lockedReason} />}
+      {lockedReason && (
+        <PremiumGate open context="lesson" reason={lockedReason} />
+      )}
     </>
   )
 }

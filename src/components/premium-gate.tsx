@@ -11,23 +11,80 @@ import {
 } from '@/components/ui/dialog'
 import type { AccessReason } from '@/lib/access'
 
-const GATE_COPY: Record<Exclude<AccessReason, 'ok'>, {
+export type GateContext = 'lesson' | 'quiz' | 'homework'
+
+interface GateCopy {
   title: string
   description: string
   upgradeLabel: string
   dismissLabel: string
-}> = {
+}
+
+type GateReason = Exclude<AccessReason, 'ok'>
+
+const GATE_COPY: Record<GateContext, Record<GateReason, GateCopy>> = {
+  lesson: {
+    trial_expired: {
+      title: 'Unlock detailed lesson view with Premium',
+      description:
+        'Only Premium subscribers have access to detailed lesson view and downloadable files. Upgrade to continue.',
+      upgradeLabel: 'Upgrade',
+      dismissLabel: 'Maybe later',
+    },
+    no_plan: {
+      title: 'Unlock detailed lesson view with Premium',
+      description:
+        'Only Premium subscribers have access to detailed lesson view and downloadable files. Upgrade to continue.',
+      upgradeLabel: 'Upgrade',
+      dismissLabel: 'Maybe later',
+    },
+  },
+  quiz: {
+    trial_expired: {
+      title: 'Unlock quizzes with Premium',
+      description:
+        'Only Premium subscribers can take quizzes and track their scores. Upgrade to continue.',
+      upgradeLabel: 'Upgrade',
+      dismissLabel: 'Maybe later',
+    },
+    no_plan: {
+      title: 'Unlock quizzes with Premium',
+      description:
+        'Only Premium subscribers can take quizzes and track their scores. Upgrade to continue.',
+      upgradeLabel: 'Upgrade',
+      dismissLabel: 'Maybe later',
+    },
+  },
+  homework: {
+    trial_expired: {
+      title: 'Unlock homework with Premium',
+      description:
+        'Only Premium subscribers can view and submit homework. Upgrade to continue.',
+      upgradeLabel: 'Upgrade',
+      dismissLabel: 'Maybe later',
+    },
+    no_plan: {
+      title: 'Unlock homework with Premium',
+      description:
+        'Only Premium subscribers can view and submit homework. Upgrade to continue.',
+      upgradeLabel: 'Upgrade',
+      dismissLabel: 'Maybe later',
+    },
+  },
+}
+
+const FALLBACK_COPY: Record<GateReason, GateCopy> = {
   trial_expired: {
-    title: 'Unlock detailed lesson view with Premium',
+    title: 'Unlock this content with Premium',
     description:
-      'Only Premium subscribers have access to detailed lesson view and downloadable files. Upgrade to continue.',
+      'Only Premium subscribers have access to this content. Upgrade to continue.',
     upgradeLabel: 'Upgrade',
     dismissLabel: 'Maybe later',
   },
   no_plan: {
-    title: 'Unlock detailed lesson view with Premium',
+    title: 'Unlock this content with Premium',
     description:
-      'Only Premium subscribers have access to detailed lesson view and downloadable files. Upgrade to continue.',
+      'Only Premium subscribers have access to this content. Upgrade to continue.',
     upgradeLabel: 'Upgrade',
     dismissLabel: 'Maybe later',
   },
@@ -35,7 +92,8 @@ const GATE_COPY: Record<Exclude<AccessReason, 'ok'>, {
 
 export interface PremiumGateProps {
   open: boolean
-  reason: Exclude<AccessReason, 'ok'>
+  context: GateContext
+  reason: GateReason
   upgradeHref?: string
   onDismiss?: () => void
   className?: string
@@ -43,13 +101,14 @@ export interface PremiumGateProps {
 
 export function PremiumGate({
   open,
+  context,
   reason,
   upgradeHref = '/learner/subscription',
   onDismiss,
   className,
 }: PremiumGateProps) {
   const [dismissed, setDismissed] = useState(false)
-  const copy = GATE_COPY[reason]
+  const copy = GATE_COPY[context]?.[reason] ?? FALLBACK_COPY[reason]
 
   const isOpen = open && !dismissed
 
