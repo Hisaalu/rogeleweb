@@ -72,6 +72,7 @@ export function BookmarksView({ lessons: initial }: { lessons: Lesson[] }) {
               key={lesson.id}
               lesson={{ ...lesson, is_bookmarked: true }}
               onToggleBookmark={handleToggle}
+              from="bookmarks"
             />
           ))}
         </div>

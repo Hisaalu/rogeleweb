@@ -12,9 +12,11 @@ import type { Lesson } from '@/types/lesson'
 export function LearnerLessonCard({
   lesson,
   onToggleBookmark,
+  from,
 }: {
   lesson: Lesson
   onToggleBookmark: (id: number) => Promise<boolean>
+  from?: string
 }) {
   const [bookmarked, setBookmarked] = useState(lesson.is_bookmarked)
   const [busy, setBusy] = useState(false)
@@ -33,6 +35,10 @@ export function LearnerLessonCard({
       setBusy(false)
     }
   }
+
+  const href = from
+    ? `/learner/lessons/${lesson.id}?from=${encodeURIComponent(from)}`
+    : `/learner/lessons/${lesson.id}`
 
   return (
     <div className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-xl">
@@ -85,7 +91,7 @@ export function LearnerLessonCard({
         </div>
 
         <Link
-          href={`/learner/lessons/${lesson.id}`}
+          href={href}
           className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:shadow-lg"
           style={{ backgroundColor: 'var(--brand-primary)' }}
           onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--brand-accent)' }}

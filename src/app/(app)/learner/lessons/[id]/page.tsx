@@ -12,10 +12,17 @@ export const metadata: Metadata = {
   title: 'Lesson',
 }
 
+const RETURN_TARGETS: Record<string, string> = {
+  bookmarks: '/learner/bookmarks',
+  lessons: '/learner/lessons',
+}
+
 export default async function LearnerLessonPage({
   params,
+  searchParams,
 }: {
   params: { id: string }
+  searchParams: { from?: string }
 }) {
   const id = Number(params.id)
   if (!Number.isFinite(id)) notFound()
@@ -27,7 +34,9 @@ export default async function LearnerLessonPage({
 
   const reason = getAccessReason(subscription, trial)
   if (reason !== 'ok') {
-    redirect(`/learner/lessons?locked=${reason}`)
+    const target =
+      RETURN_TARGETS[searchParams.from ?? 'lessons'] ?? '/learner/lessons'
+    redirect(`${target}?locked=${reason}`)
   }
 
   const [lesson, materials] = await Promise.all([
