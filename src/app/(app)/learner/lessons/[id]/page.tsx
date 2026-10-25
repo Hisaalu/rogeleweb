@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { notFound, redirect } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { getLessonServer, listMaterialsServer } from '@/lib/lessons.server'
 import {
   getTrialStatusServer,
@@ -25,7 +25,9 @@ export default async function LearnerLessonPage({
   searchParams: { from?: string }
 }) {
   const id = Number(params.id)
-  if (!Number.isFinite(id)) notFound()
+  if (!Number.isFinite(id)) {
+    redirect('/learner/lessons?error=not_found')
+  }
 
   const [trial, subscription] = await Promise.all([
     getTrialStatusServer(),
@@ -34,8 +36,7 @@ export default async function LearnerLessonPage({
 
   const reason = getAccessReason(subscription, trial)
   if (reason !== 'ok') {
-    const target =
-      RETURN_TARGETS[searchParams.from ?? 'lessons'] ?? '/learner/lessons'
+    const target = RETURN_TARGETS[searchParams.from ?? 'lessons'] ?? '/learner/lessons'
     redirect(`${target}?locked=${reason}`)
   }
 
@@ -43,7 +44,11 @@ export default async function LearnerLessonPage({
     getLessonServer(id),
     listMaterialsServer(id),
   ])
-  if (!lesson) notFound()
+  
+  if (!lesson) {
+    const target = RETURN_TARGETS[searchParams.from ?? 'lessons'] ?? '/learner/lessons'
+    redirect(`${target}?error=not_found`)
+  }
 
   return <LearnerLessonDetail lesson={lesson} materials={materials} />
 }

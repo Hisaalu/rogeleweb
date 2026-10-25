@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { getSessionUser } from '@/lib/auth'
 import { listQuizzesServer, listMyAttemptsServer } from '@/lib/quizzes.server'
 import { PremiumGate } from '@/components/premium-gate'
+import { ErrorToaster } from '@/components/error-toaster'
 import { LearnerQuizzesView } from './learner-quizzes-view'
 
 export const metadata: Metadata = { title: 'Practice Quizzes' }
@@ -26,8 +27,9 @@ export default async function LearnerQuizzesPage({
     listMyAttemptsServer(),
   ])
 
-    return (
+  return (
     <>
+      <ErrorToaster />
       <LearnerQuizzesView quizzes={quizzes} attempts={attempts} />
       {lockedReason && (
         <PremiumGate open context="quiz" reason={lockedReason} />

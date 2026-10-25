@@ -1,4 +1,4 @@
-import { notFound, redirect } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { getQuizServer, listQuestionsServer } from '@/lib/quizzes.server'
 import {
   getTrialStatusServer,
@@ -13,7 +13,9 @@ export default async function TakeQuizPage({
   params: { id: string }
 }) {
   const id = Number(params.id)
-  if (!Number.isFinite(id)) notFound()
+  if (!Number.isFinite(id)) {
+    redirect('/learner/quizzes?error=not_found')
+  }
 
   const [trial, subscription] = await Promise.all([
     getTrialStatusServer(),
@@ -29,7 +31,10 @@ export default async function TakeQuizPage({
     getQuizServer(id),
     listQuestionsServer(id),
   ])
-  if (!quiz) notFound()
+  
+  if (!quiz) {
+    redirect('/learner/quizzes?error=not_found')
+  }
   if (questions.length === 0) {
     return (
       <div className="p-10 text-center">

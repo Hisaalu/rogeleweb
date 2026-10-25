@@ -1,4 +1,4 @@
-import { notFound, redirect } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { getHomeworkServer, listAttachmentsServer } from '@/lib/homework.server'
 import { getSessionUser } from '@/lib/auth'
 import { serverApiRequest } from '@/lib/server-api'
@@ -16,7 +16,9 @@ export default async function LearnerHomeworkDetailPage({
   params: { id: string }
 }) {
   const id = Number(params.id)
-  if (!Number.isFinite(id)) notFound()
+  if (!Number.isFinite(id)) {
+    redirect('/learner/homework?error=not_found')
+  }
 
   const session = await getSessionUser()
   if (!session) return null
@@ -35,7 +37,10 @@ export default async function LearnerHomeworkDetailPage({
     getHomeworkServer(id),
     listAttachmentsServer(id),
   ])
-  if (!hw) notFound()
+  
+  if (!hw) {
+    redirect('/learner/homework?error=not_found')
+  }
 
   let submission: HomeworkSubmission | null = null
   try {

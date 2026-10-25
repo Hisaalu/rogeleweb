@@ -6,6 +6,7 @@ import {
   listSubjectsServer,
 } from '@/lib/lessons.server'
 import { PremiumGate } from '@/components/premium-gate'
+import { ErrorToaster } from '@/components/error-toaster'
 import { LearnerLessonsView } from './learner-lessons-view'
 
 export const metadata: Metadata = {
@@ -48,8 +49,9 @@ export default async function LearnerLessonsPage({
     listBookmarksServer(),
   ])
 
-    return (
+  return (
     <>
+      <ErrorToaster />
       <LearnerLessonsView
         lessons={result.lessons}
         subjects={subjects}

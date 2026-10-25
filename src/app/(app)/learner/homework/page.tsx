@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { getSessionUser } from '@/lib/auth'
 import { listHomeworksServer } from '@/lib/homework.server'
 import { PremiumGate } from '@/components/premium-gate'
+import { ErrorToaster } from '@/components/error-toaster'
 import { LearnerHomeworkView } from './learner-homework-view'
 
 export const metadata: Metadata = { title: 'Homework' }
@@ -35,6 +36,7 @@ export default async function LearnerHomeworkPage({
 
   return (
     <>
+      <ErrorToaster />
       <LearnerHomeworkView homeworks={visibleHomeworks} />
       {lockedReason && (
         <PremiumGate open context="homework" reason={lockedReason} />
