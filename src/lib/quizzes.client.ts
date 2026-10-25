@@ -52,3 +52,13 @@ export async function submitAttemptClient(attemptId: number, answers: Record<str
 export async function deleteQuizClient(id: number): Promise<void> {
   await proxyJson(`/quizzes/${id}`, { method: 'DELETE' })
 }
+
+export async function saveAnswerClient(attemptId: number, questionId: number, answerIndex: number): Promise<void> {
+  await proxyJson(`/quizzes/attempts/${attemptId}/answers`, {
+    method: 'POST',
+    body: JSON.stringify({
+      question_id: questionId,
+      selected_answer: answerIndex,
+    }),
+  })
+}

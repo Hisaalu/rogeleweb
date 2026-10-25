@@ -1,13 +1,16 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Clock, CheckCircle2, AlertTriangle } from 'lucide-react'
+import { Clock, CheckCircle2, AlertTriangle, Loader2 } from 'lucide-react'
 import type { Quiz, QuizQuestion } from '@/types/quiz'
-import { startAttemptClient, submitAttemptClient } from '@/lib/quizzes.client'
+import { startAttemptClient, submitAttemptClient, saveAnswerClient } from '@/lib/quizzes.client'
+import { useToast } from '@/components/ui/toast-provider'
 
 export function TakeQuizView({ quiz, questions }: { quiz: Quiz, questions: QuizQuestion[] }) {
   const router = useRouter()
+  const { showToast } = useToast()
+  
   const [attemptId, setAttemptId] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -18,7 +21,27 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz, questions: QuizQ
   const [isSubmitting, setIsSubmitting] = useState(false)
   
   const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const hasAutoSubmitted = useRef(false)
   const storageKey = `quiz_state_${quiz.id}`
+
+  const handleAutoSubmit = useCallback(async () => {
+    if (!attemptId || isSubmitting || hasAutoSubmitted.current) return
+    hasAutoSubmitted.current = true
+    setIsSubmitting(true)
+    
+    showToast('Time is up! Submitting your answers...', 'info')
+    
+    try {
+      await submitAttemptClient(attemptId, answers)
+      localStorage.removeItem(storageKey)
+      router.refresh()
+      router.push(`/learner/quizzes/results/${attemptId}`)
+    } catch {
+      setError('Auto-submit failed.')
+      showToast('Auto-submit failed.', 'error')
+      setIsSubmitting(false)
+    }
+  }, [attemptId, answers, isSubmitting, router, storageKey, showToast])
 
   useEffect(() => {
     if (initialized) return
@@ -44,24 +67,35 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz, questions: QuizQ
       .catch((err: any) => {
         setError(err.message || 'Could not start quiz attempt.')
         setLoading(false)
+        if (err.message?.includes('expired') || err.message?.includes('attempts')) {
+           showToast(err.message, 'error')
+           router.push('/learner/quizzes')
+        }
       })
-  }, [quiz.id, storageKey, initialized])
+  }, [quiz.id, storageKey, initialized, router, showToast])
 
   useEffect(() => {
-    if (loading || isSubmitting) return
+    if (loading || isSubmitting || timeLeft <= 0) return
+    
     timerRef.current = setInterval(() => {
       setTimeLeft(prev => {
         const next = prev - 1
         if (next <= 0) {
           if (timerRef.current) clearInterval(timerRef.current)
-          handleAutoSubmit()
           return 0
         }
         return next
       })
     }, 1000)
+    
     return () => { if (timerRef.current) clearInterval(timerRef.current) }
-  }, [loading, isSubmitting])
+  }, [loading, isSubmitting, timeLeft])
+
+  useEffect(() => {
+    if (timeLeft === 0 && !loading && !isSubmitting && !hasAutoSubmitted.current) {
+      handleAutoSubmit()
+    }
+  }, [timeLeft, loading, isSubmitting, handleAutoSubmit])
 
   useEffect(() => {
     if (!loading) {
@@ -74,16 +108,15 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz, questions: QuizQ
 
   const answeredCount = Object.keys(answers).length
 
-  async function handleAutoSubmit() {
-    if (!attemptId || isSubmitting) return
-    setIsSubmitting(true)
-    try {
-      await submitAttemptClient(attemptId, answers)
-      localStorage.removeItem(storageKey)
-      router.push(`/learner/quizzes/results/${attemptId}`)
-    } catch {
-      setError('Auto-submit failed. Please try again.')
-      setIsSubmitting(false)
+  async function handleSelectOption(qId: number, optIdx: number) {
+    setAnswers(prev => ({ ...prev, [qId]: optIdx }))
+    
+    if (attemptId) {
+      try {
+        await saveAnswerClient(attemptId, qId, optIdx)
+      } catch (err) {
+        showToast('Failed to sync answer. Check your connection.', 'error')
+      }
     }
   }
 
@@ -93,9 +126,12 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz, questions: QuizQ
     try {
       await submitAttemptClient(attemptId, answers)
       localStorage.removeItem(storageKey)
+      showToast('Quiz submitted successfully!', 'success')
+      router.refresh()
       router.push(`/learner/quizzes/results/${attemptId}`)
     } catch {
       setError('Submission failed. Please try again.')
+      showToast('Submission failed.', 'error')
       setIsSubmitting(false)
     }
   }
@@ -106,15 +142,24 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz, questions: QuizQ
     return `${m}:${s.toString().padStart(2, '0')}`
   }
 
-  if (loading) return <div className="p-10 text-center text-muted-foreground">Preparing your quiz...</div>
-  if (error) return <div className="p-10 text-center text-red-500">{error}</div>
+  if (loading) return (
+    <div className="flex h-screen items-center justify-center">
+      <Loader2 className="animate-spin" size={32} style={{ color: 'var(--brand-accent)' }} />
+    </div>
+  )
+  
+  if (error) return (
+    <div className="p-10 text-center font-medium" style={{ color: 'var(--danger-fg)' }}>
+      {error}
+    </div>
+  )
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
-      <div className="sticky top-0 z-40 flex items-center justify-between rounded-2xl bg-brand-primary px-5 py-3 text-white shadow-lg">
+      <div className="sticky top-0 z-40 flex items-center justify-between rounded-2xl px-5 py-3 text-white shadow-lg" style={{ backgroundColor: 'var(--brand-primary)' }}>
         <div className="flex items-center gap-2 font-semibold">
           <Clock size={20} />
-          <span className={`font-mono text-xl ${timeLeft < 60 ? 'text-red-300 animate-pulse' : ''}`}>
+          <span className={`font-mono text-xl ${timeLeft < 60 ? 'animate-pulse' : ''}`} style={{ color: timeLeft < 60 ? 'var(--danger-fg)' : 'white' }}>
             {formatTime(timeLeft)}
           </span>
         </div>
@@ -127,7 +172,8 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz, questions: QuizQ
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
         <h1 className="text-2xl font-bold text-foreground">{quiz.title}</h1>
         
-        <div className="mt-4 flex items-start gap-3 rounded-xl border-l-4 border-brand-accent bg-warning-bg p-4 text-warning-fg">
+        <div className="mt-4 flex items-start gap-3 rounded-xl border-l-4 p-4"
+             style={{ borderLeftColor: 'var(--warning-border)', backgroundColor: 'var(--warning-bg)', color: 'var(--warning-fg)' }}>
           <AlertTriangle size={20} className="shrink-0" />
           <div>
             <strong className="block text-sm">Important Notice:</strong>
@@ -138,7 +184,7 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz, questions: QuizQ
 
       <div className="space-y-4">
         {questions.map((q, idx) => (
-          <div key={q.id} className="rounded-2xl border border-border bg-card p-6 shadow-sm transition-colors hover:border-brand-accent/50">
+          <div key={q.id} className="rounded-2xl border border-border bg-card p-6 shadow-sm">
             <div className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
               Question {idx + 1} of {questions.length}
             </div>
@@ -150,22 +196,25 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz, questions: QuizQ
                 return (
                   <label 
                     key={optIdx} 
-                    className={`flex cursor-pointer items-center gap-3 rounded-xl border-2 p-3 transition-all ${
-                      isSelected 
-                        ? 'border-brand-accent bg-brand-accent/5' 
-                        : 'border-border bg-background hover:border-brand-accent/50'
-                    }`}
+                    className="flex cursor-pointer items-center gap-3 rounded-xl border-2 p-3 transition-all"
+                    style={{
+                      borderColor: isSelected ? 'var(--brand-accent)' : 'var(--border)',
+                      backgroundColor: isSelected ? 'color-mix(in srgb, var(--brand-accent) 5%, transparent)' : 'hsl(var(--background))'
+                    }}
                   >
                     <input
                       type="radio"
                       name={`question-${q.id}`}
                       className="hidden"
                       checked={isSelected}
-                      onChange={() => setAnswers(prev => ({ ...prev, [q.id]: optIdx }))}
+                      onChange={() => handleSelectOption(q.id, optIdx)}
                     />
-                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-sm font-bold ${
-                      isSelected ? 'border-brand-accent bg-brand-accent text-white' : 'border-muted-foreground text-muted-foreground'
-                    }`}>
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-sm font-bold"
+                         style={{
+                           borderColor: isSelected ? 'var(--brand-accent)' : 'hsl(var(--muted-foreground))',
+                           backgroundColor: isSelected ? 'var(--brand-accent)' : 'transparent',
+                           color: isSelected ? 'white' : 'hsl(var(--muted-foreground))'
+                         }}>
                       {['A', 'B', 'C', 'D'][optIdx]}
                     </div>
                     <span className="text-sm font-medium text-foreground">{opt}</span>
@@ -184,7 +233,7 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz, questions: QuizQ
           className="inline-flex items-center gap-2 rounded-full px-10 py-4 text-base font-bold text-white shadow-lg transition hover:opacity-90 disabled:opacity-50"
           style={{ backgroundColor: 'var(--brand-primary)' }}
         >
-          <CheckCircle2 size={20} />
+          {isSubmitting ? <Loader2 size={20} className="animate-spin" /> : <CheckCircle2 size={20} />}
           {isSubmitting ? 'Submitting...' : 'Submit Quiz'}
         </button>
       </div>

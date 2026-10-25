@@ -40,6 +40,7 @@ export function LearnerQuizzesView({ quizzes, attempts }: { quizzes: Quiz[], att
             const finishedAttempts = quizAttempts.filter(a => a.status === 'completed' || a.status === 'expired')
             const attemptCount = finishedAttempts.length
             
+            // FIX: Strictly check for 'in_progress'
             const inProgressAttempt = quizAttempts.find(a => a.status === 'in_progress')
             const hasInProgress = !!inProgressAttempt
             
@@ -63,17 +64,17 @@ export function LearnerQuizzesView({ quizzes, attempts }: { quizzes: Quiz[], att
                 key={quiz.id} 
                 className={`relative flex flex-col rounded-2xl border p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md ${
                   noAttemptsLeft 
-                    ? 'border-orange-200 bg-orange-50/30 dark:border-orange-900/50 dark:bg-orange-950/20' 
+                    ? 'border-warning-border bg-warning-bg/30' 
                     : hasInProgress
-                      ? 'border-amber-200 bg-amber-50/30 dark:border-amber-900/50 dark:bg-amber-950/20'
+                      ? 'border-warning-border bg-warning-bg/30'
                       : 'border-border bg-card'
                 }`}
               >
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                  <span className="rounded-full bg-purple-100 px-2.5 py-1 text-xs font-semibold text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                  <span className="rounded-full px-2.5 py-1 text-xs font-semibold" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }}>
                     {quiz.subject_name ?? 'General'}
                   </span>
-                  <span className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-700 dark:bg-orange-900/30 dark:text-orange-300">
+                  <span className="rounded-full px-2.5 py-1 text-xs font-semibold" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-accent) 10%, transparent)', color: 'var(--brand-accent)' }}>
                     {quiz.class_name ?? 'All Levels'}
                   </span>
                 </div>
@@ -93,9 +94,11 @@ export function LearnerQuizzesView({ quizzes, attempts }: { quizzes: Quiz[], att
                 </div>
 
                 {endDate && (
-                  <div className={`mb-4 inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-medium w-fit ${
-                    isExpired ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
-                  }`}>
+                  <div className="mb-4 inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-medium w-fit"
+                       style={{
+                         backgroundColor: isExpired ? 'var(--danger-bg)' : 'var(--warning-bg)',
+                         color: isExpired ? 'var(--danger-fg)' : 'var(--warning-fg)'
+                       }}>
                     <CalendarX size={12} />
                     {isExpired ? 'Expired' : `Due: ${new Date(endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`}
                   </div>
@@ -112,12 +115,12 @@ export function LearnerQuizzesView({ quizzes, attempts }: { quizzes: Quiz[], att
                         className="h-full rounded-full transition-all duration-500" 
                         style={{ 
                           width: `${Math.min(100, bestScore)}%`, 
-                          backgroundColor: bestScore >= passingScore ? '#23a74c' : 'var(--brand-accent)' 
+                          backgroundColor: bestScore >= passingScore ? 'var(--success-border)' : 'var(--brand-accent)' 
                         }} 
                       />
                     </div>
                     {bestScore >= passingScore && (
-                      <div className="mt-1.5 flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                      <div className="mt-1.5 flex items-center gap-1 text-[11px] font-bold" style={{ color: 'var(--success-fg)' }}>
                         <CheckCircle2 size={12} /> Passed
                       </div>
                     )}
@@ -127,7 +130,8 @@ export function LearnerQuizzesView({ quizzes, attempts }: { quizzes: Quiz[], att
                 <div className="mt-auto flex items-center gap-2">
                   {isExpired ? (
                     <>
-                      <div className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-red-50 px-3 py-2.5 text-sm font-semibold text-red-600 dark:bg-red-950/30 dark:text-red-400">
+                      <div className="flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-2.5 text-sm font-semibold"
+                           style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-fg)' }}>
                         <CalendarX size={15} /> Expired
                       </div>
                       {latestAttemptId && (
@@ -137,12 +141,13 @@ export function LearnerQuizzesView({ quizzes, attempts }: { quizzes: Quiz[], att
                       )}
                     </>
                   ) : hasInProgress ? (
-                    <Link href={`/learner/quizzes/${quiz.id}`} className="flex w-full items-center justify-center gap-1.5 rounded-full bg-amber-500 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-600">
+                    <Link href={`/learner/quizzes/${quiz.id}`} className="flex w-full items-center justify-center gap-1.5 rounded-full px-3 py-2.5 text-sm font-semibold text-white transition hover:opacity-90" style={{ backgroundColor: 'var(--warning-border)' }}>
                       <Play size={15} /> Resume Quiz
                     </Link>
                   ) : noAttemptsLeft ? (
                     <>
-                      <div className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-orange-50 px-3 py-2.5 text-sm font-semibold text-orange-600 dark:bg-orange-950/30 dark:text-orange-400">
+                      <div className="flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-2.5 text-sm font-semibold"
+                           style={{ backgroundColor: 'var(--warning-bg)', color: 'var(--warning-fg)' }}>
                         No Attempts
                       </div>
                       {latestAttemptId && (
@@ -156,7 +161,8 @@ export function LearnerQuizzesView({ quizzes, attempts }: { quizzes: Quiz[], att
                       {attemptCount > 0 ? 'Try Another Attempt' : 'Start Quiz'} <Play size={15} />
                     </Link>
                   ) : (
-                    <div className="flex w-full items-center justify-center gap-1.5 rounded-full bg-red-50 px-3 py-2.5 text-sm font-semibold text-red-600 dark:bg-red-950/30 dark:text-red-400">
+                    <div className="flex w-full items-center justify-center gap-1.5 rounded-full px-3 py-2.5 text-sm font-semibold"
+                         style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-fg)' }}>
                       <AlertTriangle size={15} /> Unavailable
                     </div>
                   )}
