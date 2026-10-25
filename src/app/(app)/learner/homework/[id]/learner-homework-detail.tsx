@@ -10,8 +10,8 @@ import {
 import type { Homework, HomeworkAttachment, HomeworkSubmission } from '@/types/homework'
 import { submitHomeworkClient, deleteSubmissionClient } from '@/lib/homework.client'
 import { materialDownloadUrl, formatFileSize } from '@/lib/materials'
-import { useToast, type ToastTone } from '@/components/ui/toast-provider'
-
+import { useToast } from '@/components/ui/toast-provider'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 
 export function LearnerHomeworkDetail({
   homework,
@@ -23,6 +23,7 @@ export function LearnerHomeworkDetail({
   submission: HomeworkSubmission | null
 }) {
   const router = useRouter()
+  const { showToast } = useToast()
   
   const [textAnswer, setTextAnswer] = useState(initialSubmission?.text_answer ?? '')
   const [files, setFiles] = useState<File[]>([])
@@ -40,7 +41,7 @@ export function LearnerHomeworkDetail({
     if (!list) return
     const newFiles = Array.from(list)
     for (const f of newFiles) {
-      if (f.size > 5 * 1024 * 1024) return pushToast(`${f.name} exceeds 5MB limit.`, 'error')
+      if (f.size > 5 * 1024 * 1024) return showToast(`${f.name} exceeds 5MB limit.`, 'error')
     }
     setFiles(prev => [...prev, ...newFiles])
   }
@@ -48,19 +49,19 @@ export function LearnerHomeworkDetail({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!textAnswer.trim() && files.length === 0) {
-      return pushToast('Please provide a text answer or attach a file.', 'error')
+      return showToast('Please provide a text answer or attach a file.', 'error')
     }
 
     setBusy(true)
-
     try {
       await submitHomeworkClient(homework.id, textAnswer, files)
-      pushToast('Homework submitted successfully!', 'success')
+      showToast('Homework submitted successfully!', 'success')
       setFiles([])
       setBusy(false)
-      window.location.reload() 
-    } catch (err: any) {
-      pushToast(err.message || 'Failed to submit homework', 'error')
+      router.refresh()
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to submit homework'
+      showToast(message, 'error')
       setBusy(false)
     }
   }
@@ -70,16 +71,19 @@ export function LearnerHomeworkDetail({
     setBusy(true)
     try {
       await deleteSubmissionClient(initialSubmission.id)
-      pushToast('Submission deleted successfully', 'success')
+      showToast('Submission deleted successfully', 'success')
       setShowDeleteModal(false)
       setBusy(false)
-      window.location.href = `/learner/homework/${homework.id}`
-    } catch (err: any) {
-      if (err.message && err.message.toLowerCase().includes('not found')) {
-        window.location.href = `/learner/homework/${homework.id}`
+      router.refresh()
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to delete submission'
+      if (message.toLowerCase().includes('not found')) {
+        setShowDeleteModal(false)
+        setBusy(false)
+        router.refresh()
         return
       }
-      pushToast(err.message || 'Failed to delete submission', 'error')
+      showToast(message, 'error')
       setShowDeleteModal(false)
       setBusy(false)
     }
@@ -105,9 +109,9 @@ export function LearnerHomeworkDetail({
             <div><p className="text-xs font-semibold uppercase text-muted-foreground">Class</p><p className="font-medium text-foreground">{homework.class_name ?? 'All'}</p></div>
             <div>
               <p className="text-xs font-semibold uppercase text-muted-foreground">Due Date</p>
-              <p className={`font-medium ${isExpired ? 'text-red-500' : 'text-foreground'}`}>
+              <p className="flex items-center gap-2 font-medium" style={{ color: isExpired ? 'var(--danger-fg)' : 'hsl(var(--foreground))' }}>
                 {dueDate.toLocaleString()}
-                {isExpired && <span className="ml-2 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold uppercase text-red-700">Overdue</span>}
+                {isExpired && <span className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase" style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-fg)' }}>Overdue</span>}
               </p>
             </div>
           </div>
@@ -136,14 +140,14 @@ export function LearnerHomeworkDetail({
         )}
 
         {isGraded && initialSubmission && (
-          <div className="border-b border-border bg-emerald-50/30 p-6 sm:p-8 dark:bg-emerald-950/20">
-            <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-emerald-700 dark:text-emerald-400"><Award size={18} /> Grade & Feedback</h2>
-            <div className="rounded-xl border-2 border-emerald-500 bg-card p-5">
+          <div className="border-b border-border p-6 sm:p-8" style={{ backgroundColor: 'color-mix(in srgb, var(--success-bg) 30%, transparent)' }}>
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-bold" style={{ color: 'var(--success-fg)' }}><Award size={18} /> Grade & Feedback</h2>
+            <div className="rounded-xl border-2 bg-card p-5" style={{ borderColor: 'var(--success-border)' }}>
               <p className="text-sm font-semibold uppercase text-muted-foreground">Your Score</p>
-              <p className="mb-4 text-4xl font-extrabold text-emerald-500">{initialSubmission.grade}%</p>
+              <p className="mb-4 text-4xl font-extrabold" style={{ color: 'var(--success-fg)' }}>{initialSubmission.grade}%</p>
               {initialSubmission.feedback && (
                 <div>
-                  <p className="mb-1 text-sm font-semibold text-foreground">Teacher's Comment</p>
+                  <p className="mb-1 text-sm font-semibold text-foreground">Teacher&apos;s Comment</p>
                   <p className="rounded-lg bg-muted p-3 text-sm text-muted-foreground">{initialSubmission.feedback}</p>
                 </div>
               )}
@@ -152,11 +156,13 @@ export function LearnerHomeworkDetail({
         )}
 
         {initialSubmission && !isGraded && (
-          <div className="border-b border-border bg-blue-50/30 p-6 sm:p-8 dark:bg-blue-950/20">
+          <div className="border-b border-border p-6 sm:p-8" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 5%, transparent)' }}>
             <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-              <h2 className="flex items-center gap-2 text-lg font-bold text-blue-700 dark:text-blue-400"><CheckCircle2 size={18} /> Your Submission</h2>
+              <h2 className="flex items-center gap-2 text-lg font-bold" style={{ color: 'var(--brand-primary)' }}><CheckCircle2 size={18} /> Your Submission</h2>
               {canDelete && (
-                <button onClick={() => setShowDeleteModal(true)} className="inline-flex items-center gap-1.5 rounded-lg bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-600 hover:text-white"><Trash2 size={13} /> Delete</button>
+                <button onClick={() => setShowDeleteModal(true)} className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition hover:opacity-80" style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-fg)' }}>
+                  <Trash2 size={13} /> Delete
+                </button>
               )}
             </div>
             <p className="mb-4 text-xs text-muted-foreground">Submitted on {initialSubmission.submitted_at ? new Date(initialSubmission.submitted_at).toLocaleString() : 'N/A'}</p>
@@ -203,14 +209,14 @@ export function LearnerHomeworkDetail({
                     {files.map((f, i) => (
                       <li key={i} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card px-3 py-2 text-sm">
                         <span className="truncate">{f.name}</span>
-                        <button type="button" onClick={() => setFiles(prev => prev.filter((_, idx) => idx !== i))} className="text-red-500 hover:text-red-700"><Trash2 size={14} /></button>
+                        <button type="button" onClick={() => setFiles(prev => prev.filter((_, idx) => idx !== i))} className="transition hover:opacity-70" style={{ color: 'var(--danger-fg)' }}><Trash2 size={14} /></button>
                       </li>
                     ))}
                   </ul>
                 )}
               </div>
               {isExpired && (
-                <div className="flex items-start gap-2 rounded-xl bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
+                <div className="flex items-start gap-2 rounded-xl p-3 text-sm" style={{ backgroundColor: 'var(--warning-bg)', color: 'var(--warning-fg)' }}>
                   <AlertTriangle size={16} className="shrink-0" />
                   <p>This assignment is past its due date. Late submissions may incur penalties.</p>
                 </div>
@@ -223,24 +229,16 @@ export function LearnerHomeworkDetail({
         )}
       </div>
 
-      {showDeleteModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-2xl bg-card shadow-xl">
-            <div className="flex items-center justify-between rounded-t-2xl border-b border-red-200 bg-red-50 px-6 py-4 dark:border-red-900/50 dark:bg-red-950/30">
-              <h3 className="flex items-center gap-2 text-lg font-bold text-red-700 dark:text-red-400"><AlertTriangle size={18} /> Confirm Deletion</h3>
-            </div>
-            <div className="p-6">
-              <p className="mb-4 text-sm text-foreground">Are you sure you want to delete your submission?</p>
-              <div className="rounded-lg border-l-4 border-red-500 bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950/30 dark:text-red-300">This action cannot be undone. You will need to submit your work again.</div>
-            </div>
-            <div className="flex justify-end gap-3 border-t border-border px-6 py-4">
-              <button onClick={() => setShowDeleteModal(false)} className="rounded-xl bg-muted px-4 py-2 text-sm font-semibold text-foreground hover:bg-muted/80">Cancel</button>
-              <button onClick={handleDelete} disabled={busy} className="inline-flex items-center gap-2 rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50"><Trash2 size={15} /> {busy ? 'Deleting...' : 'Delete'}</button>
-            </div>
-          </div>
-        </div>
-      )}
-
+      <ConfirmDialog
+        open={showDeleteModal}
+        onOpenChange={setShowDeleteModal}
+        title="Delete Submission"
+        description="Are you sure you want to delete your submission? This action cannot be undone and you will need to submit your work again."
+        confirmLabel="Delete"
+        destructive
+        loading={busy}
+        onConfirm={handleDelete}
+      />
     </div>
   )
 }
