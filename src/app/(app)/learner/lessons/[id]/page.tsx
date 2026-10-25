@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { getLessonServer, listMaterialsServer } from '@/lib/lessons.server'
-import { getTrialStatusServer, getActiveSubscriptionServer } from '@/lib/dashboard.server'
-import { hasAccess } from '@/lib/access'
-import { UpgradePrompt } from '@/components/upgrade-prompt'
+import {
+  getTrialStatusServer,
+  getActiveSubscriptionServer,
+} from '@/lib/dashboard.server'
+import { getAccessReason } from '@/lib/access'
 import { LearnerLessonDetail } from './learner-lesson-detail'
 
 export const metadata: Metadata = {
@@ -22,8 +24,10 @@ export default async function LearnerLessonPage({
     getTrialStatusServer(),
     getActiveSubscriptionServer(),
   ])
-  if (!hasAccess(subscription, trial)) {
-    return <UpgradePrompt title="Lesson Locked" description="Subscribe to a plan to access learning materials, videos, and downloadable files." />
+
+  const reason = getAccessReason(subscription, trial)
+  if (reason !== 'ok') {
+    redirect(`/learner/lessons?locked=${reason}`)
   }
 
   const [lesson, materials] = await Promise.all([

@@ -5,6 +5,7 @@ import {
   listLessonsServer,
   listSubjectsServer,
 } from '@/lib/lessons.server'
+import { PremiumGate } from '@/components/premium-gate'
 import { LearnerLessonsView } from './learner-lessons-view'
 
 export const metadata: Metadata = {
@@ -20,7 +21,7 @@ function parsePositiveInt(value: string | undefined): number | undefined {
 export default async function LearnerLessonsPage({
   searchParams,
 }: {
-  searchParams: { q?: string; subject_id?: string; page?: string }
+  searchParams: { q?: string; subject_id?: string; page?: string; locked?: string }
 }) {
   const session = await getSessionUser()
   if (!session) return null
@@ -28,6 +29,12 @@ export default async function LearnerLessonsPage({
   const q = searchParams.q?.trim() ?? ''
   const subjectId = parsePositiveInt(searchParams.subject_id)
   const page = parsePositiveInt(searchParams.page) ?? 1
+
+  const lockedReason =
+    searchParams.locked === 'trial_expired' ||
+    searchParams.locked === 'no_plan'
+      ? searchParams.locked
+      : null
 
   const [result, subjects, bookmarks] = await Promise.all([
     listLessonsServer({
@@ -42,10 +49,13 @@ export default async function LearnerLessonsPage({
   ])
 
   return (
-    <LearnerLessonsView
-      lessons={result.lessons}
-      subjects={subjects}
-      bookmarkCount={bookmarks.length}
-    />
+    <>
+      <LearnerLessonsView
+        lessons={result.lessons}
+        subjects={subjects}
+        bookmarkCount={bookmarks.length}
+      />
+      {lockedReason && <PremiumGate open reason={lockedReason} />}
+    </>
   )
 }

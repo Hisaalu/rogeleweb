@@ -9,12 +9,22 @@ export const Dialog = DialogPrimitive.Root
 export const DialogTrigger = DialogPrimitive.Trigger
 export const DialogClose = DialogPrimitive.Close
 
+type DialogContentProps = ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
+  hideClose?: boolean
+  overlayClassName?: string
+}
+
 export const DialogContent = forwardRef<
   ElementRef<typeof DialogPrimitive.Content>,
-  ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => (
+  DialogContentProps
+>(({ className, children, hideClose = false, overlayClassName, ...props }, ref) => (
   <DialogPrimitive.Portal>
-    <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+    <DialogPrimitive.Overlay
+      className={cn(
+        'fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+        overlayClassName,
+      )}
+    />
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
@@ -24,10 +34,12 @@ export const DialogContent = forwardRef<
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-md p-1 text-muted-foreground transition hover:bg-muted">
-        <X size={16} />
-        <span className="sr-only">Close</span>
-      </DialogPrimitive.Close>
+      {!hideClose && (
+        <DialogPrimitive.Close className="absolute right-4 top-4 rounded-md p-1 text-muted-foreground transition hover:bg-muted">
+          <X size={16} />
+          <span className="sr-only">Close</span>
+        </DialogPrimitive.Close>
+      )}
     </DialogPrimitive.Content>
   </DialogPrimitive.Portal>
 ))
