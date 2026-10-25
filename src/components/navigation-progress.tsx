@@ -1,13 +1,17 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { useEffect, useRef, useState, useTransition } from 'react'
+import { usePathname, useSearchParams, useRouter } from 'next/navigation'
 
 export function NavigationProgress() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const router = useRouter()
+  
+  const [isPending, startTransition] = useTransition()
   const [visible, setVisible] = useState(false)
   const [progress, setProgress] = useState(0)
+  
   const timers = useRef<number[]>([])
   const isFirstRender = useRef(true)
 
@@ -17,24 +21,36 @@ export function NavigationProgress() {
   }
 
   useEffect(() => {
+    if (isPending) {
+      clearTimers()
+      setVisible(true)
+      setProgress(10)
+
+      const t0 = window.setTimeout(() => setProgress(20), 80)
+      const t1 = window.setTimeout(() => setProgress(45), 250)
+      const t2 = window.setTimeout(() => setProgress(70), 700)
+      const t3 = window.setTimeout(() => setProgress(88), 1400)
+      timers.current.push(t0, t1, t2, t3)
+    }
+  }, [isPending])
+
+  useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false
       return
     }
-    if (!visible) return
-
-    const minVisible = window.setTimeout(() => {
+    
+    if (!isPending && visible) {
+      clearTimers()
       setProgress(100)
+      
       const done = window.setTimeout(() => {
         setVisible(false)
         setProgress(0)
       }, 250)
       timers.current.push(done)
-    }, 400)
-
-    timers.current.push(minVisible)
-    return clearTimers
-  }, [pathname, searchParams, visible])
+    }
+  }, [isPending, visible, pathname, searchParams])
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -62,28 +78,19 @@ export function NavigationProgress() {
         ) {
           return
         }
+
+        e.preventDefault()
+        startTransition(() => {
+          router.push(href)
+        })
       } catch {
         return
       }
-
-      startProgress()
     }
 
     document.addEventListener('click', onClick, true)
     return () => document.removeEventListener('click', onClick, true)
-  }, [])
-
-  function startProgress() {
-    clearTimers()
-    setVisible(true)
-    setProgress(10)
-
-    const t0 = window.setTimeout(() => setProgress(20), 80)
-    const t1 = window.setTimeout(() => setProgress(45), 250)
-    const t2 = window.setTimeout(() => setProgress(70), 700)
-    const t3 = window.setTimeout(() => setProgress(88), 1400)
-    timers.current.push(t0, t1, t2, t3)
-  }
+  }, [router])
 
   return (
     <div
