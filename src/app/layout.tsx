@@ -1,8 +1,10 @@
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import { fetchBranding } from '@/lib/branding'
 import { BrandingProvider } from '@/components/brand/brand-provider'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Providers } from '@/components/providers'
+import { NavigationProgress } from '@/components/navigation-progress'
 import './globals.css'
 
 export const dynamic = 'force-dynamic'
@@ -56,6 +58,9 @@ export default async function RootLayout({
         />
       </head>
       <body>
+        <Suspense fallback={null}>
+          <NavigationProgress />
+        </Suspense>
         <ThemeProvider>
           <BrandingProvider branding={branding}>
             <Providers>{children}</Providers>
