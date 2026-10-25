@@ -78,7 +78,14 @@ export const Sidebar = memo(function Sidebar({ user }: { user: SessionUser }) {
         <button
           type="button"
           onClick={handleLogout}
-          className="flex w-full items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50"
+          className="flex w-full items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold transition"
+          style={{ color: 'var(--danger-fg)' }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--danger-bg)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent'
+          }}
         >
           <LogOut size={18} className="shrink-0" />
           <span className="truncate">Logout</span>
