@@ -11,12 +11,35 @@ async function proxyJson<T>(path: string, init: RequestInit = {}): Promise<T> {
       ...(init.headers ?? {}),
     },
   })
-  if (res.status === 204) return undefined as T
-  const text = await res.text()
-  const data = text ? JSON.parse(text) : null
-  if (!res.ok) {
-    throw new Error(data?.error?.message ?? `Request failed with ${res.status}`)
+
+  // If the server returns no content, return undefined safely
+  if (res.status === 204 || res.headers.get('content-length') === '0') {
+    return undefined as T
   }
+
+  const text = await res.text()
+  
+  // If the response is empty, don't try to parse it
+  if (!text) {
+    return undefined as T
+  }
+
+  let data: any = null
+  try {
+    data = JSON.parse(text)
+  } catch {
+    // If parsing fails, it means the response was likely plain text (e.g., "OK")
+    // In this case, if the request was successful, we just ignore the body.
+    if (!res.ok) {
+      throw new Error(text || `Request failed with ${res.status}`)
+    }
+    return undefined as T
+  }
+
+  if (!res.ok) {
+    throw new Error(data?.error?.message ?? data?.message ?? `Request failed with ${res.status}`)
+  }
+
   return data as T
 }
 
@@ -40,6 +63,12 @@ export async function changePasswordClient(payload: {
   await proxyJson('/auth/change-password', {
     method: 'POST',
     body: JSON.stringify(payload),
+  })
+}
+
+export async function deleteAccountClient(): Promise<void> {
+  await proxyJson('/auth/account', {
+    method: 'DELETE',
   })
 }
 

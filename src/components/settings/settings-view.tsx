@@ -2,9 +2,19 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ShieldCheck, Lock, LogOut, Loader2, Eye, EyeOff } from 'lucide-react'
-import { changePasswordClient } from '@/lib/settings.client'
+import { ShieldCheck, Lock, LogOut, Loader2, Eye, EyeOff, Trash2, AlertTriangle } from 'lucide-react'
+import { changePasswordClient, deleteAccountClient } from '@/lib/settings.client'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { useToast } from '@/components/ui/toast-provider'
 
 export function SettingsView({ role }: { role: string }) {
@@ -20,8 +30,11 @@ export function SettingsView({ role }: { role: string }) {
   const [showConfirm, setShowConfirm] = useState(false)
   
   const [busy, setBusy] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   
   const [logoutOpen, setLogoutOpen] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   async function handlePasswordChange(e: React.FormEvent) {
@@ -63,6 +76,25 @@ export function SettingsView({ role }: { role: string }) {
     } catch {
       showToast('Failed to log out', 'error')
       setIsLoggingOut(false)
+    }
+  }
+
+  async function handleDeleteAccount() {
+    if (deleteConfirmText !== 'DELETE') {
+      return showToast('Please type DELETE to confirm', 'error')
+    }
+
+    setDeleting(true)
+    try {
+      await deleteAccountClient()
+      showToast('Account deleted successfully. Redirecting...', 'success')
+      setTimeout(() => {
+        router.replace('/login')
+        router.refresh()
+      }, 1500)
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Failed to delete account', 'error')
+      setDeleting(false)
     }
   }
 
@@ -142,15 +174,14 @@ export function SettingsView({ role }: { role: string }) {
             </div>
 
             <div className="flex justify-end pt-2">
-              <button 
+              <Button 
                 type="submit" 
                 disabled={busy} 
-                className="inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 sm:w-auto sm:px-8 sm:py-3" 
-                style={{ backgroundColor: 'var(--brand-primary)' }}
+                className="w-full sm:w-auto"
               >
                 {busy && <Loader2 size={16} className="animate-spin" />}
                 Update Password
-              </button>
+              </Button>
             </div>
           </form>
         </div>
@@ -166,13 +197,35 @@ export function SettingsView({ role }: { role: string }) {
               <p className="font-semibold text-foreground">Sign out of your account</p>
               <p className="text-sm text-muted-foreground">You will be required to log in again to access your dashboard.</p>
             </div>
-            <button 
+            <Button 
+              variant="outline"
               onClick={() => setLogoutOpen(true)}
-              className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 sm:w-auto" 
-              style={{ backgroundColor: 'var(--danger-border)' }}
+              className="w-full shrink-0 sm:w-auto"
             >
               <LogOut size={16} /> Log Out
-            </button>
+            </Button>
+          </div>
+
+          {/* Danger Zone */}
+          <div className="mt-6 flex flex-col items-start justify-between gap-4 rounded-xl border border-danger-border/40 bg-danger-bg/30 p-5 sm:flex-row sm:items-center">
+            <div>
+              <p className="flex items-center gap-2 font-semibold text-danger-fg">
+                <AlertTriangle size={16} /> Delete account
+              </p>
+              <p className="text-sm text-danger-fg/80 mt-1">
+                Permanently remove your account and all associated data. This action cannot be undone.
+              </p>
+            </div>
+            <Button 
+              variant="outline"
+              onClick={() => {
+                setDeleteConfirmText('')
+                setDeleteOpen(true)
+              }}
+              className="w-full shrink-0 border-danger-border/40 text-danger-fg hover:bg-danger-bg sm:w-auto"
+            >
+              <Trash2 size={16} /> Delete Account
+            </Button>
           </div>
         </div>
       </div>
@@ -187,6 +240,46 @@ export function SettingsView({ role }: { role: string }) {
         loading={isLoggingOut}
         onConfirm={handleLogout}
       />
+
+      <Dialog open={deleteOpen} onOpenChange={(o) => !o && setDeleteOpen(false)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-danger-fg">
+              <AlertTriangle size={20} /> Delete Account
+            </DialogTitle>
+            <DialogDescription>
+              This action is permanent and cannot be undone. All your data, including progress and submissions, will be erased.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 py-4">
+            <p className="text-sm text-foreground">
+              Please type <strong className="text-danger-fg">DELETE</strong> to confirm.
+            </p>
+            <Input
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+              placeholder="DELETE"
+              className="uppercase"
+              disabled={deleting}
+            />
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteOpen(false)} disabled={deleting}>
+              Cancel
+            </Button>
+            <Button 
+              variant="danger" 
+              onClick={handleDeleteAccount} 
+              disabled={deleting || deleteConfirmText !== 'DELETE'}
+            >
+              {deleting && <Loader2 size={14} className="animate-spin" />} 
+              Permanently Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
