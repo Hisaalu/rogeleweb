@@ -53,6 +53,7 @@ export const Sidebar = memo(function Sidebar({ user }: { user: SessionUser }) {
   const pathname = usePathname()
   const router = useRouter()
   const items = user.role === 'teacher' ? TEACHER_NAV : LEARNER_NAV
+  const dashboardHref = user.role === 'teacher' ? '/teacher/dashboard' : '/learner/dashboard'
 
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST' })
@@ -63,7 +64,9 @@ export const Sidebar = memo(function Sidebar({ user }: { user: SessionUser }) {
   return (
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-border bg-card lg:flex">
       <div className="flex h-[70px] shrink-0 items-center border-b border-border px-4">
-        <BrandLogo size={40} />
+        <Link href={dashboardHref} className="transition-opacity hover:opacity-80" aria-label="Go to Dashboard">
+          <BrandLogo size={40} />
+        </Link>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-5">

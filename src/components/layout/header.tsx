@@ -16,6 +16,8 @@ export function Header({
   onMenuClick: () => void
   isPro?: boolean 
 }) {
+  const dashboardHref = user.role === 'teacher' ? '/teacher/dashboard' : '/learner/dashboard'
+
   return (
     <header className="sticky top-0 z-30 flex h-[60px] items-center justify-between gap-2 border-b border-border bg-background/95 px-3 backdrop-blur sm:h-[70px] sm:gap-4 sm:px-5 lg:px-8">
       <div className="flex min-w-0 items-center gap-2 sm:gap-3">
@@ -28,7 +30,11 @@ export function Header({
           <Menu size={24} />
         </button>
 
-        <Link href="/dashboard" className="flex min-w-0 items-center lg:hidden">
+        <Link 
+          href={dashboardHref} 
+          className="flex min-w-0 items-center transition-opacity hover:opacity-80 lg:hidden"
+          aria-label="Go to Dashboard"
+        >
           <BrandLogo size={34} showText={false} />
         </Link>
       </div>

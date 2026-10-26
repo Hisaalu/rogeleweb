@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import Link from 'next/link'
 import { X } from 'lucide-react'
 import { BrandLogo } from '@/components/brand/brand-logo'
 import { AdminSidebarNav } from './admin-sidebar-nav'
@@ -26,13 +27,17 @@ export function AdminSidebar({
 
   return (
     <>
+      {/* Desktop Sidebar */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-border bg-card shadow-sm lg:flex">
         <div className="flex h-16 items-center border-b border-border px-6">
-          <BrandLogo size={32} />
+          <Link href="/admin" className="transition hover:opacity-80">
+            <BrandLogo size={32} />
+          </Link>
         </div>
         <AdminSidebarNav />
       </aside>
 
+      {/* Mobile Sidebar */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 flex lg:hidden">
           <div
@@ -48,7 +53,9 @@ export function AdminSidebar({
             )}
           >
             <div className="flex h-16 items-center justify-between border-b border-border px-4">
-              <BrandLogo size={32} />
+              <Link href="/admin" onClick={onClose} className="transition hover:opacity-80">
+                <BrandLogo size={32} />
+              </Link>
               <button
                 type="button"
                 onClick={onClose}
@@ -58,8 +65,8 @@ export function AdminSidebar({
                 <X size={18} />
               </button>
             </div>
-            <div className="flex-1 overflow-hidden">
-              <AdminSidebarNav />
+            <div className="flex flex-1 flex-col overflow-hidden">
+              <AdminSidebarNav onNavigate={onClose} />
             </div>
           </aside>
         </div>

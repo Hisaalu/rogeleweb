@@ -42,13 +42,18 @@ const NAV: NavItem[] = [
   { label: 'Profile', href: '/admin/profile', icon: User },
 ]
 
-export const AdminSidebarNav = React.memo(function AdminSidebarNav() {
+export const AdminSidebarNav = React.memo(function AdminSidebarNav({
+  onNavigate,
+}: {
+  onNavigate?: () => void
+}) {
   const pathname = usePathname()
   const router = useRouter()
   const [loggingOut, setLoggingOut] = useState(false)
 
   const handleLogout = useCallback(async () => {
     setLoggingOut(true)
+    if (onNavigate) onNavigate()
     try {
       await fetch('/api/auth/logout', { method: 'POST' })
       router.replace('/login')
@@ -56,7 +61,7 @@ export const AdminSidebarNav = React.memo(function AdminSidebarNav() {
     } catch {
       setLoggingOut(false)
     }
-  }, [router])
+  }, [router, onNavigate])
 
   return (
     <>
@@ -73,6 +78,7 @@ export const AdminSidebarNav = React.memo(function AdminSidebarNav() {
               <li key={item.href}>
                 <Link
                   href={item.href}
+                  onClick={onNavigate}
                   className={cn(
                     'group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
                     active
