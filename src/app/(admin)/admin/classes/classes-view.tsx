@@ -1,12 +1,12 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import { GraduationCap, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Input } from '@/components/ui/input'
-import { useBranding } from '@/components/brand/brand-provider'
+import { useToast } from '@/components/ui/toast-provider'
 import {
   createClassClient,
   deleteClassClient,
@@ -17,7 +17,7 @@ import { ClassTable } from './class-table'
 import { ClassFormModal, type ClassFormValues } from './class-form-modal'
 
 export function ClassesView({ initialClasses }: { initialClasses: Class[] }) {
-  const branding = useBranding()
+  const { showToast } = useToast()
 
   const [classes, setClasses] = useState<Class[]>(initialClasses)
   const [search, setSearch] = useState('')
@@ -26,7 +26,6 @@ export function ClassesView({ initialClasses }: { initialClasses: Class[] }) {
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Class | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Class | null>(null)
-  const [error, setError] = useState<string | null>(null)
 
   const filtered = useMemo(() => {
     let list = classes
@@ -45,19 +44,17 @@ export function ClassesView({ initialClasses }: { initialClasses: Class[] }) {
     return list
   }, [classes, search, activeFilter])
 
-  function handleNew() {
+  const handleNew = useCallback(() => {
     setEditing(null)
-    setError(null)
     setFormOpen(true)
-  }
+  }, [])
 
-  function handleEdit(c: Class) {
+  const handleEdit = useCallback((c: Class) => {
     setEditing(c)
-    setError(null)
     setFormOpen(true)
-  }
+  }, [])
 
-  async function handleFormSubmit(values: ClassFormValues) {
+  const handleFormSubmit = useCallback(async (values: ClassFormValues) => {
     try {
       const payload = {
         name: values.name.trim(),
@@ -69,28 +66,29 @@ export function ClassesView({ initialClasses }: { initialClasses: Class[] }) {
       if (editing) {
         const updated = await updateClassClient(editing.id, payload)
         setClasses((list) => list.map((c) => (c.id === updated.id ? updated : c)))
+        showToast('Class updated successfully.', 'success')
       } else {
         const created = await createClassClient(payload)
         setClasses((list) => [created, ...list])
+        showToast('Class created successfully.', 'success')
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to save class'
-      throw new Error(message)
+      throw new Error(err instanceof Error ? err.message : 'Failed to save class')
     }
-  }
+  }, [editing, showToast])
 
-  async function handleDelete() {
+  const handleDelete = useCallback(async () => {
     if (!deleteTarget) return
     try {
       await deleteClassClient(deleteTarget.id)
       setClasses((list) => list.filter((c) => c.id !== deleteTarget.id))
-      setError(null)
+      showToast('Class deleted.', 'success')
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Delete failed'
-      setError(message)
+      showToast(err instanceof Error ? err.message : 'Delete failed', 'error')
+    } finally {
       setDeleteTarget(null)
     }
-  }
+  }, [deleteTarget, showToast])
 
   return (
     <div className="space-y-6">
@@ -98,21 +96,14 @@ export function ClassesView({ initialClasses }: { initialClasses: Class[] }) {
         <div>
           <h1 className="text-2xl font-bold sm:text-3xl">Classes</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Define the classes used across lessons, homework, and quizzes.
+            Define your classes here.
           </p>
         </div>
 
-        <Button onClick={handleNew} style={{ backgroundColor: branding.colorPrimary }}>
-          <Plus size={16} />
-          New class
+        <Button onClick={handleNew}>
+          <Plus size={16} /> New class
         </Button>
       </div>
-
-      {error && (
-        <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
-        </div>
-      )}
 
       {classes.length === 0 ? (
         <EmptyState
@@ -121,8 +112,7 @@ export function ClassesView({ initialClasses }: { initialClasses: Class[] }) {
           description="Create your first class to start organizing lessons, homework, and quizzes."
           action={
             <Button onClick={handleNew}>
-              <Plus size={16} />
-              New class
+              <Plus size={16} /> New class
             </Button>
           }
         />
@@ -134,7 +124,6 @@ export function ClassesView({ initialClasses }: { initialClasses: Class[] }) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-
             <select
               value={activeFilter === null ? '' : activeFilter ? 'true' : 'false'}
               onChange={(e) => {
@@ -147,7 +136,6 @@ export function ClassesView({ initialClasses }: { initialClasses: Class[] }) {
               <option value="true">Active</option>
               <option value="false">Inactive</option>
             </select>
-
             <div className="hidden lg:block" />
           </div>
 
