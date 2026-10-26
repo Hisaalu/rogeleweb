@@ -1,14 +1,14 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import React, { useState, useMemo, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
-  Users, BarChart2, TrendingUp, AlertTriangle, ShieldCheck, Lightbulb, 
-  Eye, BookOpen
+  Users, BarChart2, TrendingUp, AlertTriangle, ShieldCheck, Lightbulb,
+  Eye
 } from 'lucide-react'
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar
 } from 'recharts'
 
@@ -18,7 +18,26 @@ const customTooltipStyle = {
   color: 'hsl(var(--foreground))',
   fontSize: 12,
   borderRadius: '8px',
+  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
 }
+
+const StatCard = React.memo(function StatCard({ icon: Icon, label, value }: { icon: any; label: string; value: string | number }) {
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm sm:gap-4 sm:p-5 transition-shadow hover:shadow-md">
+      <div
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white sm:h-12 sm:w-12"
+        style={{ backgroundColor: 'var(--brand-accent)' }}
+      >
+        <Icon size={20} className="sm:hidden" />
+        <Icon size={22} className="hidden sm:block" />
+      </div>
+      <div className="min-w-0">
+        <p className="text-xs font-medium text-muted-foreground">{label}</p>
+        <p className="truncate text-xl font-bold text-foreground sm:text-2xl">{value}</p>
+      </div>
+    </div>
+  )
+})
 
 export function AnalyticsView({
   stats,
@@ -73,11 +92,6 @@ export function AnalyticsView({
       }))
   }, [lessons])
 
-  function handleRangeChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    setRange(e.target.value)
-    router.push(`/teacher/analytics?range=${e.target.value}`, { scroll: false })
-  }
-
   const recommendations = useMemo(() => {
     const recs = []
     if (atRiskCount > 0) {
@@ -103,6 +117,11 @@ export function AnalyticsView({
     }
     return recs
   }, [atRisk, atRiskCount, scores])
+
+  const handleRangeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setRange(e.target.value)
+    router.push(`/teacher/analytics?range=${e.target.value}`, { scroll: false })
+  }, [router])
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
@@ -138,9 +157,7 @@ export function AnalyticsView({
                 className={`flex gap-3 rounded-xl border p-4 ${
                   isDanger ? 'border-destructive/20' : 'border-warning/20'
                 }`}
-                style={{ 
-                  backgroundColor: isDanger ? 'var(--danger-bg)' : 'var(--warning-bg)' 
-                }}
+                style={{ backgroundColor: isDanger ? 'var(--danger-bg)' : 'var(--warning-bg)' }}
               >
                 <Lightbulb 
                   size={20} 
@@ -179,14 +196,20 @@ export function AnalyticsView({
               <div className="flex h-full items-center justify-center text-sm text-muted-foreground">No enrollment data.</div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={enrollmentChartData} margin={{ top: 5, right: 10, bottom: 5, left: -20 }}>
+                <AreaChart data={enrollmentChartData} margin={{ top: 5, right: 10, bottom: 5, left: -20 }}>
+                  <defs>
+                    <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--brand-primary)" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="var(--brand-primary)" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                   <XAxis dataKey="period" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
                   <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" width={30} />
                   <Tooltip contentStyle={customTooltipStyle} />
-                  <Line type="monotone" dataKey="count" name="Signups" stroke="var(--brand-primary)" strokeWidth={2} dot={{ r: 3 }} />
-                  <Line type="monotone" dataKey="moving_average" name="Trend" stroke="var(--brand-accent)" strokeWidth={2} strokeDasharray="5 5" dot={false} />
-                </LineChart>
+                  <Area type="monotone" dataKey="count" name="Signups" stroke="var(--brand-primary)" strokeWidth={1} fillOpacity={1} fill="url(#colorCount)" />
+                  <Area type="monotone" dataKey="moving_average" name="Trend" stroke="var(--brand-accent)" strokeWidth={1} strokeDasharray="4 4" fillOpacity={0} />
+                </AreaChart>
               </ResponsiveContainer>
             )}
           </div>
@@ -201,12 +224,18 @@ export function AnalyticsView({
               <div className="flex h-full items-center justify-center text-sm text-muted-foreground">No class data.</div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={enrollmentByClassData} margin={{ top: 5, right: 10, bottom: 5, left: -20 }}>
+                <BarChart data={enrollmentByClassData} margin={{ top: 5, right: 10, bottom: 5, left: -20 }} barCategoryGap="25%">
+                  <defs>
+                    <linearGradient id="barPrimary" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="var(--brand-primary)" stopOpacity={1}/>
+                      <stop offset="100%" stopColor="var(--brand-primary)" stopOpacity={0.6}/>
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                  <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-                  <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" width={30} />
-                  <Tooltip contentStyle={customTooltipStyle} cursor={{ fill: 'hsl(var(--muted))' }} />
-                  <Bar dataKey="students" name="Students" fill="var(--brand-primary)" radius={0} />
+                  <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
+                  <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" width={30} tickLine={false} axisLine={false} />
+                  <Tooltip contentStyle={customTooltipStyle} cursor={{ fill: 'hsl(var(--muted))', opacity: 0.5 }} />
+                  <Bar dataKey="students" name="Students" fill="url(#barPrimary)" radius={[0, 0, 0, 0]} maxBarSize={45} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -215,6 +244,7 @@ export function AnalyticsView({
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        
         <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-6">
           <h3 className="mb-6 flex items-center gap-2 text-base font-semibold text-foreground">
             <Eye size={18} style={{ color: 'var(--brand-accent)' }} /> Top 5 Viewed Lessons
@@ -224,12 +254,18 @@ export function AnalyticsView({
               <div className="flex h-full items-center justify-center text-sm text-muted-foreground">No lesson views.</div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={topLessonsData} margin={{ top: 5, right: 10, bottom: 5, left: -20 }}>
+                <BarChart data={topLessonsData} margin={{ top: 5, right: 10, bottom: 5, left: -20 }} barCategoryGap="25%">
+                  <defs>
+                    <linearGradient id="barAccent" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="var(--brand-accent)" stopOpacity={1}/>
+                      <stop offset="100%" stopColor="var(--brand-accent)" stopOpacity={0.6}/>
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                  <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-                  <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" width={30} />
-                  <Tooltip contentStyle={customTooltipStyle} cursor={{ fill: 'hsl(var(--muted))' }} />
-                  <Bar dataKey="views" name="Views" fill="var(--brand-accent)" radius={0} />
+                  <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
+                  <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" width={30} tickLine={false} axisLine={false} />
+                  <Tooltip contentStyle={customTooltipStyle} cursor={{ fill: 'hsl(var(--muted))', opacity: 0.5 }} />
+                  <Bar dataKey="views" name="Views" fill="url(#barAccent)" radius={[0, 0, 0, 0]} maxBarSize={45} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -268,7 +304,7 @@ export function AnalyticsView({
                     </div>
                     <Link
                       href={`/teacher/students/${l.user_id}`}
-                      className="shrink-0 rounded-md px-3 py-1.5 text-xs font-semibold text-white ml-3"
+                      className="shrink-0 rounded-md px-3 py-1.5 text-xs font-semibold text-white ml-3 transition-opacity hover:opacity-90"
                       style={{ backgroundColor: 'var(--brand-primary)' }}
                     >
                       View
@@ -279,24 +315,6 @@ export function AnalyticsView({
             )}
           </div>
         </div>
-      </div>
-    </div>
-  )
-}
-
-function StatCard({ icon: Icon, label, value }: { icon: any; label: string; value: string | number }) {
-  return (
-    <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm sm:gap-4 sm:p-5">
-      <div
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white sm:h-12 sm:w-12"
-        style={{ backgroundColor: 'var(--brand-accent)' }}
-      >
-        <Icon size={20} className="sm:hidden" />
-        <Icon size={22} className="hidden sm:block" />
-      </div>
-      <div className="min-w-0">
-        <p className="text-xs font-medium text-muted-foreground">{label}</p>
-        <p className="truncate text-xl font-bold text-foreground sm:text-2xl">{value}</p>
       </div>
     </div>
   )
