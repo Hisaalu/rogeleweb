@@ -1,5 +1,6 @@
 'use client'
 
+import React, { useState, useCallback } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
@@ -17,7 +18,6 @@ import {
   User,
   Users,
 } from 'lucide-react'
-import { useState } from 'react'
 import { cn } from '@/lib/utils'
 
 interface NavItem {
@@ -42,12 +42,12 @@ const NAV: NavItem[] = [
   { label: 'Profile', href: '/admin/profile', icon: User },
 ]
 
-export function AdminSidebarNav() {
+export const AdminSidebarNav = React.memo(function AdminSidebarNav() {
   const pathname = usePathname()
   const router = useRouter()
   const [loggingOut, setLoggingOut] = useState(false)
 
-  async function handleLogout() {
+  const handleLogout = useCallback(async () => {
     setLoggingOut(true)
     try {
       await fetch('/api/auth/logout', { method: 'POST' })
@@ -56,11 +56,11 @@ export function AdminSidebarNav() {
     } catch {
       setLoggingOut(false)
     }
-  }
+  }, [router])
 
   return (
     <>
-      <nav className="flex-1 overflow-y-auto px-2 py-4">
+      <nav className="flex-1 overflow-y-auto px-3 py-4 scrollbar-thin">
         <ul className="space-y-1">
           {NAV.map((item) => {
             const active =
@@ -68,20 +68,28 @@ export function AdminSidebarNav() {
                 ? pathname === '/admin'
                 : pathname === item.href || pathname.startsWith(item.href + '/')
             const Icon = item.icon
+            
             return (
               <li key={item.href}>
                 <Link
                   href={item.href}
                   className={cn(
-                    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition',
+                    'group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
                     active
                       ? 'bg-brand-primary/10 text-brand-primary'
                       : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                   )}
                 >
+                  {active && (
+                    <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-brand-primary" />
+                  )}
+                  
                   <Icon
-                    size={16}
-                    className={active ? 'text-brand-primary' : 'text-brand-accent'}
+                    size={18}
+                    className={cn(
+                      'shrink-0 transition-colors',
+                      active ? 'text-brand-primary' : 'text-brand-accent group-hover:text-foreground'
+                    )}
                   />
                   {item.label}
                 </Link>
@@ -91,17 +99,17 @@ export function AdminSidebarNav() {
         </ul>
       </nav>
 
-      <div className="border-t border-border px-2 py-3">
+      <div className="border-t border-border px-3 py-4">
         <button
           type="button"
           onClick={handleLogout}
           disabled={loggingOut}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-destructive transition hover:bg-destructive/10 disabled:opacity-50"
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10 disabled:opacity-50"
         >
-          <LogOut size={16} />
+          <LogOut size={18} className="shrink-0" />
           {loggingOut ? 'Signing out...' : 'Sign out'}
         </button>
       </div>
     </>
   )
-}
+})
