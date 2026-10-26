@@ -111,8 +111,15 @@ export interface RevenueForecast {
 }
 
 async function analyticsFetch<T>(path: string): Promise<T> {
-  const res = await fetch(`/api/analytics${path}`, {
+  const isServer = typeof window === 'undefined'
+  
+  const baseUrl = isServer 
+    ? (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000') 
+    : ''
+
+  const res = await fetch(`${baseUrl}/api/analytics${path}`, {
     headers: { Accept: 'application/json' },
+    cache: 'no-store', 
   })
 
   const text = await res.text()

@@ -8,18 +8,18 @@ import type { RetentionData } from '@/lib/analytics.client'
 
 function cellTone(pct: number): string {
   if (pct === 0) return 'text-muted-foreground'
-  if (pct >= 0.75) return 'text-green-700'
-  if (pct >= 0.5) return 'text-green-600'
-  if (pct >= 0.25) return 'text-amber-600'
-  return 'text-red-600'
+  if (pct >= 0.75) return 'text-success-fg'
+  if (pct >= 0.5) return 'text-success-fg'
+  if (pct >= 0.25) return 'text-warning-fg'
+  return 'text-danger-fg'
 }
 
 function cellBg(pct: number): string {
   if (pct === 0) return 'bg-muted/30'
-  if (pct >= 0.75) return 'bg-green-50'
-  if (pct >= 0.5) return 'bg-green-50/60'
-  if (pct >= 0.25) return 'bg-amber-50'
-  return 'bg-red-50'
+  if (pct >= 0.75) return 'bg-success-bg'
+  if (pct >= 0.5) return 'bg-success-bg/60'
+  if (pct >= 0.25) return 'bg-warning-bg'
+  return 'bg-danger-bg'
 }
 
 function cohortLabel(iso: string): string {
