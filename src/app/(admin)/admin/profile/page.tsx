@@ -16,16 +16,14 @@ export default async function AdminProfilePage() {
   let profile: AdminUser | null = null
   try {
     profile = await serverApiRequest<AdminUser>(`/api/v1/users/${session.id}`)
-  } catch (err) {
-    console.error('[admin-profile] fetch failed:', err)
+  } catch {
     profile = null
   }
 
   if (!profile) {
     return (
-      <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-        Could not load profile. Make sure the API is reachable and you are signed
-        in as an admin.
+      <div className="rounded-lg border border-danger-border/40 bg-danger-bg px-4 py-3 text-sm text-danger-fg">
+        Could not load profile. Make sure the API is reachable and you are signed in as an admin.
       </div>
     )
   }
