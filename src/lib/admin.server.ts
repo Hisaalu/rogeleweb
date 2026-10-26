@@ -27,12 +27,17 @@ export async function getRecentPaymentsServer(limit = 10): Promise<AdminPaymentS
   return []
 }
 
-export async function getRecentActivityServer(limit = 20): Promise<AdminActivityItem[]> {
-  const res = await serverApiRequest<unknown>(
-    `/api/v1/admin/activity?limit=${limit}`,
-  )
-  if (Array.isArray(res)) return res as AdminActivityItem[]
-  return []
+export async function getRecentActivityServer(
+  limit: number = 25, 
+  cursor: string | null = null
+): Promise<AdminActivityItem[]> {
+  let url = `/api/v1/admin/activity?limit=${limit}`
+  if (cursor) {
+    url += `&cursor=${encodeURIComponent(cursor)}`
+  }
+  
+  const res = await serverApiRequest<unknown>(url)
+  return Array.isArray(res) ? (res as AdminActivityItem[]) : []
 }
 
 export interface ClassLearnerCount {

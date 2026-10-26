@@ -8,12 +8,13 @@ export const metadata: Metadata = {
 }
 
 export default async function AdminActivityPage() {
-  let activity: AdminActivityItem[] = []
+  let initialActivity: AdminActivityItem[] = []
   try {
-    activity = await getRecentActivityServer(500)
+    // Only load the first 25 items on initial load
+    initialActivity = await getRecentActivityServer(25, null)
   } catch {
-    activity = []
+    initialActivity = []
   }
 
-  return <ActivityView initialActivity={activity} />
+  return <ActivityView initialActivity={initialActivity} />
 }
