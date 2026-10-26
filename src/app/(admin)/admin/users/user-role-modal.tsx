@@ -77,9 +77,6 @@ export function UserRoleModal({
             <option value="external">External</option>
             <option value="admin">Admin</option>
           </Select>
-          <p className="text-xs text-muted-foreground">
-            Admins have full platform access. Be cautious about assigning this role.
-          </p>
         </div>
 
         {error && (
