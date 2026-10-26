@@ -1,12 +1,12 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import { CreditCard, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Input } from '@/components/ui/input'
-import { useBranding } from '@/components/brand/brand-provider'
+import { useToast } from '@/components/ui/toast-provider'
 import {
   createPlanClient,
   deletePlanClient,
@@ -17,7 +17,7 @@ import { PlanTable } from './plan-table'
 import { PlanFormModal, type PlanFormValues } from './plan-form-modal'
 
 export function PlansView({ initialPlans }: { initialPlans: SubscriptionPlan[] }) {
-  const branding = useBranding()
+  const { showToast } = useToast()
 
   const [plans, setPlans] = useState<SubscriptionPlan[]>(initialPlans)
   const [search, setSearch] = useState('')
@@ -26,7 +26,6 @@ export function PlansView({ initialPlans }: { initialPlans: SubscriptionPlan[] }
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<SubscriptionPlan | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<SubscriptionPlan | null>(null)
-  const [error, setError] = useState<string | null>(null)
 
   const filtered = useMemo(() => {
     let list = plans
@@ -44,19 +43,17 @@ export function PlansView({ initialPlans }: { initialPlans: SubscriptionPlan[] }
     return list
   }, [plans, search, activeFilter])
 
-  function handleNew() {
+  const handleNew = useCallback(() => {
     setEditing(null)
-    setError(null)
     setFormOpen(true)
-  }
+  }, [])
 
-  function handleEdit(p: SubscriptionPlan) {
+  const handleEdit = useCallback((p: SubscriptionPlan) => {
     setEditing(p)
-    setError(null)
     setFormOpen(true)
-  }
+  }, [])
 
-  async function handleFormSubmit(values: PlanFormValues) {
+  const handleFormSubmit = useCallback(async (values: PlanFormValues) => {
     try {
       const payload = {
         name: values.name.trim(),
@@ -69,59 +66,54 @@ export function PlansView({ initialPlans }: { initialPlans: SubscriptionPlan[] }
       if (editing) {
         const updated = await updatePlanClient(editing.id, payload)
         setPlans((list) => list.map((p) => (p.id === updated.id ? updated : p)))
+        showToast('Plan updated successfully.', 'success')
       } else {
         const created = await createPlanClient(payload)
         setPlans((list) => [created, ...list])
+        showToast('Plan created successfully.', 'success')
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to save plan'
-      throw new Error(message)
+      throw new Error(err instanceof Error ? err.message : 'Failed to save plan')
     }
-  }
+  }, [editing, showToast])
 
-  async function handleDelete() {
+  const handleDelete = useCallback(async () => {
     if (!deleteTarget) return
     try {
       await deletePlanClient(deleteTarget.id)
       setPlans((list) => list.filter((p) => p.id !== deleteTarget.id))
-      setError(null)
+      showToast('Plan deleted.', 'success')
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Delete failed'
-      setError(message)
+      showToast(err instanceof Error ? err.message : 'Delete failed', 'error')
+    } finally {
       setDeleteTarget(null)
     }
-  }
+  }, [deleteTarget, showToast])
 
-  async function handleToggleActive(p: SubscriptionPlan) {
+  const handleToggleActive = useCallback(async (p: SubscriptionPlan) => {
     try {
       const updated = await updatePlanClient(p.id, { is_active: !p.is_active })
       setPlans((list) => list.map((x) => (x.id === updated.id ? updated : x)))
+      showToast(updated.is_active ? 'Plan activated.' : 'Plan deactivated.', 'success')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update plan')
+      showToast(err instanceof Error ? err.message : 'Failed to update plan', 'error')
     }
-  }
+  }, [showToast])
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold sm:text-3xl">Subscription plans</h1>
+          <h1 className="text-2xl font-bold sm:text-3xl">Plans</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Define the plans users can subscribe to.
+            Define Subscription Plans.
           </p>
         </div>
 
-        <Button onClick={handleNew} style={{ backgroundColor: branding.colorPrimary }}>
-          <Plus size={16} />
-          New plan
+        <Button onClick={handleNew}>
+          <Plus size={16} /> New plan
         </Button>
       </div>
-
-      {error && (
-        <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
-        </div>
-      )}
 
       {plans.length === 0 ? (
         <EmptyState
@@ -130,8 +122,7 @@ export function PlansView({ initialPlans }: { initialPlans: SubscriptionPlan[] }
           description="Create your first plan so users can subscribe."
           action={
             <Button onClick={handleNew}>
-              <Plus size={16} />
-              New plan
+              <Plus size={16} /> New plan
             </Button>
           }
         />

@@ -118,7 +118,7 @@ export function SubjectsView({
         <div>
           <h1 className="text-2xl font-bold sm:text-3xl">Subjects</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Manage subjects and assign them to teachers.
+            Manage your subjects.
           </p>
         </div>
 

@@ -4,7 +4,7 @@ import type { SubscriptionPlan } from '@/types/admin'
 import { PlansView } from './plans-view'
 
 export const metadata: Metadata = {
-  title: 'Subscription plans',
+  title: 'Plans',
 }
 
 export default async function AdminPlansPage() {
