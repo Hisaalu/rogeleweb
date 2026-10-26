@@ -98,6 +98,12 @@ export function RegisterForm({ classes }: { classes: Class[] }) {
     }
   }
 
+  const phoneRegister = register('phone', {
+    onChange: (e) => {
+      e.target.value = e.target.value.replace(/\D/g, '').slice(0, 9)
+    }
+  })
+
   return (
     <div className="w-full space-y-6">
       <div className="flex flex-col items-center text-center">
@@ -152,7 +158,8 @@ export function RegisterForm({ classes }: { classes: Class[] }) {
               <input
                 type="tel"
                 placeholder="e.g 701234567"
-                {...register('phone')}
+                maxLength={9}
+                {...phoneRegister}
                 className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm outline-none transition focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/25"
               />
             </div>
