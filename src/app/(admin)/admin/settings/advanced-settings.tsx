@@ -1,14 +1,80 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import { Loader2, Plus, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Input } from '@/components/ui/input'
+import { useToast } from '@/components/ui/toast-provider'
 import { createSettingClient, updateSettingClient } from '@/lib/settings.client'
 import type { Setting } from '@/types/admin'
 
 const BRANDING_PREFIX = 'branding.'
+
+const AdvancedSettingRow = React.memo(function AdvancedSettingRow({
+  setting,
+  isEditing,
+  isSaving,
+  onEditValue,
+  onSave,
+  onCancel,
+  onDelete,
+  editingValue,
+}: {
+  setting: Setting
+  isEditing: boolean
+  isSaving: boolean
+  editingValue: string
+  onEditValue: (val: string) => void
+  onSave: () => void
+  onCancel: () => void
+  onDelete: () => void
+}) {
+  return (
+    <div className="grid gap-3 px-5 py-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-center hover:bg-muted/20 transition-colors">
+      <code className="truncate text-sm font-medium text-foreground">{setting.setting_key}</code>
+      {isEditing ? (
+        <Input
+          value={editingValue}
+          onChange={(e) => onEditValue(e.target.value)}
+          disabled={isSaving}
+          autoFocus
+        />
+      ) : (
+        <span className="truncate text-sm text-muted-foreground">
+          {setting.setting_value ?? '—'}
+        </span>
+      )}
+      <div className="flex gap-2">
+        {isEditing ? (
+          <>
+            <Button size="sm" onClick={onSave} disabled={isSaving}>
+              {isSaving && <Loader2 size={12} className="animate-spin" />}
+              Save
+            </Button>
+            <Button size="sm" variant="outline" onClick={onCancel} disabled={isSaving}>
+              Cancel
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button size="sm" variant="outline" onClick={() => onEditValue(setting.setting_value ?? '')}>
+              Edit
+            </Button>
+            <button
+              type="button"
+              onClick={onDelete}
+              className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-danger-bg hover:text-danger-fg"
+              aria-label="Delete setting"
+            >
+              <Trash2 size={14} />
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  )
+})
 
 export function AdvancedSettings({
   settings,
@@ -19,6 +85,7 @@ export function AdvancedSettings({
   onChange: (settings: Setting[]) => void
   onDelete: (id: number) => Promise<void>
 }) {
+  const { showToast } = useToast()
   const [editing, setEditing] = useState<Record<number, string>>({})
   const [savingId, setSavingId] = useState<number | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Setting | null>(null)
@@ -29,42 +96,47 @@ export function AdvancedSettings({
 
   const nonBranding = settings.filter((s) => !s.setting_key.startsWith(BRANDING_PREFIX))
 
-  function startEdit(s: Setting) {
+  const startEdit = useCallback((s: Setting) => {
     setEditing((e) => ({ ...e, [s.id]: s.setting_value ?? '' }))
-  }
+  }, [])
 
-  function cancelEdit(id: number) {
+  const cancelEdit = useCallback((id: number) => {
     setEditing((e) => {
       const next = { ...e }
       delete next[id]
       return next
     })
-  }
+  }, [])
 
-  async function save(id: number) {
+  const save = useCallback(async (id: number) => {
     const value = editing[id] ?? ''
     setSavingId(id)
     try {
       const updated = await updateSettingClient(id, value)
       onChange(settings.map((s) => (s.id === updated.id ? updated : s)))
       cancelEdit(id)
+      showToast('Setting saved.', 'success')
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Failed to save', 'error')
     } finally {
       setSavingId(null)
     }
-  }
+  }, [editing, settings, onChange, cancelEdit, showToast])
 
-  async function handleDelete() {
+  const handleDelete = useCallback(async () => {
     if (!deleteTarget) return
     try {
       await onDelete(deleteTarget.id)
       onChange(settings.filter((s) => s.id !== deleteTarget.id))
+      showToast('Setting deleted.', 'success')
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Delete failed', 'error')
+    } finally {
       setDeleteTarget(null)
-    } catch {
-      // ignore, shown by parent
     }
-  }
+  }, [deleteTarget, onDelete, settings, onChange, showToast])
 
-  async function handleAdd(e: React.FormEvent) {
+  const handleAdd = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newKey.trim()) return
     setBusy(true)
@@ -77,15 +149,18 @@ export function AdvancedSettings({
       setNewKey('')
       setNewValue('')
       setAdding(false)
+      showToast('Setting added.', 'success')
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Failed to add', 'error')
     } finally {
       setBusy(false)
     }
-  }
+  }, [newKey, newValue, onChange, settings, showToast])
 
   return (
     <>
-      <section className="rounded-xl border border-border bg-card">
-        <header className="flex items-center justify-between border-b border-border px-5 py-4">
+      <section className="rounded-xl border border-border bg-card shadow-sm">
+        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
           <div>
             <h2 className="text-sm font-semibold">Advanced</h2>
             <p className="text-xs text-muted-foreground">
@@ -93,40 +168,19 @@ export function AdvancedSettings({
             </p>
           </div>
           <Button variant="outline" onClick={() => setAdding((a) => !a)}>
-            <Plus size={14} />
-            Add setting
+            <Plus size={14} /> Add setting
           </Button>
         </header>
 
         {adding && (
-          <form
-            onSubmit={handleAdd}
-            className="grid gap-3 border-b border-border bg-muted/20 p-5 sm:grid-cols-[1fr_1fr_auto]"
-          >
-            <Input
-              placeholder="setting.key"
-              value={newKey}
-              onChange={(e) => setNewKey(e.target.value)}
-              disabled={busy}
-              autoFocus
-            />
-            <Input
-              placeholder="value"
-              value={newValue}
-              onChange={(e) => setNewValue(e.target.value)}
-              disabled={busy}
-            />
+          <form onSubmit={handleAdd} className="grid gap-3 border-b border-border bg-muted/20 p-5 sm:grid-cols-[1fr_1fr_auto]">
+            <Input placeholder="setting.key" value={newKey} onChange={(e) => setNewKey(e.target.value)} disabled={busy} autoFocus />
+            <Input placeholder="value" value={newValue} onChange={(e) => setNewValue(e.target.value)} disabled={busy} />
             <div className="flex gap-2">
               <Button type="submit" disabled={busy || !newKey.trim()}>
-                {busy && <Loader2 size={14} className="animate-spin" />}
-                Add
+                {busy && <Loader2 size={14} className="animate-spin" />} Add
               </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setAdding(false)}
-                disabled={busy}
-              >
+              <Button type="button" variant="outline" onClick={() => setAdding(false)} disabled={busy}>
                 Cancel
               </Button>
             </div>
@@ -136,72 +190,25 @@ export function AdvancedSettings({
         <div className="divide-y divide-border">
           {nonBranding.length === 0 && !adding ? (
             <div className="px-5 py-6 text-sm text-muted-foreground">
-              No extra settings yet. Add one if you need to store configuration
-              values.
+              No extra settings yet. Add one if you need to store configuration values.
             </div>
           ) : (
-            nonBranding.map((s) => {
-              const isEditing = s.id in editing
-              const isSaving = savingId === s.id
-              return (
-                <div
-                  key={s.id}
-                  className="grid gap-3 px-5 py-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-center"
-                >
-                  <code className="truncate text-sm font-medium">{s.setting_key}</code>
-                  {isEditing ? (
-                    <Input
-                      value={editing[s.id] ?? ''}
-                      onChange={(e) =>
-                        setEditing((prev) => ({ ...prev, [s.id]: e.target.value }))
-                      }
-                      disabled={isSaving}
-                      autoFocus
-                    />
-                  ) : (
-                    <span className="truncate text-sm text-muted-foreground">
-                      {s.setting_value ?? '—'}
-                    </span>
-                  )}
-                  <div className="flex gap-2">
-                    {isEditing ? (
-                      <>
-                        <Button
-                          size="sm"
-                          onClick={() => save(s.id)}
-                          disabled={isSaving}
-                        >
-                          {isSaving && <Loader2 size={12} className="animate-spin" />}
-                          Save
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => cancelEdit(s.id)}
-                          disabled={isSaving}
-                        >
-                          Cancel
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        <Button size="sm" variant="outline" onClick={() => startEdit(s)}>
-                          Edit
-                        </Button>
-                        <button
-                          type="button"
-                          onClick={() => setDeleteTarget(s)}
-                          className="rounded-lg p-2 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive"
-                          aria-label="Delete setting"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              )
-            })
+            nonBranding.map((s) => (
+              <AdvancedSettingRow
+                key={s.id}
+                setting={s}
+                isEditing={s.id in editing}
+                isSaving={savingId === s.id}
+                editingValue={editing[s.id] ?? ''}
+                onEditValue={(val) => {
+                  if (!(s.id in editing)) startEdit(s)
+                  setEditing((e) => ({ ...e, [s.id]: val }))
+                }}
+                onSave={() => save(s.id)}
+                onCancel={() => cancelEdit(s.id)}
+                onDelete={() => setDeleteTarget(s)}
+              />
+            ))
           )}
         </div>
       </section>
@@ -210,9 +217,7 @@ export function AdvancedSettings({
         open={deleteTarget !== null}
         onOpenChange={(o) => !o && setDeleteTarget(null)}
         title="Delete setting"
-        description={
-          deleteTarget ? `Remove "${deleteTarget.setting_key}"?` : ''
-        }
+        description={deleteTarget ? `Remove "${deleteTarget.setting_key}"?` : ''}
         confirmLabel="Delete"
         destructive
         onConfirm={handleDelete}

@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import { Save, Settings as SettingsIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useBranding } from '@/components/brand/brand-provider'
+import { useToast } from '@/components/ui/toast-provider'
 import {
   createSettingClient,
   deleteSettingClient,
@@ -27,12 +27,53 @@ const BRANDING_FIELDS = [
 
 type BrandingKey = (typeof BRANDING_FIELDS)[number]['key']
 
+const BrandingField = React.memo(function BrandingField({
+  field,
+  value,
+  onChange,
+  disabled,
+}: {
+  field: typeof BRANDING_FIELDS[number]
+  value: string
+  onChange: (val: string) => void
+  disabled: boolean
+}) {
+  return (
+    <div className="space-y-1.5">
+      <Label htmlFor={field.key}>{field.label}</Label>
+      {field.type === 'color' ? (
+        <div className="flex items-center gap-3">
+          <input
+            type="color"
+            id={field.key}
+            value={value || '#000000'}
+            onChange={(e) => onChange(e.target.value)}
+            className="h-10 w-14 cursor-pointer rounded-lg border border-input bg-background"
+          />
+          <Input
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="#7f2677"
+            disabled={disabled}
+          />
+        </div>
+      ) : (
+        <Input
+          id={field.key}
+          type={field.type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          disabled={disabled}
+        />
+      )}
+    </div>
+  )
+})
+
 export function SettingsView({ initialSettings }: { initialSettings: Setting[] }) {
-  const branding = useBranding()
+  const { showToast } = useToast()
   const [settings, setSettings] = useState<Setting[]>(initialSettings)
   const [saving, setSaving] = useState(false)
-  const [message, setMessage] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
 
   const [brandingValues, setBrandingValues] = useState<Record<BrandingKey, string>>(
     () => {
@@ -45,19 +86,16 @@ export function SettingsView({ initialSettings }: { initialSettings: Setting[] }
     },
   )
 
-  function setBranding(key: BrandingKey, value: string) {
+  const setBranding = useCallback((key: BrandingKey, value: string) => {
     setBrandingValues((v) => ({ ...v, [key]: value }))
-  }
+  }, [])
 
-  function findExisting(key: string): Setting | undefined {
+  const findExisting = useCallback((key: string) => {
     return settings.find((s) => s.setting_key === key)
-  }
+  }, [settings])
 
-  async function saveBranding() {
+  const saveBranding = useCallback(async () => {
     setSaving(true)
-    setError(null)
-    setMessage(null)
-
     try {
       for (const f of BRANDING_FIELDS) {
         const value = brandingValues[f.key]
@@ -66,9 +104,7 @@ export function SettingsView({ initialSettings }: { initialSettings: Setting[] }
         if (existing) {
           if ((existing.setting_value ?? '') !== value) {
             const updated = await updateSettingClient(existing.id, value)
-            setSettings((list) =>
-              list.map((s) => (s.id === updated.id ? updated : s)),
-            )
+            setSettings((list) => list.map((s) => (s.id === updated.id ? updated : s)))
           }
         } else if (value) {
           const created = await createSettingClient({
@@ -78,13 +114,13 @@ export function SettingsView({ initialSettings }: { initialSettings: Setting[] }
           setSettings((list) => [created, ...list])
         }
       }
-      setMessage('Branding saved. Reload the page to see it everywhere.')
+      showToast('Branding saved. Reload the page to see it everywhere.', 'success')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save settings')
+      showToast(err instanceof Error ? err.message : 'Failed to save settings', 'error')
     } finally {
       setSaving(false)
     }
-  }
+  }, [brandingValues, findExisting, showToast])
 
   return (
     <div className="space-y-6">
@@ -95,68 +131,25 @@ export function SettingsView({ initialSettings }: { initialSettings: Setting[] }
         </p>
       </div>
 
-      {message && (
-        <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
-          {message}
-        </div>
-      )}
-      {error && (
-        <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
-        </div>
-      )}
-
-      <section className="rounded-xl border border-border bg-card">
-        <header className="flex items-center justify-between border-b border-border px-5 py-4">
+      <section className="rounded-xl border border-border bg-card shadow-sm">
+        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
           <div>
             <h2 className="text-sm font-semibold">Branding</h2>
-            <p className="text-xs text-muted-foreground">
-              Controls the platform's name, logo, and colors.
-            </p>
           </div>
-          <Button
-            onClick={saveBranding}
-            disabled={saving}
-            style={{ backgroundColor: branding.colorPrimary }}
-          >
-            <Save size={14} />
-            {saving ? 'Saving...' : 'Save'}
+          <Button onClick={saveBranding} disabled={saving}>
+            <Save size={14} /> {saving ? 'Saving...' : 'Save'}
           </Button>
         </header>
 
         <div className="grid gap-5 p-5 sm:grid-cols-2">
           {BRANDING_FIELDS.map((f) => (
-            <div key={f.key} className="space-y-1.5">
-              <Label htmlFor={f.key}>{f.label}</Label>
-              {f.type === 'color' ? (
-                <div className="flex items-center gap-3">
-                  <input
-                    type="color"
-                    id={f.key}
-                    value={brandingValues[f.key] || '#000000'}
-                    onChange={(e) => setBranding(f.key, e.target.value)}
-                    className="h-10 w-14 cursor-pointer rounded-lg border border-input"
-                  />
-                  <Input
-                    value={brandingValues[f.key]}
-                    onChange={(e) => setBranding(f.key, e.target.value)}
-                    placeholder="#7f2677"
-                    disabled={saving}
-                  />
-                </div>
-              ) : (
-                <Input
-                  id={f.key}
-                  type={f.type}
-                  value={brandingValues[f.key]}
-                  onChange={(e) => setBranding(f.key, e.target.value)}
-                  disabled={saving}
-                />
-              )}
-              <p className="text-xs text-muted-foreground">
-                Key: <code>{f.key}</code>
-              </p>
-            </div>
+            <BrandingField
+              key={f.key}
+              field={f}
+              value={brandingValues[f.key]}
+              onChange={(val) => setBranding(f.key, val)}
+              disabled={saving}
+            />
           ))}
         </div>
       </section>
@@ -169,8 +162,7 @@ export function SettingsView({ initialSettings }: { initialSettings: Setting[] }
 
       <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-4 py-3 text-xs text-muted-foreground">
         <SettingsIcon size={14} />
-        The public config endpoint caches branding for 60 seconds. Changes appear
-        everywhere after a short delay or a hard refresh.
+        The public config endpoint caches branding for 60 seconds. Changes appear everywhere after a short delay or a hard refresh.
       </div>
     </div>
   )
