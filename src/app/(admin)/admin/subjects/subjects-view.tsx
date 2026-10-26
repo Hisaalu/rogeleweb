@@ -1,12 +1,12 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import { BookOpen, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Input } from '@/components/ui/input'
-import { useBranding } from '@/components/brand/brand-provider'
+import { useToast } from '@/components/ui/toast-provider'
 import {
   createSubjectClient,
   deleteSubjectClient,
@@ -25,7 +25,7 @@ export function SubjectsView({
   classes: Class[]
   teachers: TeacherOption[]
 }) {
-  const branding = useBranding()
+  const { showToast } = useToast()
 
   const [subjects, setSubjects] = useState<Subject[]>(initialSubjects)
   const [search, setSearch] = useState('')
@@ -35,7 +35,6 @@ export function SubjectsView({
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Subject | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Subject | null>(null)
-  const [error, setError] = useState<string | null>(null)
 
   const classesById = useMemo(() => {
     const m = new Map<number, Class>()
@@ -60,28 +59,22 @@ export function SubjectsView({
           (s.description ?? '').toLowerCase().includes(q),
       )
     }
-    if (classFilter !== null) {
-      list = list.filter((s) => s.class_id === classFilter)
-    }
-    if (activeFilter !== null) {
-      list = list.filter((s) => s.is_active === activeFilter)
-    }
+    if (classFilter !== null) list = list.filter((s) => s.class_id === classFilter)
+    if (activeFilter !== null) list = list.filter((s) => s.is_active === activeFilter)
     return list
   }, [subjects, search, classFilter, activeFilter])
 
-  function handleNew() {
+  const handleNew = useCallback(() => {
     setEditing(null)
-    setError(null)
     setFormOpen(true)
-  }
+  }, [])
 
-  function handleEdit(s: Subject) {
+  const handleEdit = useCallback((s: Subject) => {
     setEditing(s)
-    setError(null)
     setFormOpen(true)
-  }
+  }, [])
 
-  async function handleFormSubmit(values: SubjectFormValues) {
+  const handleFormSubmit = useCallback(async (values: SubjectFormValues) => {
     try {
       const payload = {
         name: values.name.trim(),
@@ -95,28 +88,29 @@ export function SubjectsView({
       if (editing) {
         const updated = await updateSubjectClient(editing.id, payload)
         setSubjects((list) => list.map((s) => (s.id === updated.id ? updated : s)))
+        showToast('Subject updated successfully.', 'success')
       } else {
         const created = await createSubjectClient(payload)
         setSubjects((list) => [created, ...list])
+        showToast('Subject created successfully.', 'success')
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to save subject'
-      throw new Error(message)
+      throw new Error(err instanceof Error ? err.message : 'Failed to save subject')
     }
-  }
+  }, [editing, showToast])
 
-  async function handleDelete() {
+  const handleDelete = useCallback(async () => {
     if (!deleteTarget) return
     try {
       await deleteSubjectClient(deleteTarget.id)
       setSubjects((list) => list.filter((s) => s.id !== deleteTarget.id))
-      setError(null)
+      showToast('Subject deleted.', 'success')
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Delete failed'
-      setError(message)
+      showToast(err instanceof Error ? err.message : 'Delete failed', 'error')
+    } finally {
       setDeleteTarget(null)
     }
-  }
+  }, [deleteTarget, showToast])
 
   return (
     <div className="space-y-6">
@@ -128,17 +122,10 @@ export function SubjectsView({
           </p>
         </div>
 
-        <Button onClick={handleNew} style={{ backgroundColor: branding.colorPrimary }}>
-          <Plus size={16} />
-          New subject
+        <Button onClick={handleNew}>
+          <Plus size={16} /> New subject
         </Button>
       </div>
-
-      {error && (
-        <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
-        </div>
-      )}
 
       {subjects.length === 0 ? (
         <EmptyState
@@ -147,8 +134,7 @@ export function SubjectsView({
           description="Create your first subject so teachers can attach lessons and quizzes."
           action={
             <Button onClick={handleNew}>
-              <Plus size={16} />
-              New subject
+              <Plus size={16} /> New subject
             </Button>
           }
         />
@@ -163,16 +149,12 @@ export function SubjectsView({
 
             <select
               value={classFilter ?? ''}
-              onChange={(e) =>
-                setClassFilter(e.target.value ? Number(e.target.value) : null)
-              }
+              onChange={(e) => setClassFilter(e.target.value ? Number(e.target.value) : null)}
               className="h-10 rounded-lg border border-input bg-background px-3 text-sm outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/25"
             >
               <option value="">All classes</option>
               {classes.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
+                <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
 
