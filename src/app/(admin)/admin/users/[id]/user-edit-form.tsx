@@ -7,18 +7,18 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { useToast } from '@/components/ui/toast-provider'
 import { updateUserClient } from '@/lib/users.client'
 import type { AdminUser, Class } from '@/types/admin'
 
 export function UserEditForm({
-  user,
-  classes,
-  onChange,
+  user, classes, onChange,
 }: {
   user: AdminUser
   classes: Class[]
   onChange: (user: AdminUser) => void
 }) {
+  const { showToast } = useToast()
   const [values, setValues] = useState({
     first_name: user.first_name ?? '',
     last_name: user.last_name ?? '',
@@ -29,8 +29,6 @@ export function UserEditForm({
     class_id: user.class_id ?? null,
   })
   const [submitting, setSubmitting] = useState(false)
-  const [message, setMessage] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     setValues({
@@ -51,9 +49,6 @@ export function UserEditForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setSubmitting(true)
-    setError(null)
-    setMessage(null)
-
     try {
       const updated = await updateUserClient(user.id, {
         first_name: values.first_name.trim() || undefined,
@@ -65,9 +60,9 @@ export function UserEditForm({
         class_id: values.class_id ?? undefined,
       })
       onChange(updated)
-      setMessage('Profile updated.')
+      showToast('Profile updated successfully.', 'success')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update profile')
+      showToast(err instanceof Error ? err.message : 'Failed to update profile', 'error')
     } finally {
       setSubmitting(false)
     }
@@ -77,7 +72,7 @@ export function UserEditForm({
   const isLearner = user.role === 'learner' || user.role === 'external'
 
   return (
-    <section className="rounded-xl border border-border bg-card">
+    <section className="rounded-xl border border-border bg-card shadow-sm">
       <header className="border-b border-border px-5 py-3">
         <h3 className="text-sm font-semibold">Profile</h3>
       </header>
@@ -86,48 +81,22 @@ export function UserEditForm({
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="first_name">First name</Label>
-            <Input
-              id="first_name"
-              value={values.first_name}
-              onChange={(e) => set('first_name', e.target.value)}
-              disabled={submitting}
-            />
+            <Input id="first_name" value={values.first_name} onChange={(e) => set('first_name', e.target.value)} disabled={submitting} />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="last_name">Last name</Label>
-            <Input
-              id="last_name"
-              value={values.last_name}
-              onChange={(e) => set('last_name', e.target.value)}
-              disabled={submitting}
-            />
+            <Input id="last_name" value={values.last_name} onChange={(e) => set('last_name', e.target.value)} disabled={submitting} />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="phone">Phone</Label>
-            <Input
-              id="phone"
-              value={values.phone}
-              onChange={(e) => set('phone', e.target.value)}
-              disabled={submitting}
-            />
+            <Input id="phone" value={values.phone} onChange={(e) => set('phone', e.target.value)} disabled={submitting} />
           </div>
           {isLearner && (
             <div className="space-y-1.5">
               <Label htmlFor="class_id">Class</Label>
-              <Select
-                id="class_id"
-                value={values.class_id ?? ''}
-                onChange={(e) =>
-                  set('class_id', e.target.value ? Number(e.target.value) : null)
-                }
-                disabled={submitting}
-              >
+              <Select id="class_id" value={values.class_id ?? ''} onChange={(e) => set('class_id', e.target.value ? Number(e.target.value) : null)} disabled={submitting}>
                 <option value="">Unassigned</option>
-                {classes.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
+                {classes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </Select>
             </div>
           )}
@@ -135,21 +104,11 @@ export function UserEditForm({
             <>
               <div className="space-y-1.5">
                 <Label htmlFor="qualification">Qualification</Label>
-                <Input
-                  id="qualification"
-                  value={values.qualification}
-                  onChange={(e) => set('qualification', e.target.value)}
-                  disabled={submitting}
-                />
+                <Input id="qualification" value={values.qualification} onChange={(e) => set('qualification', e.target.value)} disabled={submitting} />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="specialization">Specialization</Label>
-                <Input
-                  id="specialization"
-                  value={values.specialization}
-                  onChange={(e) => set('specialization', e.target.value)}
-                  disabled={submitting}
-                />
+                <Input id="specialization" value={values.specialization} onChange={(e) => set('specialization', e.target.value)} disabled={submitting} />
               </div>
             </>
           )}
@@ -157,31 +116,12 @@ export function UserEditForm({
 
         <div className="space-y-1.5">
           <Label htmlFor="bio">Bio</Label>
-          <Textarea
-            id="bio"
-            value={values.bio}
-            onChange={(e) => set('bio', e.target.value)}
-            rows={3}
-            disabled={submitting}
-          />
+          <Textarea id="bio" value={values.bio} onChange={(e) => set('bio', e.target.value)} rows={3} disabled={submitting} />
         </div>
-
-        {message && (
-          <div className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
-            {message}
-          </div>
-        )}
-
-        {error && (
-          <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {error}
-          </div>
-        )}
 
         <div className="flex justify-end">
           <Button type="submit" disabled={submitting}>
-            {submitting && <Loader2 size={14} className="animate-spin" />}
-            Save changes
+            {submitting && <Loader2 size={14} className="animate-spin" />} Save changes
           </Button>
         </div>
       </form>

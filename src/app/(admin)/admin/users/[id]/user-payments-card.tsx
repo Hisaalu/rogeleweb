@@ -6,6 +6,13 @@ import { Badge } from '@/components/ui/badge'
 import { getUserPaymentsClient, type PaymentRow } from '@/lib/users.client'
 import { formatDate } from '@/lib/utils'
 
+const currencyFormatter = new Intl.NumberFormat('en-UG', {
+  style: 'currency',
+  currency: 'UGX',
+  currencyDisplay: 'code',
+  maximumFractionDigits: 0,
+})
+
 export function UserPaymentsCard({ userId }: { userId: number }) {
   const [payments, setPayments] = useState<PaymentRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -18,51 +25,34 @@ export function UserPaymentsCard({ userId }: { userId: number }) {
   }, [userId])
 
   return (
-    <section className="rounded-xl border border-border bg-card">
+    <section className="rounded-xl border border-border bg-card shadow-sm">
       <header className="border-b border-border px-5 py-3">
         <h3 className="text-sm font-semibold">Recent payments</h3>
       </header>
-
       <div className="p-2">
         {loading ? (
           <div className="flex items-center gap-2 px-3 py-4 text-sm text-muted-foreground">
-            <Loader2 size={14} className="animate-spin" />
-            Loading...
+            <Loader2 size={14} className="animate-spin" /> Loading...
           </div>
         ) : payments.length === 0 ? (
           <div className="flex items-center gap-3 px-3 py-4 text-sm text-muted-foreground">
-            <DollarSign size={16} />
-            No payments on record.
+            <DollarSign size={16} /> No payments on record.
           </div>
         ) : (
           <ul className="divide-y divide-border">
             {payments.map((p) => (
-              <li
-                key={p.id}
-                className="flex items-center justify-between gap-3 px-3 py-2.5"
-              >
+              <li key={p.id} className="flex items-center justify-between gap-3 px-3 py-2.5">
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">
-                    {p.plan_type ?? 'subscription'}
-                  </p>
+                  <p className="truncate text-sm font-medium">{p.plan_type ?? 'subscription'}</p>
                   <p className="truncate text-xs text-muted-foreground">
-                    {p.payment_method ?? 'unknown'} ·{' '}
-                    {p.transaction_id?.slice(0, 12) ?? 'no txn'}
+                    {p.payment_method ?? 'unknown'} · {p.transaction_id?.slice(0, 12) ?? 'no txn'}
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
                   <span className="text-sm font-semibold">
-                    {p.amount != null ? p.amount.toFixed(2) : '—'}
+                    {p.amount != null ? currencyFormatter.format(p.amount) : '—'}
                   </span>
-                  <Badge
-                    tone={
-                      p.status === 'completed'
-                        ? 'success'
-                        : p.status === 'failed'
-                          ? 'danger'
-                          : 'warning'
-                    }
-                  >
+                  <Badge tone={p.status === 'completed' ? 'success' : p.status === 'failed' ? 'danger' : 'warning'}>
                     {p.status}
                   </Badge>
                   <span className="text-xs text-muted-foreground">

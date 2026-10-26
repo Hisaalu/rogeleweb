@@ -38,7 +38,7 @@ export function UserDetailView({
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-brand-primary"
         >
           <ArrowLeft size={14} />
-          Back to users
+          Users
         </Link>
       </div>
 
