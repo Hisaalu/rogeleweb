@@ -90,7 +90,7 @@ export function RegisterForm({ classes }: { classes: Class[] }) {
 
       showToast('Account created successfully', 'success')
       setTimeout(() => {
-        router.replace('/dashboard')
+        router.replace('/learner/dashboard')
         router.refresh()
       }, 800)
     } catch {

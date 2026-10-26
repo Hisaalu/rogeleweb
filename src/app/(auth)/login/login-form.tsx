@@ -21,7 +21,7 @@ type FormValues = z.infer<typeof schema>
 export function LoginForm() {
   const router = useRouter()
   const params = useSearchParams()
-  const nextPath = params.get('next') ?? '/dashboard'
+  const nextPath = params.get('next')
   const branding = useBranding()
   const { showToast } = useToast()
 
@@ -51,10 +51,16 @@ export function LoginForm() {
         return
       }
 
-      setTimeout(() => {
-        router.replace(nextPath)
-        router.refresh()
-      }, 800)
+      const role = data?.role ?? data?.user?.role ?? 'learner'
+      const dest =
+        role === 'admin'
+          ? '/admin'
+          : role === 'teacher'
+            ? '/teacher/dashboard'
+            : '/learner/dashboard'
+
+      router.replace(nextPath || dest)
+      router.refresh()
     } catch {
       showToast('Something went wrong. Please try again.', 'error')
     }
