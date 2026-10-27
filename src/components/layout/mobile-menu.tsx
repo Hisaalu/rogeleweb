@@ -125,13 +125,14 @@ export function MobileMenu({
             type="button"
             onClick={onClose}
             aria-label="Close menu"
-            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white transition hover:rotate-90 hover:bg-white/30"
+            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center bg-white/20 text-white transition hover:bg-white/30"
           >
             <X size={20} />
           </button>
 
           <div className="mt-7 flex items-center gap-3 sm:mt-8 sm:gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-white bg-white/20 text-base font-semibold text-white sm:h-14 sm:w-14 sm:text-lg">
+            {/* Removed rounded-full here to make the avatar square */}
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center border-2 border-white bg-white/20 text-base font-semibold text-white sm:h-14 sm:w-14 sm:text-lg">
               {getInitials(fullName)}
             </div>
             <div className="min-w-0">
@@ -158,7 +159,8 @@ export function MobileMenu({
                     onClick={onClose}
                     aria-current={active ? 'page' : undefined}
                     className={cn(
-                      'flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition sm:py-3',
+                      // Removed rounded-xl here to make links square
+                      'flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition sm:py-3',
                       active
                         ? 'nav-active font-semibold'
                         : 'text-foreground hover:bg-muted',
@@ -177,7 +179,8 @@ export function MobileMenu({
               <button
                 type="button"
                 onClick={handleLogout}
-                className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50 sm:py-3"
+                className="flex w-full items-center gap-3 px-4 py-2.5 text-sm font-semibold transition hover:bg-muted sm:py-3"
+                style={{ color: 'var(--danger-fg)' }}
               >
                 <LogOut size={18} />
                 Logout

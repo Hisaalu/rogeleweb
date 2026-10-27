@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { Loader2, Plus, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
@@ -85,6 +86,7 @@ export function AdvancedSettings({
   onChange: (settings: Setting[]) => void
   onDelete: (id: number) => Promise<void>
 }) {
+  const router = useRouter()
   const { showToast } = useToast()
   const [editing, setEditing] = useState<Record<number, string>>({})
   const [savingId, setSavingId] = useState<number | null>(null)
@@ -116,12 +118,13 @@ export function AdvancedSettings({
       onChange(settings.map((s) => (s.id === updated.id ? updated : s)))
       cancelEdit(id)
       showToast('Setting saved.', 'success')
+      router.refresh()
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'Failed to save', 'error')
     } finally {
       setSavingId(null)
     }
-  }, [editing, settings, onChange, cancelEdit, showToast])
+  }, [editing, settings, onChange, cancelEdit, showToast, router])
 
   const handleDelete = useCallback(async () => {
     if (!deleteTarget) return
@@ -129,12 +132,13 @@ export function AdvancedSettings({
       await onDelete(deleteTarget.id)
       onChange(settings.filter((s) => s.id !== deleteTarget.id))
       showToast('Setting deleted.', 'success')
+      router.refresh()
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'Delete failed', 'error')
     } finally {
       setDeleteTarget(null)
     }
-  }, [deleteTarget, onDelete, settings, onChange, showToast])
+  }, [deleteTarget, onDelete, settings, onChange, showToast, router])
 
   const handleAdd = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
@@ -150,12 +154,13 @@ export function AdvancedSettings({
       setNewValue('')
       setAdding(false)
       showToast('Setting added.', 'success')
+      router.refresh()
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'Failed to add', 'error')
     } finally {
       setBusy(false)
     }
-  }, [newKey, newValue, onChange, settings, showToast])
+  }, [newKey, newValue, onChange, settings, showToast, router])
 
   return (
     <>
@@ -174,8 +179,8 @@ export function AdvancedSettings({
 
         {adding && (
           <form onSubmit={handleAdd} className="grid gap-3 border-b border-border bg-muted/20 p-5 sm:grid-cols-[1fr_1fr_auto]">
-            <Input placeholder="setting.key" value={newKey} onChange={(e) => setNewKey(e.target.value)} disabled={busy} autoFocus />
-            <Input placeholder="value" value={newValue} onChange={(e) => setNewValue(e.target.value)} disabled={busy} />
+            <Input placeholder="site.browser_title" value={newKey} onChange={(e) => setNewKey(e.target.value)} disabled={busy} autoFocus />
+            <Input placeholder="NexaT" value={newValue} onChange={(e) => setNewValue(e.target.value)} disabled={busy} />
             <div className="flex gap-2">
               <Button type="submit" disabled={busy || !newKey.trim()}>
                 {busy && <Loader2 size={14} className="animate-spin" />} Add

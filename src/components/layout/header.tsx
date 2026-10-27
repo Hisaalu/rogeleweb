@@ -24,7 +24,7 @@ export function Header({
         <button
           type="button"
           onClick={onMenuClick}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-foreground transition hover:bg-muted lg:hidden"
+          className="flex h-10 w-10 shrink-0 items-center justify-center text-foreground transition hover:bg-muted lg:hidden"
           aria-label="Open menu"
         >
           <Menu size={24} />

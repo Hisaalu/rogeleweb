@@ -1,13 +1,21 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { getSessionUser } from '@/lib/auth'
+import { fetchPublicSettings } from '@/lib/settings.server.public'
 import { AdminShell } from './admin/admin-shell'
 
-export const metadata: Metadata = {
-  title: {
-    default: 'Admin',
-    template: '%s | Admin',
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await fetchPublicSettings()
+  
+  const customTitle = settings['site.browser_title']?.trim()
+  const siteTitle = customTitle || 'Admin'
+
+  return {
+    title: {
+      default: siteTitle,
+      template: `%s | ${siteTitle}`,
+    },
+  }
 }
 
 export default async function AdminGroupLayout({

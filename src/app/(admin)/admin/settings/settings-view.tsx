@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { Save, Settings as SettingsIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -71,6 +72,7 @@ const BrandingField = React.memo(function BrandingField({
 })
 
 export function SettingsView({ initialSettings }: { initialSettings: Setting[] }) {
+  const router = useRouter()
   const { showToast } = useToast()
   const [settings, setSettings] = useState<Setting[]>(initialSettings)
   const [saving, setSaving] = useState(false)
@@ -115,12 +117,13 @@ export function SettingsView({ initialSettings }: { initialSettings: Setting[] }
         }
       }
       showToast('Branding saved. Reload the page to see it everywhere.', 'success')
+      router.refresh()
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'Failed to save settings', 'error')
     } finally {
       setSaving(false)
     }
-  }, [brandingValues, findExisting, showToast])
+  }, [brandingValues, findExisting, showToast, router])
 
   return (
     <div className="space-y-6">
@@ -162,7 +165,7 @@ export function SettingsView({ initialSettings }: { initialSettings: Setting[] }
 
       <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-4 py-3 text-xs text-muted-foreground">
         <SettingsIcon size={14} />
-        The public config endpoint caches branding for 60 seconds. Changes appear everywhere after a short delay or a hard refresh.
+        The public config endpoint caches settings for 60 seconds. Changes appear everywhere after a short delay or a hard refresh.
       </div>
     </div>
   )

@@ -23,12 +23,13 @@ export function BrandLogo({
           alt={branding.schoolName}
           width={size}
           height={size}
-          className="rounded-lg object-contain"
+          className="shrink-0 object-contain"
           priority
+          unoptimized
         />
       ) : (
         <div
-          className="flex items-center justify-center rounded-lg font-bold text-white"
+          className="flex shrink-0 items-center justify-center font-bold text-white"
           style={{
             width: size,
             height: size,
