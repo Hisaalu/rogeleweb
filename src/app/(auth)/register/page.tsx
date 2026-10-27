@@ -1,10 +1,15 @@
 import type { Metadata } from 'next'
 import { serverApiRequest } from '@/lib/server-api'
+import { fetchPublicSettings } from '@/lib/settings.server.public'
 import type { Class } from '@/types/admin'
 import { RegisterForm } from './register-form'
 
-export const metadata: Metadata = {
-  title: 'Create Account',
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await fetchPublicSettings()
+  const customTitle = settings['site.browser_title']?.trim()
+  return {
+    title: customTitle ? `Create Account` : 'Create Account',
+  }
 }
 
 export default async function RegisterPage() {

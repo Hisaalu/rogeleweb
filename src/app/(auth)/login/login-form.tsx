@@ -9,6 +9,7 @@ import { z } from 'zod'
 
 import { BrandLogo } from '@/components/brand/brand-logo'
 import { useBranding } from '@/components/brand/brand-provider'
+import { useSettings } from '@/components/settings/settings-provider'
 import { useToast } from '@/components/ui/toast-provider'
 
 const schema = z.object({
@@ -23,9 +24,12 @@ export function LoginForm() {
   const params = useSearchParams()
   const nextPath = params.get('next')
   const branding = useBranding()
+  const { getSetting } = useSettings()
   const { showToast } = useToast()
 
   const [showPassword, setShowPassword] = useState(false)
+
+  const pageTitle = getSetting('site.browser_title') || branding.schoolName
 
   const {
     register,
@@ -70,11 +74,13 @@ export function LoginForm() {
     <div className="w-full space-y-6">
       <div className="flex flex-col items-center text-center">
         <BrandLogo size={150} showText={false} className="mb-4" />
+        
         <h1 className="text-2xl font-semibold text-foreground">
-          Login to {branding.schoolName}
+          Login to {pageTitle}
         </h1>
+        
         <p className="mt-1 text-sm text-muted-foreground">
-          {branding.tagline || 'Rays of Grace E-Learning'}
+          {branding.schoolName} {branding.tagline ? ` ${branding.tagline}` : ''}
         </p>
       </div>
 
