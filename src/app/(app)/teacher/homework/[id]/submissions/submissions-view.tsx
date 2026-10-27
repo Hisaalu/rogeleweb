@@ -75,7 +75,11 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
           <h1 className="mt-2 text-2xl font-bold text-foreground truncate max-w-full">Homework Submissions</h1>
           <p className="text-sm text-muted-foreground truncate max-w-full">{homework.title}</p>
         </div>
-        <button onClick={downloadCSV} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90" style={{ backgroundColor: 'var(--success-border)' }}>
+        <button 
+          onClick={downloadCSV} 
+          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90" 
+          style={{ backgroundColor: 'var(--success-border)' }}
+        >
           <Download size={15} /> Export Grades (CSV)
         </button>
       </div>
@@ -107,10 +111,13 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
                     <p className="text-sm text-muted-foreground">{sub.student_email || 'No email'}</p>
                   </div>
                   <div>
-                    <span className="rounded-full px-3 py-1 text-xs font-semibold" style={{
-                      backgroundColor: sub.status === 'graded' ? 'var(--success-bg)' : sub.status === 'late' ? 'var(--warning-bg)' : 'var(--brand-primary)',
-                      color: sub.status === 'graded' ? 'var(--success-fg)' : sub.status === 'late' ? 'var(--warning-fg)' : 'white'
-                    }}>
+                    <span 
+                      className="rounded-full px-3 py-1 text-xs font-semibold"
+                      style={{
+                        backgroundColor: sub.status === 'graded' ? 'var(--success-bg)' : sub.status === 'late' ? 'var(--warning-bg)' : 'var(--brand-primary)',
+                        color: sub.status === 'graded' ? 'var(--success-fg)' : sub.status === 'late' ? 'var(--warning-fg)' : 'white'
+                      }}
+                    >
                       {sub.status.charAt(0).toUpperCase() + sub.status.slice(1)}
                     </span>
                   </div>
@@ -150,7 +157,11 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-foreground">Grade: <span style={{ color: passed ? 'var(--success-fg)' : 'var(--danger-fg)' }}>{sub.grade}%</span></span>
                         </div>
-                        <button onClick={() => { setEditingId(sub.id); setGrades({...grades, [sub.id]: String(sub.grade)}); setFeedbacks({...feedbacks, [sub.id]: sub.feedback || ''}) }} className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition hover:opacity-80" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }}>
+                        <button 
+                          onClick={() => { setEditingId(sub.id); setGrades({...grades, [sub.id]: String(sub.grade)}); setFeedbacks({...feedbacks, [sub.id]: sub.feedback || ''}) }} 
+                          className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition hover:opacity-80" 
+                          style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }}
+                        >
                           <Edit2 size={12} /> Edit Grade
                         </button>
                       </div>
@@ -166,7 +177,12 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
                         <label className="mb-1 block text-xs font-semibold text-foreground">Feedback</label>
                         <textarea value={feedbacks[sub.id] || ''} onChange={e => setFeedbacks({...feedbacks, [sub.id]: e.target.value})} rows={2} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-brand-accent" placeholder="Provide feedback..." />
                       </div>
-                      <button onClick={() => handleGrade(sub.id)} disabled={busyId === sub.id} className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50" style={{ backgroundColor: 'var(--brand-primary)' }}>
+                      <button 
+                        onClick={() => handleGrade(sub.id)} 
+                        disabled={busyId === sub.id} 
+                        className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50" 
+                        style={{ backgroundColor: 'var(--brand-primary)' }}
+                      >
                         <Save size={14} /> {busyId === sub.id ? 'Saving...' : 'Save Grade'}
                       </button>
                     </div>
@@ -177,7 +193,6 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
           })}
         </div>
       )}
-      
     </div>
   )
 }
