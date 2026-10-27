@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog'
 import type { AccessReason } from '@/lib/access'
 
-export type GateContext = 'lesson' | 'quiz' | 'homework'
+export type GateContext = 'lesson' | 'quiz' | 'homework' | 'profile'
 
 interface GateCopy {
   title: string
@@ -71,6 +71,22 @@ const GATE_COPY: Record<GateContext, Record<GateReason, GateCopy>> = {
       dismissLabel: 'Maybe later',
     },
   },
+  profile: {
+    trial_expired: {
+      title: 'Unlock profile customization with Premium',
+      description:
+        'Upgrade to a premium plan to change your profile picture and personalize your account.',
+      upgradeLabel: 'Upgrade',
+      dismissLabel: 'Maybe later',
+    },
+    no_plan: {
+      title: 'Unlock profile customization with Premium',
+      description:
+        'Upgrade to a premium plan to change your profile picture and personalize your account.',
+      upgradeLabel: 'Upgrade',
+      dismissLabel: 'Maybe later',
+    },
+  },
 }
 
 const FALLBACK_COPY: Record<GateReason, GateCopy> = {
@@ -108,7 +124,12 @@ export function PremiumGate({
   className,
 }: PremiumGateProps) {
   const [dismissed, setDismissed] = useState(false)
-  const copy = GATE_COPY[context]?.[reason] ?? FALLBACK_COPY[reason]
+
+  // Safety: normalize the reason so it can never be 'ok' or undefined
+  const safeReason: GateReason =
+    reason === 'trial_expired' ? 'trial_expired' : 'no_plan'
+
+  const copy = GATE_COPY[context]?.[safeReason] ?? FALLBACK_COPY[safeReason]
 
   const isOpen = open && !dismissed
 
