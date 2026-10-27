@@ -14,6 +14,7 @@ export interface SessionUser {
   last_name?: string
   role: string
   class_id?: number | null
+  profile_photo?: string | null
 }
 
 export async function getAccessToken(): Promise<string | null> {

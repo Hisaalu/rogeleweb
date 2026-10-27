@@ -18,7 +18,8 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { BrandLogo } from '@/components/brand/brand-logo'
-import { cn } from '@/lib/utils'
+import { Avatar } from '@/components/ui/avatar'
+import { cn, getInitials } from '@/lib/utils'
 import type { SessionUser } from '@/lib/auth'
 
 interface NavItem {
@@ -53,7 +54,10 @@ export const Sidebar = memo(function Sidebar({ user }: { user: SessionUser }) {
   const pathname = usePathname()
   const router = useRouter()
   const items = user.role === 'teacher' ? TEACHER_NAV : LEARNER_NAV
-  const dashboardHref = user.role === 'teacher' ? '/teacher/dashboard' : '/learner/dashboard'
+
+  const fullName =
+    [user.first_name, user.last_name].filter(Boolean).join(' ') ||
+    user.email
 
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST' })
@@ -64,9 +68,7 @@ export const Sidebar = memo(function Sidebar({ user }: { user: SessionUser }) {
   return (
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-border bg-card lg:flex">
       <div className="flex h-[70px] shrink-0 items-center border-b border-border px-4">
-        <Link href={dashboardHref} className="transition-opacity hover:opacity-80" aria-label="Go to Dashboard">
-          <BrandLogo size={40} />
-        </Link>
+        <BrandLogo size={40} />
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-5">
@@ -78,17 +80,25 @@ export const Sidebar = memo(function Sidebar({ user }: { user: SessionUser }) {
       </nav>
 
       <div className="shrink-0 border-t border-border p-3">
+        <Link
+          href={`/${user.role}/profile`}
+          className="mb-2 flex items-center gap-3 rounded-lg px-2 py-2 transition hover:bg-muted"
+        >
+          <Avatar
+            src={user.profile_photo}
+            fallback={getInitials(fullName)}
+            size={32}
+          />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold text-foreground">{fullName}</p>
+            <p className="truncate text-xs capitalize text-muted-foreground">{user.role}</p>
+          </div>
+        </Link>
+
         <button
           type="button"
           onClick={handleLogout}
-          className="flex w-full items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold transition"
-          style={{ color: 'var(--danger-fg)' }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--danger-bg)'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent'
-          }}
+          className="flex w-full items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold text-danger-fg transition hover:bg-danger-bg"
         >
           <LogOut size={18} className="shrink-0" />
           <span className="truncate">Logout</span>

@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { LogOut, User as UserIcon, Settings, Moon, Sun } from 'lucide-react'
-import { getInitials } from '@/lib/utils'
 import { useTheme } from '@/components/theme-provider'
+import { Avatar } from '@/components/ui/avatar'
+import { getInitials } from '@/lib/utils'
 import type { SessionUser } from '@/lib/auth'
 
 export function UserMenu({ user }: { user?: SessionUser | null }) {
@@ -18,7 +19,9 @@ export function UserMenu({ user }: { user?: SessionUser | null }) {
     if (!open) return
 
     function onPointerDown(e: PointerEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
     }
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') setOpen(false)
@@ -32,29 +35,25 @@ export function UserMenu({ user }: { user?: SessionUser | null }) {
     }
   }, [open])
 
-  const { fullName, rolePath } = useMemo(() => {
-    const safeUser = user ?? { id: 0, email: '', role: 'learner' as const }
-    const name = [safeUser.first_name, safeUser.last_name].filter(Boolean).join(' ') || safeUser.email || 'User'
-    
-    let path = '/learner'
-    if (safeUser.role === 'admin') path = '/admin'
-    else if (safeUser.role === 'teacher') path = '/teacher'
-    
-    return { fullName: name, rolePath: path }
-  }, [user])
+  const safeUser = user ?? { id: 0, email: '', role: 'learner' }
+  const fullName =
+    [safeUser.first_name, safeUser.last_name].filter(Boolean).join(' ') ||
+    safeUser.email ||
+    'User'
 
+  const rolePath = safeUser.role === 'teacher' ? '/teacher' : '/learner'
   const isDark = resolvedTheme === 'dark'
 
-  const toggleTheme = useCallback(() => {
+  function toggleTheme() {
     setTheme(isDark ? 'light' : 'dark')
     setOpen(false)
-  }, [isDark, setTheme])
+  }
 
-  const handleLogout = useCallback(async () => {
+  async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST' })
     router.replace('/login')
     router.refresh()
-  }, [router])
+  }
 
   return (
     <div className="relative" ref={ref}>
@@ -64,10 +63,14 @@ export function UserMenu({ user }: { user?: SessionUser | null }) {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label="Account menu"
-        className="flex h-9 w-9 items-center justify-center rounded-full text-xs font-semibold text-white transition hover:scale-105 hover:shadow-md sm:h-10 sm:w-10 sm:text-sm"
-        style={{ backgroundColor: 'var(--brand-accent)' }}
+        className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full transition hover:scale-105 hover:shadow-md sm:h-10 sm:w-10"
       >
-        {getInitials(fullName)}
+        <Avatar
+          src={safeUser.profile_photo}
+          fallback={getInitials(fullName)}
+          size={36}
+          className="sm:h-10 sm:w-10"
+        />
       </button>
 
       {open && (
@@ -77,7 +80,7 @@ export function UserMenu({ user }: { user?: SessionUser | null }) {
         >
           <div className="border-b border-border bg-muted/30 px-4 py-3">
             <p className="truncate text-sm font-bold text-foreground">{fullName}</p>
-            <p className="truncate text-xs text-muted-foreground">{user?.email ?? ''}</p>
+            <p className="truncate text-xs text-muted-foreground">{safeUser.email}</p>
           </div>
 
           <div className="p-1">
@@ -124,14 +127,7 @@ export function UserMenu({ user }: { user?: SessionUser | null }) {
               type="button"
               onClick={handleLogout}
               role="menuitem"
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-bold transition"
-              style={{ color: 'var(--danger-fg)' }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'var(--danger-bg)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent'
-              }}
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-bold text-danger-fg transition hover:bg-danger-bg"
             >
               <LogOut size={16} />
               Logout

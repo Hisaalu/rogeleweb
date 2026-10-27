@@ -19,6 +19,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { getInitials, cn } from '@/lib/utils'
+import { Avatar } from '@/components/ui/avatar'
 import type { SessionUser } from '@/lib/auth'
 
 interface NavItem {
@@ -98,6 +99,7 @@ export function MobileMenu({
 
   return (
     <div className="fixed inset-0 z-[60] lg:hidden">
+      {/* Backdrop */}
       <div
         className={cn(
           'absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-200',
@@ -107,6 +109,7 @@ export function MobileMenu({
         aria-hidden="true"
       />
 
+      {/* Drawer */}
       <aside
         role="dialog"
         aria-modal="true"
@@ -116,27 +119,33 @@ export function MobileMenu({
           visible ? 'translate-x-0' : 'translate-x-full',
         )}
       >
+        {/* Header with avatar */}
         <div
-          className="relative px-5 py-5 sm:px-6 sm:py-6"
+          className="relative overflow-hidden px-5 py-6 sm:px-6 sm:py-8"
           style={{ backgroundColor: 'var(--brand-primary)' }}
         >
+          {/* Close button */}
           <button
             ref={closeRef}
             type="button"
             onClick={onClose}
             aria-label="Close menu"
-            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center bg-white/20 text-white transition hover:bg-white/30"
+            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white transition hover:rotate-90 hover:bg-white/30"
           >
             <X size={20} />
           </button>
 
-          <div className="mt-7 flex items-center gap-3 sm:mt-8 sm:gap-4">
-            {/* Removed rounded-full here to make the avatar square */}
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center border-2 border-white bg-white/20 text-base font-semibold text-white sm:h-14 sm:w-14 sm:text-lg">
-              {getInitials(fullName)}
+          {/* User block */}
+          <div className="mt-6 flex items-center gap-4">
+            <div className="shrink-0 rounded-full ring-2 ring-white/40 ring-offset-2 ring-offset-transparent">
+              <Avatar
+                src={user.profile_photo}
+                fallback={getInitials(fullName)}
+                size={56}
+              />
             </div>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-white sm:text-base">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-base font-semibold text-white">
                 {fullName}
               </p>
               <p className="truncate text-xs capitalize text-white/80">
@@ -146,6 +155,7 @@ export function MobileMenu({
           </div>
         </div>
 
+        {/* Nav list */}
         <nav className="flex-1 overflow-y-auto p-3 sm:p-4">
           <ul className="space-y-0.5 sm:space-y-1">
             {items.map((item) => {
@@ -159,8 +169,7 @@ export function MobileMenu({
                     onClick={onClose}
                     aria-current={active ? 'page' : undefined}
                     className={cn(
-                      // Removed rounded-xl here to make links square
-                      'flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition sm:py-3',
+                      'flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition sm:py-3',
                       active
                         ? 'nav-active font-semibold'
                         : 'text-foreground hover:bg-muted',
@@ -179,7 +188,7 @@ export function MobileMenu({
               <button
                 type="button"
                 onClick={handleLogout}
-                className="flex w-full items-center gap-3 px-4 py-2.5 text-sm font-semibold transition hover:bg-muted sm:py-3"
+                className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-semibold transition hover:bg-muted sm:py-3"
                 style={{ color: 'var(--danger-fg)' }}
               >
                 <LogOut size={18} />
