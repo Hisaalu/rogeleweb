@@ -177,7 +177,7 @@ export function RegisterForm({ classes }: { classes: Class[] }) {
                 <Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <input
                   type="tel"
-                  placeholder="Phone number (Optional)"
+                  placeholder="700000000"
                   maxLength={9}
                   {...phoneRegister}
                   className="w-full rounded-lg border border-input bg-background pl-9 pr-4 py-3 text-sm outline-none transition focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/20"
@@ -194,7 +194,7 @@ export function RegisterForm({ classes }: { classes: Class[] }) {
                 {...register('class_id')}
                 className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm outline-none transition focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/20 appearance-none"
               >
-                <option value="">Select Class/Club (Optional)</option>
+                <option value="">Pick Class/Club</option>
                 {classes.length === 0 ? (
                   <option value="" disabled>No classes available</option>
                 ) : (
@@ -212,7 +212,7 @@ export function RegisterForm({ classes }: { classes: Class[] }) {
               <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <input
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Password (min 8 characters)"
+                placeholder="Set Password"
                 autoComplete="new-password"
                 {...register('password')}
                 className="w-full rounded-lg border border-input bg-background pl-9 pr-12 py-3 text-sm outline-none transition focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/20"
@@ -249,11 +249,15 @@ export function RegisterForm({ classes }: { classes: Class[] }) {
             {errors.confirm_password && <p className="text-xs text-danger-fg">{errors.confirm_password.message}</p>}
           </div>
           
-          <div className="pt-2 text-center text-xs text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis">
+          <div className="pt-2 text-center text-xs text-muted-foreground">
             By continuing, you agree to our{' '}
-            <Link href="/terms-of-service" target="_blank" className="text-brand-primary hover:underline font-medium">Terms</Link>{' '}
+            <Link href="/terms-of-service" target="_blank" className="text-brand-primary hover:underline font-medium">
+              Terms
+            </Link>{' '}
             &{' '}
-            <Link href="/privacy-policy" target="_blank" className="text-brand-primary hover:underline font-medium">Privacy Policy</Link>.
+            <Link href="/privacy-policy" target="_blank" className="text-brand-primary hover:underline font-medium">
+              Policy
+            </Link>.
           </div>
 
           <Button
