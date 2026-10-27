@@ -41,6 +41,7 @@ export async function uploadAvatarClient(file: File): Promise<void> {
       file_name: file.name,
       content_type: file.type || 'image/jpeg',
       size: file.size,
+      prefix: 'uploads/avatars',
     }),
   })
 
