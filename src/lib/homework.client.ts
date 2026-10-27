@@ -35,6 +35,18 @@ async function proxyJson<T>(path: string, init: RequestInit = {}): Promise<T> {
   return data as T
 }
 
+async function presignUpload(file: File, prefix: string): Promise<{ upload_url: string; public_url: string }> {
+  return proxyJson<{ upload_url: string; public_url: string }>('/uploads/presign', {
+    method: 'POST',
+    body: JSON.stringify({
+      file_name: file.name,
+      content_type: file.type || 'application/octet-stream',
+      size: file.size,
+      prefix,
+    }),
+  })
+}
+
 export async function createHomeworkClient(payload: Partial<Homework>): Promise<Homework> {
   return proxyJson<Homework>('/homework', {
     method: 'POST',
@@ -61,14 +73,7 @@ export async function toggleSubmissionsClient(id: number, is_active: boolean): P
 }
 
 export async function addHomeworkAttachmentClient(homeworkId: number, file: File): Promise<HomeworkAttachment> {
-  const presign = await proxyJson<{ upload_url: string; public_url: string }>('/uploads/presign', {
-    method: 'POST',
-    body: JSON.stringify({
-      file_name: file.name,
-      content_type: file.type || 'application/octet-stream',
-      size: file.size,
-    }),
-  })
+  const presign = await presignUpload(file, 'uploads/homework')
 
   const uploadRes = await fetch(presign.upload_url, {
     method: 'PUT',
@@ -105,14 +110,7 @@ export async function submitHomeworkClient(homeworkId: number, textAnswer: strin
   })
 
   for (const file of files) {
-    const presign = await proxyJson<{ upload_url: string; public_url: string }>('/uploads/presign', {
-      method: 'POST',
-      body: JSON.stringify({
-        file_name: file.name,
-        content_type: file.type || 'application/octet-stream',
-        size: file.size,
-      }),
-    })
+    const presign = await presignUpload(file, 'uploads/submissions')
 
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 15000)
