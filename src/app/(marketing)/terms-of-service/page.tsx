@@ -1,13 +1,25 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { FileText } from 'lucide-react'
+import { fetchPublicSettings } from '@/lib/settings.server.public'
 
-export const metadata: Metadata = {
-  title: 'Terms of Service | ROGELE',
-  description: 'Read the terms and conditions for using the ROGELE platform.',
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await fetchPublicSettings()
+  const siteTitle = settings['site.browser_title'] || 'NexaT'
+  return {
+    title: `Terms of Service | ${siteTitle}`,
+    description: `Read the terms and conditions for using the ${siteTitle} platform.`,
+  }
 }
 
-export default function TermsOfServicePage() {
+export default async function TermsOfServicePage() {
+  const settings = await fetchPublicSettings()
+  const siteTitle = settings['site.browser_title']?.trim() || 'NexaT'
+  const schoolName = settings['branding.school_name']?.trim() || siteTitle
+  const contactEmail = settings['contact.email'] || 'info@raysofgrace.ac.ug'
+  const contactPhone = settings['contact.phone'] || '+256 786 764 239'
+  const contactAddress = settings['contact.address'] || 'Njeru, Uganda'
+
   return (
     <div className="mx-auto max-w-4xl space-y-8 px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
       
@@ -28,7 +40,7 @@ export default function TermsOfServicePage() {
         <section id="acceptance" className="scroll-mt-24 space-y-4">
           <h2 className="text-xl font-bold text-foreground sm:text-2xl">1. Acceptance of Terms</h2>
           <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
-            By accessing or using ROGELE ("Rays of Grace E-Learning Environment"), you agree to be bound by these Terms of Service. 
+            By accessing or using <Link href="/" className="font-semibold text-brand-primary hover:underline">{schoolName}</Link> ("{siteTitle}"), you agree to be bound by these Terms of Service. 
             If you do not agree to these terms, please do not use our platform.
           </p>
           <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
@@ -42,7 +54,8 @@ export default function TermsOfServicePage() {
         <section id="description" className="scroll-mt-24 space-y-4">
           <h2 className="text-xl font-bold text-foreground sm:text-2xl">2. Description of Service</h2>
           <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
-            Rays of Grace Junior School provides an online learning platform that allows users to access educational content, 
+            <Link href="/" className="font-semibold text-brand-primary hover:underline">{schoolName}</Link>{' '}
+            provides an online learning platform that allows users to access educational content, 
             take quizzes, submit homework, track progress, and interact with teachers.
           </p>
         </section>
@@ -96,7 +109,7 @@ export default function TermsOfServicePage() {
         <section id="ownership" className="scroll-mt-24 space-y-4">
           <h2 className="text-xl font-bold text-foreground sm:text-2xl">6. Content Ownership</h2>
           <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
-            All content provided on the platform, including lessons, text, graphics, logos, and software, is the property of Rays of Grace Junior School 
+            All content provided on the platform, including lessons, text, graphics, logos, and software, is the property of <Link href="/" className="font-semibold text-brand-primary hover:underline">{schoolName}</Link>{' '}
             and is protected by copyright laws. You may not reproduce or distribute it without explicit permission.
           </p>
           <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
@@ -115,7 +128,8 @@ export default function TermsOfServicePage() {
         <section id="liability" className="scroll-mt-24 space-y-4">
           <h2 className="text-xl font-bold text-foreground sm:text-2xl">8. Limitation of Liability</h2>
           <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
-            To the maximum extent permitted by law, ROGELE shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the platform. 
+            To the maximum extent permitted by law, <Link href="/" className="font-semibold text-brand-primary hover:underline">{siteTitle}</Link>{' '}
+            shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the platform. 
             Our total liability shall not exceed the amount paid by you for using the platform during the twelve months preceding the claim.
           </p>
         </section>
@@ -134,9 +148,9 @@ export default function TermsOfServicePage() {
             For questions about these terms, please visit our <Link href="/contact" className="font-semibold text-brand-primary hover:underline">Contact Page</Link> or reach us directly:
           </p>
           <ul className="space-y-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
-            <li><strong className="text-foreground">Email:</strong> <a href="mailto:info@raysofgrace.ac.ug" className="text-brand-primary hover:underline">info@raysofgrace.ac.ug</a></li>
-            <li><strong className="text-foreground">Phone:</strong> +256 786 764 239</li>
-            <li><strong className="text-foreground">Address:</strong> Njeru, Uganda</li>
+            <li><strong className="text-foreground">Email:</strong> <a href={`mailto:${contactEmail}`} className="text-brand-primary hover:underline">{contactEmail}</a></li>
+            <li><strong className="text-foreground">Phone:</strong> {contactPhone}</li>
+            <li><strong className="text-foreground">Address:</strong> {contactAddress}</li>
           </ul>
         </section>
 

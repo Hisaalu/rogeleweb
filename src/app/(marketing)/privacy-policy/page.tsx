@@ -1,13 +1,25 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ShieldAlert } from 'lucide-react'
+import { fetchPublicSettings } from '@/lib/settings.server.public'
 
-export const metadata: Metadata = {
-  title: 'Privacy Policy | ROGELE',
-  description: 'Learn how we collect, use, and protect your personal data.',
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await fetchPublicSettings()
+  const siteTitle = settings['site.browser_title'] || 'NexaT'
+  return {
+    title: `Privacy Policy | ${siteTitle}`,
+    description: `Learn how ${siteTitle} collects, uses, and protects your personal data.`,
+  }
 }
 
-export default function PrivacyPolicyPage() {
+export default async function PrivacyPolicyPage() {
+  const settings = await fetchPublicSettings()
+  const siteTitle = settings['site.browser_title']?.trim() || 'NexaT'
+  const schoolName = settings['branding.school_name']?.trim() || siteTitle
+  const contactEmail = settings['contact.email'] || 'info@raysofgrace.ac.ug'
+  const contactPhone = settings['contact.phone'] || '+256 786 764 239'
+  const contactAddress = settings['contact.address'] || 'Njeru, Uganda'
+
   return (
     <div className="mx-auto max-w-4xl space-y-8 px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
       
@@ -28,7 +40,8 @@ export default function PrivacyPolicyPage() {
         <section id="introduction" className="scroll-mt-24 space-y-4">
           <h2 className="text-xl font-bold text-foreground sm:text-2xl">1. Introduction</h2>
           <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
-            Rays of Grace Junior School respects your privacy and is committed to protecting your personal data. 
+            <Link href="/" className="font-semibold text-brand-primary hover:underline">{schoolName}</Link>{' '}
+            respects your privacy and is committed to protecting your personal data. 
             This privacy policy explains how we collect, use, disclose, and safeguard your information when you use our e-learning platform.
           </p>
           <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
@@ -132,7 +145,7 @@ export default function PrivacyPolicyPage() {
             <li>Request a copy of your data in a machine-readable format</li>
           </ul>
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
-            To exercise these rights, contact us at <a href="mailto:info@raysofgrace.ac.ug" className="font-semibold text-brand-primary hover:underline">info@raysofgrace.ac.ug</a>.
+            To exercise these rights, contact us at <a href={`mailto:${contactEmail}`} className="font-semibold text-brand-primary hover:underline">{contactEmail}</a>.
           </p>
         </section>
 
@@ -168,9 +181,9 @@ export default function PrivacyPolicyPage() {
             <Link href="/contact" className="font-semibold text-brand-primary hover:underline">Contact Page</Link> or reach us directly:
           </p>
           <ul className="space-y-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
-            <li><strong className="text-foreground">Email:</strong> <a href="mailto:info@raysofgrace.ac.ug" className="text-brand-primary hover:underline">info@raysofgrace.ac.ug</a></li>
-            <li><strong className="text-foreground">Phone:</strong> +256 786 764 239</li>
-            <li><strong className="text-foreground">Address:</strong> Njeru, Uganda</li>
+            <li><strong className="text-foreground">Email:</strong> <a href={`mailto:${contactEmail}`} className="text-brand-primary hover:underline">{contactEmail}</a></li>
+            <li><strong className="text-foreground">Phone:</strong> {contactPhone}</li>
+            <li><strong className="text-foreground">Address:</strong> {contactAddress}</li>
           </ul>
         </section>
 
