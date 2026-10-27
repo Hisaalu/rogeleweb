@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Menu, X, Fingerprint, UserPlus, Home, Info, Tags, Mail, Sun, Moon } from 'lucide-react'
 import { useBranding } from '@/components/brand/brand-provider'
 import { useTheme } from '@/components/theme-provider'
@@ -13,6 +13,7 @@ export function PublicHeader() {
   const [currentHash, setCurrentHash] = useState('')
   const branding = useBranding()
   const pathname = usePathname()
+  const router = useRouter()
   const { resolvedTheme, setTheme } = useTheme()
 
   const isDark = resolvedTheme === 'dark'
@@ -53,10 +54,28 @@ export function PublicHeader() {
     { name: 'Contact', href: '/contact', icon: Mail },
   ]
 
-  const handleNavClick = (href: string) => {
+  const handleNavClick = (href: string, e?: React.MouseEvent) => {
     setIsOpen(false)
+
+    // If it's a hash link, handle navigation properly
     if (href.startsWith('/#')) {
-      setCurrentHash(href.replace('/', ''))
+      e?.preventDefault()
+      
+      const hash = href.replace('/', '')
+      
+      // If we're already on the homepage, just scroll to the section
+      if (pathname === '/') {
+        const el = document.getElementById(hash.replace('#', ''))
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          window.history.replaceState(null, '', hash)
+          setCurrentHash(hash)
+        }
+      } else {
+        // We're on a different page — navigate to homepage, then scroll
+        router.push(`/${hash}`)
+        setCurrentHash(hash)
+      }
     } else {
       setCurrentHash('')
     }
@@ -67,8 +86,7 @@ export function PublicHeader() {
       <header className="sticky top-0 z-40 w-full border-b border-border bg-background">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           
-          <Link href="/" onClick={() => handleNavClick('/')} className="flex items-center gap-3">
-            {/* Sharp logo container - no rounded-lg, no overflow-hidden */}
+          <Link href="/" onClick={(e) => handleNavClick('/', e)} className="flex items-center gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center">
               {branding.logoUrl ? (
                 <Image
@@ -110,8 +128,8 @@ export function PublicHeader() {
                 return (
                   <a 
                     key={link.name}
-                    href={link.href.replace('/', '')}
-                    onClick={() => handleNavClick(link.href)}
+                    href={link.href}
+                    onClick={(e) => handleNavClick(link.href, e)}
                     className={`flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-brand-accent ${
                       active ? 'text-brand-accent' : 'text-foreground'
                     }`}
@@ -125,7 +143,7 @@ export function PublicHeader() {
                 <Link 
                   key={link.name}
                   href={link.href} 
-                  onClick={() => handleNavClick(link.href)}
+                  onClick={(e) => handleNavClick(link.href, e)}
                   className={`flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-brand-accent ${
                     active ? 'text-brand-accent' : 'text-foreground'
                   }`}
@@ -219,8 +237,8 @@ export function PublicHeader() {
                   return (
                     <a 
                       key={link.name}
-                      href={link.href.replace('/', '')}
-                      onClick={() => handleNavClick(link.href)}
+                      href={link.href}
+                      onClick={(e) => handleNavClick(link.href, e)}
                       className={`flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium transition-colors ${
                         active ? 'bg-brand-accent/10 text-brand-accent' : 'hover:bg-muted text-foreground'
                       }`}
@@ -234,7 +252,7 @@ export function PublicHeader() {
                   <Link 
                     key={link.name}
                     href={link.href} 
-                    onClick={() => handleNavClick(link.href)}
+                    onClick={(e) => handleNavClick(link.href, e)}
                     className={`flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium transition-colors ${
                       active ? 'bg-brand-accent/10 text-brand-accent' : 'hover:bg-muted text-foreground'
                     }`}

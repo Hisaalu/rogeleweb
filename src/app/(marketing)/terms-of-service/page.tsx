@@ -7,7 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const settings = await fetchPublicSettings()
   const siteTitle = settings['site.browser_title'] || 'NexaT'
   return {
-    title: `Terms of Service | ${siteTitle}`,
+    title: `Terms of Service`,
     description: `Read the terms and conditions for using the ${siteTitle} platform.`,
   }
 }
