@@ -1,19 +1,18 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Bell } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { Bell, Check, X } from 'lucide-react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  getUnreadCountClient,
   listNotificationsClient,
+  getUnreadCountClient,
   markAllNotificationsReadClient,
   markNotificationReadClient,
 } from '@/lib/notifications.client'
-import type { Notification } from '@/types/notification'
+import { cn } from '@/lib/utils'
 import { NotificationList } from './notification-list'
-
-const POLL_MS = 30_000
 
 export function NotificationBell({
   compact = false,
@@ -23,148 +22,155 @@ export function NotificationBell({
   viewAllHref?: string
 }) {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
-  const [unread, setUnread] = useState(0)
-  const [notifications, setNotifications] = useState<Notification[]>([])
-  const [loading, setLoading] = useState(false)
-  const [markingAll, setMarkingAll] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
-  const refreshCount = useCallback(async () => {
-    try {
-      const count = await getUnreadCountClient()
-      setUnread(count)
-    } catch {
-      // silently ignore
-    }
-  }, [])
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: ['notifications', 'unread-count'],
+    queryFn: getUnreadCountClient,
+    refetchInterval: 30_000,
+    staleTime: 10_000,
+  })
 
-  const loadRecent = useCallback(async () => {
-    setLoading(true)
-    try {
-      const items = await listNotificationsClient({ per_page: 10 })
-      setNotifications(items)
-    } catch {
-      setNotifications([])
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+  const { data: notifications = [], isLoading } = useQuery({
+    queryKey: ['notifications', 'preview'],
+    queryFn: () => listNotificationsClient({ per_page: 10 }),
+    enabled: open,
+    staleTime: 10_000,
+  })
+
+  const markAllMutation = useMutation({
+    mutationFn: markAllNotificationsReadClient,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] })
+    },
+  })
+
+  const markOneMutation = useMutation({
+    mutationFn: markNotificationReadClient,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] })
+    },
+  })
 
   useEffect(() => {
-    void refreshCount()
-    const interval = setInterval(refreshCount, POLL_MS)
-    return () => clearInterval(interval)
-  }, [refreshCount])
-
-  useEffect(() => {
-    function onDocClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener('mousedown', onDocClick)
-    return () => document.removeEventListener('mousedown', onDocClick)
-  }, [])
-
-  function toggleOpen() {
-    const next = !open
-    setOpen(next)
-    if (next) void loadRecent()
-  }
-
-  async function handleItemClick(n: Notification) {
-    if (!n.is_read) {
-      try {
-        await markNotificationReadClient(n.id)
-        setNotifications((list) =>
-          list.map((x) => (x.id === n.id ? { ...x, is_read: true } : x)),
-        )
-        setUnread((c) => Math.max(0, c - 1))
-      } catch {
-        // ignore
+    if (!open) return
+    function onPointerDown(e: PointerEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false)
       }
     }
-    setOpen(false)
-  }
-
-  async function handleMarkAll() {
-    setMarkingAll(true)
-    try {
-      await markAllNotificationsReadClient()
-      setNotifications((list) => list.map((n) => ({ ...n, is_read: true })))
-      await refreshCount()
-    } finally {
-      setMarkingAll(false)
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false)
     }
-  }
+    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
 
-  function handleViewAll() {
+  async function handleNotificationClick(notification: any) {
+    if (!notification.is_read) {
+      markOneMutation.mutate(notification.id)
+    }
     setOpen(false)
-    router.push(viewAllHref)
+    if (notification.link) {
+      router.push(notification.link)
+    }
   }
 
   return (
     <div className="relative" ref={ref}>
       <button
         type="button"
-        onClick={toggleOpen}
+        onClick={() => setOpen((o) => !o)}
         aria-label="Notifications"
+        aria-expanded={open}
         className={cn(
-          'relative flex h-9 items-center justify-center rounded-full border border-border bg-card text-foreground transition hover:border-brand-accent',
-          compact ? 'w-9' : 'gap-2 px-3',
+          'relative flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground sm:h-10 sm:w-10',
+          compact && 'h-8 w-8 sm:h-9 sm:w-9',
         )}
       >
-        <Bell size={15} />
-        {!compact && <span className="text-xs font-medium">Notifications</span>}
-        {unread > 0 && (
-          <span
-            className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-semibold text-white"
-            style={{ backgroundColor: 'var(--brand-accent)' }}
-          >
-            {unread > 99 ? '99+' : unread}
+        <Bell size={compact ? 18 : 20} />
+        {unreadCount > 0 && (
+          <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger-fg px-1 text-[10px] font-bold text-white ring-2 ring-background">
+            {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-[340px] overflow-hidden rounded-xl border border-border bg-card shadow-lg sm:w-[400px]">
-          <header className="flex items-center justify-between border-b border-border px-4 py-3">
-            <h3 className="text-sm font-semibold">Notifications</h3>
-            {notifications.some((n) => !n.is_read) && (
-              <button
-                type="button"
-                onClick={handleMarkAll}
-                disabled={markingAll}
-                className="text-xs font-medium text-brand-primary transition hover:underline disabled:opacity-50"
-              >
-                {markingAll ? 'Marking...' : 'Mark all read'}
-              </button>
-            )}
-          </header>
+        <>
+          <div 
+            className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm sm:hidden" 
+            onClick={() => setOpen(false)} 
+          />
 
-          <div className="max-h-[420px] overflow-y-auto">
-            {loading ? (
-              <div className="px-4 py-8 text-center text-sm text-muted-foreground">
-                Loading...
+          <div
+            role="menu"
+            className={cn(
+              'fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] flex-col rounded-t-2xl border-t border-border bg-card shadow-2xl',
+              'sm:absolute sm:inset-auto sm:right-0 sm:top-full sm:mt-2 sm:w-[360px] sm:max-w-[calc(100vw-2rem)] sm:rounded-2xl sm:border',
+            )}
+          >
+            <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3 sm:px-5 sm:py-4">
+              <h3 className="font-semibold text-foreground">Notifications</h3>
+              <div className="flex items-center gap-2">
+                {unreadCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => markAllMutation.mutate()}
+                    disabled={markAllMutation.isPending}
+                    className="flex items-center gap-1 text-xs font-medium text-brand-primary hover:underline disabled:opacity-50"
+                  >
+                    <Check size={12} />
+                    Mark all read
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="ml-2 flex h-6 w-6 items-center justify-center rounded-full bg-muted text-muted-foreground sm:hidden"
+                >
+                  <X size={14} />
+                </button>
               </div>
-            ) : (
-              <NotificationList
-                notifications={notifications}
-                onItemClick={handleItemClick}
-                compact
-              />
-            )}
-          </div>
+            </div>
 
-          <footer className="border-t border-border bg-muted/30 px-4 py-2.5">
-            <button
-              type="button"
-              onClick={handleViewAll}
-              className="w-full text-center text-xs font-medium text-brand-primary transition hover:underline"
-            >
-              View all notifications
-            </button>
-          </footer>
-        </div>
+            <div className="flex-1 overflow-y-auto overscroll-contain">
+              {isLoading ? (
+                <div className="p-6 text-center text-sm text-muted-foreground">
+                  Loading...
+                </div>
+              ) : notifications.length === 0 ? (
+                <div className="p-10 text-center text-sm text-muted-foreground">
+                  No notifications yet.
+                </div>
+              ) : (
+                <NotificationList
+                  notifications={notifications}
+                  onItemClick={handleNotificationClick}
+                  compact
+                />
+              )}
+            </div>
+
+            <div className="shrink-0 border-t border-border p-3 sm:p-2">
+              <Link
+                href={viewAllHref}
+                onClick={() => setOpen(false)}
+                className="block w-full rounded-lg py-2 text-center text-sm font-medium text-brand-primary transition hover:bg-muted"
+              >
+                View all notifications
+              </Link>
+            </div>
+          </div>
+        </>
       )}
     </div>
   )
