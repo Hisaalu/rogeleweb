@@ -75,13 +75,14 @@ interface PresignResponse {
   public_url: string
 }
 
-async function presignUpload(file: File): Promise<PresignResponse> {
+async function presignUpload(file: File, prefix: string): Promise<PresignResponse> {
   return proxyJson<PresignResponse>('/uploads/presign', {
     method: 'POST',
     body: JSON.stringify({
       file_name: file.name,
       content_type: file.type || 'application/octet-stream',
       size: file.size,
+      prefix,
     }),
   })
 }
@@ -101,7 +102,7 @@ export async function addMaterialFromFile(
   lessonId: number,
   file: File,
 ): Promise<LessonMaterial> {
-  const presign = await presignUpload(file)
+  const presign = await presignUpload(file, 'uploads/lessons')
   await putToR2(presign.upload_url, file)
   return proxyJson<LessonMaterial>(`/lessons/${lessonId}/materials`, {
     method: 'POST',
