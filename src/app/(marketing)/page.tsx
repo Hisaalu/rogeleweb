@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { getHomePageData } from '@/lib/home.server'
+import { fetchPublicSettings } from '@/lib/settings.server.public'
 import { PlanCard } from '@/components/subscription/plan-card'
 import {
   ArrowRight,
@@ -15,10 +16,14 @@ import {
   ChevronDown,
 } from 'lucide-react'
 
-export const metadata: Metadata = {
-  title: 'Quality Education For Every Child',
-  description:
-    'Join our innovative Rays of Grace E-Learning Environment. Interactive lessons, smart quizzes, and progress tracking.',
+export const dynamic = 'force-dynamic'
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: 'Home',
+    description:
+      'Join our innovative E-learning Environment. Interactive lessons, smart quizzes, and progress tracking.',
+  }
 }
 
 const STEPS = [
@@ -57,37 +62,26 @@ const FEATURES = [
   },
 ] as const
 
-const FAQS = [
-  {
-    q: 'How does the free trial work?',
-    a: 'When you sign up for a new account, you automatically receive complimentary full access to all features, including interactive lessons and quizzes.',
-  },
-  {
-    q: 'Can I switch subscription plans later?',
-    a: 'Yes, you can upgrade or change your plan at any time. Simply visit the subscriptions page from your dashboard and select the plan that best fits your needs.',
-  },
-  {
-    q: 'Can I access ROGELE on mobile phones?',
-    a: 'ROGELE is fully responsive and optimized for all web browsers, smartphones, tablets, and computers.',
-  },
-  {
-    q: 'How do parents and teachers track student progress?',
-    a: 'Our built-in analytics dashboard automatically records quiz scores, homework completion rates, and lesson activities.',
-  },
-] as const
-
 const eyebrowStyle = {
   backgroundColor: 'color-mix(in srgb, var(--brand-accent) 10%, transparent)',
   color: 'var(--brand-accent)',
 } as const
 
 export default async function HomePage() {
-  const { plans, classes, stats } = await getHomePageData()
+  const [data, settings] = await Promise.all([
+    getHomePageData(),
+    fetchPublicSettings(),
+  ])
+
+  const { plans, classes, stats } = data
+
+  const siteTitle = settings['site.browser_title']?.trim() || 'NexaT'
+  const schoolName = settings['branding.school_name']?.trim() || siteTitle
 
   const firstClass = classes[0]?.name ?? 'Primary 1'
-  const lastClass = classes[classes.length - 1]?.name ?? 'Primary 7'
+  const lastClass = classes[classes.length - 1]?.name ?? 'Class A'
   const classRange =
-    classes.length > 0 ? `${firstClass} to ${lastClass}` : 'Primary 1 to Primary 7'
+    classes.length > 0 ? `${firstClass} to ${lastClass}` : 'Class Z'
 
   const recommendedId =
     plans.length >= 2 ? plans[Math.floor(plans.length / 2)].id : null
@@ -106,7 +100,7 @@ export default async function HomePage() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
                 </span>
-                Welcome to ROGELE
+                Welcome to {siteTitle}
               </div>
 
               <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
@@ -117,7 +111,7 @@ export default async function HomePage() {
               </h1>
 
               <p className="mt-6 max-w-lg text-lg text-white/90">
-                Join our innovative Rays of Grace E-Learning Environment from {classRange}.
+                Join our innovative {schoolName} E-Learning Environment from {classRange}.
                 Interactive lessons, smart quizzes, and progress tracking all in one place.
               </p>
 
@@ -152,7 +146,7 @@ export default async function HomePage() {
               <div className="relative rounded-3xl bg-white/10 p-4 backdrop-blur-sm sm:p-8">
                 <Image
                   src="/images/logo.jpg"
-                  alt="ROGELE Logo"
+                  alt={`${schoolName} Logo`}
                   width={320}
                   height={320}
                   priority
@@ -207,7 +201,7 @@ export default async function HomePage() {
             className="mb-4 inline-block rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider"
             style={eyebrowStyle}
           >
-            Why ROGELE?
+            Why {siteTitle}?
           </span>
           <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
             Everything You Need For{' '}
@@ -285,7 +279,24 @@ export default async function HomePage() {
           </h2>
 
           <div className="mt-12 space-y-4 text-left">
-            {FAQS.map((faq) => (
+            {[
+              {
+                q: 'How does the free trial work?',
+                a: `When you sign up for a new account on ${siteTitle}, you automatically receive complimentary full access to all features, including interactive lessons and quizzes.`,
+              },
+              {
+                q: 'Can I switch subscription plans later?',
+                a: 'Yes, you can upgrade or change your plan at any time. Simply visit the subscriptions page from your dashboard and select the plan that best fits your needs.',
+              },
+              {
+                q: `Can I access ${siteTitle} on mobile phones?`,
+                a: `${siteTitle} is fully responsive and optimized for all web browsers, smartphones, tablets, and computers.`,
+              },
+              {
+                q: 'How do parents and teachers track student progress?',
+                a: 'Our built-in analytics dashboard automatically records quiz scores, homework completion rates, and lesson activities.',
+              },
+            ].map((faq) => (
               <details
                 key={faq.q}
                 className="group rounded-2xl border border-border bg-card p-5 transition open:border-brand-accent open:shadow-sm"
@@ -312,7 +323,7 @@ export default async function HomePage() {
             Ready to Start Learning?
           </h2>
           <p className="mt-4 text-lg text-white/90">
-            Join thousands of students already learning on our platform.
+            Join thousands of students already learning on {schoolName}.
           </p>
           <Link
             href="/register"
