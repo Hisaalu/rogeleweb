@@ -8,6 +8,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 
 import { BrandLogo } from '@/components/brand/brand-logo'
+import { useBranding } from '@/components/brand/brand-provider'
+import { useSettings } from '@/components/settings/settings-provider'
 import { useToast } from '@/components/ui/toast-provider'
 
 const schema = z.object({
@@ -18,8 +20,13 @@ type FormValues = z.infer<typeof schema>
 
 export function ForgotPasswordForm() {
   const { showToast } = useToast()
+  const branding = useBranding()
+  const { getSetting } = useSettings()
   const [submitted, setSubmitted] = useState(false)
   const [submittedEmail, setSubmittedEmail] = useState('')
+
+  // Use site.browser_title or fallback to schoolName
+  const pageTitle = getSetting('site.browser_title') || branding.schoolName || 'ROGELE'
 
   const {
     register,
@@ -79,14 +86,14 @@ export function ForgotPasswordForm() {
         ) : (
           <>
             <p className="mb-6 text-center text-sm text-muted-foreground">
-              Enter your ROGELE account email address and we&apos;ll send you a password reset link.
+              Enter your {pageTitle} account email address and we&apos;ll send you a password reset link.
             </p>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div>
                 <input
                   type="email"
-                  placeholder="Your ROGELE Email address"
+                  placeholder={`Your ${pageTitle} Email address`}
                   autoComplete="email"
                   {...register('email')}
                   className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm outline-none transition focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/25"
