@@ -1,20 +1,21 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { FileText, Loader2, X } from 'lucide-react'
-import {
-  deleteMaterial,
-  listMaterials,
-} from '@/lib/lessons.mutations'
+import { deleteMaterial, listMaterials } from '@/lib/lessons.mutations'
 import { formatFileSize, materialDownloadUrl } from '@/lib/materials'
 import type { LessonMaterial } from '@/types/lesson'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { useToast } from '@/components/ui/toast-provider'
 
 export function ExistingMaterialsPanel({ lessonId }: { lessonId: number }) {
+  const router = useRouter()
+  const { showToast } = useToast()
+  
   const [materials, setMaterials] = useState<LessonMaterial[]>([])
   const [loading, setLoading] = useState(true)
   const [busyId, setBusyId] = useState<number | null>(null)
-  
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null)
 
   useEffect(() => {
@@ -36,9 +37,14 @@ export function ExistingMaterialsPanel({ lessonId }: { lessonId: number }) {
     try {
       await deleteMaterial(lessonId, deleteTarget)
       setMaterials((prev) => prev.filter((m) => m.id !== deleteTarget))
-      setDeleteTarget(null)
+      showToast('File deleted successfully', 'success')
+      router.refresh()
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to delete file'
+      showToast(message, 'error')
     } finally {
       setBusyId(null)
+      setDeleteTarget(null)
     }
   }
 
