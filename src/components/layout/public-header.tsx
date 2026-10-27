@@ -2,15 +2,24 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { Menu, X, Fingerprint, UserPlus, Home, Info, Tags, Mail } from 'lucide-react'
+import { Menu, X, Fingerprint, UserPlus, Home, Info, Tags, Mail, Sun, Moon } from 'lucide-react'
 import { useBranding } from '@/components/brand/brand-provider'
+import { useTheme } from '@/components/theme-provider'
 
 export function PublicHeader() {
   const [isOpen, setIsOpen] = useState(false)
   const [currentHash, setCurrentHash] = useState('')
   const branding = useBranding()
   const pathname = usePathname()
+  const { resolvedTheme, setTheme } = useTheme()
+
+  const isDark = resolvedTheme === 'dark'
+
+  const toggleTheme = () => {
+    setTheme(isDark ? 'light' : 'dark')
+  }
 
   useEffect(() => {
     if (isOpen) document.body.style.overflow = 'hidden'
@@ -59,15 +68,23 @@ export function PublicHeader() {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           
           <Link href="/" onClick={() => handleNavClick('/')} className="flex items-center gap-3">
-            <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg">
+            {/* Sharp logo container - no rounded-lg, no overflow-hidden */}
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center">
               {branding.logoUrl ? (
-                <img 
-                  src={branding.logoUrl} 
-                  alt={branding.schoolName} 
-                  className="h-full w-full object-contain" 
+                <Image
+                  src={branding.logoUrl}
+                  alt={branding.schoolName}
+                  width={40}
+                  height={40}
+                  className="h-full w-full object-contain"
+                  priority
+                  unoptimized
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center bg-brand-primary text-white font-bold">
+                <div 
+                  className="flex h-full w-full items-center justify-center font-bold text-white"
+                  style={{ backgroundColor: 'var(--brand-primary)' }}
+                >
                   {branding.schoolName.slice(0, 2).toUpperCase()}
                 </div>
               )}
@@ -120,6 +137,14 @@ export function PublicHeader() {
           </nav>
 
           <div className="hidden items-center gap-3 lg:flex">
+            <button
+              onClick={toggleTheme}
+              className="flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
+              aria-label="Toggle theme"
+            >
+              {isDark ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+
             <Link href="/login" className="flex items-center gap-2 rounded-full border-2 border-brand-primary px-5 py-2 text-sm font-semibold text-brand-primary transition hover:bg-brand-primary hover:text-white">
               <Fingerprint size={16} /> Login
             </Link>
@@ -128,9 +153,19 @@ export function PublicHeader() {
             </Link>
           </div>
 
-          <button onClick={() => setIsOpen(true)} className="rounded-lg p-2 lg:hidden hover:bg-muted">
-            <Menu size={24} />
-          </button>
+          <div className="flex items-center gap-2 lg:hidden">
+            <button
+              onClick={toggleTheme}
+              className="rounded-lg p-2 text-muted-foreground hover:bg-muted"
+              aria-label="Toggle theme"
+            >
+              {isDark ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+
+            <button onClick={() => setIsOpen(true)} className="rounded-lg p-2 hover:bg-muted">
+              <Menu size={24} />
+            </button>
+          </div>
         </div>
       </header>
 
@@ -139,15 +174,21 @@ export function PublicHeader() {
           <div className="flex h-full w-[80%] max-w-sm flex-col bg-background">
             <div className="flex items-center justify-between border-b border-border p-4">
               <div className="flex items-center gap-3">
-                <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center">
                   {branding.logoUrl ? (
-                    <img 
-                      src={branding.logoUrl} 
-                      alt={branding.schoolName} 
-                      className="h-full w-full object-contain" 
+                    <Image
+                      src={branding.logoUrl}
+                      alt={branding.schoolName}
+                      width={40}
+                      height={40}
+                      className="h-full w-full object-contain"
+                      unoptimized
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-brand-primary text-xs text-white font-bold">
+                    <div 
+                      className="flex h-full w-full items-center justify-center text-xs font-bold text-white"
+                      style={{ backgroundColor: 'var(--brand-primary)' }}
+                    >
                       {branding.schoolName.slice(0, 2).toUpperCase()}
                     </div>
                   )}
