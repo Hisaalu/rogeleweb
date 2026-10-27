@@ -1,8 +1,13 @@
 import type { Metadata } from 'next'
+import { fetchPublicSettings } from '@/lib/settings.server.public'
 import { ResetPasswordForm } from './reset-password-form'
 
-export const metadata: Metadata = {
-  title: 'Reset Password',
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await fetchPublicSettings()
+  const customTitle = settings['site.browser_title']?.trim()
+  return {
+    title: customTitle ? `Reset Password` : 'Reset Password',
+  }
 }
 
 export default function ResetPasswordPage() {

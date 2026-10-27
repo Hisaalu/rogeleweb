@@ -9,6 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { BrandLogo } from '@/components/brand/brand-logo'
 import { useBranding } from '@/components/brand/brand-provider'
+import { useSettings } from '@/components/settings/settings-provider'
 import { useToast } from '@/components/ui/toast-provider'
 
 const schema = z.object({
@@ -26,7 +27,10 @@ export function ResetPasswordForm() {
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
   const branding = useBranding()
+  const { getSetting } = useSettings()
   const { showToast } = useToast()
+
+  const pageTitle = getSetting('site.browser_title') || branding.schoolName || 'NexaT'
 
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
@@ -97,7 +101,7 @@ export function ResetPasswordForm() {
           Reset Password
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          for your {branding.schoolName || 'ROGELE'} account
+          for your {pageTitle} account
         </p>
       </div>
 

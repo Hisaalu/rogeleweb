@@ -25,8 +25,7 @@ export function ForgotPasswordForm() {
   const [submitted, setSubmitted] = useState(false)
   const [submittedEmail, setSubmittedEmail] = useState('')
 
-  // Use site.browser_title or fallback to schoolName
-  const pageTitle = getSetting('site.browser_title') || branding.schoolName || 'ROGELE'
+  const pageTitle = getSetting('site.browser_title') || branding.schoolName || 'NexaT'
 
   const {
     register,
