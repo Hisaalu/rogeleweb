@@ -26,9 +26,20 @@ function unwrapList<T>(res: unknown): T[] {
   return []
 }
 
+function normalizeUTC(iso: string | null | undefined): string | null {
+  if (!iso) return null
+  const trimmed = String(iso).trim()
+  if (!trimmed) return null
+  if (trimmed.endsWith('Z') || /[+-]\d{2}:?\d{2}$/.test(trimmed)) {
+    return trimmed
+  }
+  return `${trimmed.replace(' ', 'T')}Z`
+}
+
 function formatTime(iso: string | null | undefined): string {
-  if (!iso) return ''
-  const d = new Date(iso)
+  const normalized = normalizeUTC(iso)
+  if (!normalized) return ''
+  const d = new Date(normalized)
   if (Number.isNaN(d.getTime())) return ''
   return d.toLocaleTimeString('en-US', {
     hour: 'numeric',
@@ -41,19 +52,23 @@ export async function getTrialStatusServer(): Promise<TrialStatus | null> {
   if (!res || typeof res !== 'object') return null
 
   const r = res as Record<string, unknown>
-  const daysRemaining = Number(r.days_remaining ?? r.days ?? 0)
-  const totalDays = Number(r.total_days ?? 60)
-  const endDate = (r.end_date as string | undefined) ?? null
+  const totalDays = Number(r.total_days ?? 60) || 60
+  const endDate = normalizeUTC((r.end_date as string | undefined) ?? null)
+  const rawRemaining = Number(r.days_remaining ?? r.days ?? 0)
+  const daysRemaining = Number.isFinite(rawRemaining) ? Math.max(0, rawRemaining) : 0
   const isInTrial = Boolean(r.is_in_trial ?? (daysRemaining > 0 && !!endDate))
 
   return {
     is_in_trial: isInTrial,
-    days_remaining: Number.isFinite(daysRemaining) ? daysRemaining : 0,
+    days_remaining: daysRemaining,
     end_date: endDate,
-    total_days: totalDays > 0 ? totalDays : 60,
+    total_days: totalDays,
     percentage_used:
       totalDays > 0
-        ? Math.min(100, Math.max(0, ((totalDays - daysRemaining) / totalDays) * 100))
+        ? Math.min(
+            100,
+            Math.max(0, ((totalDays - daysRemaining) / totalDays) * 100),
+          )
         : 0,
   }
 }
@@ -70,8 +85,8 @@ export async function getActiveSubscriptionServer(): Promise<SubscriptionSummary
     plan_type: String(r.plan_type ?? 'plan'),
     status: String(r.status),
     amount: r.amount != null ? Number(r.amount) : undefined,
-    start_date: String(r.start_date ?? ''),
-    end_date: String(r.end_date ?? ''),
+    start_date: normalizeUTC(String(r.start_date ?? '')) ?? '',
+    end_date: normalizeUTC(String(r.end_date ?? '')) ?? '',
     payment_method: r.payment_method as string | undefined,
     transaction_id: r.transaction_id as string | undefined,
   }
@@ -116,7 +131,7 @@ export async function getCalendarEventsServer(): Promise<CalendarEvent[]> {
 
   for (const q of quizzes) {
     if (q.is_published === false) continue
-    const when = q.start_date ?? q.created_at
+    const when = normalizeUTC(q.start_date ?? q.created_at ?? null)
     if (!when) continue
     const d = new Date(when)
     if (Number.isNaN(d.getTime())) continue
@@ -134,7 +149,7 @@ export async function getCalendarEventsServer(): Promise<CalendarEvent[]> {
 
   for (const h of homework) {
     if (h.is_active === false) continue
-    const when = h.due_date
+    const when = normalizeUTC(h.due_date ?? null)
     if (!when) continue
     const d = new Date(when)
     if (Number.isNaN(d.getTime())) continue
