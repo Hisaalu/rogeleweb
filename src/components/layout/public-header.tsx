@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-import { Menu, X, Fingerprint, UserPlus, Home, Info, Tags, Mail, Sun, Moon } from 'lucide-react'
+import { Menu, X, LogIn, UserPlus, Home, Info, Tags, Mail, Sun, Moon } from 'lucide-react'
 import { useBranding } from '@/components/brand/brand-provider'
 import { useTheme } from '@/components/theme-provider'
 
@@ -57,13 +57,11 @@ export function PublicHeader() {
   const handleNavClick = (href: string, e?: React.MouseEvent) => {
     setIsOpen(false)
 
-    // If it's a hash link, handle navigation properly
     if (href.startsWith('/#')) {
       e?.preventDefault()
       
       const hash = href.replace('/', '')
       
-      // If we're already on the homepage, just scroll to the section
       if (pathname === '/') {
         const el = document.getElementById(hash.replace('#', ''))
         if (el) {
@@ -72,7 +70,6 @@ export function PublicHeader() {
           setCurrentHash(hash)
         }
       } else {
-        // We're on a different page — navigate to homepage, then scroll
         router.push(`/${hash}`)
         setCurrentHash(hash)
       }
@@ -164,7 +161,7 @@ export function PublicHeader() {
             </button>
 
             <Link href="/login" className="flex items-center gap-2 rounded-full border-2 border-brand-primary px-5 py-2 text-sm font-semibold text-brand-primary transition hover:bg-brand-primary hover:text-white">
-              <Fingerprint size={16} /> Login
+              <LogIn size={16} /> Login
             </Link>
             <Link href="/register" className="flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold text-white shadow-md transition hover:opacity-90" style={{ backgroundColor: 'var(--brand-primary)' }}>
               <UserPlus size={16} /> Sign Up
@@ -265,7 +262,7 @@ export function PublicHeader() {
 
             <div className="border-t border-border p-4 space-y-3">
               <Link href="/login" onClick={() => setIsOpen(false)} className="flex w-full items-center justify-center rounded-full border-2 border-brand-primary py-3 text-sm font-semibold text-brand-primary transition hover:bg-brand-primary hover:text-white">
-                <Fingerprint size={16} className="mr-2" /> Login
+                <LogIn size={16} className="mr-2" /> Login
               </Link>
               <Link href="/register" onClick={() => setIsOpen(false)} className="flex w-full items-center justify-center rounded-full py-3 text-sm font-semibold text-white transition hover:opacity-90" style={{ backgroundColor: 'var(--brand-primary)' }}>
                 <UserPlus size={16} className="mr-2" /> Sign Up
