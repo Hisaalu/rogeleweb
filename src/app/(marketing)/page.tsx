@@ -73,15 +73,12 @@ export default async function HomePage() {
     fetchPublicSettings(),
   ])
 
-  const { plans, classes, stats } = data
+  const { plans, classes, stats, classRange: range } = data
 
   const siteTitle = settings['site.browser_title']?.trim() || 'NexaT'
   const schoolName = settings['branding.school_name']?.trim() || siteTitle
 
-  const firstClass = classes[0]?.name ?? 'Primary 1'
-  const lastClass = classes[classes.length - 1]?.name ?? 'Class A'
-  const classRange =
-    classes.length > 0 ? `${firstClass} to ${lastClass}` : 'Class Z'
+  const classRange = `${range.first} to ${range.last}`
 
   const recommendedId =
     plans.length >= 2 ? plans[Math.floor(plans.length / 2)].id : null
@@ -338,10 +335,12 @@ export default async function HomePage() {
   )
 }
 
-function Stat({ label, value }: { label: string; value: React.ReactNode }) {
+function Stat({ label, value }: { label: string; value: number }) {
   return (
     <div className="flex flex-col items-center">
-      <span className="text-3xl font-extrabold text-white">{value}</span>
+      <span className="text-3xl font-extrabold text-white tabular-nums">
+        {value.toLocaleString('en-US')}+
+      </span>
       <span className="text-xs font-medium uppercase tracking-wider text-white/80">
         {label}
       </span>
