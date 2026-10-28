@@ -135,15 +135,13 @@ export function MobileMenu({
             <X size={20} />
           </button>
 
-          {/* User block */}
           <div className="mt-6 flex items-center gap-4">
-            <div className="shrink-0 rounded-full ring-2 ring-white/40 ring-offset-2 ring-offset-transparent">
-              <Avatar
-                src={user.profile_photo}
-                fallback={getInitials(fullName)}
-                size={56}
-              />
-            </div>
+            <Avatar
+              src={user.profile_photo}
+              fallback={getInitials(fullName)}
+              size={56}
+              className="h-14 w-14 ring-2 ring-white/40 ring-offset-2 ring-offset-transparent"
+            />
             <div className="min-w-0 flex-1">
               <p className="truncate text-base font-semibold text-white">
                 {fullName}

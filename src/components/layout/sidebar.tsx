@@ -18,7 +18,6 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { BrandLogo } from '@/components/brand/brand-logo'
-import { Avatar } from '@/components/ui/avatar'
 import { cn, getInitials } from '@/lib/utils'
 import type { SessionUser } from '@/lib/auth'
 
@@ -80,21 +79,6 @@ export const Sidebar = memo(function Sidebar({ user }: { user: SessionUser }) {
       </nav>
 
       <div className="shrink-0 border-t border-border p-3">
-        <Link
-          href={`/${user.role}/profile`}
-          className="mb-2 flex items-center gap-3 rounded-lg px-2 py-2 transition hover:bg-muted"
-        >
-          <Avatar
-            src={user.profile_photo}
-            fallback={getInitials(fullName)}
-            size={32}
-          />
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-foreground">{fullName}</p>
-            <p className="truncate text-xs capitalize text-muted-foreground">{user.role}</p>
-          </div>
-        </Link>
-
         <button
           type="button"
           onClick={handleLogout}

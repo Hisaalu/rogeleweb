@@ -18,6 +18,24 @@ async function proxyJson<T>(path: string, init: RequestInit = {}): Promise<T> {
   return data as T
 }
 
+async function patchMe<T = void>(payload: Record<string, unknown>): Promise<T> {
+  const res = await fetch('/api/auth/me', {
+    method: 'PATCH',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  })
+  if (res.status === 204) return undefined as T
+  const text = await res.text()
+  const data = text ? JSON.parse(text) : null
+  if (!res.ok) {
+    throw new Error(data?.error?.message ?? `Request failed with ${res.status}`)
+  }
+  return data as T
+}
+
 export async function updateProfileClient(payload: {
   first_name: string
   last_name: string
@@ -28,10 +46,7 @@ export async function updateProfileClient(payload: {
   specialization?: string
   class_id?: number
 }): Promise<void> {
-  await proxyJson('/auth/me', {
-    method: 'PATCH',
-    body: JSON.stringify(payload),
-  })
+  await patchMe(payload)
 }
 
 export async function uploadAvatarClient(file: File): Promise<void> {
@@ -52,8 +67,5 @@ export async function uploadAvatarClient(file: File): Promise<void> {
   })
   if (!uploadRes.ok) throw new Error('Upload failed')
 
-  await proxyJson('/auth/me', {
-    method: 'PATCH',
-    body: JSON.stringify({ profile_photo: presign.public_url }),
-  })
+  await patchMe({ profile_photo: presign.public_url })
 }

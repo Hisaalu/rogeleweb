@@ -19,7 +19,7 @@ export function Avatar({
   if (!src || errored) {
     return (
       <div
-        className={`flex items-center justify-center rounded-full bg-brand-primary font-semibold text-white ${className ?? ''}`}
+        className={`flex shrink-0 items-center justify-center rounded-full bg-brand-primary font-semibold text-white ${className ?? ''}`}
         style={{ width: size, height: size, fontSize: size * 0.35 }}
       >
         {fallback}
@@ -33,7 +33,8 @@ export function Avatar({
       alt={fallback}
       width={size}
       height={size}
-      className={`rounded-full object-cover ${className ?? ''}`}
+      className={`shrink-0 rounded-full object-cover ${className ?? ''}`}
+      style={{ width: size, height: size }}
       onError={() => setErrored(true)}
       unoptimized
     />
