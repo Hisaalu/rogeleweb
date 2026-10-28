@@ -7,54 +7,70 @@ import { AnalyticsView } from './analytics-view'
 export const metadata: Metadata = { title: 'Analytics' }
 export const dynamic = 'force-dynamic'
 
-const PYTHON_URL = process.env.ANALYTICS_API_URL ?? 'http://localhost:9000'
+const ANALYTICS_URL = process.env.ANALYTICS_API_URL ?? 'http://localhost:9000'
 
-async function fetchPython(endpoint: string, params: Record<string, string> = {}) {
+async function fetchPython<T>(
+  endpoint: string,
+  params: Record<string, string> = {},
+): Promise<T | null> {
   const search = new URLSearchParams(params).toString()
-  const url = `${PYTHON_URL}/analytics/${endpoint}${search ? `?${search}` : ''}`
+  const url = `${ANALYTICS_URL}/analytics/${endpoint}${search ? `?${search}` : ''}`
   try {
-    const res = await fetch(url, { cache: 'no-store' })
+    const res = await fetch(url, {
+      cache: 'no-store',
+      headers: { Accept: 'application/json' },
+    })
     if (!res.ok) return null
-    return res.json()
+    return (await res.json()) as T
   } catch {
     return null
   }
 }
 
-export default async function TeacherAnalyticsPage({ 
-  searchParams 
-}: { 
-  searchParams: { range?: string } 
+function dateWindow(rangeDays: number) {
+  const toDate = new Date()
+  const fromDate = new Date(toDate.getTime() - rangeDays * 24 * 60 * 60 * 1000)
+  return {
+    from: fromDate.toISOString().split('T')[0],
+    to: toDate.toISOString().split('T')[0],
+  }
+}
+
+export default async function TeacherAnalyticsPage({
+  searchParams,
+}: {
+  searchParams: { range?: string }
 }) {
   const session = await getSessionUser()
   if (!session) return null
 
-  const range = searchParams.range ?? '30'
-  const fromDate = new Date(Date.now() - Number(range) * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-  const toDate = new Date().toISOString().split('T')[0]
+  const range = Number(searchParams.range) || 30
+  const { from, to } = dateWindow(range)
 
-  const [statsRes, lessonsRes, classCountsRes, enrollment, atRisk, scores] = await Promise.all([
-    serverApiRequest<any>('/api/v1/admin/stats').catch(() => null),
-    serverApiRequest<any>('/api/v1/lessons?per_page=100').catch(() => []),
-    getLearnersByClassServer().catch(() => []),
-    fetchPython('enrollment-trend', { from: fromDate, to: toDate, interval: 'day' }),
-    fetchPython('at-risk-learners', { limit: '50' }),
-    fetchPython('score-distribution'),
-  ])
+  // ONE parallel batch. Only enrollment-trend depends on `range`.
+  const [statsRes, lessonsRes, classCountsRes, enrollment, atRisk, scores] =
+    await Promise.all([
+      serverApiRequest<any>('/api/v1/admin/stats').catch(() => null),
+      serverApiRequest<any>('/api/v1/lessons?per_page=100').catch(() => []),
+      getLearnersByClassServer().catch(() => []),
+      fetchPython<any>('enrollment-trend', { from, to, interval: 'day' }),
+      fetchPython<any>('at-risk-learners', { limit: '50' }),
+      fetchPython<any>('score-distribution'),
+    ])
 
   const stats = statsRes || {}
   const lessons = Array.isArray(lessonsRes) ? lessonsRes : (lessonsRes?.data || [])
   const classCounts = Array.isArray(classCountsRes) ? classCountsRes : []
 
   return (
-    <AnalyticsView 
+    <AnalyticsView
       stats={stats}
       lessons={lessons}
       classCounts={classCounts}
-      enrollment={enrollment}
-      atRisk={atRisk}
-      scores={scores}
-      initialRange={range}
+      initialEnrollment={enrollment}
+      initialAtRisk={atRisk}
+      initialScores={scores}
+      initialRange={String(range)}
     />
   )
 }

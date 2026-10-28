@@ -110,32 +110,48 @@ export interface RevenueForecast {
   note?: string
 }
 
-async function analyticsFetch<T>(path: string): Promise<T> {
+async function analyticsFetch<T>(path: string, signal?: AbortSignal): Promise<T> {
   const isServer = typeof window === 'undefined'
-  
-  const baseUrl = isServer 
-    ? (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000') 
+
+  const baseUrl = isServer
+    ? (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')
     : ''
 
   const res = await fetch(`${baseUrl}/api/analytics${path}`, {
     headers: { Accept: 'application/json' },
-    cache: 'no-store', 
+    cache: 'no-store',
+    signal,
   })
 
   const text = await res.text()
   const data = text ? JSON.parse(text) : null
 
   if (!res.ok) {
-    throw new Error(data?.error?.message ?? data?.detail ?? `Request failed (${res.status})`)
+    throw new Error(
+      data?.error?.message ?? data?.detail ?? `Request failed (${res.status})`,
+    )
   }
 
   return data as T
 }
 
 export async function getEnrollmentTrendClient(
-  interval: 'day' | 'week' | 'month' = 'month',
+  rangeDays: number,
+  signal?: AbortSignal,
 ): Promise<EnrollmentTrend> {
-  return analyticsFetch<EnrollmentTrend>(`/enrollment-trend?interval=${interval}`)
+  const toDate = new Date()
+  const fromDate = new Date(toDate.getTime() - rangeDays * 24 * 60 * 60 * 1000)
+
+  const params = new URLSearchParams({
+    from: fromDate.toISOString().split('T')[0],
+    to: toDate.toISOString().split('T')[0],
+    interval: 'day',
+  })
+
+  return analyticsFetch<EnrollmentTrend>(
+    `/enrollment-trend?${params.toString()}`,
+    signal,
+  )
 }
 
 export async function getRevenueSeriesClient(
@@ -144,8 +160,10 @@ export async function getRevenueSeriesClient(
   return analyticsFetch<RevenueSeries>(`/revenue-over-time?interval=${interval}`)
 }
 
-export async function getScoreDistributionClient(): Promise<ScoreDistribution> {
-  return analyticsFetch<ScoreDistribution>('/score-distribution')
+export async function getScoreDistributionClient(
+  signal?: AbortSignal,
+): Promise<ScoreDistribution> {
+  return analyticsFetch<ScoreDistribution>('/score-distribution', signal)
 }
 
 export async function getHeatmapClient(): Promise<HeatmapData> {
@@ -156,8 +174,8 @@ export async function getRetentionClient(): Promise<RetentionData> {
   return analyticsFetch<RetentionData>('/retention')
 }
 
-export async function getAtRiskClient(): Promise<AtRiskData> {
-  return analyticsFetch<AtRiskData>('/at-risk-learners')
+export async function getAtRiskClient(signal?: AbortSignal): Promise<AtRiskData> {
+  return analyticsFetch<AtRiskData>('/at-risk-learners', signal)
 }
 
 export async function getForecastClient(): Promise<RevenueForecast> {
