@@ -11,14 +11,13 @@ export const dynamic = 'force-dynamic'
 export default async function LearnerQuizzesPage({
   searchParams,
 }: {
-  searchParams: { locked?: string }
+  searchParams: { locked?: string; error?: string }
 }) {
   const session = await getSessionUser()
   if (!session) return null
 
   const lockedReason =
-    searchParams.locked === 'trial_expired' ||
-    searchParams.locked === 'no_plan'
+    searchParams.locked === 'trial_expired' || searchParams.locked === 'no_plan'
       ? searchParams.locked
       : null
 
@@ -31,9 +30,7 @@ export default async function LearnerQuizzesPage({
     <>
       <ErrorToaster />
       <LearnerQuizzesView quizzes={quizzes} attempts={attempts} />
-      {lockedReason && (
-        <PremiumGate open context="quiz" reason={lockedReason} />
-      )}
+      {lockedReason && <PremiumGate open context="quiz" reason={lockedReason} />}
     </>
   )
 }

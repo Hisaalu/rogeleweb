@@ -13,9 +13,7 @@ export default async function TakeQuizPage({
   params: { id: string }
 }) {
   const id = Number(params.id)
-  if (!Number.isFinite(id)) {
-    redirect('/learner/quizzes?error=not_found')
-  }
+  if (!Number.isFinite(id)) redirect('/learner/quizzes?error=not_found')
 
   const [trial, subscription] = await Promise.all([
     getTrialStatusServer(),
@@ -23,28 +21,15 @@ export default async function TakeQuizPage({
   ])
 
   const reason = getAccessReason(subscription, trial)
-  if (reason !== 'ok') {
-    redirect(`/learner/quizzes?locked=${reason}`)
-  }
+  if (reason !== 'ok') redirect(`/learner/quizzes?locked=${reason}`)
 
   const [quiz, questions] = await Promise.all([
     getQuizServer(id),
     listQuestionsServer(id),
   ])
-  
-  if (!quiz) {
-    redirect('/learner/quizzes?error=not_found')
-  }
-  if (questions.length === 0) {
-    return (
-      <div className="p-10 text-center">
-        <h2 className="text-xl font-bold">No Questions Found</h2>
-        <p className="text-muted-foreground">
-          This quiz doesn&apos;t have any questions yet.
-        </p>
-      </div>
-    )
-  }
+
+  if (!quiz) redirect('/learner/quizzes?error=not_found')
+  if (questions.length === 0) redirect('/learner/quizzes?error=no_questions')
 
   return <TakeQuizView quiz={quiz} questions={questions} />
 }

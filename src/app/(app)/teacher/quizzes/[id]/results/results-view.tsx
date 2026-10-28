@@ -1,151 +1,366 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Download, Trash2, Users, Trophy, LineChart } from 'lucide-react'
+import {
+  ArrowLeft,
+  Users,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Trophy,
+  Loader2,
+  AlertTriangle,
+  Trash2,
+  BarChart2,
+} from 'lucide-react'
 import type { Quiz, QuizAttempt } from '@/types/quiz'
-import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { useToast } from '@/components/ui/toast-provider'
 
-export function ResultsView({ quiz, attempts }: { quiz: Quiz, attempts: QuizAttempt[] }) {
-  const [deleteOpen, setDeleteOpen] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
+function formatDate(iso: string | null | undefined) {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return '—'
+  return d.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  })
+}
 
-  const totalAttempts = attempts.length
-  const uniqueStudents = new Set(attempts.map(a => a.user_id)).size
-  const avgScore = totalAttempts > 0 ? Math.round(attempts.reduce((s, a) => s + (a.score ?? 0), 0) / totalAttempts) : 0
-  const passingScore = quiz.passing_score ?? 50
-  const passRate = totalAttempts > 0 ? Math.round((attempts.filter(a => (a.score ?? 0) >= passingScore).length / totalAttempts) * 100) : 0
+function formatDuration(seconds: number | null | undefined) {
+  if (seconds == null || seconds <= 0) return '—'
+  const m = Math.floor(seconds / 60)
+  const s = seconds % 60
+  return `${m}m ${s.toString().padStart(2, '0')}s`
+}
 
-  function downloadCSV() {
-    const headers = ['Student', 'Email', 'Score (%)', 'Result', 'Date']
-    const rows = attempts.map(a => [
-      `${a.student_first_name} ${a.student_last_name}`,
-      a.student_email ?? '',
-      a.score ?? 0,
-      (a.score ?? 0) >= passingScore ? 'Passed' : 'Failed',
-      a.completed_at ? new Date(a.completed_at).toLocaleString() : ''
-    ])
-    const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n')
-    const blob = new Blob([csv], { type: 'text/csv' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${quiz.title.replace(/[^a-z0-9]/gi, '_')}_results.csv`
-    a.click()
+async function fetchAttempts(quizId: number): Promise<QuizAttempt[]> {
+  try {
+    const res = await fetch(`/api/proxy/quizzes/${quizId}/attempts`, {
+      headers: { Accept: 'application/json' },
+      cache: 'no-store',
+    })
+    if (!res.ok) return []
+    const data = await res.json()
+    if (Array.isArray(data)) return data as QuizAttempt[]
+    if (Array.isArray(data?.data)) return data.data as QuizAttempt[]
+    if (Array.isArray(data?.value)) return data.value as QuizAttempt[]
+    return []
+  } catch {
+    return []
   }
+}
 
-  async function handleDeleteAttempts() {
-    setIsDeleting(true)
+async function deleteAllAttempts(quizId: number): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/proxy/quizzes/${quizId}/attempts`, {
+      method: 'DELETE',
+    })
+    return res.ok
+  } catch {
+    return false
+  }
+}
+
+export function ResultsView({ quiz }: { quiz: Quiz }) {
+  const { showToast } = useToast()
+  const [attempts, setAttempts] = useState<QuizAttempt[]>([])
+  const [loading, setLoading] = useState(true)
+  const [clearing, setClearing] = useState(false)
+  const [showClearConfirm, setShowClearConfirm] = useState(false)
+
+  useEffect(() => {
+    let mounted = true
+    fetchAttempts(quiz.id).then((list) => {
+      if (mounted) {
+        setAttempts(list)
+        setLoading(false)
+      }
+    })
+    return () => {
+      mounted = false
+    }
+  }, [quiz.id])
+
+  const total = attempts.length
+  const completed = attempts.filter((a) => a.status === 'completed')
+  const passed = completed.filter((a) => (a.score ?? 0) >= (quiz.passing_score ?? 70))
+  const avgScore =
+    completed.length > 0
+      ? Math.round(
+          completed.reduce((sum, a) => sum + (a.score ?? 0), 0) / completed.length,
+        )
+      : 0
+  const avgTime =
+    completed.length > 0
+      ? Math.round(
+          completed.reduce((sum, a) => sum + (a.time_taken ?? 0), 0) / completed.length,
+        )
+      : 0
+  const passRate = completed.length > 0 ? Math.round((passed.length / completed.length) * 100) : 0
+
+  async function handleClearAll() {
+    setClearing(true)
     try {
-      const res = await fetch(`/api/proxy/quizzes/${quiz.id}/attempts`, { method: 'DELETE' })
-      if (!res.ok) throw new Error('Failed to delete')
-      window.location.reload()
+      const ok = await deleteAllAttempts(quiz.id)
+      if (ok) {
+        setAttempts([])
+        showToast('All attempts deleted.', 'success')
+      } else {
+        showToast('Failed to delete attempts.', 'error')
+      }
     } catch {
-      alert('Failed to delete attempts')
-      setIsDeleting(false)
+      showToast('Failed to delete attempts.', 'error')
+    } finally {
+      setClearing(false)
+      setShowClearConfirm(false)
     }
   }
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-8 sm:px-6 sm:py-10">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <Link href="/teacher/quizzes" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+          <Link
+            href="/teacher/quizzes"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
+          >
             <ArrowLeft size={14} /> Quizzes
           </Link>
-          <h1 className="mt-2 text-2xl font-bold text-foreground truncate max-w-full">Results: {quiz.title}</h1>
+          <h1 className="mt-2 text-2xl font-bold text-foreground">
+            {quiz.title} — Results
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {total === 0
+              ? 'No attempts yet'
+              : `${total} attempt${total === 1 ? '' : 's'} · ${passRate}% pass rate`}
+          </p>
         </div>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <button onClick={downloadCSV} className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90" style={{ backgroundColor: 'var(--success-border)' }}>
-            <Download size={15} /> Export Excel (CSV)
-          </button>
-          <button onClick={() => setDeleteOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90" style={{ backgroundColor: 'var(--danger-border)' }}>
-            <Trash2 size={15} /> Delete Attempts
-          </button>
+
+        <div className="flex gap-2">
+          <Link
+            href={`/teacher/quizzes/${quiz.id}/preview`}
+            className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-semibold text-muted-foreground transition hover:bg-muted"
+          >
+            <BarChart2 size={15} /> Preview Quiz
+          </Link>
+          {attempts.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowClearConfirm(true)}
+              disabled={clearing}
+              className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+              style={{ backgroundColor: 'var(--danger-border)' }}
+            >
+              <Trash2 size={15} /> Clear All
+            </button>
+          )}
         </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={Users} label="Total Attempts" value={totalAttempts} tone="brand" />
-        <StatCard icon={Users} label="Unique Students" value={uniqueStudents} tone="success" />
-        <StatCard icon={LineChart} label="Average Score" value={`${avgScore}%`} tone="warning" />
-        <StatCard icon={Trophy} label="Pass Rate" value={`${passRate}%`} tone="primary" />
+        <StatCard
+          icon={Users}
+          label="Total Attempts"
+          value={total}
+          tone="brand"
+        />
+        <StatCard
+          icon={CheckCircle2}
+          label="Pass Rate"
+          value={`${passRate}%`}
+          tone="success"
+        />
+        <StatCard
+          icon={Trophy}
+          label="Average Score"
+          value={`${avgScore}%`}
+          tone="warning"
+        />
+        <StatCard
+          icon={Clock}
+          label="Avg Time"
+          value={formatDuration(avgTime)}
+          tone="neutral"
+        />
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-        <div className="border-b border-border px-6 py-4">
-          <h3 className="text-base font-semibold text-foreground">Student Attempts ({totalAttempts})</h3>
+      {loading ? (
+        <div className="flex h-40 items-center justify-center">
+          <Loader2 className="animate-spin" size={28} style={{ color: 'var(--brand-accent)' }} />
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-foreground">
-            <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
-              <tr>
-                <th className="px-6 py-3 font-semibold">#</th>
-                <th className="px-6 py-3 font-semibold">Student</th>
-                <th className="px-6 py-3 font-semibold">Email</th>
-                <th className="px-6 py-3 font-semibold">Score (%)</th>
-                <th className="px-6 py-3 font-semibold">Result</th>
-                <th className="px-6 py-3 font-semibold">Date</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {attempts.length === 0 ? (
-                <tr><td colSpan={6} className="px-6 py-10 text-center text-muted-foreground">No results yet.</td></tr>
-              ) : (
-                attempts.map((a, idx) => {
-                  const passed = (a.score ?? 0) >= passingScore
+      ) : attempts.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
+          <Users size={48} className="mx-auto mb-4 opacity-30" style={{ color: 'var(--brand-accent)' }} />
+          <h3 className="text-lg font-bold text-foreground">No Attempts Yet</h3>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Student attempts will appear here once they take the quiz.
+          </p>
+        </div>
+      ) : (
+        <div className="overflow-hidden rounded-2xl border border-border bg-card">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="border-b border-border bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
+                <tr>
+                  <th className="px-4 py-3 font-semibold">Student</th>
+                  <th className="px-4 py-3 font-semibold">Score</th>
+                  <th className="px-4 py-3 font-semibold">Status</th>
+                  <th className="px-4 py-3 font-semibold">Time</th>
+                  <th className="px-4 py-3 font-semibold">Completed</th>
+                  <th className="px-4 py-3 font-semibold text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {attempts.map((a) => {
+                  const score = a.score ?? 0
+                  const passedAttempt = score >= (quiz.passing_score ?? 70)
+                  const name =
+                    [a.student_first_name, a.student_last_name]
+                      .filter(Boolean)
+                      .join(' ') || a.student_email || `User #${a.user_id}`
                   return (
-                    <tr key={a.id} className="hover:bg-muted/30">
-                      <td className="px-6 py-3">{idx + 1}</td>
-                      <td className="px-6 py-3 font-medium">{a.student_first_name} {a.student_last_name}</td>
-                      <td className="px-6 py-3 text-muted-foreground">{a.student_email}</td>
-                      <td className="px-6 py-3 font-bold" style={{ color: passed ? 'var(--success-fg)' : 'var(--danger-fg)' }}>{a.score}%</td>
-                      <td className="px-6 py-3">
-                        <span className="inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold" style={{ backgroundColor: passed ? 'var(--success-bg)' : 'var(--danger-bg)', color: passed ? 'var(--success-fg)' : 'var(--danger-fg)' }}>
-                          {passed ? 'Passed' : 'Failed'}
+                    <tr key={a.id} className="transition hover:bg-muted/30">
+                      <td className="px-4 py-3">
+                        <p className="font-medium text-foreground">{name}</p>
+                        {a.student_email && (
+                          <p className="text-xs text-muted-foreground">{a.student_email}</p>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold"
+                          style={{
+                            backgroundColor: passedAttempt
+                              ? 'var(--success-bg)'
+                              : 'var(--danger-bg)',
+                            color: passedAttempt
+                              ? 'var(--success-fg)'
+                              : 'var(--danger-fg)',
+                          }}
+                        >
+                          {passedAttempt ? (
+                            <CheckCircle2 size={12} />
+                          ) : (
+                            <XCircle size={12} />
+                          )}
+                          {score}%
                         </span>
                       </td>
-                      <td className="px-6 py-3 text-muted-foreground">{a.completed_at ? new Date(a.completed_at).toLocaleDateString() : '—'}</td>
+                      <td className="px-4 py-3">
+                        <span className="text-xs capitalize text-muted-foreground">
+                          {a.status.replace('_', ' ')}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-xs text-muted-foreground">
+                        {formatDuration(a.time_taken)}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-muted-foreground">
+                        {formatDate(a.completed_at)}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <Link
+                          href={`/learner/quizzes/results/${a.id}`}
+                          className="text-xs font-semibold text-brand-accent hover:underline"
+                        >
+                          View Details
+                        </Link>
+                      </td>
                     </tr>
                   )
-                })
-              )}
-            </tbody>
-          </table>
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
 
-      <ConfirmDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        title="Delete All Attempts"
-        description={`Are you sure you want to delete ALL ${totalAttempts} attempts for this quiz? This action cannot be undone. We highly recommend downloading the CSV before proceeding.`}
-        confirmLabel="Delete All"
-        destructive
-        loading={isDeleting}
-        onConfirm={handleDeleteAttempts}
-      />
+      {showClearConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4"
+          onClick={() => setShowClearConfirm(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 flex items-center gap-3">
+              <div
+                className="flex h-10 w-10 items-center justify-center rounded-full"
+                style={{ backgroundColor: 'var(--danger-bg)' }}
+              >
+                <AlertTriangle size={18} style={{ color: 'var(--danger-fg)' }} />
+              </div>
+              <h3 className="text-lg font-bold text-foreground">Clear all attempts?</h3>
+            </div>
+            <p className="mb-6 text-sm text-muted-foreground">
+              This will permanently delete every student attempt for this quiz.
+              Students will be able to retake it. This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowClearConfirm(false)}
+                disabled={clearing}
+                className="rounded-full px-5 py-2.5 text-sm font-semibold text-muted-foreground transition hover:bg-muted"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleClearAll}
+                disabled={clearing}
+                className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+                style={{ backgroundColor: 'var(--danger-border)' }}
+              >
+                {clearing ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <Trash2 size={14} />
+                )}
+                {clearing ? 'Clearing...' : 'Clear All'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
-function StatCard({ icon: Icon, label, value, tone }: { icon: any, label: string, value: string | number, tone: 'brand' | 'success' | 'warning' | 'primary' }) {
-  const colors = {
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  tone,
+}: {
+  icon: typeof Users
+  label: string
+  value: string | number
+  tone: 'brand' | 'success' | 'warning' | 'neutral'
+}) {
+  const tones = {
     brand: { bg: 'var(--brand-accent)', fg: 'white' },
-    primary: { bg: 'var(--brand-primary)', fg: 'white' },
     success: { bg: 'var(--success-border)', fg: 'white' },
     warning: { bg: 'var(--warning-border)', fg: 'white' },
+    neutral: { bg: 'hsl(var(--muted-foreground))', fg: 'white' },
   }
-  const c = colors[tone]
-  
+  const t = tones[tone]
   return (
-    <div className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5 shadow-sm">
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl" style={{ backgroundColor: c.bg, color: c.fg }}>
-        <Icon size={20} />
+    <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 shadow-sm">
+      <div
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
+        style={{ backgroundColor: t.bg, color: t.fg }}
+      >
+        <Icon size={18} />
       </div>
       <div className="min-w-0">
-        <p className="text-xs font-medium text-muted-foreground">{label}</p>
-        <p className="truncate text-2xl font-bold text-foreground">{value}</p>
+        <p className="truncate text-xl font-bold text-foreground">{value}</p>
+        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+          {label}
+        </p>
       </div>
     </div>
   )
