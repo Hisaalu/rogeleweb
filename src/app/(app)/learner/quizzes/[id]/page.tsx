@@ -5,7 +5,30 @@ import {
   getActiveSubscriptionServer,
 } from '@/lib/dashboard.server'
 import { getAccessReason } from '@/lib/access'
+import { fetchPublicSettings } from '@/lib/settings.server.public'
 import { TakeQuizView } from './take-quiz-view'
+import type { Metadata } from 'next'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string }
+}): Promise<Metadata> {
+  const id = Number(params.id)
+  if (!Number.isFinite(id)) return { title: 'Quiz' }
+
+  const [quiz, settings] = await Promise.all([
+    getQuizServer(id),
+    fetchPublicSettings(),
+  ])
+
+  const siteTitle = settings['site.browser_title']?.trim() || 'NexaT'
+  const quizTitle = quiz?.title?.trim()
+
+  return {
+    title: quizTitle ? `${quizTitle}` : `Quiz | ${siteTitle}`,
+  }
+}
 
 export default async function TakeQuizPage({
   params,
