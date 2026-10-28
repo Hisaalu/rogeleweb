@@ -106,7 +106,7 @@ export function PublicHeader() {
             </div>
             
             <div className="flex flex-col justify-center">
-              <span className="text-sm font-bold leading-tight truncate max-w-[200px]" style={{ color: 'var(--brand-primary)' }}>
+              <span className="text-sm font-bold leading-tight truncate max-w-[200px] text-foreground">
                 {branding.schoolName}
               </span>
               <span className="text-[10px] text-muted-foreground leading-tight truncate max-w-[200px]">
@@ -210,7 +210,7 @@ export function PublicHeader() {
                 </div>
                 
                 <div className="flex flex-col justify-center">
-                  <span className="text-sm font-bold leading-tight truncate max-w-[150px]" style={{ color: 'var(--brand-primary)' }}>
+                  <span className="text-sm font-bold leading-tight truncate max-w-[150px] text-foreground">
                     {branding.schoolName}
                   </span>
                   <span className="text-[10px] text-muted-foreground leading-tight truncate max-w-[150px]">
