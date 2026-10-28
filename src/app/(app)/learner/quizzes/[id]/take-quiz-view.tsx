@@ -95,11 +95,6 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz; questions: QuizQ
           const res = await startAttemptClient(quiz.id)
           attempt = res
           serverAnswers = res.saved_answers ?? {}
-        } else {
-          const fetched = await getAttemptClient(attempt.id)
-          if (fetched) {
-            serverAnswers = {}
-          }
         }
 
         setAttemptId(attempt.id)
@@ -111,12 +106,8 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz; questions: QuizQ
         const e = err as Error & { code?: string; status?: number }
         const msg = e.message || 'Could not start quiz attempt.'
 
-        if (msg.includes('completed') || e.status === 409) {
-          showToast(msg, 'error')
-          router.push('/learner/quizzes')
-          return
-        }
         if (msg.includes('attempts')) {
+          showToast(msg, 'error')
           router.push('/learner/quizzes')
           return
         }
@@ -168,7 +159,7 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz; questions: QuizQ
       try {
         await saveAnswerClient(attemptId, qId, optIdx)
       } catch {
-        showToast('Failed to sync answer. Your choice is saved locally and will sync on submit.', 'warning')
+        showToast('Saved locally. Will sync on submit.', 'info')
       }
     }
   }

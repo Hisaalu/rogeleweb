@@ -10,6 +10,7 @@ import {
   BarChart2,
   AlertTriangle,
   CheckCircle2,
+  RefreshCw,
 } from 'lucide-react'
 import type { Quiz, QuizAttempt } from '@/types/quiz'
 
@@ -52,19 +53,27 @@ export function LearnerQuizzesView({
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {visibleQuizzes.map((quiz) => {
             const quizAttempts = attempts.filter((a) => a.quiz_id === quiz.id)
-            const completedAttempt = quizAttempts.find((a) => a.status === 'completed')
+            const completedAttempts = quizAttempts.filter((a) => a.status === 'completed')
+            const attemptCount = completedAttempts.length
             const inProgressAttempt = quizAttempts.find((a) => a.status === 'in_progress')
-            const bestScore = completedAttempt?.score ?? 0
+            
+            const maxAttempts = quiz.max_attempts ?? 3
+            const remainingAttempts = Math.max(0, maxAttempts - attemptCount)
+            const noAttemptsLeft = remainingAttempts === 0
+            
+            const bestScore = completedAttempts.reduce((max, a) => Math.max(max, a.score ?? 0), 0)
             const passingScore = quiz.passing_score ?? 70
             const passed = bestScore >= passingScore
-            const latestCompletedId = completedAttempt?.id ?? null
-            const endDate = quiz.end_date
+            
+            const latestCompletedId = completedAttempts.length > 0
+              ? completedAttempts.sort((a, b) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime())[0].id
+              : null
 
             return (
               <div
                 key={quiz.id}
                 className={`relative flex flex-col rounded-2xl border p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md ${
-                  inProgressAttempt
+                  inProgressAttempt || noAttemptsLeft
                     ? 'border-warning-border bg-warning-bg/30'
                     : 'border-border bg-card'
                 }`}
@@ -99,48 +108,32 @@ export function LearnerQuizzesView({
 
                 <div className="mb-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
-                    <HelpCircle size={13} style={{ color: 'var(--brand-accent)' }} />{' '}
+                    <HelpCircle size={13} style={{ color: 'var(--brand-accent)' }} />
                     {quiz.question_count ?? 0} qns
                   </span>
                   <span className="flex items-center gap-1">
-                    <Clock size={13} style={{ color: 'var(--brand-accent)' }} />{' '}
+                    <Clock size={13} style={{ color: 'var(--brand-accent)' }} />
                     {quiz.time_limit ?? 30}m
                   </span>
                   <span className="flex items-center gap-1">
-                    <Trophy size={13} style={{ color: 'var(--brand-accent)' }} />{' '}
+                    <Trophy size={13} style={{ color: 'var(--brand-accent)' }} />
                     {passingScore}% pass
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <RefreshCw size={13} style={{ color: 'var(--brand-accent)' }} />
+                    {attemptCount}/{maxAttempts} attempts
                   </span>
                 </div>
 
-                {endDate && (
-                  <div
-                    className="mb-4 inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-medium w-fit"
-                    style={{
-                      backgroundColor: 'var(--warning-bg)',
-                      color: 'var(--warning-fg)',
-                    }}
-                  >
-                    <CalendarX size={12} />
-                    Due:{' '}
-                    {new Date(endDate).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                    })}
-                  </div>
-                )}
-
-                {completedAttempt && (
+                {completedAttempts.length > 0 && (
                   <div className="mb-4 border-y border-border py-3">
                     <div className="mb-1.5 flex items-center justify-between text-xs">
                       <span className="text-foreground">
-                        Score: <strong>{bestScore}%</strong>
+                        Best: <strong>{bestScore}%</strong>
                       </span>
-                      {completedAttempt.completed_at && (
+                      {!noAttemptsLeft && !inProgressAttempt && (
                         <span className="text-muted-foreground">
-                          {new Date(completedAttempt.completed_at).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                          })}
+                          {remainingAttempts} left
                         </span>
                       )}
                     </div>
@@ -155,34 +148,19 @@ export function LearnerQuizzesView({
                         }}
                       />
                     </div>
-                    {passed ? (
+                    {passed && (
                       <div
                         className="mt-1.5 flex items-center gap-1 text-[11px] font-bold"
                         style={{ color: 'var(--success-fg)' }}
                       >
                         <CheckCircle2 size={12} /> Passed
                       </div>
-                    ) : (
-                      <div
-                        className="mt-1.5 flex items-center gap-1 text-[11px] font-bold"
-                        style={{ color: 'var(--danger-fg)' }}
-                      >
-                        <AlertTriangle size={12} /> Not passed
-                      </div>
                     )}
                   </div>
                 )}
 
                 <div className="mt-auto flex items-center gap-2">
-                  {completedAttempt ? (
-                    <Link
-                      href={`/learner/quizzes/results/${latestCompletedId}`}
-                      className="flex w-full items-center justify-center gap-1.5 rounded-full px-3 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-                      style={{ backgroundColor: 'var(--brand-primary)' }}
-                    >
-                      <BarChart2 size={15} /> View Results
-                    </Link>
-                  ) : inProgressAttempt ? (
+                  {inProgressAttempt ? (
                     <Link
                       href={`/learner/quizzes/${quiz.id}`}
                       className="flex w-full items-center justify-center gap-1.5 rounded-full px-3 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
@@ -190,13 +168,35 @@ export function LearnerQuizzesView({
                     >
                       <Play size={15} /> Resume Quiz
                     </Link>
+                  ) : noAttemptsLeft ? (
+                    <>
+                      <div
+                        className="flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-2.5 text-sm font-semibold"
+                        style={{
+                          backgroundColor: 'var(--warning-bg)',
+                          color: 'var(--warning-fg)',
+                        }}
+                      >
+                        No Attempts
+                      </div>
+                      {latestCompletedId && (
+                        <Link
+                          href={`/learner/quizzes/results/${latestCompletedId}`}
+                          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition hover:bg-muted/80"
+                          title="View Results"
+                        >
+                          <BarChart2 size={16} />
+                        </Link>
+                      )}
+                    </>
                   ) : (
                     <Link
                       href={`/learner/quizzes/${quiz.id}`}
                       className="flex w-full items-center justify-center gap-1.5 rounded-full px-3 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
                       style={{ backgroundColor: 'var(--brand-primary)' }}
                     >
-                      <Play size={15} /> Start Quiz
+                      {attemptCount > 0 ? 'Try Another Attempt' : 'Start Quiz'}
+                      <Play size={15} />
                     </Link>
                   )}
                 </div>
