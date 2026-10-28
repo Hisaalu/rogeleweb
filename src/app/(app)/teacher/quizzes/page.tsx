@@ -7,12 +7,21 @@ import { TeacherQuizzesView } from './teacher-quizzes-view'
 export const metadata: Metadata = { title: 'Quizzes' }
 export const dynamic = 'force-dynamic'
 
-export default async function TeacherQuizzesPage() {
+export default async function TeacherQuizzesPage({
+  searchParams,
+}: {
+  searchParams: { q?: string; class_id?: string }
+}) {
   const session = await getSessionUser()
   if (!session) return null
 
+  const q = searchParams.q?.trim() || undefined
+  const classIdRaw = searchParams.class_id
+  const classId =
+    classIdRaw && Number.isFinite(Number(classIdRaw)) ? Number(classIdRaw) : undefined
+
   const [quizzes, classes] = await Promise.all([
-    listAllQuizzesServer({}),
+    listAllQuizzesServer({ q, class_id: classId }),
     listClassesServer(),
   ])
 

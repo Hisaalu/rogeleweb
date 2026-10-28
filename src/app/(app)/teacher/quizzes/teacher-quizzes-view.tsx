@@ -25,12 +25,14 @@ export function TeacherQuizzesView({ quizzes: initial, classes }: { quizzes: Qui
 
   useEffect(() => { setQuizzes(initial) }, [initial])
 
-  function push(next: { q?: string, class_id?: string }) {
+  function push(next: { q?: string; class_id?: string }) {
     const sp = new URLSearchParams(params.toString())
     const nq = next.q !== undefined ? next.q : q
     const nc = next.class_id !== undefined ? next.class_id : classId
-    if (nq) sp.set('q', nq); else sp.delete('q')
-    if (nc) sp.set('class_id', nc); else sp.delete('class_id')
+    if (nq) sp.set('q', nq)
+    else sp.delete('q')
+    if (nc) sp.set('class_id', nc)
+    else sp.delete('class_id')
     router.push(`${pathname}?${sp.toString()}`)
   }
 
