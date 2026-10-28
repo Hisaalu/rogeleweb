@@ -99,7 +99,6 @@ export function MobileMenu({
 
   return (
     <div className="fixed inset-0 z-[60] lg:hidden">
-      {/* Backdrop */}
       <div
         className={cn(
           'absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-200',
@@ -109,7 +108,6 @@ export function MobileMenu({
         aria-hidden="true"
       />
 
-      {/* Drawer */}
       <aside
         role="dialog"
         aria-modal="true"
@@ -119,12 +117,10 @@ export function MobileMenu({
           visible ? 'translate-x-0' : 'translate-x-full',
         )}
       >
-        {/* Header with avatar */}
         <div
           className="relative overflow-hidden px-5 py-6 sm:px-6 sm:py-8"
           style={{ backgroundColor: 'var(--brand-primary)' }}
         >
-          {/* Close button */}
           <button
             ref={closeRef}
             type="button"
@@ -153,7 +149,6 @@ export function MobileMenu({
           </div>
         </div>
 
-        {/* Nav list */}
         <nav className="flex-1 overflow-y-auto p-3 sm:p-4">
           <ul className="space-y-0.5 sm:space-y-1">
             {items.map((item) => {
