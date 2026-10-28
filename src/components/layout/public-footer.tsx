@@ -22,7 +22,6 @@ export function PublicFooter() {
   const youtube = getSetting('social.youtube')
   const website = branding.websiteUrl
   
-  // Added siteTitle to fix the copyright line below
   const siteTitle = getSetting('site.browser_title') || branding.schoolName
 
   useEffect(() => {
@@ -147,7 +146,6 @@ export function PublicFooter() {
 
         <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 text-center sm:flex-row sm:text-left">
           <p className="text-xs text-muted-foreground">
-            {/* Only this line changed from site.browser_title to siteTitle */}
             &copy; {currentYear} {siteTitle}. All rights reserved.
           </p>
         </div>
