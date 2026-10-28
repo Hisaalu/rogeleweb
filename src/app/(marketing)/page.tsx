@@ -247,18 +247,37 @@ export default async function HomePage() {
             <span style={{ color: 'var(--brand-primary)' }}>Learning Path</span>
           </h2>
 
-          <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {plans.map((plan) => (
-              <PlanCard
-                key={plan.id}
-                plan={plan}
-                allPlans={plans}
-                recommended={plan.id === recommendedId}
+          {plans.length === 0 ? (
+            <div className="mx-auto mt-16 max-w-md rounded-3xl border border-border bg-card p-8 text-center">
+              <p className="text-sm font-semibold text-foreground">
+                Plans are being updated
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Pricing will be available shortly. Create a free account to get
+                started in the meantime.
+              </p>
+              <Link
                 href="/register"
-                buttonLabel="Get Started"
-              />
-            ))}
-          </div>
+                className="mt-6 inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+                style={{ backgroundColor: 'var(--brand-primary)' }}
+              >
+                Create Free Account <ArrowRight size={16} />
+              </Link>
+            </div>
+          ) : (
+            <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              {plans.map((plan) => (
+                <PlanCard
+                  key={plan.id}
+                  plan={plan}
+                  allPlans={plans}
+                  recommended={plan.id === recommendedId}
+                  href="/register"
+                  buttonLabel="Get Started"
+                />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
