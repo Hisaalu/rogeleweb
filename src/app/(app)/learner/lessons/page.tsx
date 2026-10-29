@@ -43,9 +43,9 @@ export default async function LearnerLessonsPage({
       subject_id: subjectId,
       class_id: session.class_id ?? undefined,
       page,
-      per_page: 24,
+      per_page: 12,
     }),
-    listSubjectsServer(),
+    listSubjectsServer(session.class_id ?? undefined),
     listBookmarksServer(),
   ])
 

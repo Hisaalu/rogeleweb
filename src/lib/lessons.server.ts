@@ -102,9 +102,13 @@ export async function listMaterialsServer(
   }
 }
 
-export async function listSubjectsServer(): Promise<Subject[]> {
+export async function listSubjectsServer(classId?: number): Promise<Subject[]> {
   try {
-    const res = await serverApiRequest<unknown>('/api/v1/subjects?per_page=100')
+    const sp = new URLSearchParams()
+    sp.set('per_page', '100')
+    if (classId) sp.set('class_id', String(classId))
+
+    const res = await serverApiRequest<unknown>(`/api/v1/subjects?${sp.toString()}`)
     if (Array.isArray(res)) return res as Subject[]
     const r = (res ?? {}) as { data?: Subject[]; value?: Subject[] }
     if (Array.isArray(r.data)) return r.data
