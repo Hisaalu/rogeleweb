@@ -8,6 +8,7 @@ import { formatFileSize, materialDownloadUrl } from '@/lib/materials'
 import type { LessonMaterial } from '@/types/lesson'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { useToast } from '@/components/ui/toast-provider'
+import { Card } from '@/components/ui/card'
 
 export function ExistingMaterialsPanel({ lessonId }: { lessonId: number }) {
   const router = useRouter()
@@ -50,16 +51,16 @@ export function ExistingMaterialsPanel({ lessonId }: { lessonId: number }) {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-3xl rounded-2xl border border-border bg-card px-4 py-6 text-sm text-muted-foreground">
+      <Card className="mx-auto max-w-3xl px-4 py-6 text-sm text-muted-foreground">
         Loading materials...
-      </div>
+      </Card>
     )
   }
 
   if (materials.length === 0) return null
 
   return (
-    <div className="mx-auto max-w-3xl rounded-2xl border border-border bg-card p-6">
+    <Card className="mx-auto max-w-3xl p-6">
       <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-foreground">
         <FileText size={18} style={{ color: 'var(--brand-accent)' }} />
         Existing Materials
@@ -68,7 +69,7 @@ export function ExistingMaterialsPanel({ lessonId }: { lessonId: number }) {
         {materials.map((m) => (
           <li
             key={m.id}
-            className="flex flex-wrap items-center gap-3 rounded-lg bg-muted px-3 py-2 text-sm"
+            className="flex flex-wrap items-center gap-3 rounded-md bg-muted px-3 py-2 text-sm"
           >
             <FileText size={15} style={{ color: 'var(--brand-accent)' }} />
             <a
@@ -109,6 +110,6 @@ export function ExistingMaterialsPanel({ lessonId }: { lessonId: number }) {
         loading={busyId !== null}
         onConfirm={confirmDelete}
       />
-    </div>
+    </Card>
   )
 }

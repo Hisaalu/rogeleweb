@@ -13,6 +13,8 @@ import {
 } from 'lucide-react'
 import { getYoutubeId, truncate, formatNumber, formatDate } from '@/lib/utils'
 import type { Lesson } from '@/types/lesson'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 export function TeacherLessonCard({
   lesson,
@@ -26,7 +28,7 @@ export function TeacherLessonCard({
   const youtubeId = getYoutubeId(lesson.video_url)
 
   return (
-    <div className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-xl">
+    <Card className="group flex flex-col overflow-hidden transition hover:-translate-y-1 hover:shadow-xl">
       <div
         className="relative h-[180px] overflow-hidden"
         style={{ backgroundColor: 'var(--brand-accent)' }}
@@ -106,39 +108,29 @@ export function TeacherLessonCard({
         </div>
 
         <div className="mt-auto flex gap-2">
-          <Link
-            href={`/teacher/lessons/${lesson.id}/edit`}
-            className="flex h-10 w-10 items-center justify-center rounded-lg transition hover:opacity-80"
-            style={{
-              backgroundColor: 'hsl(var(--muted))',
-              color: 'hsl(var(--foreground))',
-            }}
-            title="Edit lesson"
-          >
-            <Pencil size={15} />
+          <Link href={`/teacher/lessons/${lesson.id}/edit`} className="shrink-0">
+            <Button
+              variant="outline"
+              size="icon"
+              title="Edit lesson"
+            >
+              <Pencil size={15} />
+            </Button>
           </Link>
-          <button
+          <Button
             type="button"
+            variant="danger"
+            size="icon"
             onClick={() => onDelete(lesson.id)}
-            className="flex h-10 w-10 items-center justify-center rounded-lg transition hover:opacity-80"
-            style={{
-              backgroundColor: 'var(--danger-bg)',
-              color: 'var(--danger-fg)',
-            }}
             title="Delete lesson"
           >
             <Trash2 size={15} />
-          </button>
-          <Link
-            href={`/teacher/lessons/${lesson.id}/preview`}
-            target="_blank"
-            className="flex h-10 flex-1 items-center justify-center gap-2 rounded-lg px-3 text-xs font-semibold text-white transition hover:opacity-90"
-            style={{ backgroundColor: 'var(--brand-primary)' }}
-          >
-            Preview
+          </Button>
+          <Link href={`/teacher/lessons/${lesson.id}/preview`} target="_blank" className="flex-1">
+            <Button className="w-full">Preview</Button>
           </Link>
         </div>
       </div>
-    </div>
+    </Card>
   )
 }

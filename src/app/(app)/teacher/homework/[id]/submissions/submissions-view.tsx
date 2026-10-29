@@ -7,6 +7,9 @@ import type { Homework, HomeworkSubmission } from '@/types/homework'
 import { gradeSubmissionClient } from '@/lib/homework.client'
 import { materialDownloadUrl, formatFileSize } from '@/lib/materials'
 import { useToast } from '@/components/ui/toast-provider'
+import { Card } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 
 export function SubmissionsView({ homework, submissions: initial }: { homework: Homework, submissions: HomeworkSubmission[] }) {
   const { showToast } = useToast()
@@ -75,13 +78,9 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
           <h1 className="mt-2 text-2xl font-bold text-foreground truncate max-w-full">Homework Submissions</h1>
           <p className="text-sm text-muted-foreground truncate max-w-full">{homework.title}</p>
         </div>
-        <button 
-          onClick={downloadCSV} 
-          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90" 
-          style={{ backgroundColor: 'var(--success-border)' }}
-        >
-          <Download size={15} /> Export Grades (CSV)
-        </button>
+        <Button onClick={downloadCSV} variant="secondary" className="shrink-0">
+          <Download size={15} className="mr-2" /> Export Grades (CSV)
+        </Button>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -92,11 +91,11 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
       </div>
 
       {submissions.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
+        <Card className="border-dashed px-6 py-16 text-center">
           <Users size={40} className="mx-auto mb-4 opacity-30" style={{ color: 'var(--brand-accent)' }} />
           <h3 className="text-xl font-bold text-foreground">No Submissions Yet</h3>
           <p className="mt-1 text-sm text-muted-foreground">Students haven&apos;t submitted this homework yet.</p>
-        </div>
+        </Card>
       ) : (
         <div className="space-y-4">
           {submissions.map(sub => {
@@ -104,7 +103,7 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
             const passed = (sub.grade ?? 0) >= 50
 
             return (
-              <div key={sub.id} className="rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:border-brand-accent">
+              <Card key={sub.id} className="p-5 transition hover:border-brand-accent">
                 <div className="mb-4 flex flex-wrap items-start justify-between gap-4 border-b border-border pb-4">
                   <div>
                     <h3 className="font-bold text-foreground">{sub.student_first_name || 'Student'} {sub.student_last_name || ''}</h3>
@@ -133,7 +132,7 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
                 {sub.text_answer && (
                   <div className="mt-4">
                     <p className="mb-1 text-xs font-semibold uppercase text-muted-foreground">Answer</p>
-                    <div className="rounded-xl bg-muted/50 p-4 text-sm text-foreground whitespace-pre-wrap">{sub.text_answer}</div>
+                    <div className="rounded-md bg-muted/50 p-4 text-sm text-foreground whitespace-pre-wrap">{sub.text_answer}</div>
                   </div>
                 )}
 
@@ -150,45 +149,44 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
                   </div>
                 )}
 
-                <div className="mt-4 rounded-xl bg-muted/30 p-4">
+                <div className="mt-4 rounded-md bg-muted/30 p-4">
                   {!isEditing && sub.status === 'graded' ? (
                     <div>
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-foreground">Grade: <span style={{ color: passed ? 'var(--success-fg)' : 'var(--danger-fg)' }}>{sub.grade}%</span></span>
                         </div>
-                        <button 
+                        <Button 
+                          variant="outline"
+                          size="sm"
                           onClick={() => { setEditingId(sub.id); setGrades({...grades, [sub.id]: String(sub.grade)}); setFeedbacks({...feedbacks, [sub.id]: sub.feedback || ''}) }} 
-                          className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition hover:opacity-80" 
-                          style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }}
                         >
-                          <Edit2 size={12} /> Edit Grade
-                        </button>
+                          <Edit2 size={12} className="mr-2" /> Edit Grade
+                        </Button>
                       </div>
                       {sub.feedback && <p className="mt-2 text-sm text-muted-foreground"><strong className="text-foreground">Feedback:</strong> {sub.feedback}</p>}
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      <div>
-                        <label className="mb-1 block text-xs font-semibold text-foreground">Grade (%)</label>
-                        <input type="number" min={0} max={100} value={grades[sub.id] || ''} onChange={e => setGrades({...grades, [sub.id]: e.target.value})} className="w-32 rounded-lg border border-border bg-background px-3 py-1.5 text-sm outline-none focus:border-brand-accent" placeholder="0-100" />
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-foreground">Grade (%)</label>
+                        <Input type="number" min={0} max={100} value={grades[sub.id] || ''} onChange={e => setGrades({...grades, [sub.id]: e.target.value})} className="w-32" placeholder="0-100" />
                       </div>
-                      <div>
-                        <label className="mb-1 block text-xs font-semibold text-foreground">Feedback</label>
-                        <textarea value={feedbacks[sub.id] || ''} onChange={e => setFeedbacks({...feedbacks, [sub.id]: e.target.value})} rows={2} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-brand-accent" placeholder="Provide feedback..." />
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-foreground">Feedback</label>
+                        <textarea value={feedbacks[sub.id] || ''} onChange={e => setFeedbacks({...feedbacks, [sub.id]: e.target.value})} rows={2} className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent/25" placeholder="Provide feedback..." />
                       </div>
-                      <button 
+                      <Button 
                         onClick={() => handleGrade(sub.id)} 
                         disabled={busyId === sub.id} 
-                        className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50" 
-                        style={{ backgroundColor: 'var(--brand-primary)' }}
+                        size="sm"
                       >
-                        <Save size={14} /> {busyId === sub.id ? 'Saving...' : 'Save Grade'}
-                      </button>
+                        <Save size={14} className="mr-2" /> {busyId === sub.id ? 'Saving...' : 'Save Grade'}
+                      </Button>
                     </div>
                   )}
                 </div>
-              </div>
+              </Card>
             )
           })}
         </div>
@@ -207,14 +205,14 @@ function StatCard({ icon: Icon, label, value, tone }: { icon: LucideIcon, label:
   const c = colors[tone]
 
   return (
-    <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 shadow-sm">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: c.bg, color: c.fg }}>
+    <Card className="flex items-center gap-4 p-4">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md" style={{ backgroundColor: c.bg, color: c.fg }}>
         <Icon size={18} />
       </div>
       <div className="min-w-0">
         <p className="truncate text-xl font-bold text-foreground">{value}</p>
         <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
       </div>
-    </div>
+    </Card>
   )
 }

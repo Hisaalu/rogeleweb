@@ -10,6 +10,9 @@ import type { User as ProfileUser } from '@/types/api'
 import { updateProfileClient, uploadAvatarClient } from '@/lib/profile.client'
 import { formatDate } from '@/lib/utils'
 import { useToast } from '@/components/ui/toast-provider'
+import { Card } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 
 export function TeacherProfileView({
   profile,
@@ -104,7 +107,7 @@ export function TeacherProfileView({
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[350px_1fr] lg:gap-8">
         
-        <div className="space-y-6 rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md sm:p-8">
+        <Card className="space-y-6 p-5 sm:p-8">
           <div className="text-center">
             <div className="relative mx-auto mb-5 h-32 w-32 sm:h-[150px] sm:w-[150px]">
               {profile?.profile_photo ? (
@@ -140,8 +143,8 @@ export function TeacherProfileView({
           </div>
 
           <div className="space-y-2 border-t border-border pt-6">
-            <div className="flex items-center gap-3 rounded-xl p-2.5 transition hover:bg-muted/50 sm:p-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }}>
+            <div className="flex items-center gap-3 rounded-md p-2.5 transition hover:bg-muted/50 sm:p-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }}>
                 <Calendar size={18} />
               </div>
               <div className="min-w-0">
@@ -150,8 +153,8 @@ export function TeacherProfileView({
               </div>
             </div>
 
-            <div className="flex items-center gap-3 rounded-xl p-2.5 transition hover:bg-muted/50 sm:p-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }}>
+            <div className="flex items-center gap-3 rounded-md p-2.5 transition hover:bg-muted/50 sm:p-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }}>
                 <Clock size={18} />
               </div>
               <div className="min-w-0">
@@ -160,8 +163,8 @@ export function TeacherProfileView({
               </div>
             </div>
 
-            <div className="flex items-center gap-3 rounded-xl p-2.5 transition hover:bg-muted/50 sm:p-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }}>
+            <div className="flex items-center gap-3 rounded-md p-2.5 transition hover:bg-muted/50 sm:p-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }}>
                 <BookOpen size={18} />
               </div>
               <div className="min-w-0">
@@ -170,8 +173,8 @@ export function TeacherProfileView({
               </div>
             </div>
 
-            <div className="flex items-center gap-3 rounded-xl p-2.5 transition hover:bg-muted/50 sm:p-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }}>
+            <div className="flex items-center gap-3 rounded-md p-2.5 transition hover:bg-muted/50 sm:p-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }}>
                 <Users size={18} />
               </div>
               <div className="min-w-0">
@@ -180,9 +183,9 @@ export function TeacherProfileView({
               </div>
             </div>
           </div>
-        </div>
+        </Card>
 
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-8 lg:p-10">
+        <Card className="p-5 sm:p-8 lg:p-10">
           <h3 className="mb-6 flex items-center gap-2 border-b border-border pb-4 text-base font-bold text-foreground sm:mb-8 sm:text-lg">
             <Edit size={18} style={{ color: 'var(--brand-accent)' }} />
             Edit Personal Information
@@ -191,49 +194,45 @@ export function TeacherProfileView({
           <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6">
               <Field label="First Name" icon={User} required>
-                <input 
+                <Input 
                   type="text" 
                   value={firstName} 
                   onChange={e => setFirstName(e.target.value)} 
                   required 
                   autoComplete="given-name"
                   placeholder="Enter your first name"
-                  className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none transition focus:border-brand-accent sm:py-3" 
                 />
               </Field>
               <Field label="Last Name" icon={User} required>
-                <input 
+                <Input 
                   type="text" 
                   value={lastName} 
                   onChange={e => setLastName(e.target.value)} 
                   required 
                   autoComplete="family-name"
                   placeholder="Enter your last name"
-                  className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none transition focus:border-brand-accent sm:py-3" 
                 />
               </Field>
             </div>
 
             <Field label="Email Address" icon={Mail} required>
-              <input 
+              <Input 
                 type="email" 
                 value={email} 
                 onChange={e => setEmail(e.target.value)} 
                 required 
                 autoComplete="email"
                 placeholder="Enter your email address"
-                className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none transition focus:border-brand-accent sm:py-3" 
               />
             </Field>
 
             <Field label="Phone Number" icon={Phone}>
-              <input 
+              <Input 
                 type="tel" 
                 value={phone} 
                 onChange={e => setPhone(e.target.value)} 
                 autoComplete="tel"
                 placeholder="Enter your phone number"
-                className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none transition focus:border-brand-accent sm:py-3" 
               />
             </Field>
 
@@ -243,42 +242,39 @@ export function TeacherProfileView({
                 onChange={e => setBio(e.target.value)} 
                 rows={4} 
                 placeholder="Tell your students a little about yourself..."
-                className="w-full resize-y rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none transition focus:border-brand-accent sm:py-3" 
+                className="w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition focus:border-brand-accent focus:ring-1 focus:ring-brand-accent/25" 
               />
             </Field>
 
             <Field label="Qualifications" icon={GraduationCap}>
-              <input 
+              <Input 
                 type="text" 
                 value={qualification} 
                 onChange={e => setQualification(e.target.value)} 
                 placeholder="e.g., Bachelor of Education"
-                className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none transition focus:border-brand-accent sm:py-3" 
               />
             </Field>
 
             <Field label="Specialization" icon={Star}>
-              <input 
+              <Input 
                 type="text" 
                 value={specialization} 
                 onChange={e => setSpecialization(e.target.value)} 
                 placeholder="e.g., Mathematics, Science"
-                className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none transition focus:border-brand-accent sm:py-3" 
               />
             </Field>
 
             <div className="flex justify-end border-t border-border pt-5 sm:pt-6">
-              <button 
+              <Button 
                 type="submit" 
                 disabled={busy} 
-                className="inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 sm:w-auto sm:px-8 sm:py-3" 
-                style={{ backgroundColor: 'var(--brand-primary)' }}
+                className="w-full sm:w-auto"
               >
-                <Save size={16} /> {busy ? 'Saving...' : 'Save Changes'}
-              </button>
+                <Save size={16} className="mr-2" /> {busy ? 'Saving...' : 'Save Changes'}
+              </Button>
             </div>
           </form>
-        </div>
+        </Card>
 
       </div>
 
@@ -288,8 +284,8 @@ export function TeacherProfileView({
 
 function Field({ label, icon: Icon, required, children }: { label: string, icon: LucideIcon, required?: boolean, children: React.ReactNode }) {
   return (
-    <div>
-      <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
+    <div className="space-y-1.5">
+      <label className="flex items-center gap-2 text-sm font-semibold text-foreground">
         <Icon size={14} style={{ color: 'var(--brand-accent)' }} className="shrink-0" />
         {label} {required && <span style={{ color: 'var(--danger-fg)' }}>*</span>}
       </label>

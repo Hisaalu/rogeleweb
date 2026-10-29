@@ -9,6 +9,10 @@ import {
 } from 'lucide-react'
 import type { Class } from '@/types/admin'
 import type { StudentListMeta } from '@/lib/students.server'
+import { Card } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
+import { Button } from '@/components/ui/button'
 
 interface StudentListItem {
   id: number
@@ -114,8 +118,8 @@ export function StudentsView({
 
         {totalStudents > 0 && (
           <div className="flex flex-col gap-3 sm:flex-row">
-            <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 shadow-sm">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg text-white" style={{ backgroundColor: 'var(--brand-accent)' }}>
+            <div className="flex items-center gap-3 rounded-md border border-border bg-card p-3 shadow-sm">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md text-white" style={{ backgroundColor: 'var(--brand-accent)' }}>
                 <GraduationCap size={20} />
               </div>
               <div>
@@ -123,8 +127,8 @@ export function StudentsView({
                 <p className="text-lg font-bold text-foreground">{totalStudents}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 shadow-sm">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg text-white" style={{ backgroundColor: 'var(--brand-primary)' }}>
+            <div className="flex items-center gap-3 rounded-md border border-border bg-card p-3 shadow-sm">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md text-white" style={{ backgroundColor: 'var(--brand-primary)' }}>
                 <BarChart2 size={20} />
               </div>
               <div>
@@ -136,48 +140,48 @@ export function StudentsView({
         )}
       </div>
 
-      <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
+      <Card className="p-4 sm:p-5">
         <form onSubmit={handleSearch} className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           <div className="relative w-full flex-1 sm:min-w-[240px]">
-            <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input
+            <Search size={16} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search students by name or email..."
-              className="w-full rounded-xl border border-border bg-background py-3 pl-11 pr-4 text-sm outline-none transition focus:border-brand-accent"
+              className="pl-8"
             />
           </div>
           
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <select
+            <Select
               value={selectedClass}
               onChange={(e) => { setSelectedClass(e.target.value); push({ class_id: e.target.value }) }}
-              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-brand-accent sm:w-[180px]"
+              className="w-full sm:w-[180px]"
             >
               <option value="">All Classes</option>
               {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-            <button type="submit" className="w-full rounded-xl px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90 sm:w-auto" style={{ backgroundColor: 'var(--brand-primary)' }}>
+            </Select>
+            <Button type="submit" className="w-full sm:w-auto">
               Filter
-            </button>
+            </Button>
             {(searchTerm || selectedClass) && (
-              <button type="button" onClick={handleClear} className="w-full rounded-xl px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90 sm:w-auto" style={{ backgroundColor: 'var(--brand-accent)' }}>
+              <Button type="button" variant="secondary" onClick={handleClear} className="w-full sm:w-auto">
                 Clear
-              </button>
+              </Button>
             )}
           </div>
         </form>
-      </div>
+      </Card>
 
       {students.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
+        <Card className="border-dashed px-6 py-16 text-center">
           <Users size={48} className="mx-auto mb-4 opacity-20" style={{ color: 'var(--brand-accent)' }} />
           <h3 className="text-xl font-bold text-foreground">No Students Found</h3>
           <p className="mt-1 text-sm text-muted-foreground">
             {searchTerm || selectedClass ? 'No students match your search criteria.' : "You don't have any students assigned to your classes yet."}
           </p>
-        </div>
+        </Card>
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
           {students.map(student => {
@@ -190,7 +194,7 @@ export function StudentsView({
             const passed = avgScore >= 50
 
             return (
-              <div key={student.id} className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-lg">
+              <Card key={student.id} className="group flex flex-col overflow-hidden transition hover:-translate-y-1 hover:shadow-lg">
                 <div className="relative h-[100px]" style={{ backgroundColor: 'var(--brand-accent)' }}>
                   <div className="absolute -bottom-10 left-1/2 flex h-20 w-20 -translate-x-1/2 items-center justify-center rounded-full border-4 border-card bg-card text-2xl font-bold text-brand-primary shadow-md">
                     {student.profile_photo ? (
@@ -231,7 +235,7 @@ export function StudentsView({
                     {student.email}
                   </p>
 
-                  <div className="mb-4 rounded-xl bg-muted/50 p-3">
+                  <div className="mb-4 rounded-md bg-muted/50 p-3">
                     <div className="mb-1 flex items-center justify-between text-xs">
                       <span className="font-semibold text-foreground">Performance</span>
                       <span className="font-bold text-foreground">{avgScore}%</span>
@@ -262,15 +266,13 @@ export function StudentsView({
                     </div>
                   </div>
 
-                  <Link
-                    href={`/teacher/students/${student.id}`}
-                    className="mt-auto inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-                    style={{ backgroundColor: 'var(--brand-primary)' }}
-                  >
-                    <BarChart2 size={16} /> View Progress
+                  <Link href={`/teacher/students/${student.id}`} className="mt-auto">
+                    <Button className="w-full">
+                      <BarChart2 size={16} className="mr-2" /> View Progress
+                    </Button>
                   </Link>
                 </div>
-              </div>
+              </Card>
             )
           })}
         </div>
@@ -279,11 +281,15 @@ export function StudentsView({
       {totalPages > 1 && (
         <div className="flex flex-wrap items-center justify-center gap-2 pt-4">
           {meta.page > 1 && (
-            <Link href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(meta.page - 1) }).toString()}`} className="flex h-10 items-center justify-center rounded-lg border border-border bg-card px-4 text-sm text-muted-foreground transition hover:border-brand-accent hover:text-brand-primary">Prev</Link>
+            <Link href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(meta.page - 1) }).toString()}`}>
+              <Button variant="outline">Prev</Button>
+            </Link>
           )}
           <span className="px-4 text-sm font-medium text-muted-foreground">Page {meta.page} of {totalPages}</span>
           {meta.page < totalPages && (
-            <Link href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(meta.page + 1) }).toString()}`} className="flex h-10 items-center justify-center rounded-lg border border-border bg-card px-4 text-sm text-muted-foreground transition hover:border-brand-accent hover:text-brand-primary">Next</Link>
+            <Link href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(meta.page + 1) }).toString()}`}>
+              <Button variant="outline">Next</Button>
+            </Link>
           )}
         </div>
       )}

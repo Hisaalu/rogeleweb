@@ -17,6 +17,8 @@ import {
 import type { User } from '@/types/api'
 import type { TeacherDashboardData } from '@/lib/teacher-dashboard.server'
 import { formatDate } from '@/lib/utils'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 const iconAccent = { color: 'var(--brand-accent)' } as const
 const iconSoftBg = {
@@ -45,8 +47,10 @@ export function TeacherDashboardView({
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 pb-10 sm:space-y-8">
+      
+      {/* Welcome Banner */}
       <div
-        className="flex flex-col gap-4 rounded-2xl p-5 text-white shadow-lg sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-6 sm:p-8"
+        className="flex flex-col gap-4 rounded-md p-5 text-white shadow-lg sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-6 sm:p-8"
         style={{ backgroundColor: 'var(--brand-primary)' }}
       >
         <div className="min-w-0">
@@ -61,13 +65,14 @@ export function TeacherDashboardView({
             Here&apos;s what&apos;s happening with your classes today
           </p>
         </div>
-        <div className="flex shrink-0 items-center gap-2 self-start rounded-full bg-white/20 px-4 py-2.5 text-sm font-medium backdrop-blur-sm sm:self-auto sm:px-5 sm:py-3">
+        <div className="flex shrink-0 items-center gap-2 self-start rounded-md bg-white/20 px-4 py-2 text-sm font-medium backdrop-blur-sm sm:self-auto sm:px-5 sm:py-2.5">
           <Calendar size={16} className="shrink-0 sm:hidden" />
           <Calendar size={18} className="hidden shrink-0 sm:block" />
           <span className="whitespace-nowrap">{today}</span>
         </div>
       </div>
 
+      {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
         <StatCard icon={BookOpen} label="Total Lessons" value={data.totalLessons} />
         <StatCard icon={HelpCircle} label="Total Quizzes" value={data.totalQuizzes} />
@@ -79,6 +84,7 @@ export function TeacherDashboardView({
         />
       </div>
 
+      {/* Quick Actions */}
       <section>
         <h2 className="mb-3 text-lg font-semibold text-foreground sm:mb-4 sm:text-xl">
           Quick Actions
@@ -111,18 +117,20 @@ export function TeacherDashboardView({
         </div>
       </section>
 
+      {/* Recent Activity Lists */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 lg:gap-6">
-        <div className="overflow-hidden rounded-2xl border border-border bg-card">
+        
+        {/* Recent Lessons */}
+        <Card className="overflow-hidden">
           <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3.5 sm:px-6 sm:py-4">
             <h3 className="flex min-w-0 items-center gap-2 text-sm font-semibold text-foreground sm:text-base">
               <BookOpen size={18} style={iconAccent} className="shrink-0" />
               <span className="truncate">Recent Lessons</span>
             </h3>
-            <Link
-              href="/teacher/lessons"
-              className="flex shrink-0 items-center gap-1 text-xs font-semibold text-muted-foreground transition hover:text-brand-accent sm:text-sm"
-            >
-              View All <ArrowRight size={14} />
+            <Link href="/teacher/lessons" className="shrink-0">
+              <Button variant="ghost" size="sm" className="h-8 px-2">
+                View All <ArrowRight size={14} className="ml-1" />
+              </Button>
             </Link>
           </div>
           <div className="p-3 sm:p-4">
@@ -138,10 +146,10 @@ export function TeacherDashboardView({
                 {data.recentLessons.map((lesson) => (
                   <div
                     key={lesson.id}
-                    className="flex items-center gap-3 rounded-xl p-2.5 transition hover:bg-muted sm:gap-4 sm:p-3"
+                    className="flex items-center gap-3 rounded-md p-2.5 transition hover:bg-muted sm:gap-4 sm:p-3"
                   >
                     <div
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl sm:h-11 sm:w-11"
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md sm:h-11 sm:w-11"
                       style={iconSoftBg}
                     >
                       <BookOpen size={18} style={iconAccent} />
@@ -172,19 +180,19 @@ export function TeacherDashboardView({
               </div>
             )}
           </div>
-        </div>
+        </Card>
 
-        <div className="overflow-hidden rounded-2xl border border-border bg-card">
+        {/* Recent Quizzes */}
+        <Card className="overflow-hidden">
           <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3.5 sm:px-6 sm:py-4">
             <h3 className="flex min-w-0 items-center gap-2 text-sm font-semibold text-foreground sm:text-base">
               <HelpCircle size={18} style={iconAccent} className="shrink-0" />
               <span className="truncate">Recent Quizzes</span>
             </h3>
-            <Link
-              href="/teacher/quizzes"
-              className="flex shrink-0 items-center gap-1 text-xs font-semibold text-muted-foreground transition hover:text-brand-accent sm:text-sm"
-            >
-              View All <ArrowRight size={14} />
+            <Link href="/teacher/quizzes" className="shrink-0">
+              <Button variant="ghost" size="sm" className="h-8 px-2">
+                View All <ArrowRight size={14} className="ml-1" />
+              </Button>
             </Link>
           </div>
           <div className="p-3 sm:p-4">
@@ -200,11 +208,11 @@ export function TeacherDashboardView({
                 {data.recentQuizzes.map((quiz) => (
                   <div
                     key={quiz.id}
-                    className="flex flex-col gap-2 rounded-xl p-2.5 transition hover:bg-muted sm:flex-row sm:items-center sm:gap-4 sm:p-3"
+                    className="flex flex-col gap-2 rounded-md p-2.5 transition hover:bg-muted sm:flex-row sm:items-center sm:gap-4 sm:p-3"
                   >
                     <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
                       <div
-                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl sm:h-11 sm:w-11"
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md sm:h-11 sm:w-11"
                         style={iconSoftBg}
                       >
                         <HelpCircle size={18} style={iconAccent} />
@@ -227,17 +235,18 @@ export function TeacherDashboardView({
                     </div>
                     <Link
                       href={`/teacher/quizzes/${quiz.id}/results`}
-                      className="shrink-0 self-end rounded-full px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90 sm:self-auto"
-                      style={{ backgroundColor: 'var(--brand-accent)' }}
+                      className="shrink-0 self-end sm:self-auto"
                     >
-                      View Results
+                      <Button variant="secondary" size="sm" className="h-8">
+                        View Results
+                      </Button>
                     </Link>
                   </div>
                 ))}
               </div>
             )}
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   )
@@ -255,9 +264,9 @@ function StatCard({
   const display = typeof value === 'number' ? value.toLocaleString('en-US') : value
 
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 transition hover:-translate-y-1 hover:shadow-lg sm:gap-5 sm:p-6">
+    <Card className="flex items-center gap-3 p-4 transition hover:-translate-y-1 hover:shadow-lg sm:gap-5 sm:p-6">
       <div
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white sm:h-14 sm:w-14"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-white sm:h-14 sm:w-14"
         style={{ backgroundColor: 'var(--brand-accent)' }}
       >
         <Icon size={20} className="sm:hidden" />
@@ -267,7 +276,7 @@ function StatCard({
         <p className="text-xs text-muted-foreground sm:text-sm">{label}</p>
         <p className="truncate text-xl font-bold text-foreground sm:text-2xl">{display}</p>
       </div>
-    </div>
+    </Card>
   )
 }
 
@@ -285,10 +294,10 @@ function ActionCard({
   return (
     <Link
       href={href}
-      className="group flex items-center gap-3 rounded-2xl border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:border-brand-accent hover:shadow-md sm:gap-4 sm:p-5"
+      className="group flex items-center gap-3 rounded-md border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:border-brand-accent hover:shadow-md sm:gap-4 sm:p-5"
     >
       <div
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl sm:h-12 sm:w-12"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md sm:h-12 sm:w-12"
         style={iconSoftBg}
       >
         <Icon size={18} style={iconAccent} className="sm:hidden" />
@@ -326,12 +335,8 @@ function EmptyState({
         className="mb-3 opacity-50"
       />
       <p className="mb-4 px-2 text-sm text-muted-foreground">{title}</p>
-      <Link
-        href={actionHref}
-        className="rounded-full px-5 py-2 text-sm font-semibold text-white transition hover:opacity-90"
-        style={{ backgroundColor: 'var(--brand-accent)' }}
-      >
-        {actionLabel}
+      <Link href={actionHref}>
+        <Button variant="secondary">{actionLabel}</Button>
       </Link>
     </div>
   )

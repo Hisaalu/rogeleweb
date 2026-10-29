@@ -6,6 +6,10 @@ import Link from 'next/link'
 import { ArrowLeft, Save, PlusCircle, X, HelpCircle } from 'lucide-react'
 import type { Quiz } from '@/types/quiz'
 import { useToast } from '@/components/ui/toast-provider'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
 
 export function AddQuestionsView({ quiz }: { quiz: Quiz }) {
   const router = useRouter()
@@ -65,62 +69,61 @@ export function AddQuestionsView({ quiz }: { quiz: Quiz }) {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {questions.map((q, idx) => (
-          <div key={q.id} className="relative rounded-2xl border-2 border-border bg-card p-6 transition hover:border-brand-accent">
+          <Card key={q.id} className="relative border-2 p-6 transition hover:border-brand-accent">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="flex items-center gap-2 text-lg font-bold text-foreground">
                 <HelpCircle size={18} style={{ color: 'var(--brand-accent)' }} /> Question {idx + 1}
               </h3>
               {questions.length > 1 && (
-                <button type="button" onClick={() => removeQuestion(q.id)} className="flex h-8 w-8 items-center justify-center rounded-lg transition hover:opacity-80" style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-fg)' }}>
+                <Button type="button" variant="danger" size="icon" onClick={() => removeQuestion(q.id)}>
                   <X size={16} />
-                </button>
+                </Button>
               )}
             </div>
 
             <div className="space-y-4">
-              <div>
-                <label className="mb-1 block text-sm font-semibold">Question Text <span style={{ color: 'var(--danger-fg)' }}>*</span></label>
-                <textarea name={`q_${idx}_text`} rows={2} required className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-brand-accent" />
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold">Question Text <span style={{ color: 'var(--danger-fg)' }}>*</span></label>
+                <textarea name={`q_${idx}_text`} rows={2} required className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm outline-none focus:border-brand-accent" />
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <div><label className="mb-1 block text-sm font-semibold">Option A <span style={{ color: 'var(--danger-fg)' }}>*</span></label><input name={`q_${idx}_a`} required className="w-full rounded-xl border border-border bg-background px-4 py-2 text-sm outline-none focus:border-brand-accent" /></div>
-                <div><label className="mb-1 block text-sm font-semibold">Option B <span style={{ color: 'var(--danger-fg)' }}>*</span></label><input name={`q_${idx}_b`} required className="w-full rounded-xl border border-border bg-background px-4 py-2 text-sm outline-none focus:border-brand-accent" /></div>
-                <div><label className="mb-1 block text-sm font-semibold">Option C</label><input name={`q_${idx}_c`} className="w-full rounded-xl border border-border bg-background px-4 py-2 text-sm outline-none focus:border-brand-accent" /></div>
-                <div><label className="mb-1 block text-sm font-semibold">Option D</label><input name={`q_${idx}_d`} className="w-full rounded-xl border border-border bg-background px-4 py-2 text-sm outline-none focus:border-brand-accent" /></div>
+                <div className="space-y-1.5"><label className="block text-sm font-semibold">Option A <span style={{ color: 'var(--danger-fg)' }}>*</span></label><Input name={`q_${idx}_a`} required /></div>
+                <div className="space-y-1.5"><label className="block text-sm font-semibold">Option B <span style={{ color: 'var(--danger-fg)' }}>*</span></label><Input name={`q_${idx}_b`} required /></div>
+                <div className="space-y-1.5"><label className="block text-sm font-semibold">Option C</label><Input name={`q_${idx}_c`} /></div>
+                <div className="space-y-1.5"><label className="block text-sm font-semibold">Option D</label><Input name={`q_${idx}_d`} /></div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="mb-1 block text-sm font-semibold">Correct Answer <span style={{ color: 'var(--danger-fg)' }}>*</span></label>
-                  <select name={`q_${idx}_correct`} required className="w-full rounded-xl border border-border bg-background px-4 py-2 text-sm outline-none focus:border-brand-accent">
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold">Correct Answer <span style={{ color: 'var(--danger-fg)' }}>*</span></label>
+                  <Select name={`q_${idx}_correct`} required>
                     <option value="">Select...</option>
                     <option value="A">A</option>
                     <option value="B">B</option>
                     <option value="C">C</option>
                     <option value="D">D</option>
-                  </select>
+                  </Select>
                 </div>
-                <div>
-                  <label className="mb-1 block text-sm font-semibold">Points</label>
-                  <input type="number" name={`q_${idx}_points`} defaultValue={1} min={1} max={10} className="w-full rounded-xl border border-border bg-background px-4 py-2 text-sm outline-none focus:border-brand-accent" />
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold">Points</label>
+                  <Input type="number" name={`q_${idx}_points`} defaultValue={1} min={1} max={10} />
                 </div>
               </div>
             </div>
-          </div>
+          </Card>
         ))}
 
         <div className="text-center">
-          <button type="button" onClick={addQuestion} className="inline-flex items-center gap-2 rounded-full border-2 border-dashed border-brand-accent px-6 py-3 text-sm font-bold text-brand-primary transition hover:bg-brand-accent hover:text-white">
-            <PlusCircle size={16} /> Add Another Question
-          </button>
+          <Button type="button" variant="outline" onClick={addQuestion} className="border-dashed">
+            <PlusCircle size={16} className="mr-2" /> Add Another Question
+          </Button>
         </div>
 
         <div className="flex justify-end border-t border-border pt-6">
-          <button type="submit" disabled={busy} className="inline-flex items-center gap-2 rounded-full px-8 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50" style={{ backgroundColor: 'var(--brand-primary)' }}>
-            <Save size={16} /> {busy ? 'Saving...' : 'Save Questions'}
-          </button>
+          <Button type="submit" disabled={busy}>
+            <Save size={16} className="mr-2" /> {busy ? 'Saving...' : 'Save Questions'}
+          </Button>
         </div>
       </form>
-
     </div>
   )
 }

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import type { LessonListMeta } from '@/types/lesson'
+import { Button } from '@/components/ui/button'
 
 export function Pagination({ meta }: { meta: LessonListMeta }) {
   const params = useSearchParams()
@@ -37,52 +38,38 @@ export function Pagination({ meta }: { meta: LessonListMeta }) {
   return (
     <div className="flex flex-wrap items-center justify-center gap-2 pt-4">
       {meta.page > 1 && (
-        <Link
-          href={href(meta.page - 1)}
-          className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition hover:border-brand-accent hover:text-brand-primary"
-        >
-          <ChevronLeft size={16} />
+        <Link href={href(meta.page - 1)}>
+          <Button variant="outline" size="icon">
+            <ChevronLeft size={16} />
+          </Button>
         </Link>
       )}
 
       {pages.map((p, i) => {
         if (p === '...') {
           return (
-            <span key={`ellipsis-${i}`} className="flex h-10 w-10 items-center justify-center text-muted-foreground">
+            <span key={`ellipsis-${i}`} className="flex h-9 w-9 items-center justify-center text-muted-foreground">
               ...
             </span>
           )
         }
         return (
-          <Link
-            key={p}
-            href={href(p as number)}
-            className="flex h-10 w-10 items-center justify-center rounded-lg border text-sm font-medium transition hover:bg-muted"
-            style={
-              p === meta.page
-                ? {
-                    backgroundColor: 'var(--brand-primary)',
-                    borderColor: 'var(--brand-primary)',
-                    color: 'white',
-                  }
-                : {
-                    backgroundColor: 'hsl(var(--card))',
-                    borderColor: 'hsl(var(--border))',
-                    color: 'hsl(var(--foreground))',
-                  }
-            }
-          >
-            {p}
+          <Link key={p} href={href(p as number)}>
+            <Button
+              variant={p === meta.page ? 'primary' : 'outline'}
+              size="icon"
+            >
+              {p}
+            </Button>
           </Link>
         )
       })}
 
       {meta.page < totalPages && (
-        <Link
-          href={href(meta.page + 1)}
-          className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition hover:border-brand-accent hover:text-brand-primary"
-        >
-          <ChevronRight size={16} />
+        <Link href={href(meta.page + 1)}>
+          <Button variant="outline" size="icon">
+            <ChevronRight size={16} />
+          </Button>
         </Link>
       )}
     </div>

@@ -36,6 +36,9 @@ import {
   type AtRiskData,
   type TeacherOverview,
 } from '@/lib/analytics.client'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Select } from '@/components/ui/select'
 
 const customTooltipStyle = {
   backgroundColor: 'hsl(var(--card))',
@@ -65,9 +68,9 @@ const StatCard = React.memo(function StatCard({
   loading?: boolean
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md sm:gap-4 sm:p-5">
+    <Card className="flex items-center gap-3 p-4 transition-shadow hover:shadow-md sm:gap-4 sm:p-5">
       <div
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white sm:h-12 sm:w-12"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-white sm:h-12 sm:w-12"
         style={{ backgroundColor: 'var(--brand-accent)' }}
       >
         <Icon size={20} className="sm:hidden" />
@@ -79,7 +82,7 @@ const StatCard = React.memo(function StatCard({
           {loading ? <span className="opacity-40">—</span> : value}
         </p>
       </div>
-    </div>
+    </Card>
   )
 })
 
@@ -244,22 +247,22 @@ export function AnalyticsView({
           </p>
         </div>
         <div className="relative w-full shrink-0 sm:w-auto">
-          <select
+          <Select
             value={range}
             onChange={handleRangeChange}
             aria-label="Select date range"
-            className="w-full rounded-xl border border-border bg-background px-4 py-2.5 pr-10 text-sm outline-none focus:border-brand-accent sm:w-auto"
+            className="w-full pr-10 sm:w-auto"
           >
             {RANGE_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
                 {o.label}
               </option>
             ))}
-          </select>
+          </Select>
           {isFetching && (
             <Loader2
               size={14}
-              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-muted-foreground"
+              className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 animate-spin text-muted-foreground"
             />
           )}
         </div>
@@ -272,31 +275,24 @@ export function AnalyticsView({
             return (
               <div
                 key={i}
-                className={`flex gap-3 rounded-xl border p-4 ${
-                  isDanger ? 'border-destructive/20' : 'border-warning/20'
-                }`}
+                className="flex gap-3 rounded-md border p-4"
                 style={{
-                  backgroundColor: isDanger
-                    ? 'var(--danger-bg)'
-                    : 'var(--warning-bg)',
+                  backgroundColor: isDanger ? 'var(--danger-bg)' : 'var(--warning-bg)',
+                  borderColor: isDanger ? 'var(--danger-border)' : 'var(--warning-border)',
                 }}
               >
                 <Lightbulb
                   size={20}
                   className="shrink-0"
                   style={{
-                    color: isDanger
-                      ? 'var(--danger-fg)'
-                      : 'var(--warning-fg)',
+                    color: isDanger ? 'var(--danger-fg)' : 'var(--warning-fg)',
                   }}
                 />
                 <div>
                   <h4
                     className="text-sm font-semibold"
                     style={{
-                      color: isDanger
-                        ? 'var(--danger-fg)'
-                        : 'var(--warning-fg)',
+                      color: isDanger ? 'var(--danger-fg)' : 'var(--warning-fg)',
                     }}
                   >
                     {rec.title}
@@ -304,9 +300,7 @@ export function AnalyticsView({
                   <p
                     className="mt-1 text-xs leading-relaxed"
                     style={{
-                      color: isDanger
-                        ? 'var(--danger-fg)'
-                        : 'var(--warning-fg)',
+                      color: isDanger ? 'var(--danger-fg)' : 'var(--warning-fg)',
                       opacity: 0.9,
                     }}
                   >
@@ -340,7 +334,7 @@ export function AnalyticsView({
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="relative rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-6">
+        <Card className="relative p-4 sm:p-6">
           <CardSpinner visible={isFetching} />
           <h3 className="mb-6 flex items-center gap-2 text-base font-semibold text-foreground">
             <TrendingUp size={18} style={{ color: 'var(--brand-accent)' }} />{' '}
@@ -363,59 +357,23 @@ export function AnalyticsView({
                 >
                   <defs>
                     <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                      <stop
-                        offset="5%"
-                        stopColor="var(--brand-primary)"
-                        stopOpacity={0.3}
-                      />
-                      <stop
-                        offset="95%"
-                        stopColor="var(--brand-primary)"
-                        stopOpacity={0}
-                      />
+                      <stop offset="5%" stopColor="var(--brand-primary)" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="var(--brand-primary)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="hsl(var(--border))"
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey="period"
-                    tick={{ fontSize: 11 }}
-                    stroke="hsl(var(--muted-foreground))"
-                  />
-                  <YAxis
-                    tick={{ fontSize: 11 }}
-                    stroke="hsl(var(--muted-foreground))"
-                    width={30}
-                  />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                  <XAxis dataKey="period" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
+                  <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" width={30} />
                   <Tooltip contentStyle={customTooltipStyle} />
-                  <Area
-                    type="monotone"
-                    dataKey="count"
-                    name="Signups"
-                    stroke="var(--brand-primary)"
-                    strokeWidth={1}
-                    fillOpacity={1}
-                    fill="url(#colorCount)"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="moving_average"
-                    name="Trend"
-                    stroke="var(--brand-accent)"
-                    strokeWidth={1}
-                    strokeDasharray="4 4"
-                    fillOpacity={0}
-                  />
+                  <Area type="monotone" dataKey="count" name="Signups" stroke="var(--brand-primary)" strokeWidth={1} fillOpacity={1} fill="url(#colorCount)" />
+                  <Area type="monotone" dataKey="moving_average" name="Trend" stroke="var(--brand-accent)" strokeWidth={1} strokeDasharray="4 4" fillOpacity={0} />
                 </AreaChart>
               </ResponsiveContainer>
             )}
           </div>
-        </div>
+        </Card>
 
-        <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-6">
+        <Card className="p-4 sm:p-6">
           <h3 className="mb-6 flex items-center gap-2 text-base font-semibold text-foreground">
             <Users size={18} style={{ color: 'var(--brand-accent)' }} />{' '}
             Enrollment by Class
@@ -434,57 +392,24 @@ export function AnalyticsView({
                 >
                   <defs>
                     <linearGradient id="barPrimary" x1="0" y1="0" x2="0" y2="1">
-                      <stop
-                        offset="0%"
-                        stopColor="var(--brand-primary)"
-                        stopOpacity={1}
-                      />
-                      <stop
-                        offset="100%"
-                        stopColor="var(--brand-primary)"
-                        stopOpacity={0.6}
-                      />
+                      <stop offset="0%" stopColor="var(--brand-primary)" stopOpacity={1} />
+                      <stop offset="100%" stopColor="var(--brand-primary)" stopOpacity={0.6} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="hsl(var(--border))"
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fontSize: 11 }}
-                    stroke="hsl(var(--muted-foreground))"
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 11 }}
-                    stroke="hsl(var(--muted-foreground))"
-                    width={30}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <Tooltip
-                    contentStyle={customTooltipStyle}
-                    cursor={{ fill: 'hsl(var(--muted))', opacity: 0.5 }}
-                  />
-                  <Bar
-                    dataKey="students"
-                    name="Students"
-                    fill="url(#barPrimary)"
-                    radius={[0, 0, 0, 0]}
-                    maxBarSize={45}
-                  />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                  <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
+                  <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" width={30} tickLine={false} axisLine={false} />
+                  <Tooltip contentStyle={customTooltipStyle} cursor={{ fill: 'hsl(var(--muted))', opacity: 0.5 }} />
+                  <Bar dataKey="students" name="Students" fill="url(#barPrimary)" radius={[0, 0, 0, 0]} maxBarSize={45} />
                 </BarChart>
               </ResponsiveContainer>
             )}
           </div>
-        </div>
+        </Card>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-6">
+        <Card className="p-4 sm:p-6">
           <h3 className="mb-6 flex items-center gap-2 text-base font-semibold text-foreground">
             <Eye size={18} style={{ color: 'var(--brand-accent)' }} /> Top 5
             Viewed Lessons
@@ -503,62 +428,26 @@ export function AnalyticsView({
                 >
                   <defs>
                     <linearGradient id="barAccent" x1="0" y1="0" x2="0" y2="1">
-                      <stop
-                        offset="0%"
-                        stopColor="var(--brand-accent)"
-                        stopOpacity={1}
-                      />
-                      <stop
-                        offset="100%"
-                        stopColor="var(--brand-accent)"
-                        stopOpacity={0.6}
-                      />
+                      <stop offset="0%" stopColor="var(--brand-accent)" stopOpacity={1} />
+                      <stop offset="100%" stopColor="var(--brand-accent)" stopOpacity={0.6} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="hsl(var(--border))"
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fontSize: 11 }}
-                    stroke="hsl(var(--muted-foreground))"
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 11 }}
-                    stroke="hsl(var(--muted-foreground))"
-                    width={30}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <Tooltip
-                    contentStyle={customTooltipStyle}
-                    cursor={{ fill: 'hsl(var(--muted))', opacity: 0.5 }}
-                  />
-                  <Bar
-                    dataKey="views"
-                    name="Views"
-                    fill="url(#barAccent)"
-                    radius={[0, 0, 0, 0]}
-                    maxBarSize={45}
-                  />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                  <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
+                  <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" width={30} tickLine={false} axisLine={false} />
+                  <Tooltip contentStyle={customTooltipStyle} cursor={{ fill: 'hsl(var(--muted))', opacity: 0.5 }} />
+                  <Bar dataKey="views" name="Views" fill="url(#barAccent)" radius={[0, 0, 0, 0]} maxBarSize={45} />
                 </BarChart>
               </ResponsiveContainer>
             )}
           </div>
-        </div>
+        </Card>
 
-        <div className="flex flex-col rounded-2xl border border-border bg-card shadow-sm">
+        <Card className="flex flex-col">
           <div className="flex items-center justify-between border-b border-border px-4 py-4 sm:px-6">
             <div>
               <h3 className="flex items-center gap-2 text-base font-semibold text-foreground">
-                <AlertTriangle
-                  size={18}
-                  style={{ color: 'var(--danger-border)' }}
-                />{' '}
+                <AlertTriangle size={18} style={{ color: 'var(--danger-border)' }} />{' '}
                 Students Needing Attention
               </h3>
               <p className="text-xs text-muted-foreground">
@@ -579,11 +468,7 @@ export function AnalyticsView({
           <div className="flex-1 overflow-y-auto">
             {!atRisk?.learners || atRisk.learners.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center py-8 text-center">
-                <ShieldCheck
-                  size={32}
-                  className="mb-2 opacity-50"
-                  style={{ color: 'var(--success-border)' }}
-                />
+                <ShieldCheck size={32} className="mb-2 opacity-50" style={{ color: 'var(--success-border)' }} />
                 <p className="text-sm font-semibold text-foreground">
                   All Clear!
                 </p>
@@ -594,10 +479,7 @@ export function AnalyticsView({
             ) : (
               <div className="divide-y divide-border">
                 {atRisk.learners.slice(0, 5).map((l) => (
-                  <div
-                    key={l.user_id}
-                    className="flex items-center justify-between px-4 py-3 sm:px-6"
-                  >
+                  <div key={l.user_id} className="flex items-center justify-between px-4 py-3 sm:px-6">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-foreground">
                         {l.first_name} {l.last_name}
@@ -606,19 +488,15 @@ export function AnalyticsView({
                         {l.reasons[0] || 'Multiple issues'}
                       </p>
                     </div>
-                    <Link
-                      href={`/teacher/students/${l.user_id}`}
-                      className="ml-3 shrink-0 rounded-md px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90"
-                      style={{ backgroundColor: 'var(--brand-primary)' }}
-                    >
-                      View
+                    <Link href={`/teacher/students/${l.user_id}`} className="ml-3 shrink-0">
+                      <Button size="sm">View</Button>
                     </Link>
                   </div>
                 ))}
               </div>
             )}
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   )

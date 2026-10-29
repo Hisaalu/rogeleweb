@@ -11,6 +11,10 @@ import type { Class, Subject } from '@/types/admin'
 import type { CreateLessonPayload, Lesson } from '@/types/lesson'
 import { createLesson, updateLesson, addMaterialFromFile } from '@/lib/lessons.mutations'
 import { useToast } from '@/components/ui/toast-provider'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
 
 const ACCEPTED = '.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png'
 
@@ -124,44 +128,44 @@ export function LessonForm({
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-border bg-card p-5 sm:space-y-8 sm:p-8">
+      <form onSubmit={handleSubmit} className="space-y-6 rounded-md border border-border bg-card p-5 sm:space-y-8 sm:p-8">
         <Section icon={Info} title="Basic Information">
           <Field label="Lesson Title" icon={Type} required>
-            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="e.g., Introduction to Fractions" className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none transition focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/25 sm:py-3" />
+            <Input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="e.g., Introduction to Fractions" />
           </Field>
           <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
             <Field label="Class" icon={GraduationCap} required>
-              <select value={classId} onChange={(e) => handleClassChange(e.target.value)} required className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none transition focus:border-brand-accent sm:py-3">
+              <Select value={classId} onChange={(e) => handleClassChange(e.target.value)} required>
                 <option value="">Select a class</option>
                 {classes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
+              </Select>
             </Field>
             <Field label="Subject" icon={Book} required>
-              <select value={subjectId} onChange={(e) => setSubjectId(e.target.value)} required disabled={!classId} className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none transition focus:border-brand-accent disabled:opacity-60 sm:py-3">
+              <Select value={subjectId} onChange={(e) => setSubjectId(e.target.value)} required disabled={!classId}>
                 <option value="">{classId ? 'Select a subject' : 'First select a class'}</option>
                 {filteredSubjects.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
+              </Select>
             </Field>
           </div>
         </Section>
 
         <Section icon={AlignLeft} title="Lesson Content">
           <Field label="Content" icon={FileText}>
-            <textarea value={content} onChange={(e) => setContent(e.target.value)} rows={6} placeholder="Write your lesson content here..." className="w-full resize-y rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/25" />
+            <textarea value={content} onChange={(e) => setContent(e.target.value)} rows={6} placeholder="Write your lesson content here..." className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm outline-none transition focus:border-brand-accent focus:ring-1 focus:ring-brand-accent/25" />
           </Field>
         </Section>
 
         <Section icon={Video} title="Media & Materials">
           <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
             <Field label="YouTube Video URL" icon={Video}>
-              <input type="url" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} placeholder="https://www.youtube.com/watch?v=..." className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none transition focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/25 sm:py-3" />
+              <Input type="url" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} placeholder="https://www.youtube.com/watch?v=..." />
             </Field>
             <Field label="Duration (minutes)" icon={Clock}>
-              <input type="number" min={1} max={300} value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="e.g., 45" className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none transition focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/25 sm:py-3" />
+              <Input type="number" min={1} max={300} value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="e.g., 45" />
             </Field>
           </div>
           <Field label="Upload Materials" icon={CloudUpload}>
-            <label className="relative block cursor-pointer rounded-xl border-2 border-dashed border-border px-4 py-8 text-center transition hover:border-brand-accent sm:px-6 sm:py-10" onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); handleFileAdd(e.dataTransfer.files) }}>
+            <label className="relative block cursor-pointer rounded-md border-2 border-dashed border-border px-4 py-8 text-center transition hover:border-brand-accent sm:px-6 sm:py-10" onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); handleFileAdd(e.dataTransfer.files) }}>
               <CloudUpload size={36} className="mx-auto mb-3" style={{ color: 'var(--brand-accent)' }} />
               <p className="text-sm font-medium text-foreground">Drag &amp; drop files here or click to browse</p>
               <input type="file" multiple accept={ACCEPTED} onChange={(e) => handleFileAdd(e.target.files)} className="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
@@ -169,7 +173,7 @@ export function LessonForm({
             {files.length > 0 && (
               <ul className="mt-3 space-y-2">
                 {files.map((f, i) => (
-                  <li key={`${f.name}-${i}`} className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2 text-sm">
+                  <li key={`${f.name}-${i}`} className="flex items-center gap-3 rounded-md bg-muted px-3 py-2 text-sm">
                     <FileText size={15} style={{ color: 'var(--brand-accent)' }} className="shrink-0" />
                     <span className="min-w-0 flex-1 truncate text-foreground">{f.name}</span>
                     <span className="text-xs text-muted-foreground shrink-0">{(f.size / 1024).toFixed(2)} KB</span>
@@ -183,16 +187,16 @@ export function LessonForm({
 
         <Section icon={Globe} title="Publishing Options">
           <label className="flex items-center gap-2 text-sm text-foreground">
-            <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} className="h-4 w-4 rounded" style={{ accentColor: 'var(--brand-accent)' }} />
+            <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} className="h-4 w-4 rounded border-input" style={{ accentColor: 'var(--brand-accent)' }} />
             Publish immediately
           </label>
         </Section>
 
         <div className="flex justify-end border-t border-border pt-4">
-          <button type="submit" disabled={busy} className="inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60 sm:w-auto" style={{ backgroundColor: 'var(--brand-primary)' }}>
-            <Save size={15} />
+          <Button type="submit" disabled={busy} className="w-full sm:w-auto">
+            <Save size={15} className="mr-2" />
             {busy ? 'Saving...' : mode === 'create' ? 'Create Lesson' : 'Update Lesson'}
-          </button>
+          </Button>
         </div>
       </form>
       

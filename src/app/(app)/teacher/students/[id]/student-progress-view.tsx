@@ -12,10 +12,12 @@ import {
 import type { AdminUser } from '@/types/admin'
 import type { QuizAttempt } from '@/types/quiz'
 import { formatDate } from '@/lib/utils'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 const QuickStat = React.memo(function QuickStat({ label, value }: { label: string, value: string | number }) {
   return (
-    <div className="rounded-xl bg-muted/50 px-4 py-3 text-center">
+    <div className="rounded-md bg-muted/50 px-4 py-3 text-center">
       <p className="text-[10px] font-bold uppercase text-muted-foreground">{label}</p>
       <p className="text-lg font-bold text-foreground">{value}</p>
     </div>
@@ -27,8 +29,8 @@ const SummaryCard = React.memo(function SummaryCard({ icon: Icon, label, value, 
   const fg = tone === 'danger' ? 'var(--danger-fg)' : tone === 'warning' ? 'var(--warning-fg)' : tone === 'success' ? 'var(--success-fg)' : 'white'
   
   return (
-    <div className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5 shadow-sm transition-shadow hover:shadow-md">
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl" style={{ backgroundColor: bg, color: fg }}>
+    <Card className="flex items-center gap-4 p-5">
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md" style={{ backgroundColor: bg, color: fg }}>
         <Icon size={22} />
       </div>
       <div>
@@ -36,7 +38,7 @@ const SummaryCard = React.memo(function SummaryCard({ icon: Icon, label, value, 
         <p className="text-xl font-bold text-foreground">{value}</p>
         <p className="text-[10px] text-muted-foreground">{sub}</p>
       </div>
-    </div>
+    </Card>
   )
 })
 
@@ -111,8 +113,8 @@ export function StudentProgressView({
         <p className="text-sm text-muted-foreground">Quiz performance for {name}</p>
       </div>
 
-      <div className="flex flex-col items-center gap-6 rounded-2xl border border-border bg-card p-6 shadow-sm sm:flex-row sm:items-start sm:p-8">
-        <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full text-3xl font-bold text-white shadow-lg overflow-hidden" style={{ backgroundColor: 'var(--brand-accent)' }}>
+      <Card className="flex flex-col items-center gap-6 p-6 sm:flex-row sm:items-start sm:p-8">
+        <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full text-3xl font-bold text-white shadow-lg" style={{ backgroundColor: 'var(--brand-accent)' }}>
           {student.profile_photo ? (
             <img src={student.profile_photo} alt={name} className="h-full w-full object-cover" loading="lazy" />
           ) : (
@@ -136,10 +138,10 @@ export function StudentProgressView({
           <QuickStat label="Highest" value={`${highestScore}%`} />
           <QuickStat label="Lowest" value={`${lowestScore}%`} />
         </div>
-      </div>
+      </Card>
 
       {chartData.length > 0 && (
-        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+        <Card className="p-6">
           <h3 className="mb-6 flex items-center gap-2 text-lg font-semibold text-foreground">
             <ChartIcon size={18} style={{ color: 'var(--brand-accent)' }} /> Last 5 Quiz Performance
           </h3>
@@ -159,24 +161,23 @@ export function StudentProgressView({
                   contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', fontSize: 12, color: 'hsl(var(--foreground))', borderRadius: '8px' }}
                   itemStyle={{ color: 'var(--brand-accent)' }}
                 />
-                {/* Thinner line weights here */}
                 <Area type="monotone" dataKey="score" stroke="var(--brand-accent)" strokeWidth={1} fillOpacity={1} fill="url(#colorScore)" dot={{ r: 3, fill: 'var(--brand-accent)', strokeWidth: 0 }} activeDot={{ r: 5 }} />
                 <Area type="monotone" dataKey="passing" stroke="var(--success-border)" strokeDasharray="4 4" fillOpacity={0} strokeWidth={1} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </Card>
       )}
 
-      <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+      <Card className="overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border px-4 py-4 sm:px-6">
           <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
             <ChartIcon size={18} style={{ color: 'var(--brand-accent)' }} /> Recent Results
           </h3>
           {completedAttempts.length > 0 && (
-            <button onClick={handleExport} className="inline-flex items-center gap-2 rounded-lg bg-muted px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-muted/80">
-              <Download size={16} /> Export All
-            </button>
+            <Button variant="outline" size="sm" onClick={handleExport}>
+              <Download size={14} className="mr-2" /> Export All
+            </Button>
           )}
         </div>
 
@@ -192,7 +193,7 @@ export function StudentProgressView({
                 <tr>
                   <th className="px-4 py-3 font-semibold sm:px-6">#</th>
                   <th className="px-4 py-3 font-semibold sm:px-6">Quiz ID</th>
-                  <th className="px-4 py-3 font-semibold text-center sm:px-6">Score</th>
+                  <th className="px-4 py-3 text-center font-semibold sm:px-6">Score</th>
                   <th className="px-4 py-3 font-semibold sm:px-6">Result</th>
                   <th className="px-4 py-3 font-semibold sm:px-6">Date</th>
                 </tr>
@@ -214,11 +215,11 @@ export function StudentProgressView({
                       </td>
                       <td className="px-4 py-4 sm:px-6">
                         {passed ? (
-                          <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold" style={{ backgroundColor: 'var(--success-bg)', color: 'var(--success-fg)' }}>
+                          <span className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold" style={{ backgroundColor: 'var(--success-bg)', color: 'var(--success-fg)' }}>
                             <CheckCircle2 size={12} /> Passed
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold" style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-fg)' }}>
+                          <span className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold" style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-fg)' }}>
                             <XCircle size={12} /> Failed
                           </span>
                         )}
@@ -233,7 +234,7 @@ export function StudentProgressView({
             </table>
           </div>
         )}
-      </div>
+      </Card>
 
       {completedAttempts.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-3">

@@ -7,6 +7,10 @@ import { ArrowLeft, Save, Info, Cog, Globe, AlertTriangle, type LucideIcon } fro
 import type { Quiz } from '@/types/quiz'
 import type { Class, Subject } from '@/types/admin'
 import { useToast } from '@/components/ui/toast-provider'
+import { Card } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
+import { Button } from '@/components/ui/button'
 
 export function QuizForm({ 
   classes, subjects, mode, initial 
@@ -86,69 +90,70 @@ export function QuizForm({
         </h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-border bg-card p-5 sm:space-y-8 sm:p-8">
-        <Section icon={Info} title="Basic Information">
-          <Field label="Quiz Title" required>
-            <input type="text" value={title} onChange={e => setTitle(e.target.value)} required className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-brand-accent sm:py-3" />
-          </Field>
-          <Field label="Description">
-            <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3} className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-brand-accent sm:py-3" />
-          </Field>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Class" required>
-              <select value={classId} onChange={e => { setClassId(e.target.value); setSubjectId('') }} required className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-brand-accent sm:py-3">
-                <option value="">Select a class</option>
-                {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
+      <Card className="p-5 sm:p-8">
+        <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
+          <Section icon={Info} title="Basic Information">
+            <Field label="Quiz Title" required>
+              <Input type="text" value={title} onChange={e => setTitle(e.target.value)} required />
             </Field>
-            <Field label="Subject" required>
-              <select value={subjectId} onChange={e => setSubjectId(e.target.value)} required disabled={!classId} className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-brand-accent disabled:opacity-50 sm:py-3">
-                <option value="">Select a subject</option>
-                {filteredSubjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
+            <Field label="Description">
+              <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3} className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent/25" />
             </Field>
-          </div>
-        </Section>
-
-        <Section icon={Cog} title="Quiz Settings">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Time Limit (minutes)">
-              <input type="number" value={timeLimit} onChange={e => setTimeLimit(Number(e.target.value))} min={1} max={180} className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-brand-accent sm:py-3" />
-            </Field>
-            <Field label="Passing Score (%)">
-              <input type="number" value={passingScore} onChange={e => setPassingScore(Number(e.target.value))} min={0} max={100} className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-brand-accent sm:py-3" />
-            </Field>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Maximum Attempts">
-              <input type="number" value={maxAttempts} onChange={e => setMaxAttempts(Number(e.target.value))} min={1} max={10} className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-brand-accent sm:py-3" />
-            </Field>
-            <Field label="Quiz Deadline" required>
-              <input type="datetime-local" value={endDate} onChange={e => setEndDate(e.target.value)} required className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-brand-accent sm:py-3" />
-            </Field>
-          </div>
-        </Section>
-
-        <Section icon={Globe} title="Publishing Options">
-          <label className="flex items-center gap-2 text-sm text-foreground">
-            <input type="checkbox" checked={isPublished} onChange={e => setIsPublished(e.target.checked)} className="h-4 w-4 rounded accent-brand-accent" />
-            Publish immediately
-          </label>
-          {!isPublished && (
-            <div className="mt-4 flex items-start gap-3 rounded-xl p-4 text-sm" style={{ backgroundColor: 'var(--warning-bg)', color: 'var(--warning-fg)' }}>
-              <AlertTriangle size={18} className="shrink-0" />
-              <p>Don&apos;t forget to add questions after creating the quiz. Students will only see the quiz once you&apos;ve added questions and published it.</p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Class" required>
+                <Select value={classId} onChange={e => { setClassId(e.target.value); setSubjectId('') }} required>
+                  <option value="">Select a class</option>
+                  {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </Select>
+              </Field>
+              <Field label="Subject" required>
+                <Select value={subjectId} onChange={e => setSubjectId(e.target.value)} required disabled={!classId}>
+                  <option value="">Select a subject</option>
+                  {filteredSubjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </Select>
+              </Field>
             </div>
-          )}
-        </Section>
+          </Section>
 
-        <div className="flex justify-end border-t border-border pt-4">
-          <button type="submit" disabled={busy} className="inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60 sm:w-auto" style={{ backgroundColor: 'var(--brand-primary)' }}>
-            <Save size={15} /> {busy ? 'Saving...' : mode === 'create' ? 'Create Quiz' : 'Save Changes'}
-          </button>
-        </div>
-      </form>
-      
+          <Section icon={Cog} title="Quiz Settings">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Time Limit (minutes)">
+                <Input type="number" value={timeLimit} onChange={e => setTimeLimit(Number(e.target.value))} min={1} max={180} />
+              </Field>
+              <Field label="Passing Score (%)">
+                <Input type="number" value={passingScore} onChange={e => setPassingScore(Number(e.target.value))} min={0} max={100} />
+              </Field>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Maximum Attempts">
+                <Input type="number" value={maxAttempts} onChange={e => setMaxAttempts(Number(e.target.value))} min={1} max={10} />
+              </Field>
+              <Field label="Quiz Deadline" required>
+                <Input type="datetime-local" value={endDate} onChange={e => setEndDate(e.target.value)} required />
+              </Field>
+            </div>
+          </Section>
+
+          <Section icon={Globe} title="Publishing Options">
+            <label className="flex items-center gap-2 text-sm text-foreground">
+              <input type="checkbox" checked={isPublished} onChange={e => setIsPublished(e.target.checked)} className="h-4 w-4 rounded border-input" style={{ accentColor: 'var(--brand-accent)' }} />
+              Publish immediately
+            </label>
+            {!isPublished && (
+              <div className="mt-4 flex items-start gap-3 rounded-md p-4 text-sm" style={{ backgroundColor: 'var(--warning-bg)', color: 'var(--warning-fg)' }}>
+                <AlertTriangle size={18} className="shrink-0" />
+                <p>Don&apos;t forget to add questions after creating the quiz. Students will only see the quiz once you&apos;ve added questions and published it.</p>
+              </div>
+            )}
+          </Section>
+
+          <div className="flex justify-end border-t border-border pt-4">
+            <Button type="submit" disabled={busy} className="w-full sm:w-auto">
+              <Save size={15} className="mr-2" /> {busy ? 'Saving...' : mode === 'create' ? 'Create Quiz' : 'Save Changes'}
+            </Button>
+          </div>
+        </form>
+      </Card>
     </div>
   )
 }
@@ -166,8 +171,8 @@ function Section({ icon: Icon, title, children }: { icon: LucideIcon, title: str
 
 function Field({ label, required, children }: { label: string, required?: boolean, children: React.ReactNode }) {
   return (
-    <div>
-      <label className="mb-2 block text-sm font-medium text-foreground">
+    <div className="space-y-1.5">
+      <label className="block text-sm font-medium text-foreground">
         {label} {required && <span style={{ color: 'var(--danger-fg)' }}>*</span>}
       </label>
       {children}

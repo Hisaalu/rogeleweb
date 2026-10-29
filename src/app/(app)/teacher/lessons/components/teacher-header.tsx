@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { BookOpen, PlusCircle } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 export function TeacherHeader() {
   return (
@@ -16,19 +17,11 @@ export function TeacherHeader() {
         </p>
       </div>
 
-      <Link
-        href="/teacher/lessons/create"
-        className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:shadow-lg"
-        style={{ backgroundColor: 'var(--brand-primary)' }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = 'var(--brand-accent)'
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = 'var(--brand-primary)'
-        }}
-      >
-        <PlusCircle size={16} />
-        Create Lesson
+      <Link href="/teacher/lessons/create" className="shrink-0">
+        <Button className="w-full sm:w-auto">
+          <PlusCircle size={16} className="mr-2" />
+          Create Lesson
+        </Button>
       </Link>
     </div>
   )

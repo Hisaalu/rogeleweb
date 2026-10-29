@@ -16,6 +16,8 @@ import {
 } from 'lucide-react'
 import type { Quiz, QuizAttempt } from '@/types/quiz'
 import { useToast } from '@/components/ui/toast-provider'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 function formatDate(iso: string | null | undefined) {
   if (!iso) return '—'
@@ -140,22 +142,20 @@ export function ResultsView({ quiz }: { quiz: Quiz }) {
         </div>
 
         <div className="flex gap-2">
-          <Link
-            href={`/teacher/quizzes/${quiz.id}/preview`}
-            className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-semibold text-muted-foreground transition hover:bg-muted"
-          >
-            <BarChart2 size={15} /> Preview Quiz
+          <Link href={`/teacher/quizzes/${quiz.id}/preview`}>
+            <Button variant="outline">
+              <BarChart2 size={15} className="mr-2" /> Preview Quiz
+            </Button>
           </Link>
           {attempts.length > 0 && (
-            <button
+            <Button
               type="button"
+              variant="danger"
               onClick={() => setShowClearConfirm(true)}
               disabled={clearing}
-              className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
-              style={{ backgroundColor: 'var(--danger-border)' }}
             >
-              <Trash2 size={15} /> Clear All
-            </button>
+              <Trash2 size={15} className="mr-2" /> Clear All
+            </Button>
           )}
         </div>
       </div>
@@ -192,15 +192,15 @@ export function ResultsView({ quiz }: { quiz: Quiz }) {
           <Loader2 className="animate-spin" size={28} style={{ color: 'var(--brand-accent)' }} />
         </div>
       ) : attempts.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
+        <Card className="border-dashed px-6 py-16 text-center">
           <Users size={48} className="mx-auto mb-4 opacity-30" style={{ color: 'var(--brand-accent)' }} />
           <h3 className="text-lg font-bold text-foreground">No Attempts Yet</h3>
           <p className="mt-2 text-sm text-muted-foreground">
             Student attempts will appear here once they take the quiz.
           </p>
-        </div>
+        </Card>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-border bg-card">
+        <Card className="overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead className="border-b border-border bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
@@ -263,7 +263,8 @@ export function ResultsView({ quiz }: { quiz: Quiz }) {
                       <td className="px-4 py-3 text-right">
                         <Link
                           href={`/learner/quizzes/results/${a.id}`}
-                          className="text-xs font-semibold text-brand-accent hover:underline"
+                          className="text-xs font-semibold hover:underline"
+                          style={{ color: 'var(--brand-accent)' }}
                         >
                           View Details
                         </Link>
@@ -274,7 +275,7 @@ export function ResultsView({ quiz }: { quiz: Quiz }) {
               </tbody>
             </table>
           </div>
-        </div>
+        </Card>
       )}
 
       {showClearConfirm && (
@@ -282,8 +283,8 @@ export function ResultsView({ quiz }: { quiz: Quiz }) {
           className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4"
           onClick={() => setShowClearConfirm(false)}
         >
-          <div
-            className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-xl"
+          <Card
+            className="w-full max-w-md p-6 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-center gap-3">
@@ -300,30 +301,27 @@ export function ResultsView({ quiz }: { quiz: Quiz }) {
               Students will be able to retake it. This action cannot be undone.
             </p>
             <div className="flex justify-end gap-2">
-              <button
-                type="button"
+              <Button
+                variant="outline"
                 onClick={() => setShowClearConfirm(false)}
                 disabled={clearing}
-                className="rounded-full px-5 py-2.5 text-sm font-semibold text-muted-foreground transition hover:bg-muted"
               >
                 Cancel
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                variant="danger"
                 onClick={handleClearAll}
                 disabled={clearing}
-                className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
-                style={{ backgroundColor: 'var(--danger-border)' }}
               >
                 {clearing ? (
-                  <Loader2 size={14} className="animate-spin" />
+                  <Loader2 size={14} className="animate-spin mr-2" />
                 ) : (
-                  <Trash2 size={14} />
+                  <Trash2 size={14} className="mr-2" />
                 )}
                 {clearing ? 'Clearing...' : 'Clear All'}
-              </button>
+              </Button>
             </div>
-          </div>
+          </Card>
         </div>
       )}
     </div>
@@ -349,9 +347,9 @@ function StatCard({
   }
   const t = tones[tone]
   return (
-    <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 shadow-sm">
+    <Card className="flex items-center gap-4 p-4">
       <div
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md"
         style={{ backgroundColor: t.bg, color: t.fg }}
       >
         <Icon size={18} />
@@ -362,6 +360,6 @@ function StatCard({
           {label}
         </p>
       </div>
-    </div>
+    </Card>
   )
 }

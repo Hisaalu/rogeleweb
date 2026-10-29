@@ -13,6 +13,8 @@ import { TeacherHeader } from './components/teacher-header'
 import { TeacherFilters } from './components/teacher-filters'
 import { TeacherLessonCard } from './components/teacher-lesson-card'
 import { Pagination } from './components/pagination'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 export function TeacherLessonsView({
   lessons = [],
@@ -87,7 +89,7 @@ export function TeacherLessonsView({
       <TeacherFilters classes={classes} subjects={subjects} />
 
       {lessons.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
+        <Card className="border-dashed px-6 py-16 text-center">
           <div
             className="mx-auto mb-5 flex h-24 w-24 items-center justify-center rounded-full"
             style={{
@@ -100,15 +102,13 @@ export function TeacherLessonsView({
           <p className="mx-auto mb-6 max-w-md text-sm text-muted-foreground">
             You haven&apos;t created any lessons yet, or your search returned no results.
           </p>
-          <Link
-            href="/teacher/lessons/create"
-            className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5"
-            style={{ backgroundColor: 'var(--brand-primary)' }}
-          >
-            <PlusCircle size={15} />
-            Create New Lesson
+          <Link href="/teacher/lessons/create">
+            <Button>
+              <PlusCircle size={15} className="mr-2" />
+              Create New Lesson
+            </Button>
           </Link>
-        </div>
+        </Card>
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
           {lessons.map((lesson) => (

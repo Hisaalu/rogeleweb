@@ -12,6 +12,10 @@ import type { Class } from '@/types/admin'
 import { deleteHomeworkClient } from '@/lib/homework.client'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { useToast } from '@/components/ui/toast-provider'
+import { Card } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
+import { Button } from '@/components/ui/button'
 
 export function HomeworkListView({ 
   homeworks, 
@@ -95,48 +99,49 @@ export function HomeworkListView({
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">Create and Manage Homework</p>
         </div>
-        <Link href="/teacher/homework/create" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90" style={{ backgroundColor: 'var(--brand-primary)' }}>
-          <PlusCircle size={16} /> Create Homework
+        <Link href="/teacher/homework/create" className="shrink-0">
+          <Button>
+            <PlusCircle size={16} className="mr-2" /> Create Homework
+          </Button>
         </Link>
       </div>
 
-      <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+      <Card className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
         <form onSubmit={(e) => { e.preventDefault(); push({}) }} className="flex flex-1 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           <div className="relative w-full flex-1 sm:min-w-[240px]">
-            <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input type="text" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search title or description..." className="w-full rounded-full border border-border bg-background py-2.5 pl-11 pr-4 text-sm outline-none transition focus:border-brand-accent" />
+            <Search size={16} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input type="text" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search title or description..." className="pl-8" />
           </div>
           
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <select value={classId} onChange={(e) => { setClassId(e.target.value); push({ class_id: e.target.value }) }} className="w-full rounded-full border border-border bg-background px-4 py-2.5 text-sm outline-none sm:w-[180px]">
+            <Select value={classId} onChange={(e) => { setClassId(e.target.value); push({ class_id: e.target.value }) }} className="w-full sm:w-[180px]">
               <option value="">All Classes</option>
               {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-            <button type="submit" className="w-full rounded-full px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 sm:w-auto" style={{ backgroundColor: 'var(--brand-primary)' }}>Search</button>
+            </Select>
+            <Button type="submit" className="w-full sm:w-auto">Search</Button>
           </div>
         </form>
 
-        <div className="flex items-center justify-center gap-1 rounded-full border border-border bg-background p-1 sm:justify-start">
-          <button onClick={() => push({ status: '' })} className={`flex h-8 w-8 items-center justify-center rounded-full transition ${!status ? 'text-white' : 'text-muted-foreground hover:bg-muted'}`} style={!status ? { backgroundColor: 'var(--brand-primary)' } : undefined} title="All"><List size={15} /></button>
-          <button onClick={() => push({ status: 'active' })} className={`flex h-8 w-8 items-center justify-center rounded-full transition ${status === 'active' ? 'text-white' : 'text-muted-foreground hover:bg-muted'}`} style={status === 'active' ? { backgroundColor: 'var(--brand-primary)' } : undefined} title="Active"><Clock size={15} /></button>
-          <button onClick={() => push({ status: 'expired' })} className={`flex h-8 w-8 items-center justify-center rounded-full transition ${status === 'expired' ? 'text-white' : 'text-muted-foreground hover:bg-muted'}`} style={status === 'expired' ? { backgroundColor: 'var(--brand-primary)' } : undefined} title="Expired"><CalendarX size={15} /></button>
+        <div className="flex items-center justify-center gap-1 rounded-md border border-border bg-background p-1 sm:justify-start">
+          <Button variant={!status ? 'primary' : 'ghost'} size="icon" onClick={() => push({ status: '' })} title="All"><List size={15} /></Button>
+          <Button variant={status === 'active' ? 'primary' : 'ghost'} size="icon" onClick={() => push({ status: 'active' })} title="Active"><Clock size={15} /></Button>
+          <Button variant={status === 'expired' ? 'primary' : 'ghost'} size="icon" onClick={() => push({ status: 'expired' })} title="Expired"><CalendarX size={15} /></Button>
         </div>
-      </div>
+      </Card>
 
       {filteredHomeworks.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
+        <Card className="border-dashed px-6 py-16 text-center">
           <FileText size={40} className="mx-auto mb-4 opacity-30" style={{ color: 'var(--brand-accent)' }} />
           <h3 className="text-xl font-bold text-foreground">No Homework Found</h3>
           <p className="mt-1 text-sm text-muted-foreground">Try refining your search terms or filters.</p>
-        </div>
+        </Card>
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {filteredHomeworks.map(hw => {
             const isExpired = new Date(hw.due_date).getTime() < new Date().getTime()
             return (
-              <div key={hw.id} className={`relative flex flex-col rounded-2xl border border-border p-4 sm:p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md ${isExpired ? 'bg-muted/30 opacity-80' : 'bg-card'}`}>
+              <Card key={hw.id} className={`relative flex flex-col p-4 sm:p-5 transition hover:-translate-y-1 hover:shadow-md ${isExpired ? 'bg-muted/30 opacity-80' : ''}`}>
                 
-                {/* Responsive Header: Stacks on very small screens, row on larger */}
                 <div className="mb-3 flex flex-col gap-2 min-[400px]:flex-row min-[400px]:items-start min-[400px]:justify-between">
                   <h3 className="flex items-start gap-2 line-clamp-2 text-base sm:text-lg font-bold text-foreground">
                     <FileText size={18} style={{ color: 'var(--brand-accent)' }} className="shrink-0 mt-0.5" /> 
@@ -162,19 +167,30 @@ export function HomeworkListView({
                   </div>
                 </div>
 
-                {/* Responsive Actions: Wraps cleanly on small screens */}
                 <div className="flex flex-wrap items-center gap-2">
-                  <Link href={`/teacher/homework/${hw.id}/submissions`} className="flex h-9 flex-1 min-w-[120px] items-center justify-center gap-1.5 rounded-xl px-3 text-sm font-semibold text-white transition hover:opacity-90" style={{ backgroundColor: 'var(--brand-accent)' }}>
-                    <Users size={15} /> Submissions
+                  <Link href={`/teacher/homework/${hw.id}/submissions`} className="flex-1 min-w-[120px]">
+                    <Button variant="secondary" className="w-full">
+                      <Users size={15} className="mr-2" /> Submissions
+                    </Button>
                   </Link>
                   <div className="flex shrink-0 items-center gap-2">
-                    <Link href={`/teacher/homework/${hw.id}/preview`} className="flex h-9 w-9 items-center justify-center rounded-xl transition hover:opacity-80" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }} title="Preview"><Eye size={16} /></Link>
-                    <Link href={`/teacher/homework/${hw.id}/edit`} className="flex h-9 w-9 items-center justify-center rounded-xl transition hover:opacity-80" style={{ backgroundColor: 'var(--warning-bg)', color: 'var(--warning-fg)' }} title="Edit"><Edit size={16} /></Link>
-                    <button onClick={() => setDeleteTarget(hw.id)} className="flex h-9 w-9 items-center justify-center rounded-xl transition hover:opacity-80" style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-fg)' }} title="Delete"><Trash2 size={16} /></button>
+                    <Link href={`/teacher/homework/${hw.id}/preview`} title="Preview">
+                      <Button variant="outline" size="icon" className="h-9 w-9">
+                        <Eye size={16} />
+                      </Button>
+                    </Link>
+                    <Link href={`/teacher/homework/${hw.id}/edit`} title="Edit">
+                      <Button variant="outline" size="icon" className="h-9 w-9">
+                        <Edit size={16} />
+                      </Button>
+                    </Link>
+                    <Button variant="danger" size="icon" className="h-9 w-9" onClick={() => setDeleteTarget(hw.id)} title="Delete">
+                      <Trash2 size={16} />
+                    </Button>
                   </div>
                 </div>
 
-              </div>
+              </Card>
             )
           })}
         </div>
@@ -183,11 +199,15 @@ export function HomeworkListView({
       {totalPages > 1 && (
         <div className="flex flex-wrap items-center justify-center gap-2 pt-4">
           {meta.page > 1 && (
-            <Link href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(meta.page - 1) }).toString()}`} className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition hover:border-brand-accent hover:text-brand-primary">Prev</Link>
+            <Link href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(meta.page - 1) }).toString()}`}>
+              <Button variant="outline">Prev</Button>
+            </Link>
           )}
-          <span className="text-sm font-medium text-muted-foreground px-4">Page {meta.page} of {totalPages}</span>
+          <span className="px-4 text-sm font-medium text-muted-foreground">Page {meta.page} of {totalPages}</span>
           {meta.page < totalPages && (
-            <Link href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(meta.page + 1) }).toString()}`} className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition hover:border-brand-accent hover:text-brand-primary">Next</Link>
+            <Link href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(meta.page + 1) }).toString()}`}>
+              <Button variant="outline">Next</Button>
+            </Link>
           )}
         </div>
       )}

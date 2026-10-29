@@ -9,6 +9,10 @@ import type { Class } from '@/types/admin'
 import { deleteQuizClient } from '@/lib/quizzes.client'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { useToast } from '@/components/ui/toast-provider'
+import { Card } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
+import { Button } from '@/components/ui/button'
 
 export function TeacherQuizzesView({ 
   quizzes, 
@@ -80,40 +84,42 @@ export function TeacherQuizzesView({
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">Create and Manage Quizzes</p>
         </div>
-        <Link href="/teacher/quizzes/create" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90" style={{ backgroundColor: 'var(--brand-primary)' }}>
-          <PlusCircle size={16} /> Create Quiz
+        <Link href="/teacher/quizzes/create" className="shrink-0">
+          <Button>
+            <PlusCircle size={16} className="mr-2" /> Create Quiz
+          </Button>
         </Link>
       </div>
 
-      <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
+      <Card className="p-4 sm:p-5">
         <form onSubmit={(e) => { e.preventDefault(); push({}) }} className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           <div className="relative w-full flex-1 sm:min-w-[240px]">
-            <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input type="text" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search quizzes by title..." className="w-full rounded-xl border border-border bg-background py-3 pl-11 pr-4 text-sm outline-none transition focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/30" />
+            <Search size={16} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input type="text" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search quizzes by title..." className="pl-8" />
           </div>
           
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <select value={classId} onChange={(e) => { setClassId(e.target.value); push({ class_id: e.target.value }) }} className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-brand-accent sm:w-[180px]">
+            <Select value={classId} onChange={(e) => { setClassId(e.target.value); push({ class_id: e.target.value }) }} className="w-full sm:w-[180px]">
               <option value="">All Classes</option>
               {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-            <button type="submit" className="w-full rounded-xl px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90 sm:w-auto" style={{ backgroundColor: 'var(--brand-primary)' }}>Search</button>
+            </Select>
+            <Button type="submit" className="w-full sm:w-auto">Search</Button>
             {(q || classId) && (
-              <button type="button" onClick={() => { setQ(''); setClassId(''); push({ q: '', class_id: '' }) }} className="w-full rounded-xl px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90 sm:w-auto" style={{ backgroundColor: 'var(--brand-accent)' }}>Clear</button>
+              <Button type="button" variant="secondary" onClick={() => { setQ(''); setClassId(''); push({ q: '', class_id: '' }) }} className="w-full sm:w-auto">Clear</Button>
             )}
           </div>
         </form>
-      </div>
+      </Card>
 
       {quizzes.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
+        <Card className="border-dashed px-6 py-16 text-center">
           <HelpCircle size={40} className="mx-auto mb-4 opacity-30" style={{ color: 'var(--brand-accent)' }} />
           <h3 className="text-xl font-bold text-foreground">No Quizzes Found</h3>
           <p className="mt-1 text-sm text-muted-foreground">No quizzes matching your criteria.</p>
-          <Link href="/teacher/quizzes/create" className="mt-6 inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white" style={{ backgroundColor: 'var(--brand-primary)' }}>
-            <PlusCircle size={16} /> Create New Quiz
+          <Link href="/teacher/quizzes/create" className="mt-6 inline-block">
+            <Button><PlusCircle size={16} className="mr-2" /> Create New Quiz</Button>
           </Link>
-        </div>
+        </Card>
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {quizzes.map(quiz => {
@@ -121,7 +127,7 @@ export function TeacherQuizzesView({
             const isExpired = !!endDate && new Date(endDate).getTime() < new Date().getTime()
             
             return (
-              <div key={quiz.id} className="relative flex flex-col rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm transition hover:-translate-y-1 hover:border-brand-primary hover:shadow-md">
+              <Card key={quiz.id} className="relative flex flex-col p-4 sm:p-5 transition hover:-translate-y-1 hover:border-brand-primary hover:shadow-md">
                 <div className="mb-3 flex items-start justify-between gap-2">
                   <div 
                     className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white"
@@ -156,24 +162,32 @@ export function TeacherQuizzesView({
 
                 <div className="mt-auto flex flex-wrap items-center justify-between gap-2">
                   <div className="flex w-full items-center justify-between gap-1.5 sm:w-auto sm:justify-start">
-                    <Link href={`/teacher/quizzes/${quiz.id}/questions`} className="flex h-9 flex-1 items-center justify-center rounded-lg transition hover:opacity-80 sm:w-9 sm:flex-none" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }} title="Questions">
-                      <PlusCircle size={16} />
+                    <Link href={`/teacher/quizzes/${quiz.id}/questions`} className="flex-1 sm:flex-none">
+                      <Button variant="outline" size="icon" title="Questions">
+                        <PlusCircle size={16} />
+                      </Button>
                     </Link>
-                    <Link href={`/teacher/quizzes/${quiz.id}/edit`} className="flex h-9 flex-1 items-center justify-center rounded-lg transition hover:opacity-80 sm:w-9 sm:flex-none" style={{ backgroundColor: 'var(--warning-bg)', color: 'var(--warning-fg)' }} title="Edit">
-                      <Edit size={16} />
+                    <Link href={`/teacher/quizzes/${quiz.id}/edit`} className="flex-1 sm:flex-none">
+                      <Button variant="outline" size="icon" title="Edit">
+                        <Edit size={16} />
+                      </Button>
                     </Link>
-                    <Link href={`/teacher/quizzes/${quiz.id}/results`} className="flex h-9 flex-1 items-center justify-center rounded-lg transition hover:opacity-80 sm:w-9 sm:flex-none" style={{ backgroundColor: 'var(--success-bg)', color: 'var(--success-fg)' }} title="Results">
-                      <BarChart2 size={16} />
+                    <Link href={`/teacher/quizzes/${quiz.id}/results`} className="flex-1 sm:flex-none">
+                      <Button variant="outline" size="icon" title="Results">
+                        <BarChart2 size={16} />
+                      </Button>
                     </Link>
-                    <Link href={`/teacher/quizzes/${quiz.id}/preview`} className="flex h-9 flex-1 items-center justify-center rounded-lg transition hover:opacity-80 sm:w-9 sm:flex-none" style={{ backgroundColor: 'var(--brand-accent)', color: 'white' }} title="Preview">
-                      <Eye size={16} />
+                    <Link href={`/teacher/quizzes/${quiz.id}/preview`} className="flex-1 sm:flex-none">
+                      <Button variant="secondary" size="icon" title="Preview">
+                        <Eye size={16} />
+                      </Button>
                     </Link>
-                    <button onClick={() => setDeleteTarget(quiz.id)} className="flex h-9 flex-1 items-center justify-center rounded-lg transition hover:opacity-80 sm:w-9 sm:flex-none" style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-fg)' }} title="Delete">
+                    <Button variant="danger" size="icon" onClick={() => setDeleteTarget(quiz.id)} className="flex-1 sm:flex-none" title="Delete">
                       <Trash2 size={16} />
-                    </button>
+                    </Button>
                   </div>
                 </div>
-              </div>
+              </Card>
             )
           })}
         </div>
@@ -182,11 +196,15 @@ export function TeacherQuizzesView({
       {totalPages > 1 && (
         <div className="flex flex-wrap items-center justify-center gap-2 pt-4">
           {meta.page > 1 && (
-            <Link href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(meta.page - 1) }).toString()}`} className="flex h-10 items-center justify-center rounded-lg border border-border bg-card px-4 text-sm text-muted-foreground transition hover:border-brand-accent hover:text-brand-primary">Prev</Link>
+            <Link href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(meta.page - 1) }).toString()}`}>
+              <Button variant="outline">Prev</Button>
+            </Link>
           )}
           <span className="px-4 text-sm font-medium text-muted-foreground">Page {meta.page} of {totalPages}</span>
           {meta.page < totalPages && (
-            <Link href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(meta.page + 1) }).toString()}`} className="flex h-10 items-center justify-center rounded-lg border border-border bg-card px-4 text-sm text-muted-foreground transition hover:border-brand-accent hover:text-brand-primary">Next</Link>
+            <Link href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(meta.page + 1) }).toString()}`}>
+              <Button variant="outline">Next</Button>
+            </Link>
           )}
         </div>
       )}
