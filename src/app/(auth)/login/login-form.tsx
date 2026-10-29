@@ -102,23 +102,25 @@ export function LoginForm() {
             )}
           </div>
 
-          <div className="relative space-y-1.5">
-            <Input
-              id="password"
-              type={showPassword ? 'text' : 'password'}
-              autoComplete="current-password"
-              placeholder="Your Password"
-              className="pr-10"
-              {...register('password')}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword((s) => !s)}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-muted-foreground transition hover:text-foreground"
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-            >
-              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
+          <div className="space-y-1.5">
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="current-password"
+                placeholder="Your Password"
+                className="pr-10"
+                {...register('password')}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((s) => !s)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-accent"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+              </button>
+            </div>
             {errors.password && (
               <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>{errors.password.message}</p>
             )}
