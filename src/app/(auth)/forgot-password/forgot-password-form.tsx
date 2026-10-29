@@ -11,6 +11,9 @@ import { BrandLogo } from '@/components/brand/brand-logo'
 import { useBranding } from '@/components/brand/brand-provider'
 import { useSettings } from '@/components/settings/settings-provider'
 import { useToast } from '@/components/ui/toast-provider'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 
 const schema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -67,7 +70,7 @@ export function ForgotPasswordForm() {
         </h1>
       </div>
 
-      <div className="rounded-[10px] bg-card p-8 shadow-[0_2px_10px_rgba(0,0,0,0.05)] sm:p-10">
+      <Card className="p-8 shadow-sm sm:p-10">
         {submitted ? (
           <div className="flex flex-col items-center text-center">
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full" style={{ backgroundColor: 'var(--success-bg)' }}>
@@ -78,7 +81,7 @@ export function ForgotPasswordForm() {
               We&apos;ve sent a password reset link to <strong>{submittedEmail}</strong>.
               Follow the instructions to reset your password.
             </p>
-            <Link href="/login" className="mt-8 font-medium text-brand-primary hover:underline">
+            <Link href="/login" className="mt-8 font-medium hover:underline" style={{ color: 'var(--brand-primary)' }}>
               Back to login
             </Link>
           </div>
@@ -89,39 +92,36 @@ export function ForgotPasswordForm() {
             </p>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div>
-                <input
+              <div className="space-y-1.5">
+                <Input
                   type="email"
                   placeholder={`Your ${pageTitle} Email address`}
                   autoComplete="email"
                   {...register('email')}
-                  className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm outline-none transition focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/25"
                 />
                 {errors.email && (
-                  <p className="mt-1 text-xs text-destructive">{errors.email.message}</p>
+                  <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>{errors.email.message}</p>
                 )}
               </div>
 
-              <button
+              <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex w-full items-center justify-center gap-2 rounded-lg py-3 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
-                style={{ backgroundColor: 'var(--brand-accent)' }}
+                className="w-full"
               >
-                {isSubmitting && <Loader2 size={16} className="animate-spin" />}
+                {isSubmitting && <Loader2 size={16} className="animate-spin mr-2" />}
                 {isSubmitting ? 'Submitting...' : 'Submit'}
-              </button>
+              </Button>
 
               <div className="pt-4 text-center text-sm text-muted-foreground">
-                <Link href="/login" className="font-medium text-brand-primary hover:underline">
+                <Link href="/login" className="font-medium hover:underline" style={{ color: 'var(--brand-primary)' }}>
                   Remember password? Login
                 </Link>
               </div>
             </form>
           </>
         )}
-      </div>
-
+      </Card>
     </div>
   )
 }
