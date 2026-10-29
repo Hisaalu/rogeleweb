@@ -166,7 +166,7 @@ export function TeacherProfileView({
               </div>
               <div className="min-w-0">
                 <p className="text-xs text-muted-foreground">Lessons Taught</p>
-                <p className="text-sm font-semibold text-foreground">{totalLessons}</p>
+                <p className="text-sm font-semibold text-foreground">{totalLessons.toLocaleString('en-US')}</p>
               </div>
             </div>
 
