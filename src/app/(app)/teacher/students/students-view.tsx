@@ -8,6 +8,7 @@ import {
   User, Crown, Star, Loader2
 } from 'lucide-react'
 import type { Class } from '@/types/admin'
+import type { StudentListMeta } from '@/lib/students.server'
 
 interface StudentListItem {
   id: number
@@ -22,23 +23,25 @@ interface StudentListItem {
 }
 
 function getInitials(first?: string, last?: string, fullName?: string): string {
-  if (first && last) {
-    return (first[0] + last[0]).toUpperCase()
-  }
-  if (first) {
-    return first.slice(0, 2).toUpperCase()
-  }
+  if (first && last) return (first[0] + last[0]).toUpperCase()
+  if (first) return first.slice(0, 2).toUpperCase()
   if (fullName) {
     const parts = fullName.trim().split(/\s+/)
-    if (parts.length > 1) {
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-    }
+    if (parts.length > 1) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
     return parts[0].slice(0, 2).toUpperCase()
   }
   return 'ST'
 }
 
-export function StudentsView({ students, classes }: { students: StudentListItem[], classes: Class[] }) {
+export function StudentsView({ 
+  students, 
+  meta, 
+  classes 
+}: { 
+  students: StudentListItem[]
+  meta: StudentListMeta
+  classes: Class[] 
+}) {
   const router = useRouter()
   const pathname = usePathname()
   const params = useSearchParams()
@@ -47,7 +50,7 @@ export function StudentsView({ students, classes }: { students: StudentListItem[
   const [searchTerm, setSearchTerm] = useState(params.get('search') ?? '')
   const [selectedClass, setSelectedClass] = useState(params.get('class_id') ?? '')
 
-  const totalStudents = students.length
+  const totalStudents = meta.total
   const avgPerformance = useMemo(() => {
     const valid = students.filter(s => (s.quizzes_taken ?? 0) > 0)
     if (valid.length === 0) return 0
@@ -56,24 +59,41 @@ export function StudentsView({ students, classes }: { students: StudentListItem[
     )
   }, [students])
 
-  function handleSearch(e: React.FormEvent) {
-    e.preventDefault()
-    const sp = new URLSearchParams()
-    if (searchTerm) sp.set('search', searchTerm)
-    if (selectedClass) sp.set('class_id', selectedClass)
+  function push(next: { search?: string, class_id?: string, page?: string }) {
+    const sp = new URLSearchParams(params.toString())
     
+    if (next.search !== undefined) {
+      if (next.search) sp.set('search', next.search)
+      else sp.delete('search')
+    }
+    if (next.class_id !== undefined) {
+      if (next.class_id) sp.set('class_id', next.class_id)
+      else sp.delete('class_id')
+    }
+    if (next.page !== undefined) {
+      if (next.page !== '1') sp.set('page', next.page)
+      else sp.delete('page')
+    } else {
+      sp.delete('page') 
+    }
+
     startTransition(() => {
       router.push(`${pathname}?${sp.toString()}`)
     })
   }
 
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault()
+    push({ search: searchTerm, class_id: selectedClass })
+  }
+
   function handleClear() {
     setSearchTerm('')
     setSelectedClass('')
-    startTransition(() => {
-      router.push(pathname)
-    })
+    push({ search: '', class_id: '', page: '1' })
   }
+
+  const totalPages = Math.max(1, meta.last_page)
 
   return (
     <div className="relative mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 sm:py-10">
@@ -108,7 +128,7 @@ export function StudentsView({ students, classes }: { students: StudentListItem[
                 <BarChart2 size={20} />
               </div>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Avg. Performance</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Avg. Student Performance</p>
                 <p className="text-lg font-bold text-foreground">{avgPerformance}%</p>
               </div>
             </div>
@@ -132,7 +152,7 @@ export function StudentsView({ students, classes }: { students: StudentListItem[
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <select
               value={selectedClass}
-              onChange={(e) => setSelectedClass(e.target.value)}
+              onChange={(e) => { setSelectedClass(e.target.value); push({ class_id: e.target.value }) }}
               className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-brand-accent sm:w-[180px]"
             >
               <option value="">All Classes</option>
@@ -159,7 +179,7 @@ export function StudentsView({ students, classes }: { students: StudentListItem[
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
           {students.map(student => {
             const name = [student.first_name, student.last_name].filter(Boolean).join(' ') || 'Student'
             const classObj = classes.find(c => c.id === student.class_id)
@@ -171,7 +191,7 @@ export function StudentsView({ students, classes }: { students: StudentListItem[
 
             return (
               <div key={student.id} className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-lg">
-                <div className="relative h-[120px]" style={{ backgroundColor: 'var(--brand-accent)' }}>
+                <div className="relative h-[100px]" style={{ backgroundColor: 'var(--brand-accent)' }}>
                   <div className="absolute -bottom-10 left-1/2 flex h-20 w-20 -translate-x-1/2 items-center justify-center rounded-full border-4 border-card bg-card text-2xl font-bold text-brand-primary shadow-md">
                     {student.profile_photo ? (
                       <img src={student.profile_photo} alt={name} className="h-full w-full rounded-full object-cover" />
@@ -181,18 +201,18 @@ export function StudentsView({ students, classes }: { students: StudentListItem[
                   </div>
 
                   {avgScore >= 80 && (
-                    <div className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full shadow-lg" style={{ backgroundColor: 'var(--warning-border)', color: 'white' }} title="Top Performer">
+                    <div className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full shadow-lg" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-accent) 80%, black)', color: 'white' }} title="Top Performer">
                       <Crown size={14} />
                     </div>
                   )}
                   {avgScore >= 60 && avgScore < 80 && (
-                    <div className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full shadow-lg" style={{ backgroundColor: 'hsl(var(--muted-foreground))', color: 'white' }} title="Good Performer">
+                    <div className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full shadow-lg" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 80%, black)', color: 'white' }} title="Good Performer">
                       <Star size={14} />
                     </div>
                   )}
                 </div>
 
-                <div className="flex flex-1 flex-col p-4 pt-12 text-center sm:p-6">
+                <div className="flex flex-1 flex-col p-4 pt-12 text-center sm:p-6 sm:pt-12">
                   <h3 className="text-lg font-bold text-foreground truncate px-2">{name}</h3>
 
                   <div className="mt-1 mb-3">
@@ -253,6 +273,18 @@ export function StudentsView({ students, classes }: { students: StudentListItem[
               </div>
             )
           })}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex flex-wrap items-center justify-center gap-2 pt-4">
+          {meta.page > 1 && (
+            <Link href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(meta.page - 1) }).toString()}`} className="flex h-10 items-center justify-center rounded-lg border border-border bg-card px-4 text-sm text-muted-foreground transition hover:border-brand-accent hover:text-brand-primary">Prev</Link>
+          )}
+          <span className="px-4 text-sm font-medium text-muted-foreground">Page {meta.page} of {totalPages}</span>
+          {meta.page < totalPages && (
+            <Link href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(meta.page + 1) }).toString()}`} className="flex h-10 items-center justify-center rounded-lg border border-border bg-card px-4 text-sm text-muted-foreground transition hover:border-brand-accent hover:text-brand-primary">Next</Link>
+          )}
         </div>
       )}
     </div>

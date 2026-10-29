@@ -3,6 +3,7 @@ import { getSessionUser } from '@/lib/auth'
 import { serverApiRequest } from '@/lib/server-api'
 import { getLearnersByClassServer } from '@/lib/admin.server'
 import { AnalyticsView } from './analytics-view'
+import type { TeacherOverview } from '@/lib/analytics.client'
 
 export const metadata: Metadata = { title: 'Analytics' }
 export const dynamic = 'force-dynamic'
@@ -47,15 +48,14 @@ export default async function TeacherAnalyticsPage({
   const range = Number(searchParams.range) || 30
   const { from, to } = dateWindow(range)
 
-  // ONE parallel batch. Only enrollment-trend depends on `range`.
-  const [statsRes, lessonsRes, classCountsRes, enrollment, atRisk, scores] =
+  const [statsRes, lessonsRes, classCountsRes, enrollment, atRisk, teacherOverview] =
     await Promise.all([
       serverApiRequest<any>('/api/v1/admin/stats').catch(() => null),
       serverApiRequest<any>('/api/v1/lessons?per_page=100').catch(() => []),
       getLearnersByClassServer().catch(() => []),
       fetchPython<any>('enrollment-trend', { from, to, interval: 'day' }),
       fetchPython<any>('at-risk-learners', { limit: '50' }),
-      fetchPython<any>('score-distribution'),
+      fetchPython<TeacherOverview>('teacher-overview', { teacher_id: String(session.id) }),
     ])
 
   const stats = statsRes || {}
@@ -69,7 +69,7 @@ export default async function TeacherAnalyticsPage({
       classCounts={classCounts}
       initialEnrollment={enrollment}
       initialAtRisk={atRisk}
-      initialScores={scores}
+      initialTeacherOverview={teacherOverview}
       initialRange={String(range)}
     />
   )

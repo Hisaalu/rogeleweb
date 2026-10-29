@@ -194,3 +194,17 @@ export async function getAtRiskClient(signal?: AbortSignal): Promise<AtRiskData>
 export async function getForecastClient(): Promise<RevenueForecast> {
   return analyticsFetch<RevenueForecast>('/revenue-forecast')
 }
+
+export interface TeacherOverview {
+  average_score: number
+  total_students: number
+  total_quizzes: number
+  attempts_counted: number
+}
+
+export async function getTeacherOverviewClient(
+  teacherId: number,
+  signal?: AbortSignal,
+): Promise<TeacherOverview> {
+  return analyticsFetch<TeacherOverview>(`/teacher-overview?teacher_id=${teacherId}`, signal)
+}

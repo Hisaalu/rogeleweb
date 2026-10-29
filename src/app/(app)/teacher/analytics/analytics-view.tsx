@@ -34,7 +34,7 @@ import {
   getEnrollmentTrendClient,
   type EnrollmentTrend,
   type AtRiskData,
-  type ScoreDistribution,
+  type TeacherOverview,
 } from '@/lib/analytics.client'
 
 const customTooltipStyle = {
@@ -102,7 +102,7 @@ export function AnalyticsView({
   classCounts,
   initialEnrollment,
   initialAtRisk,
-  initialScores,
+  initialTeacherOverview,
   initialRange,
 }: {
   stats: any
@@ -110,14 +110,13 @@ export function AnalyticsView({
   classCounts: any[]
   initialEnrollment: EnrollmentTrend | null
   initialAtRisk: AtRiskData | null
-  initialScores: ScoreDistribution | null
+  initialTeacherOverview: TeacherOverview | null
   initialRange: string
 }) {
   const totalStudents = useMemo(
-    () =>
-      (stats?.users_by_role?.learner ?? 0) +
-      (stats?.users_by_role?.external ?? 0),
-    [stats],
+    () => initialTeacherOverview?.total_students ?? 
+         (stats?.users_by_role?.learner ?? 0) + (stats?.users_by_role?.external ?? 0),
+    [stats, initialTeacherOverview],
   )
 
   const enrollmentByClassData = useMemo(() => {
@@ -148,7 +147,6 @@ export function AnalyticsView({
     initialEnrollment,
   )
   const [atRisk] = useState<AtRiskData | null>(initialAtRisk)
-  const [scores] = useState<ScoreDistribution | null>(initialScores)
   const [isFetching, setIsFetching] = useState(false)
 
   const abortRef = useRef<AbortController | null>(null)
@@ -194,7 +192,7 @@ export function AnalyticsView({
   )
 
   const totalEnrollment = enrollment?.total || 0
-  const averageScore = scores?.average || 0
+  const averageScore = initialTeacherOverview?.average_score ?? 0
   const atRiskCount = atRisk?.summary?.at_risk || 0
 
   const enrollmentChartData = useMemo(() => {
@@ -226,15 +224,8 @@ export function AnalyticsView({
           'These learners are starting to slip. A gentle nudge might help.',
       })
     }
-    if (scores && scores.passing_pct < 50 && scores.total > 0) {
-      recs.push({
-        tone: 'warning',
-        title: 'Low pass rate',
-        description: `Only ${scores.passing_pct}% of attempts are passing. Consider reviewing difficult topics.`,
-      })
-    }
     return recs
-  }, [atRisk, atRiskCount, scores])
+  }, [atRisk, atRiskCount])
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
@@ -338,7 +329,7 @@ export function AnalyticsView({
         <StatCard icon={Users} label="Total Students" value={totalStudents} />
         <StatCard
           icon={TrendingUp}
-          label="Avg. Score"
+          label="True Class Average"
           value={`${Math.round(averageScore)}%`}
         />
         <StatCard

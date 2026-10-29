@@ -22,7 +22,7 @@ const iconAccent = { color: 'var(--brand-accent)' } as const
 const iconSoftBg = {
   backgroundColor: 'color-mix(in srgb, var(--brand-accent) 10%, transparent)',
 } as const
-const pillPublished = { backgroundColor: '#F0FDF4', color: '#166534' } as const
+const pillPublished = { backgroundColor: 'var(--success-bg)', color: 'var(--success-fg)' } as const
 const pillDraft = {
   backgroundColor: 'hsl(var(--muted))',
   color: 'hsl(var(--muted-foreground))',
@@ -72,7 +72,11 @@ export function TeacherDashboardView({
         <StatCard icon={BookOpen} label="Total Lessons" value={data.totalLessons} />
         <StatCard icon={HelpCircle} label="Total Quizzes" value={data.totalQuizzes} />
         <StatCard icon={Users} label="Total Students" value={data.totalStudents} />
-        <StatCard icon={Activity} label="Avg. Score" value={`${Number.isFinite(data.averageScore) ? Math.round(data.averageScore) : 0}%`}/>
+        <StatCard 
+          icon={Activity} 
+          label="True Class Average" 
+          value={`${Math.round(data.averageScore)}%`} 
+        />
       </div>
 
       <section>
@@ -248,10 +252,8 @@ function StatCard({
   label: string
   value: number | string
 }) {
-  const display =
-    typeof value === 'number'
-      ? value.toLocaleString('en-US')
-      : value
+  const display = typeof value === 'number' ? value.toLocaleString('en-US') : value
+
   return (
     <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 transition hover:-translate-y-1 hover:shadow-lg sm:gap-5 sm:p-6">
       <div
@@ -263,9 +265,7 @@ function StatCard({
       </div>
       <div className="min-w-0">
         <p className="text-xs text-muted-foreground sm:text-sm">{label}</p>
-        <p className="truncate text-xl font-bold text-foreground sm:text-2xl">
-          {display}
-        </p>
+        <p className="truncate text-xl font-bold text-foreground sm:text-2xl">{display}</p>
       </div>
     </div>
   )

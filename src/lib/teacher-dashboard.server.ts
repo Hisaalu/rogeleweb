@@ -1,7 +1,8 @@
 import 'server-only'
 import { serverApiRequest } from './server-api'
+import { getTeacherOverviewClient } from './analytics.client'
 import type { Lesson } from '@/types/lesson'
-import type { Quiz, QuizAttempt } from '@/types/quiz'
+import type { Quiz } from '@/types/quiz'
 
 export interface TeacherDashboardData {
   totalLessons: number
@@ -21,22 +22,12 @@ interface ClassLearnerCount {
 function extractTotal(raw: unknown): number {
   if (Array.isArray(raw)) return raw.length
   if (!raw || typeof raw !== 'object') return 0
-  
   const r = raw as Record<string, unknown>
   const meta = (r.meta ?? {}) as Record<string, unknown>
-  const candidate = 
-    (meta.total as number) ?? 
-    (meta.total_count as number) ?? 
-    (meta.count as number) ?? 
-    (r.total as number)
-    
-  if (typeof candidate === 'number' && Number.isFinite(candidate)) {
-    return candidate
-  }
-
+  const candidate = (meta.total as number) ?? (r.total as number)
+  if (typeof candidate === 'number' && Number.isFinite(candidate)) return candidate
   if (Array.isArray(r.data)) return r.data.length
   if (Array.isArray(r.value)) return r.value.length
-  
   return 0
 }
 
@@ -49,55 +40,23 @@ function getItems<T>(raw: unknown): T[] {
   return []
 }
 
-export async function getTeacherDashboardDataServer(): Promise<TeacherDashboardData> {
-  const [lessonsRaw, quizzesRaw, learnerCountsRaw] = await Promise.all([
+export async function getTeacherDashboardDataServer(teacherId: number): Promise<TeacherDashboardData> {
+  const [lessonsRaw, quizzesRaw, learnerCountsRaw, overview] = await Promise.all([
     serverApiRequest<unknown>('/api/v1/lessons?per_page=1000').catch(() => null),
     serverApiRequest<unknown>('/api/v1/quizzes?per_page=1000').catch(() => null),
     serverApiRequest<ClassLearnerCount[]>('/api/v1/admin/learners-by-class').catch(() => null),
+    getTeacherOverviewClient(teacherId).catch(() => null), 
   ])
 
   const totalLessons = extractTotal(lessonsRaw)
   const totalQuizzes = extractTotal(quizzesRaw)
   const quizzes = getItems<Quiz>(quizzesRaw)
   
-  const totalStudents = Array.isArray(learnerCountsRaw)
+  const totalStudents = overview?.total_students ?? (Array.isArray(learnerCountsRaw)
     ? learnerCountsRaw.reduce((sum, c) => sum + (c.learner_count ?? 0), 0)
-    : 0
+    : 0)
 
-  const targetQuizzes = quizzes.slice(0, 10)
-  
-  const attemptPromises = targetQuizzes.map((q) =>
-    serverApiRequest<unknown>(`/api/v1/quizzes/${q.id}/attempts`)
-      .then((res) => getItems<QuizAttempt>(res))
-      .catch(() => [] as QuizAttempt[])
-  )
-  
-  const attemptsArrays = await Promise.all(attemptPromises)
-  const allAttempts = attemptsArrays.flat()
-
-  const validAttempts = allAttempts.filter(
-    (a) => a.status === 'completed' && a.score != null
-  )
-
-  let totalPercentage = 0
-  let validCount = 0
-
-  for (const a of validAttempts) {
-    let percentage = 0
-    
-    if (a.total_questions == null || a.total_questions === 0 || Number(a.score) > a.total_questions) {
-      percentage = Number(a.score)
-    } else {
-      percentage = (Number(a.score) / Number(a.total_questions)) * 100
-    }
-
-    percentage = Math.max(0, Math.min(percentage, 100))
-    
-    totalPercentage += percentage
-    validCount++
-  }
-
-  const averageScore = validCount > 0 ? Math.round(totalPercentage / validCount) : 0
+  const averageScore = overview?.average_score ?? 0
 
   return {
     totalLessons,
@@ -109,14 +68,9 @@ export async function getTeacherDashboardDataServer(): Promise<TeacherDashboardD
   }
 }
 
-export interface TeacherCounts {
-  totalLessons: number
-  totalStudents: number
-}
-
-export async function getTeacherCountsServer(): Promise<TeacherCounts> {
+export async function getTeacherCountsServer(): Promise<{ totalLessons: number; totalStudents: number }> {
   const [lessonsRaw, learnerCountsRaw] = await Promise.all([
-    serverApiRequest<unknown>('/api/v1/lessons?per_page=1').catch(() => null),
+    serverApiRequest<unknown>('/api/v1/lessons?per_page=1000').catch(() => null),
     serverApiRequest<ClassLearnerCount[]>('/api/v1/admin/learners-by-class').catch(() => null),
   ])
 
