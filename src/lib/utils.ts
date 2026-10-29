@@ -54,3 +54,18 @@ export function truncate(text: string, max: number): string {
 export function formatNumber(n: number): string {
   return new Intl.NumberFormat('en-US').format(n)
 }
+
+export function fixFileUrl(url: string | null | undefined): string {
+  if (!url) return ''
+  
+  if (url.includes('/rogele-platform/')) return url
+  
+  if (url.startsWith('https://docs.raysofgrace.ac.ug/')) {
+    return url.replace(
+      'https://docs.raysofgrace.ac.ug/', 
+      'https://docs.raysofgrace.ac.ug/rogele-platform/'
+    )
+  }
+  
+  return url
+}
