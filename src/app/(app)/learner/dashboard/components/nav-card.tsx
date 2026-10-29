@@ -35,7 +35,6 @@ export function NavCard({
 
   const content = (
     <>
-      {/* Icon inherits the current text color perfectly */}
       <div className="mb-4 opacity-90">
         {icon}
       </div>
