@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import Link from 'next/link'
-import { useRouter } from 'nextjs-toploader/app'
+import { useRouter } from 'next/navigation'
 import { Bell, Check, X } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
@@ -50,7 +50,6 @@ export function NotificationBell({
     mutationFn: markAllNotificationsReadClient,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
-      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] })
     },
   })
 
@@ -58,7 +57,6 @@ export function NotificationBell({
     mutationFn: markNotificationReadClient,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
-      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] })
     },
   })
 
@@ -105,7 +103,8 @@ export function NotificationBell({
   const popup = open ? (
     <div className="fixed inset-0 z-[100] flex flex-col justify-end sm:justify-start sm:items-end sm:pt-[72px] sm:pr-4 pointer-events-none">
       <div 
-        className="absolute inset-0 bg-background/80 backdrop-blur-sm sm:hidden pointer-events-auto" 
+        className="absolute inset-0 sm:hidden pointer-events-auto"
+        style={{ backgroundColor: 'color-mix(in srgb, hsl(var(--background)) 80%, transparent)' }}
         onClick={() => setOpen(false)} 
       />
 
@@ -114,8 +113,8 @@ export function NotificationBell({
         role="menu"
         className={cn(
           'relative pointer-events-auto flex flex-col bg-card shadow-2xl border border-border overflow-hidden',
-          'w-full max-h-[75vh] rounded-t-2xl rounded-b-none',
-          'sm:w-[380px] sm:max-h-[calc(100vh-90px)] sm:rounded-2xl'
+          'w-full max-h-[85vh] rounded-t-2xl rounded-b-none',
+          'sm:w-[380px] sm:max-h-[calc(100vh-90px)] sm:rounded-2xl sm:border-border'
         )}
       >
         <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3 sm:px-5 sm:py-4">
@@ -126,16 +125,18 @@ export function NotificationBell({
                 type="button"
                 onClick={() => markAllMutation.mutate()}
                 disabled={markAllMutation.isPending}
-                className="flex items-center gap-1 text-xs font-medium text-brand-primary hover:underline disabled:opacity-50"
+                className="flex items-center gap-1 text-xs font-semibold transition hover:opacity-80 disabled:opacity-50"
+                style={{ color: 'var(--brand-primary)' }}
               >
-                <Check size={12} />
-                Mark all read
+                <Check size={14} />
+                <span className="hidden sm:inline">Mark all read</span>
+                <span className="sm:hidden">Mark all</span>
               </button>
             )}
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="ml-2 flex h-6 w-6 items-center justify-center rounded-full bg-muted text-muted-foreground sm:hidden"
+              className="ml-1 flex h-7 w-7 items-center justify-center rounded-full bg-muted text-muted-foreground transition hover:bg-muted/80 sm:hidden"
               aria-label="Close notifications"
             >
               <X size={14} />
@@ -145,12 +146,12 @@ export function NotificationBell({
 
         <div className="flex-1 overflow-y-auto overscroll-contain">
           {isLoading ? (
-            <div className="p-6 text-center text-sm text-muted-foreground">
-              Loading...
+            <div className="p-8 text-center text-sm text-muted-foreground">
+              Loading notifications...
             </div>
           ) : notifications.length === 0 ? (
             <div className="p-10 text-center text-sm text-muted-foreground">
-              No notifications yet.
+              You have no notifications.
             </div>
           ) : (
             <NotificationList
@@ -161,11 +162,12 @@ export function NotificationBell({
           )}
         </div>
 
-        <div className="shrink-0 border-t border-border p-3 sm:p-2">
+        <div className="shrink-0 border-t border-border p-2">
           <Link
             href={viewAllHref}
             onClick={() => setOpen(false)}
-            className="block w-full rounded-lg py-2 text-center text-sm font-medium text-brand-primary transition hover:bg-muted"
+            className="block w-full rounded-lg py-2.5 text-center text-sm font-semibold transition hover:bg-muted"
+            style={{ color: 'var(--brand-primary)' }}
           >
             View all notifications
           </Link>
@@ -189,8 +191,11 @@ export function NotificationBell({
         <Bell size={compact ? 18 : 20} />
         {unreadCount > 0 && (
           <span 
-            className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white ring-2 ring-background"
-            style={{ backgroundColor: 'var(--brand-accent)' }}
+            className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white shadow-sm"
+            style={{ 
+              backgroundColor: 'var(--brand-accent)',
+              border: '2px solid hsl(var(--background))' 
+            }}
           >
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>

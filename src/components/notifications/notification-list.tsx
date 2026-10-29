@@ -1,4 +1,5 @@
-import Link from 'next/link'
+'use client'
+
 import { Bell, BookOpen, CreditCard, HelpCircle, Info } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Notification } from '@/types/notification'
@@ -38,28 +39,37 @@ export function NotificationList({
               !n.is_read && 'bg-brand-primary/[0.03]'
             )}
           >
-            <div className={cn(
-              "flex shrink-0 items-center justify-center rounded-full",
-              compact ? "h-8 w-8" : "h-10 w-10",
-              n.is_read ? "bg-muted text-muted-foreground" : "bg-brand-primary/10 text-brand-primary"
-            )}>
+            <div 
+              className={cn(
+                "flex shrink-0 items-center justify-center rounded-full",
+                compact ? "h-8 w-8" : "h-10 w-10",
+                n.is_read ? "bg-muted text-muted-foreground" : ""
+              )}
+              style={{
+                backgroundColor: !n.is_read ? 'color-mix(in srgb, var(--brand-primary) 15%, transparent)' : undefined,
+                color: !n.is_read ? 'var(--brand-primary)' : undefined,
+              }}
+            >
               <Icon size={compact ? 14 : 18} />
             </div>
             
             <div className="min-w-0 flex-1 pt-0.5">
               <p className={cn(
-                "text-sm leading-tight text-foreground",
+                "line-clamp-1 text-sm leading-tight text-foreground",
                 !n.is_read && "font-semibold"
               )}>
                 {n.title}
               </p>
-              <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+              <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
                 {n.message}
               </p>
             </div>
             
             {!n.is_read && (
-              <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-brand-accent" />
+              <span 
+                className="mt-1.5 h-2 w-2 shrink-0 rounded-full" 
+                style={{ backgroundColor: 'var(--brand-accent)' }}
+              />
             )}
           </button>
         )

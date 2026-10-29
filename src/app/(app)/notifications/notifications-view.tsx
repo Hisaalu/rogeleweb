@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Check, Bell } from 'lucide-react'
+import { Check, Bell, CheckCircle2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import {
@@ -59,69 +59,88 @@ export function NotificationsView({
         list.map((x) => (x.id === n.id ? { ...x, is_read: true } : x)),
       )
     } catch {
-      // ignore
     }
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+    <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold sm:text-3xl">Notifications</h1>
+          <h1 className="flex items-center gap-2 text-2xl font-bold sm:text-3xl" style={{ color: 'var(--brand-primary)' }}>
+            <Bell size={26} className="shrink-0" />
+            <span>Notifications</span>
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {unreadCount > 0
-              ? `${unreadCount} unread notification${unreadCount === 1 ? '' : 's'}`
-              : 'You are all caught up'}
+              ? `You have ${unreadCount} unread notification${unreadCount === 1 ? '' : 's'}`
+              : "You're all caught up!"}
           </p>
         </div>
 
         {unreadCount > 0 && (
-          <Button variant="outline" onClick={handleMarkAll} disabled={marking}>
-            <Check size={14} />
-            {marking ? 'Marking...' : 'Mark all read'}
+          <Button 
+            variant="outline" 
+            onClick={handleMarkAll} 
+            disabled={marking}
+            className="w-full shrink-0 sm:w-auto"
+          >
+            <Check size={14} className="mr-2" />
+            {marking ? 'Marking...' : 'Mark all as read'}
           </Button>
         )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        {FILTERS.map((f) => (
-          <button
-            key={f.value}
-            type="button"
-            onClick={() => setFilter(f.value)}
-            className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-              filter === f.value
-                ? 'border-brand-primary bg-brand-primary/10 text-brand-primary'
-                : 'border-border text-muted-foreground hover:border-brand-accent'
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
+      <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex w-full overflow-x-auto pb-2 lg:w-auto lg:pb-0 scrollbar-hide">
+            <div className="flex gap-2">
+              {FILTERS.map((f) => (
+                <button
+                  key={f.value}
+                  type="button"
+                  onClick={() => setFilter(f.value)}
+                  className={`shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition ${
+                    filter === f.value
+                      ? 'border-brand-primary bg-brand-primary/10 text-brand-primary'
+                      : 'border-border bg-background text-muted-foreground hover:border-brand-accent hover:text-foreground'
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-        <label className="ml-auto flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
-          <input
-            type="checkbox"
-            checked={showUnreadOnly}
-            onChange={(e) => setShowUnreadOnly(e.target.checked)}
-            className="h-4 w-4 rounded border-input"
-          />
-          Unread only
-        </label>
+          <div className="flex shrink-0 items-center justify-between border-t border-border pt-4 lg:justify-end lg:border-t-0 lg:pt-0">
+            <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-foreground">
+              <input
+                type="checkbox"
+                checked={showUnreadOnly}
+                onChange={(e) => setShowUnreadOnly(e.target.checked)}
+                className="h-4 w-4 rounded border-input accent-brand-primary"
+              />
+              Show unread only
+            </label>
+          </div>
+        </div>
       </div>
 
       {filtered.length === 0 ? (
-        <EmptyState
-          icon={Bell}
-          title="Nothing here"
-          description={
-            showUnreadOnly
-              ? 'You have no unread notifications.'
-              : 'No notifications match the selected filter.'
-          }
-        />
+        <div className="rounded-2xl border border-dashed border-border bg-card">
+          <EmptyState
+            icon={showUnreadOnly || filter !== 'all' ? CheckCircle2 : Bell}
+            title={showUnreadOnly || filter !== 'all' ? "No matching notifications" : "No notifications yet"}
+            description={
+              showUnreadOnly
+                ? 'You have no unread notifications.'
+                : filter !== 'all'
+                  ? 'No notifications match the selected filter.'
+                  : 'When you receive updates about lessons or quizzes, they will appear here.'
+            }
+          />
+        </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-border bg-card">
+        <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
           <NotificationList
             notifications={filtered}
             onItemClick={handleMarkOne}
