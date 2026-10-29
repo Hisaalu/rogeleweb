@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { BookOpen, HelpCircle, CreditCard, Calendar, Clock } from 'lucide-react'
 import type { User } from '@/types/api'
 import type {
@@ -12,6 +13,8 @@ import { AccessBanner } from './components/access-banner'
 import { NavCard } from './components/nav-card'
 import { EventCalendar } from './components/event-calendar'
 import { EventFeed } from './components/event-feed'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 const accentIcon = { color: 'var(--brand-accent)' } as const
 
@@ -49,7 +52,7 @@ export function LearnerDashboardView({
         <span style={{ color: 'var(--brand-primary)' }}>{firstName}</span>!
       </h1>
 
-      <div className="rounded-2xl border border-border bg-card p-4 sm:p-6">
+      <Card className="p-4 sm:p-6">
         <h2 className="mb-4 text-base font-semibold sm:mb-5 sm:text-lg">Overview</h2>
 
         {hasActiveSubscription && subscription && (
@@ -67,7 +70,7 @@ export function LearnerDashboardView({
 
         {isInTrial && trial && (
           <div
-            className="rounded-xl border-l-4 p-5"
+            className="rounded-md border-l-4 p-5"
             style={{ backgroundColor: 'var(--warning-bg)', borderLeftColor: 'var(--warning-border)' }}
           >
             <div className="flex flex-wrap items-center gap-4">
@@ -95,13 +98,9 @@ export function LearnerDashboardView({
                   </p>
                 )}
               </div>
-              <a
-                href="/learner/subscription"
-                className="shrink-0 rounded-full px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-                style={{ backgroundColor: 'var(--brand-accent)' }}
-              >
-                Subscribe Now
-              </a>
+              <Link href="/learner/subscription" className="shrink-0">
+                <Button variant="secondary">Subscribe Now</Button>
+              </Link>
             </div>
 
             <div className="mt-4">
@@ -176,7 +175,7 @@ export function LearnerDashboardView({
           Institutional Calendar &amp; Events
         </h3>
 
-        <div className="mt-4 flex flex-col gap-6 sm:grid sm:rounded-2xl sm:border sm:border-border sm:bg-muted/30 sm:p-5 lg:grid-cols-2">
+        <Card className="mt-4 flex flex-col gap-6 bg-muted/30 p-4 sm:grid sm:p-5 lg:grid-cols-2">
           <EventCalendar
             events={events}
             selectedDate={selectedDate}
@@ -187,27 +186,23 @@ export function LearnerDashboardView({
             selectedDate={selectedDate}
             onClearFilter={() => setSelectedDate(null)}
           />
-        </div>
+        </Card>
 
         {!hasAccess && (
-          <div
-            className="mt-6 rounded-xl p-4 text-center sm:mt-8 sm:p-5"
+          <Card
+            className="mt-6 border-none p-4 text-center sm:mt-8 sm:p-5"
             style={{ backgroundColor: 'var(--danger-bg)' }}
           >
             <p className="mb-4 text-sm" style={{ color: 'var(--danger-fg)' }}>
               Your free trial or subscription has ended. To continue learning,
               please choose a subscription plan!
             </p>
-            <a
-              href="/learner/subscription"
-              className="inline-block rounded-full px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 sm:px-8 sm:py-3"
-              style={{ backgroundColor: 'var(--brand-primary)' }}
-            >
-              View Plans
-            </a>
-          </div>
+            <Link href="/learner/subscription">
+              <Button>View Plans</Button>
+            </Link>
+          </Card>
         )}
-      </div>
+      </Card>
     </div>
   )
 }

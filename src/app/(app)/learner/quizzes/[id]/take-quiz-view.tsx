@@ -11,6 +11,8 @@ import {
   getAttemptClient,
 } from '@/lib/quizzes.client'
 import { useToast } from '@/components/ui/toast-provider'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 function computeSecondsLeft(attempt: QuizAttempt, timeLimitMinutes: number): number {
   const startedAt = new Date(attempt.started_at).getTime()
@@ -207,7 +209,7 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz; questions: QuizQ
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
       <div
-        className="sticky top-0 z-40 flex items-center justify-between rounded-2xl px-5 py-3 text-white shadow-lg"
+        className="sticky top-0 z-40 flex items-center justify-between rounded-md px-5 py-3 text-white shadow-lg"
         style={{ backgroundColor: 'var(--brand-primary)' }}
       >
         <div className="flex items-center gap-2 font-semibold">
@@ -227,11 +229,11 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz; questions: QuizQ
         </div>
       </div>
 
-      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+      <Card className="p-6">
         <h1 className="text-2xl font-bold text-foreground">{quiz.title}</h1>
 
         <div
-          className="mt-4 flex items-start gap-3 rounded-xl border-l-4 p-4"
+          className="mt-4 flex items-start gap-3 rounded-md border-l-4 p-4"
           style={{
             borderLeftColor: 'var(--warning-border)',
             backgroundColor: 'var(--warning-bg)',
@@ -246,11 +248,11 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz; questions: QuizQ
             </p>
           </div>
         </div>
-      </div>
+      </Card>
 
       <div className="space-y-4">
         {questions.map((q, idx) => (
-          <div key={q.id} className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <Card key={q.id} className="p-6">
             <div className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
               Question {idx + 1} of {questions.length}
             </div>
@@ -262,9 +264,9 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz; questions: QuizQ
                 return (
                   <label
                     key={optIdx}
-                    className="flex cursor-pointer items-center gap-3 rounded-xl border-2 p-3 transition-all"
+                    className="flex cursor-pointer items-center gap-3 rounded-md border-2 p-3 transition-all"
                     style={{
-                      borderColor: isSelected ? 'var(--brand-accent)' : 'var(--border)',
+                      borderColor: isSelected ? 'var(--brand-accent)' : 'hsl(var(--border))',
                       backgroundColor: isSelected
                         ? 'color-mix(in srgb, var(--brand-accent) 5%, transparent)'
                         : 'hsl(var(--background))',
@@ -294,24 +296,23 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz; questions: QuizQ
                 )
               })}
             </div>
-          </div>
+          </Card>
         ))}
       </div>
 
       <div className="flex items-center justify-center pt-6 pb-20">
-        <button
+        <Button
           onClick={handleManualSubmit}
           disabled={isSubmitting || answeredCount !== questions.length}
-          className="inline-flex items-center gap-2 rounded-full px-10 py-4 text-base font-bold text-white shadow-lg transition hover:opacity-90 disabled:opacity-50"
-          style={{ backgroundColor: 'var(--brand-primary)' }}
+          className="h-12 rounded-full px-10 text-base"
         >
           {isSubmitting ? (
-            <Loader2 size={20} className="animate-spin" />
+            <Loader2 size={20} className="animate-spin mr-2" />
           ) : (
-            <CheckCircle2 size={20} />
+            <CheckCircle2 size={20} className="mr-2" />
           )}
           {isSubmitting ? 'Submitting...' : 'Submit Quiz'}
-        </button>
+        </Button>
       </div>
     </div>
   )

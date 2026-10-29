@@ -136,7 +136,7 @@
   textarea,
   select {
     border: 1px solid hsl(var(--input));
-    border-radius: 0.75rem;
+    /* border-radius: 0.75rem; */
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
   }
 

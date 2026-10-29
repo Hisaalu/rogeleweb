@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import { CheckCircle2, XCircle, Trophy, BookOpen } from 'lucide-react'
 import type { QuizResultDetails } from '@/types/quiz'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 export function ResultView({ attempt }: { attempt: QuizResultDetails }) {
   const passed = (attempt.score ?? 0) >= (attempt.passing_score ?? 70)
@@ -17,7 +19,7 @@ export function ResultView({ attempt }: { attempt: QuizResultDetails }) {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">
-      <div className="rounded-3xl border border-border bg-card p-8 text-center shadow-lg sm:p-12">
+      <Card className="p-8 text-center sm:p-12">
         <div 
           className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full"
           style={{ backgroundColor: passed ? 'var(--success-bg)' : 'var(--danger-bg)' }}
@@ -77,9 +79,9 @@ export function ResultView({ attempt }: { attempt: QuizResultDetails }) {
             <div className="text-xs font-medium text-muted-foreground">Time Taken</div>
           </div>
         </div>
-      </div>
+      </Card>
 
-      <div className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
+      <Card className="p-6 sm:p-8">
         <h2 className="mb-2 text-xl font-bold text-foreground">Review & Corrections</h2>
         <p className="mb-6 text-sm text-muted-foreground">
           Review your answers below. Corrections are highlighted in green.
@@ -94,7 +96,7 @@ export function ResultView({ attempt }: { attempt: QuizResultDetails }) {
             return (
               <div 
                 key={q.id} 
-                className="rounded-2xl border-l-4 bg-muted/30 p-5"
+                className="rounded-md border-l-4 bg-muted/30 p-5"
                 style={{ borderLeftColor: isCorrect ? 'var(--success-border)' : 'var(--danger-border)' }}
               >
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -120,7 +122,7 @@ export function ResultView({ attempt }: { attempt: QuizResultDetails }) {
                     const isAns = optIdx === q.correct_option
                     const isUser = optIdx === userAnswer
                     
-                    let borderColor = 'var(--border)'
+                    let borderColor = 'hsl(var(--border))'
                     let bgColor = 'hsl(var(--background))'
                     if (isAns) {
                       borderColor = 'var(--success-border)'
@@ -133,7 +135,7 @@ export function ResultView({ attempt }: { attempt: QuizResultDetails }) {
                     return (
                       <div 
                         key={optIdx} 
-                        className="flex items-center gap-3 rounded-xl border p-3"
+                        className="flex items-center gap-3 rounded-md border p-3"
                         style={{ borderColor, backgroundColor: bgColor }}
                       >
                         <div 
@@ -155,7 +157,7 @@ export function ResultView({ attempt }: { attempt: QuizResultDetails }) {
 
                 {q.explanation && (
                   <div 
-                    className="rounded-xl border-l-2 p-3 text-sm"
+                    className="rounded-md border-l-2 p-3 text-sm"
                     style={{ 
                       borderLeftColor: 'var(--warning-border)', 
                       backgroundColor: 'var(--warning-bg)', 
@@ -172,14 +174,16 @@ export function ResultView({ attempt }: { attempt: QuizResultDetails }) {
         </div>
 
         <div className="mt-8 flex flex-wrap justify-center gap-4">
-          <Link href="/learner/quizzes" className="inline-flex items-center gap-2 rounded-full border-2 px-6 py-2.5 text-sm font-bold transition hover:opacity-90" style={{ borderColor: 'var(--brand-primary)', color: 'var(--brand-primary)' }}>
-            Try Another Quiz
+          <Link href="/learner/quizzes">
+            <Button variant="outline">Try Another Quiz</Button>
           </Link>
-          <Link href="/learner/lessons" className="inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-bold text-white transition hover:opacity-90" style={{ backgroundColor: 'var(--brand-primary)' }}>
-            <BookOpen size={16} /> Continue Learning
+          <Link href="/learner/lessons">
+            <Button>
+              <BookOpen size={16} className="mr-2" /> Continue Learning
+            </Button>
           </Link>
         </div>
-      </div>
+      </Card>
     </div>
   )
 }

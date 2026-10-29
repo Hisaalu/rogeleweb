@@ -3,9 +3,11 @@
 import Link from 'next/link'
 import { useSearchParams, usePathname, useRouter } from 'next/navigation'
 import { 
-  ClipboardList, Clock, Star, FileText, Book, Calendar, ArrowRight, CheckCircle2, AlertTriangle
+  ClipboardList, Clock, Star, FileText, Book, Calendar, ArrowRight
 } from 'lucide-react'
 import type { Homework } from '@/types/homework'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 export function LearnerHomeworkView({ homeworks }: { homeworks: Homework[] }) {
   const router = useRouter()
@@ -52,63 +54,86 @@ export function LearnerHomeworkView({ homeworks }: { homeworks: Homework[] }) {
         <p className="mt-1 text-sm text-muted-foreground">View and submit your assignments</p>
       </div>
 
+      {/* Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5 shadow-sm">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-100 text-orange-600 dark:bg-orange-950/30 dark:text-orange-400">
+        <Card className="flex items-center gap-4 p-5">
+          <div
+            className="flex h-12 w-12 items-center justify-center rounded-md"
+            style={{
+              backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)',
+              color: 'var(--brand-primary)',
+            }}
+          >
             <ClipboardList size={22} />
           </div>
           <div>
             <p className="text-2xl font-bold text-foreground">{total}</p>
             <p className="text-xs font-medium text-muted-foreground">Total Assignments</p>
           </div>
-        </div>
-        <div className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5 shadow-sm">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-100 text-orange-600 dark:bg-orange-950/30 dark:text-orange-400">
+        </Card>
+        <Card className="flex items-center gap-4 p-5">
+          <div
+            className="flex h-12 w-12 items-center justify-center rounded-md"
+            style={{
+              backgroundColor: 'var(--warning-bg)',
+              color: 'var(--warning-fg)',
+            }}
+          >
             <Clock size={22} />
           </div>
           <div>
             <p className="text-2xl font-bold text-foreground">{pending}</p>
             <p className="text-xs font-medium text-muted-foreground">Pending</p>
           </div>
-        </div>
-        <div className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5 shadow-sm">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-100 text-orange-600 dark:bg-orange-950/30 dark:text-orange-400">
+        </Card>
+        <Card className="flex items-center gap-4 p-5">
+          <div
+            className="flex h-12 w-12 items-center justify-center rounded-md"
+            style={{
+              backgroundColor: 'var(--success-bg)',
+              color: 'var(--success-fg)',
+            }}
+          >
             <Star size={22} />
           </div>
           <div>
             <p className="text-2xl font-bold text-foreground">{graded}</p>
             <p className="text-xs font-medium text-muted-foreground">Graded</p>
           </div>
-        </div>
+        </Card>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 rounded-full border border-border bg-card p-1 w-fit">
-        <button
+      {/* Filter Tabs */}
+      <div className="flex w-fit flex-wrap items-center gap-1 rounded-md border border-border bg-card p-1">
+        <Button
+          variant={!currentStatus ? 'primary' : 'ghost'}
+          size="sm"
           onClick={() => setStatus('')}
-          className={`flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition ${!currentStatus ? 'bg-brand-primary text-white' : 'text-muted-foreground hover:bg-muted'}`}
         >
           <ClipboardList size={15} /> All
-        </button>
-        <button
+        </Button>
+        <Button
+          variant={currentStatus === 'pending' ? 'primary' : 'ghost'}
+          size="sm"
           onClick={() => setStatus('pending')}
-          className={`flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition ${currentStatus === 'pending' ? 'bg-brand-primary text-white' : 'text-muted-foreground hover:bg-muted'}`}
         >
           <Clock size={15} /> Pending
-        </button>
-        <button
+        </Button>
+        <Button
+          variant={currentStatus === 'graded' ? 'primary' : 'ghost'}
+          size="sm"
           onClick={() => setStatus('graded')}
-          className={`flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition ${currentStatus === 'graded' ? 'bg-brand-primary text-white' : 'text-muted-foreground hover:bg-muted'}`}
         >
           <Star size={15} /> Graded
-        </button>
+        </Button>
       </div>
 
       {filteredHomeworks.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
+        <Card className="border-dashed px-6 py-16 text-center">
           <ClipboardList size={40} className="mx-auto mb-4 opacity-30" style={{ color: 'var(--brand-accent)' }} />
           <h3 className="text-xl font-bold text-foreground">No Homework Assigned</h3>
-          <p className="mt-1 text-sm text-muted-foreground">You don't have any homework at the moment. Check back later!</p>
-        </div>
+          <p className="mt-1 text-sm text-muted-foreground">You don&apos;t have any homework at the moment. Check back later!</p>
+        </Card>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filteredHomeworks.map(hw => {
@@ -118,26 +143,30 @@ export function LearnerHomeworkView({ homeworks }: { homeworks: Homework[] }) {
             const status = submission?.status ?? 'pending'
             const isLate = !submission && isExpired
 
-            let borderClass = 'border-l-4 border-l-orange-400'
-            if (status === 'graded') borderClass = 'border-l-4 border-l-emerald-500'
-            else if (status === 'submitted') borderClass = 'border-l-4 border-l-blue-500'
-            else if (isLate) borderClass = 'border-l-4 border-l-red-500'
+            let borderColor = 'var(--warning-border)'
+            if (status === 'graded') borderColor = 'var(--success-border)'
+            else if (status === 'submitted') borderColor = 'var(--brand-accent)'
+            else if (isLate) borderColor = 'var(--danger-border)'
 
             return (
-              <div key={hw.id} className={`flex flex-col rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md ${borderClass}`}>
+              <Card
+                key={hw.id}
+                className="flex flex-col border-l-4 p-5 transition hover:-translate-y-1 hover:shadow-md"
+                style={{ borderLeftColor: borderColor }}
+              >
                 <div className="mb-3 flex items-start justify-between gap-2">
                   <h3 className="flex items-center gap-2 text-lg font-bold text-foreground">
                     <FileText size={18} style={{ color: 'var(--brand-accent)' }} /> {hw.title}
                   </h3>
                   <div>
                     {status === 'graded' ? (
-                      <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Graded</span>
+                      <span className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider" style={{ backgroundColor: 'var(--success-bg)', color: 'var(--success-fg)' }}>Graded</span>
                     ) : status === 'submitted' ? (
-                      <span className="rounded-full bg-blue-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">Submitted</span>
+                      <span className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-accent) 10%, transparent)', color: 'var(--brand-accent)' }}>Submitted</span>
                     ) : isLate ? (
-                      <span className="rounded-full bg-red-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-red-700 dark:bg-red-900/30 dark:text-red-400">Late</span>
+                      <span className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider" style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-fg)' }}>Late</span>
                     ) : (
-                      <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">Pending</span>
+                      <span className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider" style={{ backgroundColor: 'var(--warning-bg)', color: 'var(--warning-fg)' }}>Pending</span>
                     )}
                   </div>
                 </div>
@@ -150,17 +179,19 @@ export function LearnerHomeworkView({ homeworks }: { homeworks: Homework[] }) {
                 <p className="mb-4 line-clamp-2 text-sm text-muted-foreground">{hw.description || 'No description provided.'}</p>
 
                 {status === 'graded' && submission?.grade !== undefined && (
-                  <div className="mb-4 rounded-xl bg-emerald-50 p-3 text-center dark:bg-emerald-950/30">
-                    <span className="text-xs font-semibold text-emerald-800 dark:text-emerald-300">Grade: </span>
-                    <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{submission.grade}%</span>
+                  <div className="mb-4 rounded-md p-3 text-center" style={{ backgroundColor: 'var(--success-bg)' }}>
+                    <span className="text-xs font-semibold" style={{ color: 'var(--success-fg)' }}>Grade: </span>
+                    <span className="text-lg font-bold" style={{ color: 'var(--success-fg)' }}>{submission.grade}%</span>
                   </div>
                 )}
 
-                <Link href={`/learner/homework/${hw.id}`} className="mt-auto flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90" style={{ backgroundColor: 'var(--brand-primary)' }}>
-                  {status === 'graded' ? 'View Feedback' : status === 'submitted' ? 'View Submission' : 'View / Submit Homework'}
-                  <ArrowRight size={15} />
+                <Link href={`/learner/homework/${hw.id}`} className="mt-auto w-full">
+                  <Button className="w-full">
+                    {status === 'graded' ? 'View Feedback' : status === 'submitted' ? 'View Submission' : 'View / Submit Homework'}
+                    <ArrowRight size={15} className="ml-1" />
+                  </Button>
                 </Link>
-              </div>
+              </Card>
             )
           })}
         </div>

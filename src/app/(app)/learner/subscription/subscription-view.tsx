@@ -8,6 +8,7 @@ import { PaymentModal } from './payment-modal'
 import { PaymentHistory } from './payment-history'
 import { ActiveBanner } from './active-banner'
 import { useToast } from '@/components/ui/toast-provider'
+import { Card } from '@/components/ui/card'
 
 export function SubscriptionView({
   plans,
@@ -68,11 +69,11 @@ export function SubscriptionView({
       )}
 
       {plans.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-card p-8 text-center">
+        <Card className="p-8 text-center">
           <p className="text-sm text-muted-foreground">
             No subscription plans are available right now. Please check back later.
           </p>
-        </div>
+        </Card>
       ) : (
         <div
           id="plans"
@@ -112,7 +113,6 @@ export function SubscriptionView({
           onSuccess={handleSuccess}
         />
       )}
-
     </div>
   )
 }

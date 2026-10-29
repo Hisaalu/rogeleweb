@@ -8,6 +8,8 @@ import {
 } from 'lucide-react'
 import { getYoutubeId, truncate, formatNumber } from '@/lib/utils'
 import { useToast } from '@/components/ui/toast-provider'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import type { Lesson } from '@/types/lesson'
 
 export function LearnerLessonCard({
@@ -34,9 +36,7 @@ export function LearnerLessonCard({
       const result = await onToggleBookmark(lesson.id)
       setBookmarked(result)
       if (result) {
-        showToast('Lesson bookmarked', 'success', {
-          title: 'Saved for later',
-        })
+        showToast('Lesson bookmarked', 'success', { title: 'Saved for later' })
       } else {
         showToast('Removed from bookmarks', 'info')
       }
@@ -54,12 +54,14 @@ export function LearnerLessonCard({
     : `/learner/lessons/${lesson.id}`
 
   return (
-    <div className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-xl">
+    <Card className="group flex flex-col overflow-hidden transition hover:-translate-y-1 hover:shadow-xl">
       <div className="relative h-[180px] overflow-hidden" style={{ backgroundColor: 'var(--brand-primary)' }}>
         {youtubeId ? (
           <img src={`https://img.youtube.com/vi/${youtubeId}/0.jpg`} alt={lesson.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
         ) : (
-          <div className="flex h-full w-full items-center justify-center"><BookOpen size={56} className="text-white opacity-40" /></div>
+          <div className="flex h-full w-full items-center justify-center">
+            <BookOpen size={56} className="text-white opacity-40" />
+          </div>
         )}
 
         {lesson.duration ? (
@@ -68,19 +70,21 @@ export function LearnerLessonCard({
           </span>
         ) : null}
 
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon"
           onClick={handleBookmark}
           disabled={busy}
           title={bookmarked ? 'Remove from bookmarks' : 'Add to bookmarks'}
-          className="absolute right-2.5 top-2.5 flex h-9 w-9 items-center justify-center rounded-full shadow-md transition disabled:opacity-70"
+          className="absolute right-2.5 top-2.5 rounded-full shadow-md"
           style={{
             backgroundColor: bookmarked ? 'var(--brand-accent)' : 'hsl(var(--card))',
             color: bookmarked ? 'white' : 'hsl(var(--muted-foreground))',
           }}
         >
           {busy ? <Loader2 size={15} className="animate-spin" /> : <Bookmark size={15} fill={bookmarked ? 'currentColor' : 'none'} />}
-        </button>
+        </Button>
       </div>
 
       <div className="flex flex-1 flex-col p-5">
@@ -103,16 +107,12 @@ export function LearnerLessonCard({
           <span className="inline-flex items-center gap-1.5"><Paperclip size={13} style={{ color: 'var(--brand-accent)' }} /> {lesson.materials_count} file{lesson.materials_count === 1 ? '' : 's'}</span>
         </div>
 
-        <Link
-          href={href}
-          className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:shadow-lg"
-          style={{ backgroundColor: 'var(--brand-primary)' }}
-          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--brand-accent)' }}
-          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--brand-primary)' }}
-        >
-          <span>Start Learning</span> <ArrowRight size={14} />
+        <Link href={href} className="mt-auto">
+          <Button className="w-full">
+            <span>Start Learning</span> <ArrowRight size={14} />
+          </Button>
         </Link>
       </div>
-    </div>
+    </Card>
   )
 }

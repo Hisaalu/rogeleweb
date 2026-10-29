@@ -5,6 +5,9 @@ import { CreditCard, Loader2, X } from 'lucide-react'
 import { initiatePaymentClient, getPaymentStatusClient, previewPaymentClient } from '@/lib/payments.client'
 import type { PaymentMethod, SubscriptionPlan } from '@/types/subscription'
 import { formatMoneyUGX } from '@/lib/format-money'
+import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
+import { Button } from '@/components/ui/button'
 
 function formatPhone(raw: string): string {
   const digits = raw.replace(/\D/g, '').slice(0, 9)
@@ -97,6 +100,7 @@ export function PaymentModal({
             return
           }
         } catch {
+          // Ignore network errors while polling
         }
         if (attempts >= MAX_POLLS) {
           clearInterval(interval)
@@ -114,16 +118,20 @@ export function PaymentModal({
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={() => !submitting && onClose()}
         aria-hidden="true"
       />
+      
+      {/* Modal Container */}
       <div
         role="dialog"
         aria-modal="true"
-        className="relative z-10 w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+        className="relative z-10 w-full max-w-md overflow-hidden rounded-md border border-border bg-card shadow-2xl"
       >
+        {/* Header */}
         <div
           className="flex items-center justify-between px-5 py-4"
           style={{ backgroundColor: 'var(--brand-primary)' }}
@@ -142,8 +150,9 @@ export function PaymentModal({
           </button>
         </div>
 
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4 p-5">
-          <div className="rounded-xl bg-muted/50 p-4 text-center">
+          <div className="rounded-md bg-muted/50 p-4 text-center">
             <p className="text-sm text-muted-foreground">
               You&apos;re subscribing to
             </p>
@@ -160,43 +169,42 @@ export function PaymentModal({
             </div>
           </div>
 
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-foreground">
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-foreground">
               Payment Network
             </label>
-            <select
+            <Select
               value={method}
               onChange={(e) => setMethod(e.target.value as PaymentMethod)}
               disabled={submitting}
-              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-brand-accent disabled:opacity-60"
             >
               <option value="mtn">MTN Mobile Money</option>
               <option value="airtel">Airtel Money</option>
-            </select>
+            </Select>
           </div>
 
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-foreground">
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-foreground">
               Mobile Money Phone Number
             </label>
             <div className="flex items-center gap-2">
-              <span className="flex h-[46px] w-[60px] shrink-0 items-center justify-center rounded-xl border border-border bg-muted text-sm text-muted-foreground">
+              <span className="flex h-9 w-[60px] shrink-0 items-center justify-center rounded-md border border-input bg-muted text-sm text-muted-foreground">
                 +256
               </span>
-              <input
+              <Input
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(formatPhone(e.target.value))}
                 placeholder="772 123 456"
                 disabled={submitting || loadingPreview}
-                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-brand-accent disabled:opacity-60"
               />
             </div>
           </div>
 
+          {/* Error Message */}
           {error && (
             <div
-              className="rounded-xl border px-3 py-2 text-sm"
+              className="rounded-md border px-3 py-2 text-sm"
               style={{
                 backgroundColor: 'var(--danger-bg)',
                 borderColor: 'var(--danger-border)',
@@ -207,38 +215,39 @@ export function PaymentModal({
             </div>
           )}
 
+          {/* Status Message */}
           {statusText && (
             <div
-              className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm"
+              className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm"
               style={{
                 backgroundColor: 'var(--warning-bg)',
                 borderColor: 'var(--warning-border)',
                 color: 'var(--warning-fg)',
               }}
             >
-              <Loader2 size={14} className="animate-spin" />
+              <Loader2 size={14} className="animate-spin shrink-0" />
               {statusText}
             </div>
           )}
 
           <div className="flex gap-2 pt-2">
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={onClose}
               disabled={submitting}
-              className="flex-1 rounded-full border border-border py-2.5 text-sm font-semibold text-foreground transition hover:bg-muted disabled:opacity-50"
+              className="flex-1"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={submitting || loadingPreview}
-              className="flex flex-1 items-center justify-center gap-2 rounded-full py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
-              style={{ backgroundColor: 'var(--brand-primary)' }}
+              className="flex-1"
             >
-              {submitting && <Loader2 size={14} className="animate-spin" />}
+              {submitting && <Loader2 size={14} className="animate-spin mr-2" />}
               {submitting ? 'Processing...' : 'Pay Now'}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

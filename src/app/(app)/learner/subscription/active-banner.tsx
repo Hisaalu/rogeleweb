@@ -1,6 +1,9 @@
 'use client'
 
+import Link from 'next/link'
 import { CheckCircle2 } from 'lucide-react'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import type { Subscription, SubscriptionPlan } from '@/types/subscription'
 
 function formatDate(iso: string): string {
@@ -35,8 +38,8 @@ export function ActiveBanner({
   const nextPlan = currentIndex >= 0 ? plans[currentIndex + 1] : undefined
 
   return (
-    <div
-      className="flex flex-col items-start gap-4 rounded-2xl border-2 p-5 sm:flex-row sm:items-center sm:gap-5"
+    <Card
+      className="flex flex-col items-start gap-4 border-2 p-5 sm:flex-row sm:items-center sm:gap-5"
       style={{
         backgroundColor: 'var(--success-bg)',
         borderColor: 'var(--success-border)',
@@ -60,14 +63,12 @@ export function ActiveBanner({
         </p>
       </div>
       {nextPlan && (
-        <a
-          href="#plans"
-          className="shrink-0 rounded-full px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
-          style={{ backgroundColor: 'var(--brand-primary)' }}
-        >
-          Upgrade to {nextPlan.name}
-        </a>
+        <Link href="#plans" className="shrink-0">
+          <Button variant="primary">
+            Upgrade to {nextPlan.name}
+          </Button>
+        </Link>
       )}
-    </div>
+    </Card>
   )
 }

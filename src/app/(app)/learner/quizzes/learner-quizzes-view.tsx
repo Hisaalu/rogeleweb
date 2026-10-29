@@ -5,13 +5,13 @@ import {
   HelpCircle,
   Clock,
   Trophy,
-  CalendarX,
   Play,
   BarChart2,
-  AlertTriangle,
   CheckCircle2,
   RefreshCw,
 } from 'lucide-react'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import type { Quiz, QuizAttempt } from '@/types/quiz'
 
 export function LearnerQuizzesView({
@@ -42,13 +42,13 @@ export function LearnerQuizzesView({
       </div>
 
       {visibleQuizzes.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-card px-6 py-16 text-center shadow-sm">
+        <Card className="px-6 py-16 text-center">
           <HelpCircle size={48} className="mx-auto mb-4 opacity-30" style={{ color: 'var(--brand-accent)' }} />
           <h3 className="text-lg font-bold text-foreground">No Quizzes Available</h3>
           <p className="mt-2 text-sm text-muted-foreground">
             Check back later for new quizzes!
           </p>
-        </div>
+        </Card>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {visibleQuizzes.map((quiz) => {
@@ -70,17 +70,17 @@ export function LearnerQuizzesView({
               : null
 
             return (
-              <div
+              <Card
                 key={quiz.id}
-                className={`relative flex flex-col rounded-2xl border p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md ${
+                className={`relative flex flex-col p-5 transition hover:-translate-y-1 hover:shadow-md ${
                   inProgressAttempt || noAttemptsLeft
                     ? 'border-warning-border bg-warning-bg/30'
-                    : 'border-border bg-card'
+                    : 'border-border'
                 }`}
               >
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                   <span
-                    className="rounded-full px-2.5 py-1 text-xs font-semibold"
+                    className="rounded-md px-2.5 py-1 text-xs font-semibold"
                     style={{
                       backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)',
                       color: 'var(--brand-primary)',
@@ -89,7 +89,7 @@ export function LearnerQuizzesView({
                     {quiz.subject_name ?? 'General'}
                   </span>
                   <span
-                    className="rounded-full px-2.5 py-1 text-xs font-semibold"
+                    className="rounded-md px-2.5 py-1 text-xs font-semibold"
                     style={{
                       backgroundColor: 'color-mix(in srgb, var(--brand-accent) 10%, transparent)',
                       color: 'var(--brand-accent)',
@@ -161,46 +161,34 @@ export function LearnerQuizzesView({
 
                 <div className="mt-auto flex items-center gap-2">
                   {inProgressAttempt ? (
-                    <Link
-                      href={`/learner/quizzes/${quiz.id}`}
-                      className="flex w-full items-center justify-center gap-1.5 rounded-full px-3 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-                      style={{ backgroundColor: 'var(--warning-border)' }}
-                    >
-                      <Play size={15} /> Resume Quiz
+                    <Link href={`/learner/quizzes/${quiz.id}`} className="w-full">
+                      <Button className="w-full" variant="secondary">
+                        <Play size={15} /> Resume Quiz
+                      </Button>
                     </Link>
                   ) : noAttemptsLeft ? (
                     <>
-                      <div
-                        className="flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-2.5 text-sm font-semibold"
-                        style={{
-                          backgroundColor: 'var(--warning-bg)',
-                          color: 'var(--warning-fg)',
-                        }}
-                      >
+                      <Button disabled className="flex-1" variant="outline">
                         No Attempts
-                      </div>
+                      </Button>
                       {latestCompletedId && (
-                        <Link
-                          href={`/learner/quizzes/results/${latestCompletedId}`}
-                          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition hover:bg-muted/80"
-                          title="View Results"
-                        >
-                          <BarChart2 size={16} />
+                        <Link href={`/learner/quizzes/results/${latestCompletedId}`}>
+                          <Button variant="outline" size="icon" title="View Results">
+                            <BarChart2 size={16} />
+                          </Button>
                         </Link>
                       )}
                     </>
                   ) : (
-                    <Link
-                      href={`/learner/quizzes/${quiz.id}`}
-                      className="flex w-full items-center justify-center gap-1.5 rounded-full px-3 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-                      style={{ backgroundColor: 'var(--brand-primary)' }}
-                    >
-                      {attemptCount > 0 ? 'Try Another Attempt' : 'Start Quiz'}
-                      <Play size={15} />
+                    <Link href={`/learner/quizzes/${quiz.id}`} className="w-full">
+                      <Button className="w-full">
+                        {attemptCount > 0 ? 'Try Another Attempt' : 'Start Quiz'}
+                        <Play size={15} />
+                      </Button>
                     </Link>
                   )}
                 </div>
-              </div>
+              </Card>
             )
           })}
         </div>

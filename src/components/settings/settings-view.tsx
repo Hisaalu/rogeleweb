@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { ShieldCheck, Lock, Loader2, Eye, EyeOff, Trash2, AlertTriangle, Settings } from 'lucide-react'
 import { changePasswordClient } from '@/lib/settings.client'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { useToast } from '@/components/ui/toast-provider'
 
 export function SettingsView({ role }: { role: string }) {
@@ -61,67 +63,67 @@ export function SettingsView({ role }: { role: string }) {
       </div>
 
       <div className="space-y-6">
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-8">
+        <Card className="p-5 sm:p-8">
           <h2 className="mb-6 flex items-center gap-2 border-b border-border pb-4 text-base font-semibold text-foreground sm:text-lg">
             <Lock size={18} style={{ color: 'var(--brand-accent)' }} />
             Change Password
           </h2>
 
           <form onSubmit={handlePasswordChange} className="space-y-5">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-foreground">Current Password</label>
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-foreground">Current Password</label>
               <div className="relative">
-                <input 
+                <Input 
                   type={showCurrent ? 'text' : 'password'} 
                   value={currentPassword} 
                   onChange={e => setCurrentPassword(e.target.value)} 
                   autoComplete="current-password"
-                  className="w-full rounded-xl border border-border bg-background px-4 py-2.5 pr-12 text-sm outline-none transition focus:border-brand-accent sm:py-3" 
+                  className="pr-10" 
                 />
                 <button
                   type="button"
                   onClick={() => setShowCurrent(!showCurrent)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground transition hover:text-foreground"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-muted-foreground transition hover:text-foreground"
                 >
                   {showCurrent ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
 
-            <div>
-              <label className="mb-2 block text-sm font-medium text-foreground">New Password</label>
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-foreground">New Password</label>
               <div className="relative">
-                <input 
+                <Input 
                   type={showNew ? 'text' : 'password'} 
                   value={newPassword} 
                   onChange={e => setNewPassword(e.target.value)} 
                   autoComplete="new-password"
-                  className="w-full rounded-xl border border-border bg-background px-4 py-2.5 pr-12 text-sm outline-none transition focus:border-brand-accent sm:py-3" 
+                  className="pr-10" 
                 />
                 <button
                   type="button"
                   onClick={() => setShowNew(!showNew)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground transition hover:text-foreground"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-muted-foreground transition hover:text-foreground"
                 >
                   {showNew ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
 
-            <div>
-              <label className="mb-2 block text-sm font-medium text-foreground">Confirm New Password</label>
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-foreground">Confirm New Password</label>
               <div className="relative">
-                <input 
+                <Input 
                   type={showConfirm ? 'text' : 'password'} 
                   value={confirmPassword} 
                   onChange={e => setConfirmPassword(e.target.value)} 
                   autoComplete="new-password"
-                  className="w-full rounded-xl border border-border bg-background px-4 py-2.5 pr-12 text-sm outline-none transition focus:border-brand-accent sm:py-3" 
+                  className="pr-10" 
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirm(!showConfirm)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground transition hover:text-foreground"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-muted-foreground transition hover:text-foreground"
                 >
                   {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -139,32 +141,42 @@ export function SettingsView({ role }: { role: string }) {
               </Button>
             </div>
           </form>
-        </div>
+        </Card>
 
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-8">
+        <Card className="p-5 sm:p-8">
           <h2 className="mb-6 flex items-center gap-2 border-b border-border pb-4 text-base font-semibold text-foreground sm:text-lg">
             <ShieldCheck size={18} style={{ color: 'var(--brand-accent)' }} />
             Account Security
           </h2>
 
-          <div className="flex flex-col items-start justify-between gap-4 rounded-xl border border-danger-border/40 bg-danger-bg/30 p-5 opacity-50 cursor-not-allowed sm:flex-row sm:items-center">
+          <div 
+            className="flex flex-col items-start justify-between gap-4 rounded-md p-5 opacity-50 cursor-not-allowed sm:flex-row sm:items-center"
+            style={{
+              backgroundColor: 'color-mix(in srgb, var(--danger-bg) 30%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--danger-border) 40%, transparent)',
+            }}
+          >
             <div>
-              <p className="flex items-center gap-2 font-semibold text-danger-fg">
+              <p className="flex items-center gap-2 font-semibold" style={{ color: 'var(--danger-fg)' }}>
                 <AlertTriangle size={16} /> Delete account
               </p>
-              <p className="text-sm text-danger-fg/80 mt-1">
+              <p className="mt-1 text-sm opacity-80" style={{ color: 'var(--danger-fg)' }}>
                 Permanently remove your account and all associated data. This action cannot be undone.
               </p>
             </div>
             <Button 
               variant="outline"
               disabled={true}
-              className="w-full shrink-0 border-danger-border/40 text-danger-fg sm:w-auto pointer-events-none"
+              className="w-full shrink-0 pointer-events-none sm:w-auto"
+              style={{ 
+                borderColor: 'color-mix(in srgb, var(--danger-border) 40%, transparent)', 
+                color: 'var(--danger-fg)' 
+              }}
             >
               <Trash2 size={16} /> Delete Account
             </Button>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   )

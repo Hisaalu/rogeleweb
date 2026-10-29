@@ -1,6 +1,8 @@
 'use client'
 
 import { Check, CreditCard, Crown, Rocket } from 'lucide-react'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import type { SubscriptionPlan } from '@/types/subscription'
 
 function fmtMoney(n: number): string {
@@ -47,7 +49,7 @@ function PlanIcon({ tier }: { tier: 'monthly' | 'termly' | 'yearly' }) {
   const Icon = tier === 'yearly' ? Crown : tier === 'termly' ? Rocket : CreditCard
   return (
     <div
-      className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl"
+      className="mb-4 flex h-14 w-14 items-center justify-center rounded-lg"
       style={{
         backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)',
       }}
@@ -105,8 +107,8 @@ export function PlanCard({
   }
 
   return (
-    <div
-      className="relative flex h-full flex-col rounded-3xl border-2 bg-card p-6 transition hover:-translate-y-1 hover:shadow-lg"
+    <Card
+      className="relative flex h-full flex-col border-2 p-6 transition hover:-translate-y-1 hover:shadow-lg"
       style={{
         borderColor: recommended ? 'var(--brand-accent)' : 'hsl(var(--border))',
         background:
@@ -172,25 +174,21 @@ export function PlanCard({
       </ul>
 
       {isCurrentPlan && (
-         <div className="mt-6 w-full rounded-full bg-muted py-2.5 text-center text-sm font-semibold text-muted-foreground">
+         <Button variant="outline" disabled className="mt-6 w-full">
             Current Plan
-         </div>
+         </Button>
       )}
 
       {!isCurrentPlan && showButton && (
-        <button
+        <Button
           type="button"
           onClick={onSelect}
-          className="mt-6 w-full rounded-full py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-          style={{
-            backgroundColor: recommended
-              ? 'var(--brand-primary)'
-              : 'var(--brand-accent)',
-          }}
+          className="mt-6 w-full"
+          variant={recommended ? 'primary' : 'secondary'}
         >
           {buttonLabel}
-        </button>
+        </Button>
       )}
-    </div>
+    </Card>
   )
 }

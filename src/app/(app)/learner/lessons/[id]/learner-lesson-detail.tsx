@@ -20,6 +20,8 @@ import { getYoutubeId, formatNumber, formatDate } from '@/lib/utils'
 import { toggleLessonBookmarkClient } from '@/lib/lessons.client'
 import { formatFileSize, materialDownloadUrl } from '@/lib/materials'
 import { useToast } from '@/components/ui/toast-provider'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import type { Lesson, LessonMaterial } from '@/types/lesson'
 
 const accentIcon = { color: 'var(--brand-accent)' } as const
@@ -83,30 +85,33 @@ export function LearnerLessonDetail({
       <div className="flex items-center justify-between gap-3">
         <Link
           href="/learner/lessons"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition hover:text-foreground"
         >
           <ArrowLeft size={14} />
-          Lessons
+          Back to Lessons
         </Link>
 
-        <button
+        <Button
           type="button"
+          variant="outline"
           onClick={handleBookmark}
           disabled={busy}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 transition disabled:opacity-60 sm:h-11 sm:w-11"
+          className="rounded-full"
           style={bookmarked ? bookmarkOn : bookmarkOff}
           title={bookmarked ? 'Remove from bookmarks' : 'Add to bookmarks'}
-          aria-label={bookmarked ? 'Remove from bookmarks' : 'Add to bookmarks'}
         >
           {busy ? (
-            <Loader2 size={18} className="animate-spin" />
+            <Loader2 size={16} className="animate-spin" />
           ) : (
-            <Bookmark size={18} fill={bookmarked ? 'currentColor' : 'none'} />
+            <Bookmark size={16} fill={bookmarked ? 'currentColor' : 'none'} />
           )}
-        </button>
+          <span className="hidden sm:inline">
+            {bookmarked ? 'Bookmarked' : 'Bookmark'}
+          </span>
+        </Button>
       </div>
 
-      <header className="rounded-2xl border border-border bg-card p-4 sm:p-6">
+      <Card className="p-4 sm:p-6">
         <h1 className="break-words text-xl font-bold text-foreground sm:text-2xl">
           {lesson.title}
         </h1>
@@ -152,10 +157,10 @@ export function LearnerLessonDetail({
             </>
           ) : null}
         </p>
-      </header>
+      </Card>
 
       {youtubeId ? (
-        <div className="aspect-video overflow-hidden rounded-2xl border border-border">
+        <Card className="aspect-video overflow-hidden p-0">
           <iframe
             src={`https://www.youtube.com/embed/${youtubeId}`}
             title={lesson.title}
@@ -164,22 +169,22 @@ export function LearnerLessonDetail({
             className="h-full w-full"
             loading="lazy"
           />
-        </div>
+        </Card>
       ) : null}
 
       {lesson.content ? (
-        <article className="rounded-2xl border border-border bg-card p-4 sm:p-6">
+        <Card className="p-4 sm:p-6">
           <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground sm:text-sm">
             Lesson content
           </h2>
           <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground">
             {lesson.content}
           </p>
-        </article>
+        </Card>
       ) : null}
 
       {materials.length > 0 ? (
-        <section className="rounded-2xl border border-border bg-card p-4 sm:p-6">
+        <Card className="p-4 sm:p-6">
           <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground sm:text-base">
             <Paperclip size={16} style={accentIcon} />
             Downloadable materials
@@ -195,7 +200,7 @@ export function LearnerLessonDetail({
                     target="_blank"
                     rel="noopener noreferrer"
                     download
-                    className="group flex flex-col gap-2 rounded-xl border border-border bg-muted/40 p-3 text-sm transition hover:border-brand-accent hover:bg-muted sm:flex-row sm:items-center sm:gap-3 sm:p-3.5"
+                    className="group flex flex-col gap-2 rounded-md border border-border bg-muted/40 p-3 text-sm transition hover:border-brand-accent hover:bg-muted sm:flex-row sm:items-center sm:gap-3 sm:p-3.5"
                   >
                     <div className="flex min-w-0 flex-1 items-center gap-3">
                       <FileText size={18} style={accentIcon} className="shrink-0" />
@@ -209,7 +214,7 @@ export function LearnerLessonDetail({
                       </div>
                     </div>
                     <span
-                      className="inline-flex items-center justify-center gap-1.5 self-stretch rounded-full px-3 py-1.5 text-xs font-semibold text-brand-accent transition group-hover:bg-brand-accent group-hover:text-white sm:self-auto"
+                      className="inline-flex items-center justify-center gap-1.5 self-stretch rounded-md px-3 py-1.5 text-xs font-semibold text-brand-accent transition group-hover:bg-brand-accent group-hover:text-white sm:self-auto"
                       style={downloadBadgeBg}
                     >
                       <Download size={13} />
@@ -220,7 +225,7 @@ export function LearnerLessonDetail({
               )
             })}
           </ul>
-        </section>
+        </Card>
       ) : null}
     </div>
   )

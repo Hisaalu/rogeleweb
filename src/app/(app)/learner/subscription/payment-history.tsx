@@ -1,6 +1,7 @@
 'use client'
 
 import { History, Smartphone } from 'lucide-react'
+import { Card } from '@/components/ui/card'
 import type { Payment, SubscriptionPlan } from '@/types/subscription'
 import { formatMoneyUGX } from '@/lib/format-money'
 
@@ -52,20 +53,20 @@ export function PaymentHistory({
   }
 
   return (
-    <section className="rounded-2xl border border-border bg-card p-4 sm:p-6">
+    <Card className="p-4 sm:p-6">
       <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-foreground sm:text-lg">
         <History size={18} style={{ color: 'var(--brand-primary)' }} />
         Recent Payments
       </h2>
 
       {recent.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 py-8 text-center">
+        <div className="flex flex-col items-center justify-center rounded-md border border-dashed border-border bg-muted/20 py-8 text-center">
           <History size={32} className="mb-2 opacity-30 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">No payment history found.</p>
         </div>
       ) : (
         <>
-          <div className="hidden w-full overflow-hidden rounded-xl border border-border md:block">
+          <div className="hidden w-full overflow-hidden rounded-md border border-border md:block">
             <table className="w-full text-left text-sm">
               <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
                 <tr>
@@ -117,7 +118,7 @@ export function PaymentHistory({
               return (
                 <div
                   key={p.id}
-                  className="flex items-start justify-between gap-3 rounded-xl border border-border bg-muted/20 p-3"
+                  className="flex items-start justify-between gap-3 rounded-md border border-border bg-muted/20 p-3"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-foreground">
@@ -142,6 +143,6 @@ export function PaymentHistory({
           </div>
         </>
       )}
-    </section>
+    </Card>
   )
 }

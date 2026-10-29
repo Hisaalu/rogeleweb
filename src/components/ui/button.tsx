@@ -13,7 +13,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variants: Record<Variant, string> = {
   primary:
-    'bg-[var(--brand-primary)] text-white shadow-sm hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+    'bg-[var(--brand-primary)] text-white shadow-sm hover:opacity-90 focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-2',
   secondary: 
     'bg-[var(--brand-accent)] text-white shadow-sm hover:opacity-90',
   outline: 
@@ -25,10 +25,10 @@ const variants: Record<Variant, string> = {
 }
 
 const sizes: Record<Size, string> = {
-  sm: 'h-8 px-3 text-xs',
-  md: 'h-10 px-4 text-sm',
-  lg: 'h-11 px-6 text-base',
-  icon: 'h-9 w-9',
+  sm: 'h-7 px-2.5 text-xs',
+  md: 'h-8 px-3 text-sm',
+  lg: 'h-9 px-5 text-base',
+  icon: 'h-8 w-8',
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -37,7 +37,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         className={cn(
-          'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition disabled:cursor-not-allowed disabled:opacity-60',
+          'inline-flex items-center justify-center gap-2 rounded-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-60', 
           variants[variant],
           sizes[size],
           className,
