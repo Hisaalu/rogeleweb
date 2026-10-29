@@ -90,18 +90,32 @@ export function NotificationBell({
     }
   }, [open])
 
-  async function handleNotificationClick(notification: any) {
+  function handleNotificationClick(notification: any) {
+    // 1. Mark as read if not already
     if (!notification.is_read) {
       markOneMutation.mutate(notification.id)
     }
+    
+    // 2. Close the tray
     setOpen(false)
+    
+    // 3. Route to the specific link if it exists, otherwise go to the main notifications page
     if (notification.link) {
       router.push(notification.link)
+    } else {
+      router.push('/notifications')
     }
+  }
+
+  function handleViewAll(e: React.MouseEvent) {
+    e.preventDefault()
+    setOpen(false)
+    router.push(viewAllHref)
   }
 
   const popup = open ? (
     <div className="fixed inset-0 z-[100] flex flex-col justify-end sm:justify-start sm:items-end sm:pt-[72px] sm:pr-4 pointer-events-none">
+      {/* Mobile backdrop */}
       <div 
         className="absolute inset-0 sm:hidden pointer-events-auto"
         style={{ backgroundColor: 'color-mix(in srgb, hsl(var(--background)) 80%, transparent)' }}
@@ -163,14 +177,13 @@ export function NotificationBell({
         </div>
 
         <div className="shrink-0 border-t border-border p-2">
-          <Link
-            href={viewAllHref}
-            onClick={() => setOpen(false)}
+          <button
+            onClick={handleViewAll}
             className="block w-full rounded-lg py-2.5 text-center text-sm font-semibold transition hover:bg-muted"
             style={{ color: 'var(--brand-primary)' }}
           >
             View all notifications
-          </Link>
+          </button>
         </div>
       </div>
     </div>
