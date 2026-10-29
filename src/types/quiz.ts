@@ -52,3 +52,10 @@ export interface QuizResultDetails extends QuizAttempt {
   questions: QuizQuestion[]
   user_answers: Record<string, number>
 }
+
+export interface QuizListMeta {
+  page: number
+  per_page: number
+  total: number
+  last_page: number
+}

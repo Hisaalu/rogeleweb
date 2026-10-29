@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 export default async function TeacherQuizzesPage({
   searchParams,
 }: {
-  searchParams: { q?: string; class_id?: string }
+  searchParams: { q?: string; class_id?: string; page?: string }
 }) {
   const session = await getSessionUser()
   if (!session) return null
@@ -19,11 +19,18 @@ export default async function TeacherQuizzesPage({
   const classIdRaw = searchParams.class_id
   const classId =
     classIdRaw && Number.isFinite(Number(classIdRaw)) ? Number(classIdRaw) : undefined
+  const page = searchParams.page ? Number(searchParams.page) : 1
 
-  const [quizzes, classes] = await Promise.all([
-    listAllQuizzesServer({ q, class_id: classId }),
+  const [result, classes] = await Promise.all([
+    listAllQuizzesServer({ q, class_id: classId, page }),
     listClassesServer(),
   ])
 
-  return <TeacherQuizzesView quizzes={quizzes} classes={classes} />
+  return (
+    <TeacherQuizzesView 
+      quizzes={result.quizzes} 
+      meta={result.meta} 
+      classes={classes} 
+    />
+  )
 }

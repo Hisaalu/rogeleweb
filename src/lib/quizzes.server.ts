@@ -1,13 +1,41 @@
 import 'server-only'
 import { serverApiRequest } from './server-api'
-import type { Quiz, QuizQuestion, QuizAttempt, QuizResultDetails } from '@/types/quiz'
+import type { Quiz, QuizQuestion, QuizAttempt, QuizResultDetails, QuizListMeta } from '@/types/quiz'
 
-function parseList<T>(res: unknown): T[] {
-  if (Array.isArray(res)) return res as T[]
-  const r = (res ?? {}) as { data?: T[]; value?: T[] }
-  if (Array.isArray(r.data)) return r.data
-  if (Array.isArray(r.value)) return r.value
-  return []
+function parseList<T>(res: unknown, requestedPage = 1, requestedPerPage = 10): { items: T[]; meta: QuizListMeta } {
+  if (!res) {
+    return { items: [], meta: { page: 1, per_page: requestedPerPage, total: 0, last_page: 1 } }
+  }
+
+  if (Array.isArray(res)) {
+    const total = res.length
+    return {
+      items: res as T[],
+      meta: { page: 1, per_page: total, total, last_page: 1 },
+    }
+  }
+  
+  const r = (res ?? {}) as { data?: T[]; value?: T[]; meta?: any }
+  const items: T[] = []
+  if (Array.isArray(r.data)) items.push(...r.data)
+  else if (Array.isArray(r.value)) items.push(...r.value)
+  
+  const rawMeta = r.meta || {}
+  const per_page = typeof rawMeta.per_page === 'number' ? rawMeta.per_page : requestedPerPage
+  const total = typeof rawMeta.total === 'number' ? rawMeta.total : 0
+  const page = typeof rawMeta.page === 'number' ? rawMeta.page : requestedPage
+  
+  let last_page = typeof rawMeta.last_page === 'number' ? rawMeta.last_page : 1
+
+  if (!rawMeta.total && !rawMeta.last_page) {
+    if (items.length === requestedPerPage) {
+      last_page = page + 1
+    } else {
+      last_page = page
+    }
+  }
+
+  return { items, meta: { page, per_page, total: total || (last_page * per_page), last_page } }
 }
 
 function normalizeQuestion(q: Record<string, unknown>): QuizQuestion {
@@ -40,43 +68,39 @@ function normalizeQuestion(q: Record<string, unknown>): QuizQuestion {
   }
 }
 
+export async function listAllQuizzesServer(params: {
+  q?: string
+  class_id?: number
+  page?: number
+}): Promise<{ quizzes: Quiz[]; meta: QuizListMeta }> {
+  const page = params.page ?? 1
+  const per_page = 10
+  
+  const sp = new URLSearchParams()
+  sp.set('page', String(page))
+  sp.set('per_page', String(per_page))
+  if (params.q) sp.set('q', params.q)
+  if (params.class_id) sp.set('class_id', String(params.class_id))
+
+  try {
+    const res = await serverApiRequest<unknown>(`/api/v1/quizzes?${sp.toString()}`)
+    const { items, meta } = parseList<Quiz>(res, page, per_page)
+    return { quizzes: items, meta }
+  } catch {
+    return {
+      quizzes: [],
+      meta: { page, per_page, total: 0, last_page: 1 }
+    }
+  }
+}
+
 export async function listQuizzesServer(params: {
   q?: string
   class_id?: number
   page?: number
 }): Promise<Quiz[]> {
-  const sp = new URLSearchParams()
-  sp.set('page', String(params.page ?? 1))
-  sp.set('per_page', '50')
-  if (params.q) sp.set('q', params.q)
-  if (params.class_id) sp.set('class_id', String(params.class_id))
-
-  try {
-    const res = await serverApiRequest<unknown>(`/api/v1/quizzes?${sp.toString()}`)
-    const all = parseList<Quiz>(res)
-    return all.filter((q) => (q.question_count ?? 0) > 0)
-  } catch {
-    return []
-  }
-}
-
-export async function listAllQuizzesServer(params: {
-  q?: string
-  class_id?: number
-  page?: number
-}): Promise<Quiz[]> {
-  const sp = new URLSearchParams()
-  sp.set('page', String(params.page ?? 1))
-  sp.set('per_page', '50')
-  if (params.q) sp.set('q', params.q)
-  if (params.class_id) sp.set('class_id', String(params.class_id))
-
-  try {
-    const res = await serverApiRequest<unknown>(`/api/v1/quizzes?${sp.toString()}`)
-    return parseList<Quiz>(res)
-  } catch {
-    return []
-  }
+  const { quizzes } = await listAllQuizzesServer(params)
+  return quizzes.filter((q) => (q.question_count ?? 0) > 0)
 }
 
 export async function getQuizServer(id: number): Promise<Quiz | null> {
@@ -90,7 +114,7 @@ export async function getQuizServer(id: number): Promise<Quiz | null> {
 export async function listQuestionsServer(quizId: number): Promise<QuizQuestion[]> {
   try {
     const res = await serverApiRequest<unknown>(`/api/v1/quizzes/${quizId}/questions`)
-    return parseList<Record<string, unknown>>(res).map(normalizeQuestion)
+    return parseList<Record<string, unknown>>(res).items.map(normalizeQuestion)
   } catch {
     return []
   }
@@ -137,7 +161,7 @@ export async function getAttemptServer(attemptId: number): Promise<QuizResultDet
 export async function listMyAttemptsServer(): Promise<QuizAttempt[]> {
   try {
     const res = await serverApiRequest<unknown>('/api/v1/quizzes/my-attempts')
-    return parseList<QuizAttempt>(res)
+    return parseList<QuizAttempt>(res).items
   } catch {
     return []
   }

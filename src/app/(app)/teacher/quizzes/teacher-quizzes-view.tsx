@@ -2,28 +2,34 @@
 
 import Link from 'next/link'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { useState, useEffect } from 'react'
-import { Search, PlusCircle, HelpCircle, Clock, Users, Trophy, CalendarX, CalendarCheck, Edit, Eye, BarChart2, Trash2 } from 'lucide-react'
-import type { Quiz } from '@/types/quiz'
+import { useState, useTransition } from 'react'
+import { Search, PlusCircle, HelpCircle, Clock, Users, Trophy, CalendarX, CalendarCheck, Edit, Eye, BarChart2, Trash2, Loader2 } from 'lucide-react'
+import type { Quiz, QuizListMeta } from '@/types/quiz'
 import type { Class } from '@/types/admin'
 import { deleteQuizClient } from '@/lib/quizzes.client'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { useToast } from '@/components/ui/toast-provider'
 
-export function TeacherQuizzesView({ quizzes: initial, classes }: { quizzes: Quiz[], classes: Class[] }) {
-  const [quizzes, setQuizzes] = useState(initial)
+export function TeacherQuizzesView({ 
+  quizzes, 
+  meta,
+  classes 
+}: { 
+  quizzes: Quiz[]
+  meta: QuizListMeta
+  classes: Class[] 
+}) {
   const router = useRouter()
   const pathname = usePathname()
   const params = useSearchParams()
   const { showToast } = useToast()
+  const [isPending, startTransition] = useTransition()
 
   const [q, setQ] = useState(params.get('q') ?? '')
   const [classId, setClassId] = useState(params.get('class_id') ?? '')
 
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
-
-  useEffect(() => { setQuizzes(initial) }, [initial])
 
   function push(next: { q?: string; class_id?: string }) {
     const sp = new URLSearchParams(params.toString())
@@ -33,6 +39,8 @@ export function TeacherQuizzesView({ quizzes: initial, classes }: { quizzes: Qui
     else sp.delete('q')
     if (nc) sp.set('class_id', nc)
     else sp.delete('class_id')
+    
+    sp.delete('page')
     router.push(`${pathname}?${sp.toString()}`)
   }
 
@@ -41,9 +49,11 @@ export function TeacherQuizzesView({ quizzes: initial, classes }: { quizzes: Qui
     setIsDeleting(true)
     try {
       await deleteQuizClient(deleteTarget)
-      setQuizzes(prev => prev.filter(q => q.id !== deleteTarget))
       showToast('Quiz deleted successfully', 'success')
       setDeleteTarget(null)
+      startTransition(() => {
+        router.refresh()
+      })
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to delete quiz'
       showToast(message, 'error')
@@ -52,8 +62,16 @@ export function TeacherQuizzesView({ quizzes: initial, classes }: { quizzes: Qui
     }
   }
 
+  const totalPages = Math.max(1, meta.last_page)
+
   return (
-    <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 sm:py-10">
+    <div className="relative mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 sm:py-10">
+      {isPending && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/50 backdrop-blur-sm">
+          <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
+        </div>
+      )}
+
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold sm:text-3xl" style={{ color: 'var(--brand-primary)' }}>
@@ -69,18 +87,21 @@ export function TeacherQuizzesView({ quizzes: initial, classes }: { quizzes: Qui
 
       <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
         <form onSubmit={(e) => { e.preventDefault(); push({}) }} className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-          <div className="relative min-w-[240px] flex-1">
+          <div className="relative w-full flex-1 sm:min-w-[240px]">
             <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input type="text" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search quizzes by title..." className="w-full rounded-xl border border-border bg-background py-3 pl-11 pr-4 text-sm outline-none transition focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/30" />
           </div>
-          <select value={classId} onChange={(e) => { setClassId(e.target.value); push({ class_id: e.target.value }) }} className="min-w-[180px] rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-brand-accent">
-            <option value="">All Classes</option>
-            {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
-          <button type="submit" className="rounded-xl px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90" style={{ backgroundColor: 'var(--brand-primary)' }}>Search</button>
-          {(q || classId) && (
-            <button type="button" onClick={() => { setQ(''); setClassId(''); push({ q: '', class_id: '' }) }} className="rounded-xl px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90" style={{ backgroundColor: 'var(--brand-accent)' }}>Clear</button>
-          )}
+          
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <select value={classId} onChange={(e) => { setClassId(e.target.value); push({ class_id: e.target.value }) }} className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-brand-accent sm:w-[180px]">
+              <option value="">All Classes</option>
+              {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+            <button type="submit" className="w-full rounded-xl px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90 sm:w-auto" style={{ backgroundColor: 'var(--brand-primary)' }}>Search</button>
+            {(q || classId) && (
+              <button type="button" onClick={() => { setQ(''); setClassId(''); push({ q: '', class_id: '' }) }} className="w-full rounded-xl px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90 sm:w-auto" style={{ backgroundColor: 'var(--brand-accent)' }}>Clear</button>
+            )}
+          </div>
         </form>
       </div>
 
@@ -94,13 +115,13 @@ export function TeacherQuizzesView({ quizzes: initial, classes }: { quizzes: Qui
           </Link>
         </div>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {quizzes.map(quiz => {
             const endDate = quiz.end_date
             const isExpired = !!endDate && new Date(endDate).getTime() < new Date().getTime()
             
             return (
-              <div key={quiz.id} className="relative flex flex-col rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:-translate-y-1 hover:border-brand-primary hover:shadow-md">
+              <div key={quiz.id} className="relative flex flex-col rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm transition hover:-translate-y-1 hover:border-brand-primary hover:shadow-md">
                 <div className="mb-3 flex items-start justify-between gap-2">
                   <div 
                     className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white"
@@ -109,6 +130,7 @@ export function TeacherQuizzesView({ quizzes: initial, classes }: { quizzes: Qui
                     {quiz.is_published && !isExpired ? 'Published' : 'Draft'}
                   </div>
                 </div>
+                
                 <h3 className="mb-2 line-clamp-2 text-lg font-bold leading-tight text-foreground">{quiz.title}</h3>
                 
                 <div className="mb-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground">
@@ -132,21 +154,21 @@ export function TeacherQuizzesView({ quizzes: initial, classes }: { quizzes: Qui
                   )}
                 </div>
 
-                <div className="mt-auto flex items-center justify-between gap-2">
-                  <div className="flex gap-1.5">
-                    <Link href={`/teacher/quizzes/${quiz.id}/questions`} className="flex h-9 w-9 items-center justify-center rounded-lg transition hover:opacity-80" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }} title="Questions">
+                <div className="mt-auto flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex w-full items-center justify-between gap-1.5 sm:w-auto sm:justify-start">
+                    <Link href={`/teacher/quizzes/${quiz.id}/questions`} className="flex h-9 flex-1 items-center justify-center rounded-lg transition hover:opacity-80 sm:w-9 sm:flex-none" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }} title="Questions">
                       <PlusCircle size={16} />
                     </Link>
-                    <Link href={`/teacher/quizzes/${quiz.id}/edit`} className="flex h-9 w-9 items-center justify-center rounded-lg transition hover:opacity-80" style={{ backgroundColor: 'var(--warning-bg)', color: 'var(--warning-fg)' }} title="Edit">
+                    <Link href={`/teacher/quizzes/${quiz.id}/edit`} className="flex h-9 flex-1 items-center justify-center rounded-lg transition hover:opacity-80 sm:w-9 sm:flex-none" style={{ backgroundColor: 'var(--warning-bg)', color: 'var(--warning-fg)' }} title="Edit">
                       <Edit size={16} />
                     </Link>
-                    <Link href={`/teacher/quizzes/${quiz.id}/results`} className="flex h-9 w-9 items-center justify-center rounded-lg transition hover:opacity-80" style={{ backgroundColor: 'var(--success-bg)', color: 'var(--success-fg)' }} title="Results">
+                    <Link href={`/teacher/quizzes/${quiz.id}/results`} className="flex h-9 flex-1 items-center justify-center rounded-lg transition hover:opacity-80 sm:w-9 sm:flex-none" style={{ backgroundColor: 'var(--success-bg)', color: 'var(--success-fg)' }} title="Results">
                       <BarChart2 size={16} />
                     </Link>
-                    <Link href={`/teacher/quizzes/${quiz.id}/preview`} className="flex h-9 w-9 items-center justify-center rounded-lg transition hover:opacity-80" style={{ backgroundColor: 'var(--brand-accent)', color: 'white' }} title="Preview">
+                    <Link href={`/teacher/quizzes/${quiz.id}/preview`} className="flex h-9 flex-1 items-center justify-center rounded-lg transition hover:opacity-80 sm:w-9 sm:flex-none" style={{ backgroundColor: 'var(--brand-accent)', color: 'white' }} title="Preview">
                       <Eye size={16} />
                     </Link>
-                    <button onClick={() => setDeleteTarget(quiz.id)} className="flex h-9 w-9 items-center justify-center rounded-lg transition hover:opacity-80" style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-fg)' }} title="Delete">
+                    <button onClick={() => setDeleteTarget(quiz.id)} className="flex h-9 flex-1 items-center justify-center rounded-lg transition hover:opacity-80 sm:w-9 sm:flex-none" style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-fg)' }} title="Delete">
                       <Trash2 size={16} />
                     </button>
                   </div>
@@ -154,6 +176,18 @@ export function TeacherQuizzesView({ quizzes: initial, classes }: { quizzes: Qui
               </div>
             )
           })}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex flex-wrap items-center justify-center gap-2 pt-4">
+          {meta.page > 1 && (
+            <Link href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(meta.page - 1) }).toString()}`} className="flex h-10 items-center justify-center rounded-lg border border-border bg-card px-4 text-sm text-muted-foreground transition hover:border-brand-accent hover:text-brand-primary">Prev</Link>
+          )}
+          <span className="px-4 text-sm font-medium text-muted-foreground">Page {meta.page} of {totalPages}</span>
+          {meta.page < totalPages && (
+            <Link href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(meta.page + 1) }).toString()}`} className="flex h-10 items-center justify-center rounded-lg border border-border bg-card px-4 text-sm text-muted-foreground transition hover:border-brand-accent hover:text-brand-primary">Next</Link>
+          )}
         </div>
       )}
       
@@ -167,7 +201,6 @@ export function TeacherQuizzesView({ quizzes: initial, classes }: { quizzes: Qui
         loading={isDeleting}
         onConfirm={confirmDelete}
       />
-      
     </div>
   )
 }
