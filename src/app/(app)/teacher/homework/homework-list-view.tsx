@@ -2,23 +2,31 @@
 
 import Link from 'next/link'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useMemo, useState, useTransition } from 'react'
 import { 
   PlusCircle, Search, FileText, Calendar, GraduationCap, Book, 
-  List, Clock, CalendarX, Eye, Edit, Trash2, Users
+  List, Clock, CalendarX, Eye, Edit, Trash2, Users, Loader2
 } from 'lucide-react'
-import type { Homework } from '@/types/homework'
+import type { Homework, HomeworkListMeta } from '@/types/homework'
 import type { Class } from '@/types/admin'
 import { deleteHomeworkClient } from '@/lib/homework.client'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { useToast } from '@/components/ui/toast-provider'
 
-export function HomeworkListView({ homeworks: initial, classes }: { homeworks: Homework[], classes: Class[] }) {
-  const [homeworks, setHomeworks] = useState(initial)
+export function HomeworkListView({ 
+  homeworks, 
+  meta,
+  classes 
+}: { 
+  homeworks: Homework[]
+  meta: HomeworkListMeta
+  classes: Class[] 
+}) {
   const router = useRouter()
   const pathname = usePathname()
   const params = useSearchParams()
   const { showToast } = useToast()
+  const [isPending, startTransition] = useTransition()
 
   const [q, setQ] = useState(params.get('q') ?? '')
   const [classId, setClassId] = useState(params.get('class_id') ?? '')
@@ -27,7 +35,15 @@ export function HomeworkListView({ homeworks: initial, classes }: { homeworks: H
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  useEffect(() => { setHomeworks(initial) }, [initial])
+  const filteredHomeworks = useMemo(() => {
+    const now = new Date().getTime()
+    return homeworks.filter(hw => {
+      const isExpired = new Date(hw.due_date).getTime() < now
+      if (status === 'active' && isExpired) return false
+      if (status === 'expired' && !isExpired) return false
+      return true
+    })
+  }, [homeworks, status])
 
   function push(next: { q?: string, class_id?: string, status?: string }) {
     const sp = new URLSearchParams(params.toString())
@@ -39,6 +55,7 @@ export function HomeworkListView({ homeworks: initial, classes }: { homeworks: H
     if (nc) sp.set('class_id', nc); else sp.delete('class_id')
     if (ns) sp.set('status', ns); else sp.delete('status')
     
+    sp.delete('page')
     router.push(`${pathname}?${sp.toString()}`)
   }
 
@@ -47,10 +64,11 @@ export function HomeworkListView({ homeworks: initial, classes }: { homeworks: H
     setIsDeleting(true)
     try {
       await deleteHomeworkClient(deleteTarget)
-      setHomeworks(prev => prev.filter(h => h.id !== deleteTarget))
       showToast('Homework deleted successfully', 'success')
       setDeleteTarget(null)
-      router.refresh()
+      startTransition(() => {
+        router.refresh()
+      })
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to delete homework'
       showToast(message, 'error')
@@ -59,8 +77,16 @@ export function HomeworkListView({ homeworks: initial, classes }: { homeworks: H
     }
   }
 
+  const totalPages = Math.max(1, meta.last_page)
+
   return (
-    <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 sm:py-10">
+    <div className="relative mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 sm:py-10">
+      {isPending && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/50 backdrop-blur-sm">
+          <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
+        </div>
+      )}
+
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold sm:text-3xl" style={{ color: 'var(--brand-primary)' }}>
@@ -76,15 +102,18 @@ export function HomeworkListView({ homeworks: initial, classes }: { homeworks: H
 
       <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
         <form onSubmit={(e) => { e.preventDefault(); push({}) }} className="flex flex-1 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-          <div className="relative min-w-[240px] flex-1">
+          <div className="relative w-full flex-1 sm:min-w-[240px]">
             <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input type="text" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search title or description..." className="w-full rounded-full border border-border bg-background py-2.5 pl-11 pr-4 text-sm outline-none transition focus:border-brand-accent" />
           </div>
-          <select value={classId} onChange={(e) => { setClassId(e.target.value); push({ class_id: e.target.value }) }} className="rounded-full border border-border bg-background px-4 py-2.5 text-sm outline-none">
-            <option value="">All Classes</option>
-            {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
-          <button type="submit" className="rounded-full px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90" style={{ backgroundColor: 'var(--brand-primary)' }}>Search</button>
+          
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <select value={classId} onChange={(e) => { setClassId(e.target.value); push({ class_id: e.target.value }) }} className="w-full rounded-full border border-border bg-background px-4 py-2.5 text-sm outline-none sm:w-[180px]">
+              <option value="">All Classes</option>
+              {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+            <button type="submit" className="w-full rounded-full px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 sm:w-auto" style={{ backgroundColor: 'var(--brand-primary)' }}>Search</button>
+          </div>
         </form>
 
         <div className="flex items-center justify-center gap-1 rounded-full border border-border bg-background p-1 sm:justify-start">
@@ -94,23 +123,26 @@ export function HomeworkListView({ homeworks: initial, classes }: { homeworks: H
         </div>
       </div>
 
-      {homeworks.length === 0 ? (
+      {filteredHomeworks.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
           <FileText size={40} className="mx-auto mb-4 opacity-30" style={{ color: 'var(--brand-accent)' }} />
           <h3 className="text-xl font-bold text-foreground">No Homework Found</h3>
           <p className="mt-1 text-sm text-muted-foreground">Try refining your search terms or filters.</p>
         </div>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {homeworks.map(hw => {
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {filteredHomeworks.map(hw => {
             const isExpired = new Date(hw.due_date).getTime() < new Date().getTime()
             return (
-              <div key={hw.id} className={`relative flex flex-col rounded-2xl border border-border p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md ${isExpired ? 'bg-muted/30 opacity-80' : 'bg-card'}`}>
-                <div className="mb-3 flex items-start justify-between gap-2">
-                  <h3 className="flex items-center gap-2 line-clamp-2 text-lg font-bold text-foreground">
-                    <FileText size={18} style={{ color: 'var(--brand-accent)' }} className="shrink-0" /> {hw.title}
+              <div key={hw.id} className={`relative flex flex-col rounded-2xl border border-border p-4 sm:p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md ${isExpired ? 'bg-muted/30 opacity-80' : 'bg-card'}`}>
+                
+                {/* Responsive Header: Stacks on very small screens, row on larger */}
+                <div className="mb-3 flex flex-col gap-2 min-[400px]:flex-row min-[400px]:items-start min-[400px]:justify-between">
+                  <h3 className="flex items-start gap-2 line-clamp-2 text-base sm:text-lg font-bold text-foreground">
+                    <FileText size={18} style={{ color: 'var(--brand-accent)' }} className="shrink-0 mt-0.5" /> 
+                    <span>{hw.title}</span>
                   </h3>
-                  <span className="shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold" style={{ backgroundColor: isExpired ? 'var(--danger-bg)' : 'var(--success-bg)', color: isExpired ? 'var(--danger-fg)' : 'var(--success-fg)' }}>
+                  <span className="w-fit shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold" style={{ backgroundColor: isExpired ? 'var(--danger-bg)' : 'var(--success-bg)', color: isExpired ? 'var(--danger-fg)' : 'var(--success-fg)' }}>
                     {isExpired ? 'Expired' : 'Active'}
                   </span>
                 </div>
@@ -123,24 +155,40 @@ export function HomeworkListView({ homeworks: initial, classes }: { homeworks: H
 
                 <p className="mb-4 line-clamp-2 text-sm text-muted-foreground">{hw.description ?? 'No description provided.'}</p>
 
-                <div className="mb-4 flex items-center gap-4 border-t border-border pt-4 text-sm">
+                <div className="mb-4 flex items-center gap-4 border-t border-border pt-4 text-sm mt-auto">
                   <div className="text-center">
                     <span className="block text-lg font-bold text-foreground">{hw.submissions_count ?? 0}</span>
                     <span className="text-[10px] uppercase text-muted-foreground">Submissions</span>
                   </div>
                 </div>
 
-                <div className="mt-auto flex items-center gap-2">
-                  <Link href={`/teacher/homework/${hw.id}/submissions`} className="flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-white transition hover:opacity-90" style={{ backgroundColor: 'var(--brand-accent)' }}>
+                {/* Responsive Actions: Wraps cleanly on small screens */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <Link href={`/teacher/homework/${hw.id}/submissions`} className="flex h-9 flex-1 min-w-[120px] items-center justify-center gap-1.5 rounded-xl px-3 text-sm font-semibold text-white transition hover:opacity-90" style={{ backgroundColor: 'var(--brand-accent)' }}>
                     <Users size={15} /> Submissions
                   </Link>
-                  <Link href={`/teacher/homework/${hw.id}/preview`} className="flex h-9 w-9 items-center justify-center rounded-xl transition hover:opacity-80" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }} title="Preview"><Eye size={16} /></Link>
-                  <Link href={`/teacher/homework/${hw.id}/edit`} className="flex h-9 w-9 items-center justify-center rounded-xl transition hover:opacity-80" style={{ backgroundColor: 'var(--warning-bg)', color: 'var(--warning-fg)' }} title="Edit"><Edit size={16} /></Link>
-                  <button onClick={() => setDeleteTarget(hw.id)} className="flex h-9 w-9 items-center justify-center rounded-xl transition hover:opacity-80" style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-fg)' }} title="Delete"><Trash2 size={16} /></button>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <Link href={`/teacher/homework/${hw.id}/preview`} className="flex h-9 w-9 items-center justify-center rounded-xl transition hover:opacity-80" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }} title="Preview"><Eye size={16} /></Link>
+                    <Link href={`/teacher/homework/${hw.id}/edit`} className="flex h-9 w-9 items-center justify-center rounded-xl transition hover:opacity-80" style={{ backgroundColor: 'var(--warning-bg)', color: 'var(--warning-fg)' }} title="Edit"><Edit size={16} /></Link>
+                    <button onClick={() => setDeleteTarget(hw.id)} className="flex h-9 w-9 items-center justify-center rounded-xl transition hover:opacity-80" style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-fg)' }} title="Delete"><Trash2 size={16} /></button>
+                  </div>
                 </div>
+
               </div>
             )
           })}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex flex-wrap items-center justify-center gap-2 pt-4">
+          {meta.page > 1 && (
+            <Link href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(meta.page - 1) }).toString()}`} className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition hover:border-brand-accent hover:text-brand-primary">Prev</Link>
+          )}
+          <span className="text-sm font-medium text-muted-foreground px-4">Page {meta.page} of {totalPages}</span>
+          {meta.page < totalPages && (
+            <Link href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(meta.page + 1) }).toString()}`} className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition hover:border-brand-accent hover:text-brand-primary">Next</Link>
+          )}
         </div>
       )}
 
@@ -154,7 +202,6 @@ export function HomeworkListView({ homeworks: initial, classes }: { homeworks: H
         loading={isDeleting}
         onConfirm={confirmDelete}
       />
-
     </div>
   )
 }

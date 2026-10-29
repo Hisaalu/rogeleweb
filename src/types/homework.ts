@@ -46,3 +46,10 @@ export interface HomeworkSubmission {
   submitted_at: string
   files?: HomeworkSubmissionFile[]
 }
+
+export interface HomeworkListMeta {
+  page: number
+  per_page: number
+  total: number
+  last_page: number
+}
