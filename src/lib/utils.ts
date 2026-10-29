@@ -58,14 +58,21 @@ export function formatNumber(n: number): string {
 export function fixFileUrl(url: string | null | undefined): string {
   if (!url) return ''
   
-  if (url.includes('/rogele-platform/')) return url
+  let fixed = url.trim()
   
-  if (url.startsWith('https://docs.raysofgrace.ac.ug/')) {
-    return url.replace(
-      'https://docs.raysofgrace.ac.ug/', 
-      'https://docs.raysofgrace.ac.ug/rogele-platform/'
-    )
+  fixed = fixed.replace(/ /g, '%20')
+
+  if (!fixed.startsWith('http')) {
+    fixed = `https://docs.raysofgrace.ac.ug/rogele-platform/${fixed.replace(/^\//, '')}`
   }
-  
-  return url
+
+  if (fixed.includes('.r2.dev/')) {
+    fixed = fixed.replace(/https:\/\/.*\.r2\.dev\//, 'https://docs.raysofgrace.ac.ug/rogele-platform/')
+  }
+
+  if (fixed.startsWith('https://raysofgrace.ac.ug/')) {
+    fixed = fixed.replace('https://raysofgrace.ac.ug/', 'https://docs.raysofgrace.ac.ug/')
+  }
+
+  return fixed
 }
