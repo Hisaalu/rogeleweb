@@ -2,10 +2,10 @@
 
 import Link from 'next/link'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useTransition } from 'react'
 import {
   Search, Users, GraduationCap, Mail, BarChart2,
-  User, Crown, Star
+  User, Crown, Star, Loader2
 } from 'lucide-react'
 import type { Class } from '@/types/admin'
 
@@ -42,48 +42,47 @@ export function StudentsView({ students, classes }: { students: StudentListItem[
   const router = useRouter()
   const pathname = usePathname()
   const params = useSearchParams()
+  const [isPending, startTransition] = useTransition()
 
   const [searchTerm, setSearchTerm] = useState(params.get('search') ?? '')
   const [selectedClass, setSelectedClass] = useState(params.get('class_id') ?? '')
 
-  const filteredStudents = useMemo(() => {
-    return students.filter(s => {
-      const matchesSearch =
-        (s.first_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-        (s.last_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-        s.email.toLowerCase().includes(searchTerm.toLowerCase())
-
-      const matchesClass = selectedClass ? String(s.class_id) === selectedClass : true
-
-      return matchesSearch && matchesClass
-    })
-  }, [students, searchTerm, selectedClass])
-
-  const totalStudents = filteredStudents.length
+  const totalStudents = students.length
   const avgPerformance = useMemo(() => {
-    const valid = filteredStudents.filter(s => (s.quizzes_taken ?? 0) > 0)
+    const valid = students.filter(s => (s.quizzes_taken ?? 0) > 0)
     if (valid.length === 0) return 0
     return Math.round(
       valid.reduce((sum, s) => sum + (s.avg_score ?? 0), 0) / valid.length,
     )
-  }, [filteredStudents])
+  }, [students])
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
     const sp = new URLSearchParams()
     if (searchTerm) sp.set('search', searchTerm)
     if (selectedClass) sp.set('class_id', selectedClass)
-    router.push(`${pathname}?${sp.toString()}`)
+    
+    startTransition(() => {
+      router.push(`${pathname}?${sp.toString()}`)
+    })
   }
 
   function handleClear() {
     setSearchTerm('')
     setSelectedClass('')
-    router.push(pathname)
+    startTransition(() => {
+      router.push(pathname)
+    })
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 sm:py-10">
+    <div className="relative mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 sm:py-10">
+      {isPending && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/50 backdrop-blur-sm">
+          <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
+        </div>
+      )}
+
       <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold sm:text-3xl" style={{ color: 'var(--brand-primary)' }}>
@@ -119,7 +118,7 @@ export function StudentsView({ students, classes }: { students: StudentListItem[
 
       <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
         <form onSubmit={handleSearch} className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-          <div className="relative min-w-[240px] flex-1">
+          <div className="relative w-full flex-1 sm:min-w-[240px]">
             <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               type="text"
@@ -129,34 +128,39 @@ export function StudentsView({ students, classes }: { students: StudentListItem[
               className="w-full rounded-xl border border-border bg-background py-3 pl-11 pr-4 text-sm outline-none transition focus:border-brand-accent"
             />
           </div>
-          <select
-            value={selectedClass}
-            onChange={(e) => setSelectedClass(e.target.value)}
-            className="min-w-[180px] rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-brand-accent"
-          >
-            <option value="">All Classes</option>
-            {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
-          <button type="submit" className="rounded-xl px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90" style={{ backgroundColor: 'var(--brand-primary)' }}>
-            Filter
-          </button>
-          {(searchTerm || selectedClass) && (
-            <button type="button" onClick={handleClear} className="rounded-xl px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90" style={{ backgroundColor: 'var(--brand-accent)' }}>
-              Clear
+          
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <select
+              value={selectedClass}
+              onChange={(e) => setSelectedClass(e.target.value)}
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-brand-accent sm:w-[180px]"
+            >
+              <option value="">All Classes</option>
+              {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+            <button type="submit" className="w-full rounded-xl px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90 sm:w-auto" style={{ backgroundColor: 'var(--brand-primary)' }}>
+              Filter
             </button>
-          )}
+            {(searchTerm || selectedClass) && (
+              <button type="button" onClick={handleClear} className="w-full rounded-xl px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90 sm:w-auto" style={{ backgroundColor: 'var(--brand-accent)' }}>
+                Clear
+              </button>
+            )}
+          </div>
         </form>
       </div>
 
-      {filteredStudents.length === 0 ? (
+      {students.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
           <Users size={48} className="mx-auto mb-4 opacity-20" style={{ color: 'var(--brand-accent)' }} />
           <h3 className="text-xl font-bold text-foreground">No Students Found</h3>
-          <p className="mt-1 text-sm text-muted-foreground">You don&apos;t have any students assigned to your classes yet.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {searchTerm || selectedClass ? 'No students match your search criteria.' : "You don't have any students assigned to your classes yet."}
+          </p>
         </div>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredStudents.map(student => {
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {students.map(student => {
             const name = [student.first_name, student.last_name].filter(Boolean).join(' ') || 'Student'
             const classObj = classes.find(c => c.id === student.class_id)
             const initials = getInitials(student.first_name, student.last_name, name)
@@ -188,8 +192,8 @@ export function StudentsView({ students, classes }: { students: StudentListItem[
                   )}
                 </div>
 
-                <div className="flex flex-1 flex-col p-6 pt-12 text-center">
-                  <h3 className="text-lg font-bold text-foreground">{name}</h3>
+                <div className="flex flex-1 flex-col p-4 pt-12 text-center sm:p-6">
+                  <h3 className="text-lg font-bold text-foreground truncate px-2">{name}</h3>
 
                   <div className="mt-1 mb-3">
                     <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold" style={{ backgroundColor: 'var(--success-bg)', color: 'var(--success-fg)' }}>

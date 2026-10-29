@@ -7,16 +7,28 @@ import { StudentsView } from './students-view'
 export const metadata: Metadata = { title: 'My Students' }
 export const dynamic = 'force-dynamic'
 
-export default async function TeacherStudentsPage() {
+export default async function TeacherStudentsPage({
+  searchParams,
+}: {
+  searchParams: { search?: string; class_id?: string }
+}) {
   const session = await getSessionUser()
   if (!session) return null
+
+  const search = searchParams.search?.trim() || undefined
+  const classId = searchParams.class_id ? Number(searchParams.class_id) : undefined
 
   let students: AdminUser[] = []
   let classes: Class[] = []
 
   try {
-    const res = await serverApiRequest<unknown>('/api/v1/admin/students')
+    const sp = new URLSearchParams()
+    if (search) sp.set('q', search)
+    if (classId) sp.set('class_id', String(classId))
+    
+    const res = await serverApiRequest<unknown>(`/api/v1/admin/students?${sp.toString()}`)
     const r = (res ?? {}) as { data?: AdminUser[]; value?: AdminUser[] }
+    
     if (Array.isArray(res)) students = res as AdminUser[]
     else if (Array.isArray(r.data)) students = r.data
     else if (Array.isArray(r.value)) students = r.value
