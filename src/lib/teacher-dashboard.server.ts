@@ -45,7 +45,7 @@ export async function getTeacherDashboardDataServer(teacherId: number): Promise<
     serverApiRequest<unknown>('/api/v1/lessons?per_page=1000').catch(() => null),
     serverApiRequest<unknown>('/api/v1/quizzes?per_page=1000').catch(() => null),
     serverApiRequest<ClassLearnerCount[]>('/api/v1/admin/learners-by-class').catch(() => null),
-    getTeacherOverviewClient(teacherId).catch(() => null), 
+    getTeacherOverviewClient(teacherId).catch(() => null),
   ])
 
   const totalLessons = extractTotal(lessonsRaw)
