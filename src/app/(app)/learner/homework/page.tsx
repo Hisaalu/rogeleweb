@@ -22,7 +22,7 @@ export default async function LearnerHomeworkPage({
       ? searchParams.locked
       : null
 
-  const allHomeworks = await listHomeworksServer({
+  const { homeworks: allHomeworks } = await listHomeworksServer({
     class_id: session.class_id ?? undefined,
   })
 

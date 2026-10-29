@@ -21,7 +21,7 @@ export default async function LearnerQuizzesPage({
       ? searchParams.locked
       : null
 
-  const [quizzes, attempts] = await Promise.all([
+  const [{ quizzes }, attempts] = await Promise.all([
     listQuizzesServer({ class_id: session.class_id ?? undefined }),
     listMyAttemptsServer(),
   ])
