@@ -2,7 +2,7 @@
 
 import { useCallback, useState, useTransition } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'nextjs-toploader/app'
 import { BookOpen, PlusCircle, Loader2 } from 'lucide-react'
 import type { Class, Subject } from '@/types/admin'
 import type { Lesson, LessonListMeta } from '@/types/lesson'

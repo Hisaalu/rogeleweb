@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'nextjs-toploader/app'
 import Link from 'next/link'
 import { LogOut, User as UserIcon, Settings, Moon, Sun } from 'lucide-react'
 import { useTheme } from '@/components/theme-provider'

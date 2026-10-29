@@ -6,7 +6,8 @@ import { BrandingProvider } from '@/components/brand/brand-provider'
 import { SettingsProvider } from '@/components/settings/settings-provider'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Providers } from '@/components/providers'
-import { NavigationProgress } from '@/components/navigation-progress'
+// 1. Import the standard production package
+import NextTopLoader from 'nextjs-toploader'
 import './globals.css'
 
 export const dynamic = 'force-dynamic'
@@ -73,9 +74,19 @@ export default async function RootLayout({
         />
       </head>
       <body>
-        <Suspense fallback={null}>
-          <NavigationProgress />
-        </Suspense>
+        {/* 2. Use NextTopLoader instead of your custom component */}
+        <NextTopLoader
+          color="var(--brand-accent)"
+          initialPosition={0.08}
+          crawlSpeed={200}
+          height={3}
+          crawl={true}
+          showSpinner={false}
+          easing="ease"
+          speed={200}
+          shadow="0 0 10px var(--brand-accent),0 0 5px var(--brand-accent)"
+        />
+        
         <ThemeProvider>
           <BrandingProvider branding={branding}>
             <SettingsProvider settings={settings}>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'nextjs-toploader/app'
 import { 
   UserCircle, Camera, Calendar, Clock, Edit, Save, User, Mail, Phone, 
   GraduationCap, Loader2, Star, BookOpen, Users, AlignLeft, type LucideIcon

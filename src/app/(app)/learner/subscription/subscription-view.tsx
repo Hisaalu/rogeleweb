@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'nextjs-toploader/app'
 import type { Payment, Subscription, SubscriptionPlan } from '@/types/subscription'
 import { PlanCard } from './plan-card'
 import { PaymentModal } from './payment-modal'

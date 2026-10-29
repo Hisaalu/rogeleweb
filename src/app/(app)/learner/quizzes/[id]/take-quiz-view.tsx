@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'nextjs-toploader/app'
 import { Clock, CheckCircle2, AlertTriangle, Loader2 } from 'lucide-react'
 import type { Quiz, QuizQuestion, QuizAttempt } from '@/types/quiz'
 import {

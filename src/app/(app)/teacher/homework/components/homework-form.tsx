@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'nextjs-toploader/app'
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Save, UploadCloud, X, Paperclip, Trash2 } from 'lucide-react'

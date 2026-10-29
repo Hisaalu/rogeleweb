@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'nextjs-toploader/app'
 import { FileText, Loader2, X } from 'lucide-react'
 import { deleteMaterial, listMaterials } from '@/lib/lessons.mutations'
 import { formatFileSize, materialDownloadUrl } from '@/lib/materials'
