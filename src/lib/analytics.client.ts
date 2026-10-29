@@ -155,9 +155,22 @@ export async function getEnrollmentTrendClient(
 }
 
 export async function getRevenueSeriesClient(
-  interval: 'day' | 'week' | 'month' = 'month',
+  rangeDays: number,
+  signal?: AbortSignal,
 ): Promise<RevenueSeries> {
-  return analyticsFetch<RevenueSeries>(`/revenue-over-time?interval=${interval}`)
+  const toDate = new Date()
+  const fromDate = new Date(toDate.getTime() - rangeDays * 24 * 60 * 60 * 1000)
+
+  const params = new URLSearchParams({
+    from: fromDate.toISOString().split('T')[0],
+    to: toDate.toISOString().split('T')[0],
+    interval: 'day',
+  })
+
+  return analyticsFetch<RevenueSeries>(
+    `/revenue-over-time?${params.toString()}`,
+    signal,
+  )
 }
 
 export async function getScoreDistributionClient(

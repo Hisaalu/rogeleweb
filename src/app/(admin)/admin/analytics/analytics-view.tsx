@@ -42,11 +42,11 @@ export function AnalyticsView({ data }: { data: AnalyticsData }) {
   const dataValues = Object.values(data)
   const failed = dataValues.filter((v) => v === null).length
   const total = dataValues.length
-  
-  const error = failed === total 
-    ? 'Analytics service is unreachable.' 
-    : failed > 0 
-      ? `${failed} of ${total} analytics sections failed to load.` 
+
+  const error = failed === total
+    ? 'Analytics service is unreachable.'
+    : failed > 0
+      ? `${failed} of ${total} analytics sections failed to load.`
       : null
 
   return (
