@@ -70,12 +70,9 @@ export function EventCalendar({
   }
 
   return (
-    <div>
-      <div className="mb-4 flex items-center justify-between">
-        <h4
-          className="text-sm font-bold"
-          style={{ color: 'var(--brand-primary)' }}
-        >
+    <div className="flex w-full flex-col">
+      <div className="mb-3 flex items-center justify-between sm:mb-4">
+        <h4 className="text-sm font-bold sm:text-base" style={{ color: 'var(--brand-primary)' }}>
           {MONTHS[current.getMonth()]} {current.getFullYear()}
         </h4>
         <div className="flex gap-1">
@@ -83,45 +80,45 @@ export function EventCalendar({
             type="button"
             onClick={() => changeMonth(-1)}
             aria-label="Previous month"
-            className="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-card text-muted-foreground transition hover:border-brand-accent"
+            className="flex h-7 w-7 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition hover:border-brand-accent hover:text-brand-accent sm:h-8 sm:w-8"
           >
-            <ChevronLeft size={14} />
+            <ChevronLeft size={14} className="sm:size-4" />
           </button>
           <button
             type="button"
             onClick={() => changeMonth(1)}
             aria-label="Next month"
-            className="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-card text-muted-foreground transition hover:border-brand-accent"
+            className="flex h-7 w-7 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition hover:border-brand-accent hover:text-brand-accent sm:h-8 sm:w-8"
           >
-            <ChevronRight size={14} />
+            <ChevronRight size={14} className="sm:size-4" />
           </button>
         </div>
       </div>
 
-      <div className="mb-2 grid grid-cols-7 text-center text-xs font-semibold text-foreground">
+      <div className="mb-1 grid grid-cols-7 text-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground sm:mb-2 sm:text-xs">
         {WEEKDAYS.map((d) => (
-          <div key={d}>{d}</div>
+          <div key={d} className="py-0.5 sm:py-1">{d}</div>
         ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-1 text-center text-sm">
+      <div className="grid w-full grid-cols-7 gap-0.5 sm:gap-1.5">
         {cells.map((cell, i) => {
-          if (!cell.day || !cell.key) return <div key={i} />
+          if (!cell.day || !cell.key) {
+            return <div key={i} className="min-h-[34px] w-full sm:min-h-[40px]" />
+          }
+          
           const dayEvents = eventsByDate.get(cell.key) ?? []
           const hasEvents = dayEvents.length > 0
           const isToday = cell.key === toKey(today)
           const isSelected = cell.key === selectedDate
 
           const style: React.CSSProperties = {
-            padding: '8px 0',
-            borderRadius: '6px',
-            color: 'hsl(var(--muted-foreground))',
-            position: 'relative',
+            color: 'hsl(var(--foreground))',
+            fontWeight: 500,
           }
 
           if (hasEvents) {
-            style.backgroundColor =
-              'color-mix(in srgb, var(--brand-accent) 15%, transparent)'
+            style.backgroundColor = 'color-mix(in srgb, var(--brand-accent) 10%, transparent)'
             style.color = 'var(--brand-accent)'
             style.fontWeight = 700
             style.border = '1px solid var(--brand-accent)'
@@ -132,6 +129,7 @@ export function EventCalendar({
             style.backgroundColor = 'var(--brand-primary)'
             style.color = 'white'
             style.fontWeight = 700
+            style.border = '1px solid var(--brand-primary)'
           }
 
           if (isSelected && !isToday) {
@@ -146,6 +144,7 @@ export function EventCalendar({
               onClick={() => handleDayClick(cell.key!, dayEvents)}
               disabled={!hasEvents}
               aria-pressed={isSelected}
+              className="group relative flex min-h-[34px] w-full items-center justify-center rounded-md text-[11px] transition-transform hover:scale-105 sm:min-h-[40px] sm:rounded-lg sm:text-sm"
               title={
                 hasEvents
                   ? dayEvents.length === 1
@@ -158,7 +157,7 @@ export function EventCalendar({
               {cell.day}
               {hasEvents && dayEvents.length > 1 && (
                 <span
-                  className="absolute right-0.5 top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full text-[9px] font-bold text-white"
+                  className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full text-[8px] font-bold text-white shadow-sm sm:-right-1 sm:-top-1 sm:h-5 sm:w-5 sm:text-[10px]"
                   style={{ backgroundColor: 'var(--brand-accent)' }}
                 >
                   {dayEvents.length}

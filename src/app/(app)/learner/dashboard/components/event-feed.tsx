@@ -42,9 +42,9 @@ export function EventFeed({
     : 'Upcoming Deadlines & Events'
 
   return (
-    <div id="dashboard-event-feed" className="flex flex-col scroll-mt-24">
-      <div className="mb-4 flex items-center justify-between gap-2">
-        <h4 className="text-sm font-semibold text-foreground">
+    <div id="dashboard-event-feed" className="flex w-full flex-col scroll-mt-24">
+      <div className="mb-3 flex items-center justify-between gap-2 sm:mb-4">
+        <h4 className="truncate text-sm font-semibold text-foreground sm:text-base">
           {headerLabel}
         </h4>
         {selectedDate && (
@@ -52,7 +52,7 @@ export function EventFeed({
             type="button"
             onClick={onClearFilter}
             aria-label="Clear date filter"
-            className="flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-xs font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
+            className="flex shrink-0 items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground transition hover:bg-muted/80 hover:text-foreground"
           >
             <X size={12} />
             Clear
@@ -61,54 +61,51 @@ export function EventFeed({
       </div>
 
       {sorted.length === 0 ? (
-        <p className="text-sm italic text-muted-foreground">
-          {selectedDate
-            ? 'No events on this date.'
-            : 'No scheduled events or deadlines at the moment.'}
-        </p>
+        <div className="flex h-[300px] items-center justify-center rounded-xl border border-dashed border-border bg-muted/30 p-6 text-center sm:h-auto sm:min-h-[240px]">
+          <p className="text-sm italic text-muted-foreground">
+            {selectedDate
+              ? 'No events scheduled for this date.'
+              : 'No scheduled events or deadlines at the moment.'}
+          </p>
+        </div>
       ) : (
-        <div className="flex max-h-[280px] flex-col gap-3 overflow-y-auto pr-1">
-          {sorted.map((e) => (
-            <Link
-              key={e.id}
-              href={e.url || '#'}
-              className="flex gap-3 rounded-lg border border-border bg-card p-3 transition hover:translate-x-1"
-              style={{ borderLeft: '4px solid var(--brand-accent)' }}
-            >
-              <div
-                className="flex min-w-[50px] shrink-0 flex-col items-center justify-center rounded-lg px-3 py-2"
-                style={{
-                  backgroundColor:
-                    'color-mix(in srgb, var(--brand-accent) 12%, transparent)',
-                }}
+        <div className="h-[320px] overflow-y-auto pr-2 sm:h-auto sm:flex-1">
+          <div className="flex flex-col gap-2.5 sm:gap-3">
+            {sorted.map((e) => (
+              <Link
+                key={e.id}
+                href={e.url || '#'}
+                className="group flex w-full gap-3 rounded-xl border border-border bg-card p-3 transition-all hover:border-brand-accent hover:shadow-md"
+                style={{ borderLeft: '4px solid var(--brand-accent)' }}
               >
-                <span
-                  className="text-xs font-bold uppercase"
-                  style={{ color: 'var(--brand-accent)' }}
+                <div
+                  className="flex min-w-[50px] shrink-0 flex-col items-center justify-center rounded-lg px-1.5 py-1 sm:min-w-[54px] sm:px-2 sm:py-1.5"
+                  style={{
+                    backgroundColor: 'color-mix(in srgb, var(--brand-accent) 10%, transparent)',
+                  }}
                 >
-                  {monthShort(e.date)}
-                </span>
-                <span
-                  className="text-base font-bold leading-tight"
-                  style={{ color: 'var(--brand-primary)' }}
-                >
-                  {dayNum(e.date)}
-                </span>
-              </div>
-              <div className="min-w-0 flex-1">
-                <h5 className="mb-1 truncate text-sm font-semibold text-foreground">
-                  {e.title}
-                </h5>
-                <span className="mb-1 flex items-center gap-1 text-xs text-muted-foreground">
-                  <Clock size={11} />
-                  {e.time}
-                </span>
-                <span className="inline-block rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
-                  Subject: {e.subject ?? 'General'}
-                </span>
-              </div>
-            </Link>
-          ))}
+                  <span className="text-[9px] font-bold uppercase sm:text-[10px]" style={{ color: 'var(--brand-accent)' }}>
+                    {monthShort(e.date)}
+                  </span>
+                  <span className="text-base font-extrabold leading-none sm:text-lg" style={{ color: 'var(--brand-primary)' }}>
+                    {dayNum(e.date)}
+                  </span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h5 className="mb-0.5 truncate text-sm font-semibold text-foreground transition group-hover:text-brand-accent sm:mb-1">
+                    {e.title}
+                  </h5>
+                  <span className="mb-1 flex items-center gap-1 text-[11px] text-muted-foreground sm:mb-1.5 sm:text-xs">
+                    <Clock size={11} className="shrink-0 sm:size-3" />
+                    {e.time}
+                  </span>
+                  <span className="inline-block rounded bg-muted px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-muted-foreground sm:px-2 sm:text-[10px]">
+                    {e.subject ?? 'General'}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       )}
     </div>

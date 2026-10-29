@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { BookOpen, HelpCircle, CreditCard, Calendar, Clock, Crown } from 'lucide-react'
+import { BookOpen, HelpCircle, CreditCard, Calendar, Clock } from 'lucide-react'
 import type { User } from '@/types/api'
 import type {
   CalendarEvent,
@@ -39,15 +39,11 @@ export function LearnerDashboardView({
       ? Math.min(100, Math.max(0, ((trial.total_days - trial.days_remaining) / trial.total_days) * 100))
       : 0
 
-  const isMonthly = subscription?.plan_type === 'monthly' || subscription?.plan_type === '1'
-  const isTermly = subscription?.plan_type === 'termly' || subscription?.plan_type === '2'
   const isYearly = subscription?.plan_type === 'yearly' || subscription?.plan_type === '3'
-  
-  const canUpgrade = hasActiveSubscription && (isMonthly || isTermly)
   const buttonLabel = hasActiveSubscription ? (isYearly ? "Pro" : "Upgrade Plan") : "Subscribe Now"
 
   return (
-    <div className="space-y-5 sm:space-y-6">
+    <div className="mx-auto max-w-6xl space-y-5 px-4 py-6 sm:space-y-6 sm:px-6 sm:py-8">
       <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
         Welcome back,{' '}
         <span style={{ color: 'var(--brand-primary)' }}>{firstName}</span>!
@@ -85,11 +81,11 @@ export function LearnerDashboardView({
                 <p className="font-semibold" style={{ color: 'var(--warning-fg)' }}>
                   Free Trial: {trial.days_remaining} day{trial.days_remaining === 1 ? '' : 's'} remaining
                 </p>
-                <p className="text-sm" style={{ color: 'var(--warning-accent)' }}>
+                <p className="text-sm" style={{ color: 'var(--warning-fg)', opacity: 0.8 }}>
                   You have {trial.days_remaining} days to explore all features.
                 </p>
                 {trial.end_date && (
-                  <p className="mt-0.5 text-xs" style={{ color: 'var(--warning-accent)' }}>
+                  <p className="mt-0.5 text-xs" style={{ color: 'var(--warning-fg)', opacity: 0.8 }}>
                     Ends on{' '}
                     {new Date(trial.end_date).toLocaleDateString('en-US', {
                       month: 'long',
@@ -116,7 +112,7 @@ export function LearnerDashboardView({
                 <span>{trial.days_remaining} days left</span>
                 <span>{trial.total_days} total days</span>
               </div>
-              <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/40">
+              <div className="h-2.5 w-full overflow-hidden rounded-full bg-black/10 dark:bg-white/10">
                 <div
                   className="h-full rounded-full transition-all duration-500 ease-out"
                   style={{
@@ -180,7 +176,7 @@ export function LearnerDashboardView({
           Institutional Calendar &amp; Events
         </h3>
 
-        <div className="mt-4 grid gap-4 rounded-2xl border border-border bg-muted/30 p-3 sm:mt-5 sm:gap-6 sm:p-5 lg:grid-cols-2">
+        <div className="mt-4 flex flex-col gap-6 sm:grid sm:rounded-2xl sm:border sm:border-border sm:bg-muted/30 sm:p-5 lg:grid-cols-2">
           <EventCalendar
             events={events}
             selectedDate={selectedDate}
@@ -205,7 +201,7 @@ export function LearnerDashboardView({
             <a
               href="/learner/subscription"
               className="inline-block rounded-full px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 sm:px-8 sm:py-3"
-              style={{ backgroundColor: 'var(--success-border)' }}
+              style={{ backgroundColor: 'var(--brand-primary)' }}
             >
               View Plans
             </a>
