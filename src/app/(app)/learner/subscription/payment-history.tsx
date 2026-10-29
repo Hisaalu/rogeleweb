@@ -34,12 +34,12 @@ export function PaymentHistory({
   plans: SubscriptionPlan[]
 }) {
   const recent = [...payments]
-    .sort(
-      (a, b) =>
-        new Date(b.created_at ?? 0).getTime() -
-        new Date(a.created_at ?? 0).getTime(),
-    )
-    .slice(0, 8)
+    .sort((a, b) => {
+      const dateA = new Date(a.created_at ?? 0).getTime()
+      const dateB = new Date(b.created_at ?? 0).getTime()
+      return dateB - dateA
+    })
+    .slice(0, 5)
 
   const planName = (planType: string | null | undefined): string => {
     if (!planType) return 'N/A'
@@ -55,78 +55,93 @@ export function PaymentHistory({
     <section className="rounded-2xl border border-border bg-card p-4 sm:p-6">
       <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-foreground sm:text-lg">
         <History size={18} style={{ color: 'var(--brand-primary)' }} />
-        Payment History
+        Recent Payments
       </h2>
 
-      <div className="hidden overflow-x-auto md:block">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
-            <tr>
-              <th className="px-4 py-2.5 font-semibold">Date</th>
-              <th className="px-4 py-2.5 font-semibold">Plan</th>
-              <th className="px-4 py-2.5 font-semibold">Amount</th>
-              <th className="px-4 py-2.5 font-semibold">Method</th>
-              <th className="px-4 py-2.5 font-semibold">Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
+      {recent.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 py-8 text-center">
+          <History size={32} className="mb-2 opacity-30 text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">No payment history found.</p>
+        </div>
+      ) : (
+        <>
+          <div className="hidden w-full overflow-hidden rounded-xl border border-border md:block">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
+                <tr>
+                  <th className="px-4 py-3 font-semibold">Date</th>
+                  <th className="px-4 py-3 font-semibold">Plan</th>
+                  <th className="px-4 py-3 font-semibold">Amount</th>
+                  <th className="px-4 py-3 font-semibold">Method</th>
+                  <th className="px-4 py-3 font-semibold">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border bg-card">
+                {recent.map((p) => {
+                  const s = statusStyle(p.status)
+                  return (
+                    <tr key={p.id} className="transition hover:bg-muted/20">
+                      <td className="whitespace-nowrap px-4 py-3 text-foreground">
+                        {formatDate(p.created_at)}
+                      </td>
+                      <td className="px-4 py-3 font-medium text-foreground">
+                        {planName(p.plan_type)}
+                      </td>
+                      <td className="px-4 py-3 font-semibold text-foreground">
+                        {formatMoneyUGX(p.amount)}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+                          <Smartphone size={14} className="shrink-0" />
+                          <span className="capitalize">{p.payment_method ?? 'Mobile Money'}</span>
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                          style={{ backgroundColor: s.bg, color: s.fg }}
+                        >
+                          {s.label}
+                        </span>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="grid gap-3 md:hidden">
             {recent.map((p) => {
               const s = statusStyle(p.status)
               return (
-                <tr key={p.id} className="hover:bg-muted/30">
-                  <td className="px-4 py-3">{formatDate(p.created_at)}</td>
-                  <td className="px-4 py-3 font-medium">{planName(p.plan_type)}</td>
-                  <td className="px-4 py-3">{formatMoneyUGX(p.amount)}</td>
-                  <td className="px-4 py-3">
-                    <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-                      <Smartphone size={13} />
-                      {p.payment_method ?? 'Mobile Money'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold"
-                      style={{ backgroundColor: s.bg, color: s.fg }}
-                    >
-                      {s.label}
-                    </span>
-                  </td>
-                </tr>
+                <div
+                  key={p.id}
+                  className="flex items-start justify-between gap-3 rounded-xl border border-border bg-muted/20 p-3"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-foreground">
+                      {planName(p.plan_type)}
+                    </p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {formatDate(p.created_at)}
+                    </p>
+                    <p className="mt-1.5 text-sm font-bold" style={{ color: 'var(--brand-primary)' }}>
+                      {formatMoneyUGX(p.amount)}
+                    </p>
+                  </div>
+                  <span
+                    className="shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
+                    style={{ backgroundColor: s.bg, color: s.fg }}
+                  >
+                    {s.label}
+                  </span>
+                </div>
               )
             })}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="space-y-2 md:hidden">
-        {recent.map((p) => {
-          const s = statusStyle(p.status)
-          return (
-            <div
-              key={p.id}
-              className="flex items-start justify-between gap-3 rounded-xl border border-border bg-muted/20 p-3"
-            >
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-foreground">
-                  {planName(p.plan_type)}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {formatDate(p.created_at)}
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {formatMoneyUGX(p.amount)}
-                </p>
-              </div>
-              <span
-                className="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold"
-                style={{ backgroundColor: s.bg, color: s.fg }}
-              >
-                {s.label}
-              </span>
-            </div>
-          )
-        })}
-      </div>
+          </div>
+        </>
+      )}
     </section>
   )
 }
