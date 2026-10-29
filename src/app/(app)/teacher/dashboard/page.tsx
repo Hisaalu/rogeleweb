@@ -12,13 +12,17 @@ export default async function TeacherDashboardPage() {
   const session = await getSessionUser()
   if (!session) return null
 
-  let profile: User | null = null
-  try {
-    profile = await serverApiRequest<User>('/api/v1/auth/me')
-  } catch {
-    profile = null
-  }
+  const [profile, data] = await Promise.all([
+    serverApiRequest<User>('/api/v1/auth/me').catch(() => null),
+    getTeacherDashboardDataServer().catch(() => ({
+      totalLessons: 0,
+      totalQuizzes: 0,
+      totalStudents: 0,
+      averageScore: 0,
+      recentLessons: [],
+      recentQuizzes: [],
+    })),
+  ])
 
-  const data = await getTeacherDashboardDataServer(session.id)
   return <TeacherDashboardView profile={profile} data={data} />
 }
