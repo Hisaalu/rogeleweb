@@ -1,8 +1,9 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState, useTransition } from 'react'
 import Link from 'next/link'
-import { BookOpen, PlusCircle } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { BookOpen, PlusCircle, Loader2 } from 'lucide-react'
 import type { Class, Subject } from '@/types/admin'
 import type { Lesson, LessonListMeta } from '@/types/lesson'
 import { deleteLesson, publishLesson } from '@/lib/lessons.mutations'
@@ -14,25 +15,22 @@ import { TeacherLessonCard } from './components/teacher-lesson-card'
 import { Pagination } from './components/pagination'
 
 export function TeacherLessonsView({
-  lessons: initial,
-  meta,
+  lessons = [],
+  meta = { page: 1, per_page: 12, total: 0, last_page: 1 },
   classes,
   subjects,
 }: {
-  lessons: Lesson[]
-  meta: LessonListMeta
+  lessons?: Lesson[]
+  meta?: LessonListMeta
   classes: Class[]
   subjects: Subject[]
 }) {
+  const router = useRouter()
   const { showToast } = useToast()
-  const [lessons, setLessons] = useState(initial)
+  const [isPending, startTransition] = useTransition()
   
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
-
-  useEffect(() => {
-    setLessons(initial)
-  }, [initial])
 
   const handleDeleteClick = useCallback((id: number) => {
     setDeleteTarget(id)
@@ -43,40 +41,48 @@ export function TeacherLessonsView({
     setIsDeleting(true)
     try {
       await deleteLesson(deleteTarget)
-      setLessons((list) => list.filter((l) => l.id !== deleteTarget))
       showToast('Lesson deleted successfully', 'success')
       setDeleteTarget(null)
+      
+      startTransition(() => {
+        router.refresh()
+      })
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Could not delete lesson'
       showToast(message, 'error')
     } finally {
       setIsDeleting(false)
     }
-  }, [deleteTarget, showToast])
+  }, [deleteTarget, showToast, router])
 
   const handlePublishToggle = useCallback(
     async (id: number, published: boolean) => {
       try {
-        const updated = await publishLesson(id, published)
-        setLessons((list) =>
-          list.map((l) =>
-            l.id === id ? { ...l, ...updated, is_published: published } : l,
-          ),
-        )
+        await publishLesson(id, published)
         showToast(
           published ? 'Lesson published successfully' : 'Lesson moved to drafts',
           'success',
         )
+        
+        startTransition(() => {
+          router.refresh()
+        })
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Could not update lesson status'
         showToast(message, 'error')
       }
     },
-    [showToast],
+    [showToast, router],
   )
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 px-3 py-5 sm:space-y-8 sm:px-5 sm:py-6 lg:px-8">
+    <div className="relative mx-auto max-w-7xl space-y-6 px-3 py-5 sm:space-y-8 sm:px-5 sm:py-6 lg:px-8">
+      {isPending && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/50 backdrop-blur-sm transition-opacity">
+          <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
+        </div>
+      )}
+
       <TeacherHeader />
       <TeacherFilters classes={classes} subjects={subjects} />
 
@@ -90,9 +96,9 @@ export function TeacherLessonsView({
           >
             <BookOpen size={40} style={{ color: 'var(--brand-accent)' }} />
           </div>
-          <h3 className="mb-2 text-xl font-semibold text-foreground">No Lessons Yet</h3>
+          <h3 className="mb-2 text-xl font-semibold text-foreground">No Lessons Found</h3>
           <p className="mx-auto mb-6 max-w-md text-sm text-muted-foreground">
-            You haven&apos;t created any lessons. Start by creating your first lesson!
+            You haven&apos;t created any lessons yet, or your search returned no results.
           </p>
           <Link
             href="/teacher/lessons/create"
@@ -100,7 +106,7 @@ export function TeacherLessonsView({
             style={{ backgroundColor: 'var(--brand-primary)' }}
           >
             <PlusCircle size={15} />
-            Create Your First Lesson
+            Create New Lesson
           </Link>
         </div>
       ) : (
@@ -116,7 +122,7 @@ export function TeacherLessonsView({
         </div>
       )}
 
-      <Pagination meta={meta} />
+      {lessons.length > 0 && <Pagination meta={meta} />}
       
       <ConfirmDialog
         open={deleteTarget !== null}
@@ -128,7 +134,6 @@ export function TeacherLessonsView({
         loading={isDeleting}
         onConfirm={confirmDelete}
       />
-
     </div>
   )
 }

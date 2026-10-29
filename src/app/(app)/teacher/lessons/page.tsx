@@ -36,7 +36,7 @@ export default async function TeacherLessonsPage({
       class_id: classId,
       subject_id: subjectId,
       page,
-      per_page: 12,
+      per_page: 10,
     }),
     listClassesServer(),
     listSubjectsServer(),
@@ -44,8 +44,8 @@ export default async function TeacherLessonsPage({
 
   return (
     <TeacherLessonsView
-      lessons={lessonsResult.lessons}
-      meta={lessonsResult.meta}
+      lessons={lessonsResult.lessons || []}
+      meta={lessonsResult.meta || { page: 1, per_page: 10, total: 0, last_page: 1 }}
       classes={classes}
       subjects={subjects}
     />
