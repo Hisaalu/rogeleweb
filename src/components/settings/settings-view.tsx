@@ -1,15 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { ShieldCheck, Lock, LogOut, Loader2, Eye, EyeOff, Trash2, AlertTriangle } from 'lucide-react'
+import { ShieldCheck, Lock, Loader2, Eye, EyeOff, Trash2, AlertTriangle, Settings } from 'lucide-react'
 import { changePasswordClient } from '@/lib/settings.client'
-import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/toast-provider'
 
 export function SettingsView({ role }: { role: string }) {
-  const router = useRouter()
   const { showToast } = useToast()
   
   const [currentPassword, setCurrentPassword] = useState('')
@@ -21,9 +18,6 @@ export function SettingsView({ role }: { role: string }) {
   const [showConfirm, setShowConfirm] = useState(false)
   
   const [busy, setBusy] = useState(false)
-  
-  const [logoutOpen, setLogoutOpen] = useState(false)
-  const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   async function handlePasswordChange(e: React.FormEvent) {
     e.preventDefault()
@@ -55,22 +49,14 @@ export function SettingsView({ role }: { role: string }) {
     }
   }
 
-  async function handleLogout() {
-    setIsLoggingOut(true)
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' })
-      router.replace('/login')
-      router.refresh()
-    } catch {
-      showToast('Failed to log out', 'error')
-      setIsLoggingOut(false)
-    }
-  }
-
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-3 py-6 sm:space-y-8 sm:px-4 sm:py-8">
+      
       <div>
-        <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">Settings</h1>
+        <h1 className="flex items-center gap-2 text-xl font-bold sm:text-2xl lg:text-3xl" style={{ color: 'var(--brand-primary)' }}>
+          <Settings size={26} className="shrink-0 sm:h-7 sm:w-7" />
+          <span>Settings</span>
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">Manage your account security and preferences</p>
       </div>
 
@@ -148,7 +134,7 @@ export function SettingsView({ role }: { role: string }) {
                 disabled={busy} 
                 className="w-full sm:w-auto"
               >
-                {busy && <Loader2 size={16} className="animate-spin" />}
+                {busy && <Loader2 size={16} className="animate-spin mr-2" />}
                 Update Password
               </Button>
             </div>
@@ -161,21 +147,7 @@ export function SettingsView({ role }: { role: string }) {
             Account Security
           </h2>
 
-          <div className="flex flex-col items-start justify-between gap-4 rounded-xl bg-muted/30 p-5 sm:flex-row sm:items-center">
-            <div>
-              <p className="font-semibold text-foreground">Sign out of your account</p>
-              <p className="text-sm text-muted-foreground">You will be required to log in again to access your dashboard.</p>
-            </div>
-            <Button 
-              variant="outline"
-              onClick={() => setLogoutOpen(true)}
-              className="w-full shrink-0 sm:w-auto"
-            >
-              <LogOut size={16} /> Log Out
-            </Button>
-          </div>
-
-          <div className="mt-6 flex flex-col items-start justify-between gap-4 rounded-xl border border-danger-border/40 bg-danger-bg/30 p-5 opacity-50 cursor-not-allowed sm:flex-row sm:items-center">
+          <div className="flex flex-col items-start justify-between gap-4 rounded-xl border border-danger-border/40 bg-danger-bg/30 p-5 opacity-50 cursor-not-allowed sm:flex-row sm:items-center">
             <div>
               <p className="flex items-center gap-2 font-semibold text-danger-fg">
                 <AlertTriangle size={16} /> Delete account
@@ -194,17 +166,6 @@ export function SettingsView({ role }: { role: string }) {
           </div>
         </div>
       </div>
-
-      <ConfirmDialog
-        open={logoutOpen}
-        onOpenChange={setLogoutOpen}
-        title="Log out of account"
-        description="Are you sure you want to log out? Any unsaved changes will be lost."
-        confirmLabel="Log out"
-        destructive
-        loading={isLoggingOut}
-        onConfirm={handleLogout}
-      />
     </div>
   )
 }
