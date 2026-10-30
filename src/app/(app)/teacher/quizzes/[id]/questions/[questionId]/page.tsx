@@ -1,8 +1,14 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { getQuizServer, listQuestionsServer } from '@/lib/quizzes.server'
 import { EditQuestionForm } from './edit-question-form'
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+export const metadata: Metadata = { title: 'Edit Question' }
 
 export default async function EditQuestionPage({ params }: { params: { id: string, questionId: string } }) {
   const quizId = Number(params.id)

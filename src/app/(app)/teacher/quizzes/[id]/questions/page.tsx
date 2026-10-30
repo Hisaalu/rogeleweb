@@ -1,7 +1,13 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, CheckCircle2, Edit, PlusCircle } from 'lucide-react'
 import { getQuizServer, listQuestionsServer } from '@/lib/quizzes.server'
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+export const metadata: Metadata = { title: 'Manage Questions' }
 
 export default async function ManageQuestionsPage({ params }: { params: { id: string } }) {
   const id = Number(params.id)
@@ -33,7 +39,6 @@ export default async function ManageQuestionsPage({ params }: { params: { id: st
       ) : (
         <div className="space-y-4">
           {questions.map((q, idx) => {
-            // Ensure we always have an array to map over
             const safeOptions = q.options || []
             
             return (

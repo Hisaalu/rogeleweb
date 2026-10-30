@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import {
   ArrowLeft,
@@ -13,6 +13,7 @@ import {
   AlertTriangle,
   Trash2,
   BarChart2,
+  Download,
 } from 'lucide-react'
 import type { Quiz, QuizAttempt } from '@/types/quiz'
 import { useToast } from '@/components/ui/toast-provider'
@@ -26,6 +27,7 @@ function formatDate(iso: string | null | undefined) {
   return d.toLocaleString('en-US', {
     month: 'short',
     day: 'numeric',
+    year: 'numeric',
     hour: 'numeric',
     minute: '2-digit',
   })
@@ -36,23 +38,6 @@ function formatDuration(seconds: number | null | undefined) {
   const m = Math.floor(seconds / 60)
   const s = seconds % 60
   return `${m}m ${s.toString().padStart(2, '0')}s`
-}
-
-async function fetchAttempts(quizId: number): Promise<QuizAttempt[]> {
-  try {
-    const res = await fetch(`/api/proxy/quizzes/${quizId}/attempts`, {
-      headers: { Accept: 'application/json' },
-      cache: 'no-store',
-    })
-    if (!res.ok) return []
-    const data = await res.json()
-    if (Array.isArray(data)) return data as QuizAttempt[]
-    if (Array.isArray(data?.data)) return data.data as QuizAttempt[]
-    if (Array.isArray(data?.value)) return data.value as QuizAttempt[]
-    return []
-  } catch {
-    return []
-  }
 }
 
 async function deleteAllAttempts(quizId: number): Promise<boolean> {
@@ -66,25 +51,11 @@ async function deleteAllAttempts(quizId: number): Promise<boolean> {
   }
 }
 
-export function ResultsView({ quiz }: { quiz: Quiz }) {
+export function ResultsView({ quiz, initialAttempts }: { quiz: Quiz, initialAttempts: QuizAttempt[] }) {
   const { showToast } = useToast()
-  const [attempts, setAttempts] = useState<QuizAttempt[]>([])
-  const [loading, setLoading] = useState(true)
+  const [attempts, setAttempts] = useState<QuizAttempt[]>(initialAttempts)
   const [clearing, setClearing] = useState(false)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
-
-  useEffect(() => {
-    let mounted = true
-    fetchAttempts(quiz.id).then((list) => {
-      if (mounted) {
-        setAttempts(list)
-        setLoading(false)
-      }
-    })
-    return () => {
-      mounted = false
-    }
-  }, [quiz.id])
 
   const total = attempts.length
   const completed = attempts.filter((a) => a.status === 'completed')
@@ -102,6 +73,33 @@ export function ResultsView({ quiz }: { quiz: Quiz }) {
         )
       : 0
   const passRate = completed.length > 0 ? Math.round((passed.length / completed.length) * 100) : 0
+
+  function handleExport() {
+    if (completed.length === 0) return
+
+    const headers = ['Student Name', 'Email', 'Score', 'Result', 'Time Taken', 'Completed At']
+    const rows = completed.map((a) => {
+      const name = [a.student_first_name, a.student_last_name].filter(Boolean).join(' ') || `User #${a.user_id}`
+      const isPassed = (a.score ?? 0) >= (quiz.passing_score ?? 70)
+      return [
+        `"${name}"`,
+        a.student_email || 'N/A',
+        `${a.score ?? 0}%`,
+        isPassed ? 'Passed' : 'Failed',
+        formatDuration(a.time_taken),
+        a.completed_at ? formatDate(a.completed_at) : 'N/A'
+      ]
+    })
+
+    const csv = [headers, ...rows].map((r) => r.join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${quiz.title.replace(/\s+/g, '_')}_results.csv`
+    link.click()
+    URL.revokeObjectURL(url)
+  }
 
   async function handleClearAll() {
     setClearing(true)
@@ -141,7 +139,12 @@ export function ResultsView({ quiz }: { quiz: Quiz }) {
           </p>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          {completed.length > 0 && (
+            <Button variant="outline" onClick={handleExport}>
+              <Download size={15} className="mr-2" /> Export CSV
+            </Button>
+          )}
           <Link href={`/teacher/quizzes/${quiz.id}/preview`}>
             <Button variant="outline">
               <BarChart2 size={15} className="mr-2" /> Preview Quiz
@@ -187,11 +190,7 @@ export function ResultsView({ quiz }: { quiz: Quiz }) {
         />
       </div>
 
-      {loading ? (
-        <div className="flex h-40 items-center justify-center">
-          <Loader2 className="animate-spin" size={28} style={{ color: 'var(--brand-accent)' }} />
-        </div>
-      ) : attempts.length === 0 ? (
+      {attempts.length === 0 ? (
         <Card className="border-dashed px-6 py-16 text-center">
           <Users size={48} className="mx-auto mb-4 opacity-30" style={{ color: 'var(--brand-accent)' }} />
           <h3 className="text-lg font-bold text-foreground">No Attempts Yet</h3>

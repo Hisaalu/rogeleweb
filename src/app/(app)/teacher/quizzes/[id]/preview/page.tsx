@@ -1,17 +1,13 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { 
-  ArrowLeft, 
-  Edit, 
-  HelpCircle, 
-  Clock, 
-  Trophy, 
-  Calendar, 
-  RefreshCw, 
-  CheckCircle2,
-  Eye
-} from 'lucide-react'
+import { ArrowLeft, Edit, HelpCircle, Clock, Trophy, Calendar, RefreshCw, CheckCircle2, Eye } from 'lucide-react'
 import { getQuizServer, listQuestionsServer } from '@/lib/quizzes.server'
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+export const metadata: Metadata = { title: 'Preview Quiz' }
 
 export default async function PreviewQuizPage({ params }: { params: { id: string } }) {
   const id = Number(params.id)

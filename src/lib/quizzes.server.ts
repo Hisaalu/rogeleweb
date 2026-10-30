@@ -177,3 +177,16 @@ export async function listMyAttemptsServer(): Promise<QuizAttempt[]> {
     return []
   }
 }
+
+export async function getAttemptsServer(quizId: number): Promise<QuizAttempt[]> {
+  try {
+    const res = await serverApiRequest<unknown>(`/api/v1/quizzes/${quizId}/attempts`)
+    if (Array.isArray(res)) return res as QuizAttempt[]
+    const r = (res ?? {}) as { data?: QuizAttempt[]; value?: QuizAttempt[] }
+    if (Array.isArray(r.data)) return r.data
+    if (Array.isArray(r.value)) return r.value
+    return []
+  } catch {
+    return []
+  }
+}

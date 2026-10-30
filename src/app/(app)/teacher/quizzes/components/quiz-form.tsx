@@ -63,7 +63,15 @@ export function QuizForm({
         body: JSON.stringify(payload)
       })
       
-      if (!res.ok) throw new Error('Failed to save quiz')
+      if (!res.ok) {
+        const text = await res.text()
+        let msg = 'Failed to save quiz'
+        try {
+          const data = JSON.parse(text)
+          msg = data.error?.message || data.message || msg
+        } catch { }
+        throw new Error(msg)
+      }
       
       showToast(mode === 'create' ? 'Quiz created successfully' : 'Quiz updated successfully', 'success')
       setTimeout(() => {

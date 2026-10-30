@@ -12,10 +12,12 @@ export function EditQuestionForm({ quizId, question }: { quizId: number, questio
   const [busy, setBusy] = useState(false)
   
   const [text, setText] = useState(question.question_text)
+  
   const [optA, setOptA] = useState(question.option_a || '')
   const [optB, setOptB] = useState(question.option_b || '')
   const [optC, setOptC] = useState(question.option_c || '')
   const [optD, setOptD] = useState(question.option_d || '')
+  
   const [correct, setCorrect] = useState(['A','B','C','D'][question.correct_option] || 'A')
   const [points, setPoints] = useState(question.points)
   const [explanation, setExplanation] = useState(question.explanation || '')
@@ -40,15 +42,24 @@ export function EditQuestionForm({ quizId, question }: { quizId: number, questio
         })
       })
       
-      if (!res.ok) throw new Error('Failed to update question')
+      if (!res.ok) {
+        const errText = await res.text()
+        let msg = 'Failed to update question'
+        try {
+          const data = JSON.parse(errText)
+          msg = data.error?.message || data.message || msg
+        } catch { }
+        throw new Error(msg)
+      }
       
       showToast('Question updated successfully', 'success')
       setTimeout(() => {
         router.push(`/teacher/quizzes/${quizId}/questions`)
         router.refresh()
       }, 1000)
-    } catch {
-      showToast('Error updating question', 'error')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Error updating question'
+      showToast(message, 'error')
       setBusy(false)
     }
   }
@@ -89,7 +100,6 @@ export function EditQuestionForm({ quizId, question }: { quizId: number, questio
           <Save size={15} /> {busy ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
-      
     </form>
   )
 }
