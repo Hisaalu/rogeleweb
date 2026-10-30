@@ -48,7 +48,6 @@ export function TeacherDashboardView({
   return (
     <div className="mx-auto max-w-7xl space-y-6 pb-10 sm:space-y-8">
       
-      {/* Welcome Banner */}
       <div
         className="flex flex-col gap-4 rounded-md p-5 text-white shadow-lg sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-6 sm:p-8"
         style={{ backgroundColor: 'var(--brand-primary)' }}
@@ -72,7 +71,6 @@ export function TeacherDashboardView({
         </div>
       </div>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
         <StatCard icon={BookOpen} label="Total Lessons" value={data.totalLessons} />
         <StatCard icon={HelpCircle} label="Total Quizzes" value={data.totalQuizzes} />
@@ -84,7 +82,6 @@ export function TeacherDashboardView({
         />
       </div>
 
-      {/* Quick Actions */}
       <section>
         <h2 className="mb-3 text-lg font-semibold text-foreground sm:mb-4 sm:text-xl">
           Quick Actions
@@ -117,10 +114,8 @@ export function TeacherDashboardView({
         </div>
       </section>
 
-      {/* Recent Activity Lists */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 lg:gap-6">
         
-        {/* Recent Lessons */}
         <Card className="overflow-hidden">
           <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3.5 sm:px-6 sm:py-4">
             <h3 className="flex min-w-0 items-center gap-2 text-sm font-semibold text-foreground sm:text-base">
@@ -182,7 +177,6 @@ export function TeacherDashboardView({
           </div>
         </Card>
 
-        {/* Recent Quizzes */}
         <Card className="overflow-hidden">
           <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3.5 sm:px-6 sm:py-4">
             <h3 className="flex min-w-0 items-center gap-2 text-sm font-semibold text-foreground sm:text-base">
