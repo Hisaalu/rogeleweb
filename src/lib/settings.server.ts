@@ -20,8 +20,8 @@ async function fetchPublicSettingsRaw(): Promise<Record<string, string>> {
   const raw = data.settings ?? data.data ?? {}
   const result: Record<string, string> = {}
   for (const [key, value] of Object.entries(raw)) {
-    if (key.startsWith('branding.')) continue
     if (value == null) continue
+    if (key.startsWith('branding.') && key !== 'branding.school_name') continue
     result[key] = String(value)
   }
   return result
@@ -37,13 +37,10 @@ export async function listSettingsServer(): Promise<Setting[]> {
   try {
     const res = await serverApiRequest<unknown>('/api/v1/settings?per_page=100')
     if (!res) return []
-
     if (Array.isArray(res)) return res as Setting[]
-    
     const r = (res ?? {}) as { data?: Setting[]; value?: Setting[] }
     if (Array.isArray(r.data)) return r.data
     if (Array.isArray(r.value)) return r.value
-    
     return []
   } catch (err) {
     console.error('[settings] failed to fetch admin settings:', err)

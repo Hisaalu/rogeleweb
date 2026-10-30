@@ -2,7 +2,7 @@ import 'server-only'
 import { serverApiRequest } from './server-api'
 import type { SubscriptionPlan } from '@/types/subscription'
 
-const STAT_FLOORS = { students: 500, teachers: 30, lessons: 200 } as const
+const STAT_FLOORS = { students: 0, teachers: 0, lessons: 0 } as const
 const CLASS_RANGE_FLOOR = {
   first: 'Primary One',
   last: 'Primary Seven',
@@ -20,9 +20,9 @@ function withFloor(actual: number, floor: number): number {
 export async function getHomePageData() {
   try {
     const [plansRes, statsRes, classesRes] = await Promise.all([
-      serverApiRequest<any>('/api/v1/subscription-plans?per_page=100').catch(() => []),
-      serverApiRequest<any>('/api/v1/admin/stats').catch(() => null),
-      serverApiRequest<any>('/api/v1/classes?per_page=100').catch(() => []),
+      serverApiRequest<any>('/api/v1/subscription-plans?per_page=100', { next: { revalidate: 3600 } }).catch(() => []),
+      serverApiRequest<any>('/api/v1/admin/stats', { next: { revalidate: 300 } }).catch(() => null),
+      serverApiRequest<any>('/api/v1/classes?per_page=100&sort=name', { next: { revalidate: 3600 } }).catch(() => []),
     ])
 
     const rawPlans = Array.isArray(plansRes) ? plansRes : (plansRes?.data || [])
