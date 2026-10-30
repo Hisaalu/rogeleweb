@@ -153,7 +153,6 @@ export function AnalyticsView({
   const [isFetching, setIsFetching] = useState(false)
 
   const abortRef = useRef<AbortController | null>(null)
-
   const isFirstRun = useRef(true)
 
   useEffect(() => {
@@ -195,7 +194,10 @@ export function AnalyticsView({
   )
 
   const totalEnrollment = enrollment?.total || 0
-  const averageScore = initialTeacherOverview?.average_score ?? 0
+  const averageScore = initialTeacherOverview?.average_score != null 
+    ? `${Math.round(initialTeacherOverview.average_score)}%` 
+    : 'N/A'
+  
   const atRiskCount = atRisk?.summary?.at_risk || 0
 
   const enrollmentChartData = useMemo(() => {
@@ -324,7 +326,7 @@ export function AnalyticsView({
         <StatCard
           icon={TrendingUp}
           label="True Class Average"
-          value={`${Math.round(averageScore)}%`}
+          value={averageScore}
         />
         <StatCard
           icon={AlertTriangle}

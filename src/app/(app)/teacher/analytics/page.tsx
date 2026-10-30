@@ -7,6 +7,7 @@ import type { TeacherOverview } from '@/lib/analytics.client'
 
 export const metadata: Metadata = { title: 'Analytics' }
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 const ANALYTICS_URL = process.env.ANALYTICS_API_URL ?? 'http://localhost:9000'
 
@@ -51,7 +52,7 @@ export default async function TeacherAnalyticsPage({
   const [statsRes, lessonsRes, classCountsRes, enrollment, atRisk, teacherOverview] =
     await Promise.all([
       serverApiRequest<any>('/api/v1/admin/stats').catch(() => null),
-      serverApiRequest<any>('/api/v1/lessons?per_page=100').catch(() => []),
+      serverApiRequest<any>('/api/v1/lessons?per_page=5&sort=-views').catch(() => []),
       getLearnersByClassServer().catch(() => []),
       fetchPython<any>('enrollment-trend', { from, to, interval: 'day' }),
       fetchPython<any>('at-risk-learners', { limit: '50' }),
