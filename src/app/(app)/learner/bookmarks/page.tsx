@@ -3,6 +3,9 @@ import { listBookmarksServer } from '@/lib/lessons.server'
 import { PremiumGate } from '@/components/premium-gate'
 import { BookmarksView } from './bookmarks-view'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export const metadata: Metadata = {
   title: 'Bookmarks',
 }
