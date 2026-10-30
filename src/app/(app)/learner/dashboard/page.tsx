@@ -7,6 +7,7 @@ import { LearnerDashboardView } from './learner-dashboard-view'
 
 export const metadata: Metadata = { title: 'Dashboard' }
 export const dynamic = 'force-dynamic'
+export const revalidate = 0 // Forces fresh execution on every request, disabling route cache
 
 export default async function LearnerDashboardPage() {
   const session = await getSessionUser()

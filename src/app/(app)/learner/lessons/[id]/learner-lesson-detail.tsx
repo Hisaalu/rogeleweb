@@ -88,7 +88,7 @@ export function LearnerLessonDetail({
           className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition hover:text-foreground"
         >
           <ArrowLeft size={14} />
-          Back to Lessons
+          Lessons
         </Link>
 
         <Button

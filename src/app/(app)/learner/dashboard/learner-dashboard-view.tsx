@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { BookOpen, HelpCircle, CreditCard, Calendar, Clock } from 'lucide-react'
 import type { User } from '@/types/api'
@@ -29,7 +30,12 @@ export function LearnerDashboardView({
   trial: TrialStatus | null
   events: CalendarEvent[]
 }) {
+  const router = useRouter()
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
+
+  useEffect(() => {
+    router.refresh()
+  }, [router])
 
   const firstName = profile?.first_name ?? 'there'
   const hasActiveSubscription = subscription?.status === 'active'
