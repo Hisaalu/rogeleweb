@@ -5,8 +5,10 @@ import { PremiumGate } from '@/components/premium-gate'
 import { ErrorToaster } from '@/components/error-toaster'
 import { LearnerHomeworkView } from './learner-homework-view'
 
-export const metadata: Metadata = { title: 'Homework' }
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+export const metadata: Metadata = { title: 'Homework' }
 
 export default async function LearnerHomeworkPage({
   searchParams,
@@ -22,22 +24,14 @@ export default async function LearnerHomeworkPage({
       ? searchParams.locked
       : null
 
-  const { homeworks: allHomeworks } = await listHomeworksServer({
+  const { homeworks } = await listHomeworksServer({
     class_id: session.class_id ?? undefined,
-  })
-
-  const now = new Date().getTime()
-  const HOURS_24 = 24 * 60 * 60 * 1000
-
-  const visibleHomeworks = allHomeworks.filter((hw) => {
-    const dueDate = new Date(hw.due_date).getTime()
-    return dueDate >= now - HOURS_24
   })
 
   return (
     <>
       <ErrorToaster />
-      <LearnerHomeworkView homeworks={visibleHomeworks} />
+      <LearnerHomeworkView homeworks={homeworks} />
       {lockedReason && (
         <PremiumGate open context="homework" reason={lockedReason} />
       )}

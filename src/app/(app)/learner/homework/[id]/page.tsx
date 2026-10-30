@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import type { Metadata } from 'next'
 import { getHomeworkServer, listAttachmentsServer } from '@/lib/homework.server'
 import { getSessionUser } from '@/lib/auth'
 import { serverApiRequest } from '@/lib/server-api'
@@ -9,6 +10,11 @@ import {
 import { getAccessReason } from '@/lib/access'
 import type { HomeworkSubmission } from '@/types/homework'
 import { LearnerHomeworkDetail } from './learner-homework-detail'
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+export const metadata: Metadata = { title: 'Homework' }
 
 export default async function LearnerHomeworkDetailPage({
   params,
@@ -37,7 +43,7 @@ export default async function LearnerHomeworkDetailPage({
     getHomeworkServer(id),
     listAttachmentsServer(id),
   ])
-  
+
   if (!hw) {
     redirect('/learner/homework?error=not_found')
   }
@@ -45,13 +51,12 @@ export default async function LearnerHomeworkDetailPage({
   let submission: HomeworkSubmission | null = null
   try {
     const res = await serverApiRequest<unknown>(
-      `/api/v1/homework/${id}/submissions`,
+      '/api/v1/homework/my-submissions',
     )
-    const allSubmissions = Array.isArray(res)
+    const all = Array.isArray(res)
       ? (res as HomeworkSubmission[])
       : ((res as { data?: HomeworkSubmission[] }).data ?? [])
-    submission =
-      allSubmissions.find((s) => s.student_id === session.id) ?? null
+    submission = all.find((s) => s.homework_id === id) ?? null
   } catch {
     submission = null
   }
