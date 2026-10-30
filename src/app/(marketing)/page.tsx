@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { getHomePageData } from '@/lib/home.server'
-import { fetchPublicSettings } from '@/lib/settings.server.public'
+import { fetchPublicSettings } from '@/lib/settings.server'
 import { PlanCard } from '@/components/subscription/plan-card'
 import {
   ArrowRight,

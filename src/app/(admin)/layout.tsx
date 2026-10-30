@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { getSessionUser } from '@/lib/auth'
-import { fetchPublicSettings } from '@/lib/settings.server.public'
+import { fetchPublicSettings } from '@/lib/settings.server'
 import { AdminShell } from './admin/admin-shell'
 
 export async function generateMetadata(): Promise<Metadata> {

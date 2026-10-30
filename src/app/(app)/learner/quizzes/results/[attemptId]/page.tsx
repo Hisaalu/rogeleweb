@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { getAttemptServer, getQuizServer } from '@/lib/quizzes.server'
-import { fetchPublicSettings } from '@/lib/settings.server.public'
+import { fetchPublicSettings } from '@/lib/settings.server'
 import { ResultView } from './result-view'
 
 export const dynamic = 'force-dynamic'

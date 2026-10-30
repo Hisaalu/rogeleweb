@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { fetchPublicSettings } from '@/lib/settings.server.public'
+import { fetchPublicSettings } from '@/lib/settings.server'
 import { ForgotPasswordForm } from './forgot-password-form'
 
 export async function generateMetadata(): Promise<Metadata> {

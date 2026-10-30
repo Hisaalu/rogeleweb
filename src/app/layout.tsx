@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import { fetchBranding } from '@/lib/branding'
-import { fetchPublicSettings } from '@/lib/settings.server.public'
+import { fetchPublicSettings } from '@/lib/settings.server'
 import { BrandingProvider } from '@/components/brand/brand-provider'
 import { SettingsProvider } from '@/components/settings/settings-provider'
 import { ThemeProvider } from '@/components/theme-provider'

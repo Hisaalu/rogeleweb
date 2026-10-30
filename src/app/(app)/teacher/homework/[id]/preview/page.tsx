@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { ArrowLeft, Edit, Users, GraduationCap, Book, Calendar, Paperclip, Download, Eye, FileText } from 'lucide-react'
 import { getHomeworkServer, listAttachmentsServer } from '@/lib/homework.server'
 import { materialDownloadUrl, formatFileSize } from '@/lib/materials'
-import { fetchPublicSettings } from '@/lib/settings.server.public'
+import { fetchPublicSettings } from '@/lib/settings.server'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0

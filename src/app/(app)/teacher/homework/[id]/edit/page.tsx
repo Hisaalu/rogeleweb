@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getHomeworkServer, listAttachmentsServer } from '@/lib/homework.server'
 import { listClassesServer, listSubjectsServer } from '@/lib/lessons.server'
-import { fetchPublicSettings } from '@/lib/settings.server.public'
+import { fetchPublicSettings } from '@/lib/settings.server'
 import { HomeworkForm } from '../../components/homework-form'
 
 export const dynamic = 'force-dynamic'

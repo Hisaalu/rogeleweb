@@ -5,7 +5,7 @@ import {
   getActiveSubscriptionServer,
 } from '@/lib/dashboard.server'
 import { getAccessReason } from '@/lib/access'
-import { fetchPublicSettings } from '@/lib/settings.server.public'
+import { fetchPublicSettings } from '@/lib/settings.server'
 import { TakeQuizView } from './take-quiz-view'
 import type { Metadata } from 'next'
 

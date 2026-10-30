@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { fetchPublicSettings } from '@/lib/settings.server.public'
+import { fetchPublicSettings } from '@/lib/settings.server'
 import { ContactForm } from './contact-form'
 import { Mail, Phone, MapPin, Clock } from 'lucide-react'
 

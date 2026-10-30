@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { FileText } from 'lucide-react'
-import { fetchPublicSettings } from '@/lib/settings.server.public'
+import { fetchPublicSettings } from '@/lib/settings.server'
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await fetchPublicSettings()

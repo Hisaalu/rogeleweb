@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { serverApiRequest } from '@/lib/server-api'
-import { fetchPublicSettings } from '@/lib/settings.server.public'
+import { fetchPublicSettings } from '@/lib/settings.server'
 import type { Class } from '@/types/admin'
 import { RegisterForm } from './register-form'
 

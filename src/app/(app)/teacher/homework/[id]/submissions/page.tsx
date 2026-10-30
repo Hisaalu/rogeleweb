@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getHomeworkServer, listSubmissionsServer } from '@/lib/homework.server'
-import { fetchPublicSettings } from '@/lib/settings.server.public'
+import { fetchPublicSettings } from '@/lib/settings.server'
 import { SubmissionsView } from './submissions-view'
 
 export const dynamic = 'force-dynamic'
