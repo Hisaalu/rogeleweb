@@ -91,15 +91,10 @@ export function NotificationBell({
   }, [open])
 
   function handleNotificationClick(notification: any) {
-    // 1. Mark as read if not already
     if (!notification.is_read) {
       markOneMutation.mutate(notification.id)
     }
-    
-    // 2. Close the tray
     setOpen(false)
-    
-    // 3. Route to the specific link if it exists, otherwise go to the main notifications page
     if (notification.link) {
       router.push(notification.link)
     } else {
@@ -127,8 +122,8 @@ export function NotificationBell({
         role="menu"
         className={cn(
           'relative pointer-events-auto flex flex-col bg-card shadow-2xl border border-border overflow-hidden',
-          'w-full max-h-[85vh] rounded-t-2xl rounded-b-none',
-          'sm:w-[380px] sm:max-h-[calc(100vh-90px)] sm:rounded-2xl sm:border-border'
+          'w-full max-h-[85vh] rounded-t-md rounded-b-none',
+          'sm:w-[380px] sm:max-h-[calc(100vh-90px)] sm:rounded-md sm:border-border'
         )}
       >
         <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3 sm:px-5 sm:py-4">
@@ -179,7 +174,7 @@ export function NotificationBell({
         <div className="shrink-0 border-t border-border p-2">
           <button
             onClick={handleViewAll}
-            className="block w-full rounded-lg py-2.5 text-center text-sm font-semibold transition hover:bg-muted"
+            className="block w-full rounded-md py-2.5 text-center text-sm font-semibold transition hover:bg-muted"
             style={{ color: 'var(--brand-primary)' }}
           >
             View all notifications
