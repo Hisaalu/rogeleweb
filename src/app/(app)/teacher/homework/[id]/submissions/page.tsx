@@ -1,13 +1,20 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getHomeworkServer, listSubmissionsServer } from '@/lib/homework.server'
 import { fetchPublicSettings } from '@/lib/settings.server.public'
 import { SubmissionsView } from './submissions-view'
-import type { Metadata } from 'next'
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await fetchPublicSettings()
-  const siteTitle = settings['site.browser_title'] || 'NexaT'
-  return { title: `Submissions` }
+  try {
+    const settings = await fetchPublicSettings()
+    const siteTitle = settings['site.browser_title']?.trim() || 'NexaT'
+    return { title: `Submissions | ${siteTitle}` }
+  } catch {
+    return { title: 'Submissions' }
+  }
 }
 
 export default async function HomeworkSubmissionsPage({ params }: { params: { id: string } }) {

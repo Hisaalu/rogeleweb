@@ -3,8 +3,10 @@ import { listHomeworksServer } from '@/lib/homework.server'
 import { listClassesServer } from '@/lib/lessons.server'
 import { HomeworkListView } from './homework-list-view'
 
-export const metadata: Metadata = { title: 'Manage Homework' }
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+export const metadata: Metadata = { title: 'Manage Homework' }
 
 export default async function TeacherHomeworkPage({ 
   searchParams 

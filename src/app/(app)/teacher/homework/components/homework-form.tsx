@@ -68,19 +68,30 @@ export function HomeworkForm({
       if (mode === 'create') {
         const created = await createHomeworkClient(payload)
         homeworkId = created.id
-        showToast('Homework created successfully!', 'success')
       } else if (initial) {
         await updateHomeworkClient(initial.id, payload)
         homeworkId = initial.id
-        showToast('Homework updated successfully!', 'success')
       } else {
         throw new Error('Invalid mode')
       }
 
+      const failedFiles: string[] = []
       for (const file of files) {
-        await addHomeworkAttachmentClient(homeworkId, file)
+        try {
+          await addHomeworkAttachmentClient(homeworkId, file)
+        } catch {
+          failedFiles.push(file.name)
+        }
       }
 
+      if (failedFiles.length > 0) {
+        showToast(`Homework saved, but failed to upload: ${failedFiles.join(', ')}`, 'error')
+        setBusy(false)
+        setFiles(prev => prev.filter(f => failedFiles.includes(f.name)))
+        return
+      }
+
+      showToast(mode === 'create' ? 'Homework created successfully!' : 'Homework updated successfully!', 'success')
       setTimeout(() => {
         router.push('/teacher/homework')
         router.refresh()
@@ -164,7 +175,7 @@ export function HomeworkForm({
                     <div className="flex items-center gap-2 overflow-hidden">
                       <Paperclip size={14} style={{ color: 'var(--brand-accent)' }} className="shrink-0" />
                       <span className="truncate font-medium">{a.file_name}</span>
-                      <span className="text-xs text-muted-foreground shrink-0">({(a.file_size / 1024).toFixed(2)} KB)</span>
+                      <span className="text-xs text-muted-foreground shrink-0">({(a.file_size ? a.file_size / 1024 : 0).toFixed(2)} KB)</span>
                     </div>
                     <button type="button" onClick={() => setDeleteTarget(a.id)} className="shrink-0 transition hover:opacity-70" style={{ color: 'var(--danger-fg)' }}><Trash2 size={15} /></button>
                   </li>

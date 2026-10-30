@@ -1,15 +1,22 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Edit, Users, GraduationCap, Book, Calendar, Paperclip, Download, Eye, FileText } from 'lucide-react'
 import { getHomeworkServer, listAttachmentsServer } from '@/lib/homework.server'
 import { materialDownloadUrl, formatFileSize } from '@/lib/materials'
 import { fetchPublicSettings } from '@/lib/settings.server.public'
-import type { Metadata } from 'next'
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await fetchPublicSettings()
-  const siteTitle = settings['site.browser_title'] || 'NexaT'
-  return { title: `Preview Homework` }
+  try {
+    const settings = await fetchPublicSettings()
+    const siteTitle = settings['site.browser_title']?.trim() || 'NexaT'
+    return { title: `Preview Homework | ${siteTitle}` }
+  } catch {
+    return { title: 'Preview Homework' }
+  }
 }
 
 export default async function PreviewHomeworkPage({ params }: { params: { id: string } }) {

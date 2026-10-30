@@ -49,17 +49,25 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
   }
 
   function downloadCSV() {
+    if (submissions.length === 0) return
+    
     const headers = ['Student', 'Email', 'Status', 'Grade (%)', 'Submitted At', 'Feedback']
-    const rows = submissions.map(s => [
-      `${s.student_first_name || ''} ${s.student_last_name || ''}`.trim() || 'Student',
-      s.student_email || '',
-      s.status,
-      s.grade ?? 'N/A',
-      s.submitted_at ? new Date(s.submitted_at).toLocaleString() : '',
-      s.feedback || ''
-    ])
-    const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n')
-    const blob = new Blob([csv], { type: 'text/csv' })
+    const rows = submissions.map(s => {
+      const studentName = `${s.student_first_name || ''} ${s.student_last_name || ''}`.trim() || 'Student'
+      
+      // Escape double quotes inside the fields for valid CSV
+      return [
+        `"${studentName}"`,
+        `"${s.student_email || ''}"`,
+        `"${s.status}"`,
+        `"${s.grade ?? 'N/A'}"`,
+        `"${s.submitted_at ? new Date(s.submitted_at).toLocaleString() : ''}"`,
+        `"${(s.feedback || '').replace(/"/g, '""')}"`
+      ]
+    })
+    
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -111,13 +119,13 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
                   </div>
                   <div>
                     <span 
-                      className="rounded-full px-3 py-1 text-xs font-semibold"
+                      className="rounded-full px-3 py-1 text-xs font-semibold capitalize"
                       style={{
                         backgroundColor: sub.status === 'graded' ? 'var(--success-bg)' : sub.status === 'late' ? 'var(--warning-bg)' : 'var(--brand-primary)',
                         color: sub.status === 'graded' ? 'var(--success-fg)' : sub.status === 'late' ? 'var(--warning-fg)' : 'white'
                       }}
                     >
-                      {sub.status.charAt(0).toUpperCase() + sub.status.slice(1)}
+                      {sub.status.replace('_', ' ')}
                     </span>
                   </div>
                 </div>
@@ -139,50 +147,80 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
                 {sub.files && sub.files.length > 0 && (
                   <div className="mt-4">
                     <p className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Attachments</p>
-                    <div className="space-y-2">
+                    <div className="flex flex-wrap gap-2">
                       {sub.files.map(f => (
-                        <a key={f.id} href={materialDownloadUrl(f.file_path)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm hover:underline" style={{ color: 'var(--brand-primary)' }}>
-                          <Download size={14} /> {f.file_name} <span className="text-xs text-muted-foreground">({formatFileSize(f.file_size)})</span>
+                        <a key={f.id} href={materialDownloadUrl(f.file_path)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-1.5 text-sm transition hover:border-brand-accent hover:bg-muted">
+                          <Download size={14} style={{ color: 'var(--brand-accent)' }} /> 
+                          <span className="font-medium text-foreground max-w-[150px] truncate">{f.file_name}</span>
+                          <span className="text-xs text-muted-foreground">({formatFileSize(f.file_size)})</span>
                         </a>
                       ))}
                     </div>
                   </div>
                 )}
 
-                <div className="mt-4 rounded-md bg-muted/30 p-4">
+                <div className="mt-5 rounded-md border border-border bg-muted/30 p-4">
                   {!isEditing && sub.status === 'graded' ? (
                     <div>
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-foreground">Grade: <span style={{ color: passed ? 'var(--success-fg)' : 'var(--danger-fg)' }}>{sub.grade}%</span></span>
+                          <span className="text-sm font-semibold text-muted-foreground">Final Grade:</span>
+                          <span className="text-lg font-bold" style={{ color: passed ? 'var(--success-fg)' : 'var(--danger-fg)' }}>{sub.grade}%</span>
                         </div>
                         <Button 
                           variant="outline"
                           size="sm"
-                          onClick={() => { setEditingId(sub.id); setGrades({...grades, [sub.id]: String(sub.grade)}); setFeedbacks({...feedbacks, [sub.id]: sub.feedback || ''}) }} 
+                          onClick={() => { 
+                            setEditingId(sub.id)
+                            setGrades({...grades, [sub.id]: String(sub.grade ?? '')})
+                            setFeedbacks({...feedbacks, [sub.id]: sub.feedback || ''}) 
+                          }} 
                         >
                           <Edit2 size={12} className="mr-2" /> Edit Grade
                         </Button>
                       </div>
-                      {sub.feedback && <p className="mt-2 text-sm text-muted-foreground"><strong className="text-foreground">Feedback:</strong> {sub.feedback}</p>}
+                      {sub.feedback && (
+                        <div className="mt-3">
+                          <p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Feedback</p>
+                          <p className="text-sm text-foreground">{sub.feedback}</p>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="space-y-3">
                       <div className="space-y-1.5">
                         <label className="block text-xs font-semibold text-foreground">Grade (%)</label>
-                        <Input type="number" min={0} max={100} value={grades[sub.id] || ''} onChange={e => setGrades({...grades, [sub.id]: e.target.value})} className="w-32" placeholder="0-100" />
+                        <Input type="number" min={0} max={100} value={grades[sub.id] || ''} onChange={e => setGrades({...grades, [sub.id]: e.target.value})} className="w-32 bg-background" placeholder="0-100" />
                       </div>
                       <div className="space-y-1.5">
-                        <label className="block text-xs font-semibold text-foreground">Feedback</label>
-                        <textarea value={feedbacks[sub.id] || ''} onChange={e => setFeedbacks({...feedbacks, [sub.id]: e.target.value})} rows={2} className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent/25" placeholder="Provide feedback..." />
+                        <label className="block text-xs font-semibold text-foreground">Feedback (Optional)</label>
+                        <textarea 
+                          value={feedbacks[sub.id] || ''} 
+                          onChange={e => setFeedbacks({...feedbacks, [sub.id]: e.target.value})} 
+                          rows={3} 
+                          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent/25" 
+                          placeholder="Provide feedback to the student..." 
+                        />
                       </div>
-                      <Button 
-                        onClick={() => handleGrade(sub.id)} 
-                        disabled={busyId === sub.id} 
-                        size="sm"
-                      >
-                        <Save size={14} className="mr-2" /> {busyId === sub.id ? 'Saving...' : 'Save Grade'}
-                      </Button>
+                      <div className="flex items-center gap-2 pt-2">
+                        <Button 
+                          onClick={() => handleGrade(sub.id)} 
+                          disabled={busyId === sub.id} 
+                          size="sm"
+                        >
+                          <Save size={14} className="mr-2" /> {busyId === sub.id ? 'Saving...' : 'Save Grade'}
+                        </Button>
+                        {isEditing && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => setEditingId(null)}
+                            disabled={busyId === sub.id}
+                          >
+                            Cancel
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
