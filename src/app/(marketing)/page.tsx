@@ -23,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
     const settings = await fetchPublicSettings()
     const siteTitle = settings['site.browser_title']?.trim() || 'NexaT'
     return {
-      title: `${siteTitle} | Quality Education`,
+      title: `Quality Education`,
       description: 'Join our innovative E-learning Environment. Interactive lessons, smart quizzes, and progress tracking.',
     }
   } catch {
