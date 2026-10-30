@@ -45,6 +45,10 @@ export function TeacherDashboardView({
     day: 'numeric',
   })
 
+  const displayAverage = data.averageScore != null 
+    ? `${Math.round(data.averageScore)}%` 
+    : 'N/A'
+
   return (
     <div className="mx-auto max-w-7xl space-y-6 pb-10 sm:space-y-8">
       
@@ -78,7 +82,7 @@ export function TeacherDashboardView({
         <StatCard 
           icon={Activity} 
           label="True Class Average" 
-          value={`${Math.round(data.averageScore)}%`} 
+          value={displayAverage} 
         />
       </div>
 

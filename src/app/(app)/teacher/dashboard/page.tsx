@@ -22,7 +22,7 @@ export default async function TeacherDashboardPage() {
         totalLessons: 0,
         totalQuizzes: 0,
         totalStudents: 0,
-        averageScore: 0,
+        averageScore: null,
         recentLessons: [],
         recentQuizzes: [],
       }
