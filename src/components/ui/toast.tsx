@@ -28,28 +28,28 @@ const TONE: Record<
   }
 > = {
   success: {
-    surface: 'bg-success-bg',
-    border: 'border-success-border/40',
-    accent: 'bg-success-border',
-    iconFg: 'text-success-fg',
+    surface: 'var(--success-bg)',
+    border: 'var(--success-border)',
+    accent: 'var(--success-border)',
+    iconFg: 'var(--success-fg)',
     icon: CheckCircle2,
     live: 'polite',
     role: 'status',
   },
   error: {
-    surface: 'bg-danger-bg',
-    border: 'border-danger-border/40',
-    accent: 'bg-danger-border',
-    iconFg: 'text-danger-fg',
+    surface: 'var(--danger-bg)',
+    border: 'var(--danger-border)',
+    accent: 'var(--danger-border)',
+    iconFg: 'var(--danger-fg)',
     icon: XCircle,
     live: 'assertive',
     role: 'alert',
   },
   info: {
-    surface: 'bg-brand-primary/10',
-    border: 'border-brand-primary/30',
-    accent: 'bg-brand-accent',
-    iconFg: 'text-brand-accent',
+    surface: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)',
+    border: 'color-mix(in srgb, var(--brand-primary) 30%, transparent)',
+    accent: 'var(--brand-accent)',
+    iconFg: 'var(--brand-accent)',
     icon: Info,
     live: 'polite',
     role: 'status',
@@ -98,7 +98,6 @@ export function Toast({
         0,
       )
       cancelAnimationFrame(raf)
-      bar.style.animationPlayState = 'paused'
     }
 
     const resume = () => {
@@ -106,7 +105,6 @@ export function Toast({
       paused = false
       startRef.current = performance.now()
       raf = requestAnimationFrame(tick)
-      bar.style.animationPlayState = 'running'
     }
 
     const onVisibility = () => {
@@ -129,19 +127,19 @@ export function Toast({
       role={tone.role}
       aria-live={tone.live}
       aria-atomic="true"
-      className={[
-        'pointer-events-auto relative flex w-[calc(100vw-1.5rem)] max-w-sm items-start gap-3 overflow-hidden rounded-xl border px-4 py-3 shadow-lg backdrop-blur-md',
-        'animate-in slide-in-from-top-2 fade-in',
-        tone.surface,
-        tone.border,
-      ].join(' ')}
+      className="pointer-events-auto relative flex w-[calc(100vw-1.5rem)] max-w-sm items-start gap-3 overflow-hidden rounded-sm border px-4 py-3 shadow-lg backdrop-blur-md animate-in slide-in-from-top-2 fade-in"
+      style={{
+        backgroundColor: tone.surface,
+        borderColor: tone.border,
+      }}
     >
       <span
         aria-hidden
-        className={['absolute inset-y-0 left-0 w-1', tone.accent].join(' ')}
+        className="absolute inset-y-0 left-0 w-1"
+        style={{ backgroundColor: tone.accent }}
       />
 
-      <Icon size={16} className={['mt-0.5 shrink-0', tone.iconFg].join(' ')} />
+      <Icon size={16} className="mt-0.5 shrink-0" style={{ color: tone.iconFg }} />
 
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         {toast.title && (
@@ -158,7 +156,7 @@ export function Toast({
         type="button"
         onClick={() => onClose(toast.id)}
         aria-label="Dismiss notification"
-        className="-mr-1 mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-muted-foreground transition hover:bg-foreground/10 hover:text-foreground"
+        className="-mr-1 mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-sm text-muted-foreground transition hover:bg-foreground/10 hover:text-foreground"
       >
         <X size={14} />
       </button>
@@ -169,8 +167,8 @@ export function Toast({
       >
         <div
           ref={barRef}
-          className={['h-full', tone.accent].join(' ')}
-          style={{ width: '100%' }}
+          className="h-full"
+          style={{ width: '100%', backgroundColor: tone.accent }}
         />
       </div>
     </div>

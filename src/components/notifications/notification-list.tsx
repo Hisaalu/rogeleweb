@@ -41,13 +41,14 @@ export function NotificationList({
           >
             <div 
               className={cn(
-                "flex shrink-0 items-center justify-center rounded-full",
-                compact ? "h-8 w-8" : "h-10 w-10",
-                n.is_read ? "bg-muted text-muted-foreground" : ""
+                "flex shrink-0 items-center justify-center rounded-sm",
+                compact ? "h-8 w-8" : "h-10 w-10"
               )}
               style={{
-                backgroundColor: !n.is_read ? 'color-mix(in srgb, var(--brand-primary) 15%, transparent)' : undefined,
-                color: !n.is_read ? 'var(--brand-primary)' : undefined,
+                backgroundColor: !n.is_read 
+                  ? 'color-mix(in srgb, var(--brand-primary) 15%, transparent)' 
+                  : 'hsl(var(--muted))',
+                color: !n.is_read ? 'var(--brand-primary)' : 'hsl(var(--muted-foreground))',
               }}
             >
               <Icon size={compact ? 14 : 18} />

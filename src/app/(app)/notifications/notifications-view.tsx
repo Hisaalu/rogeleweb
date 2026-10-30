@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import { Check, Bell, CheckCircle2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
 import {
   markAllNotificationsReadClient,
@@ -78,9 +79,9 @@ export function NotificationsView({
         </div>
 
         {unreadCount > 0 && (
-          <Button 
-            variant="outline" 
-            onClick={handleMarkAll} 
+          <Button
+            variant="outline"
+            onClick={handleMarkAll}
             disabled={marking}
             className="w-full shrink-0 sm:w-auto"
           >
@@ -90,24 +91,30 @@ export function NotificationsView({
         )}
       </div>
 
-      <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
+      <Card className="p-4 sm:p-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex w-full overflow-x-auto pb-2 lg:w-auto lg:pb-0 scrollbar-hide">
+          <div className="flex w-full overflow-x-auto pb-2 lg:w-auto lg:pb-0">
             <div className="flex gap-2">
-              {FILTERS.map((f) => (
-                <button
-                  key={f.value}
-                  type="button"
-                  onClick={() => setFilter(f.value)}
-                  className={`shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition ${
-                    filter === f.value
-                      ? 'border-brand-primary bg-brand-primary/10 text-brand-primary'
-                      : 'border-border bg-background text-muted-foreground hover:border-brand-accent hover:text-foreground'
-                  }`}
-                >
-                  {f.label}
-                </button>
-              ))}
+              {FILTERS.map((f) => {
+                const isActive = filter === f.value
+                return (
+                  <button
+                    key={f.value}
+                    type="button"
+                    onClick={() => setFilter(f.value)}
+                    className="shrink-0 rounded-sm border px-3 py-1.5 text-xs font-semibold transition"
+                    style={{
+                      backgroundColor: isActive
+                        ? 'color-mix(in srgb, var(--brand-primary) 10%, transparent)'
+                        : 'hsl(var(--background))',
+                      borderColor: isActive ? 'var(--brand-primary)' : 'hsl(var(--border))',
+                      color: isActive ? 'var(--brand-primary)' : 'hsl(var(--muted-foreground))',
+                    }}
+                  >
+                    {f.label}
+                  </button>
+                )
+              })}
             </div>
           </div>
 
@@ -117,16 +124,17 @@ export function NotificationsView({
                 type="checkbox"
                 checked={showUnreadOnly}
                 onChange={(e) => setShowUnreadOnly(e.target.checked)}
-                className="h-4 w-4 rounded border-input accent-brand-primary"
+                className="h-4 w-4 rounded-sm border-input"
+                style={{ accentColor: 'var(--brand-primary)' }}
               />
               Show unread only
             </label>
           </div>
         </div>
-      </div>
+      </Card>
 
       {filtered.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-card">
+        <Card className="border-dashed">
           <EmptyState
             icon={showUnreadOnly || filter !== 'all' ? CheckCircle2 : Bell}
             title={showUnreadOnly || filter !== 'all' ? "No matching notifications" : "No notifications yet"}
@@ -138,14 +146,14 @@ export function NotificationsView({
                   : 'When you receive updates about lessons or quizzes, they will appear here.'
             }
           />
-        </div>
+        </Card>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+        <Card className="overflow-hidden">
           <NotificationList
             notifications={filtered}
             onItemClick={handleMarkOne}
           />
-        </div>
+        </Card>
       )}
     </div>
   )

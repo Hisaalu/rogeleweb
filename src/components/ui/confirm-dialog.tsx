@@ -2,6 +2,8 @@
 
 import { X } from 'lucide-react'
 import { useEffect } from 'react'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 export function ConfirmDialog({
   open,
@@ -37,51 +39,51 @@ export function ConfirmDialog({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
       <div
-        className="absolute inset-0 bg-background/80 backdrop-blur-sm transition-opacity"
+        className="absolute inset-0 backdrop-blur-sm transition-opacity"
+        style={{ backgroundColor: 'color-mix(in srgb, hsl(var(--background)) 80%, transparent)' }}
         onClick={() => !loading && onOpenChange(false)}
         aria-hidden="true"
       />
-      <div
+      <Card
         role="dialog"
         aria-modal="true"
-        className="relative z-10 w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-2xl transition-all sm:p-8"
+        className="relative z-10 w-full max-w-md overflow-hidden p-6 shadow-2xl sm:p-8"
       >
         <button
           type="button"
           onClick={() => onOpenChange(false)}
           disabled={loading}
-          className="absolute right-4 top-4 rounded-full p-2 text-muted-foreground transition hover:bg-muted disabled:opacity-50"
+          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-sm text-muted-foreground transition hover:bg-muted disabled:opacity-50"
         >
           <X size={18} />
         </button>
 
-        <h3 className="mb-2 text-lg font-semibold text-foreground">{title}</h3>
+        <h3 className="mb-2 pr-8 text-lg font-semibold text-foreground">{title}</h3>
         <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
           {description}
         </p>
 
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={loading}
-            className="w-full rounded-xl px-5 py-2.5 text-sm font-semibold text-foreground transition hover:bg-muted disabled:opacity-50 sm:w-auto"
+            className="w-full sm:w-auto"
           >
             {cancelLabel}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant={destructive ? 'danger' : 'primary'}
             onClick={onConfirm}
             disabled={loading}
-            className="w-full rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50 sm:w-auto"
-            style={{
-              backgroundColor: destructive ? 'var(--danger-border)' : 'var(--brand-primary)',
-            }}
+            className="w-full sm:w-auto"
           >
             {loading ? 'Processing...' : confirmLabel}
-          </button>
+          </Button>
         </div>
-      </div>
+      </Card>
     </div>
   )
 }
