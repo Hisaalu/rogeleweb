@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { fetchPublicSettings } from '@/lib/settings.server'
 import { ContactForm } from './contact-form'
+import { Card } from '@/components/ui/card'
 import { Mail, Phone, MapPin, Clock } from 'lucide-react'
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -23,6 +24,11 @@ export default async function ContactPage() {
   const hoursWeekday = settings['contact.hours_weekday'] || 'Mon-Fri: 8AM - 5PM'
   const hoursWeekend = settings['contact.hours_weekend'] || 'Sat: 9AM - 1PM'
 
+  const iconStyle = {
+    backgroundColor: 'color-mix(in srgb, var(--brand-accent) 10%, transparent)',
+    color: 'var(--brand-accent)',
+  } as const
+
   return (
     <div className="flex min-h-screen flex-col bg-muted/30">
       <div className="mx-auto w-full max-w-7xl flex-1 px-4 py-12 sm:px-6 sm:py-20 lg:px-8">
@@ -39,8 +45,8 @@ export default async function ContactPage() {
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
           
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="flex flex-col items-center justify-center rounded-3xl border border-border bg-card p-6 text-center shadow-sm transition hover:-translate-y-1 hover:border-brand-accent">
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-accent) 10%, transparent)', color: 'var(--brand-accent)' }}>
+            <Card className="flex flex-col items-center justify-center p-6 text-center transition hover:-translate-y-1 hover:border-brand-accent">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-sm" style={iconStyle}>
                 <Mail size={24} />
               </div>
               <h3 className="mb-2 font-bold text-foreground">Email Us</h3>
@@ -48,10 +54,10 @@ export default async function ContactPage() {
               {altEmail && altEmail !== email && (
                 <p className="text-sm text-muted-foreground">{altEmail}</p>
               )}
-            </div>
+            </Card>
 
-            <div className="flex flex-col items-center justify-center rounded-3xl border border-border bg-card p-6 text-center shadow-sm transition hover:-translate-y-1 hover:border-brand-accent">
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-accent) 10%, transparent)', color: 'var(--brand-accent)' }}>
+            <Card className="flex flex-col items-center justify-center p-6 text-center transition hover:-translate-y-1 hover:border-brand-accent">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-sm" style={iconStyle}>
                 <Phone size={24} />
               </div>
               <h3 className="mb-2 font-bold text-foreground">Call Us</h3>
@@ -59,18 +65,18 @@ export default async function ContactPage() {
               {altPhone && altPhone !== phone && (
                 <p className="text-sm text-muted-foreground">{altPhone}</p>
               )}
-            </div>
+            </Card>
 
-            <div className="flex flex-col items-center justify-center rounded-3xl border border-border bg-card p-6 text-center shadow-sm transition hover:-translate-y-1 hover:border-brand-accent">
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-accent) 10%, transparent)', color: 'var(--brand-accent)' }}>
+            <Card className="flex flex-col items-center justify-center p-6 text-center transition hover:-translate-y-1 hover:border-brand-accent">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-sm" style={iconStyle}>
                 <MapPin size={24} />
               </div>
               <h3 className="mb-2 font-bold text-foreground">Visit Us</h3>
               <p className="text-sm text-muted-foreground">{address}</p>
-            </div>
+            </Card>
 
-            <div className="flex flex-col items-center justify-center rounded-3xl border border-border bg-card p-6 text-center shadow-sm transition hover:-translate-y-1 hover:border-brand-accent">
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-accent) 10%, transparent)', color: 'var(--brand-accent)' }}>
+            <Card className="flex flex-col items-center justify-center p-6 text-center transition hover:-translate-y-1 hover:border-brand-accent">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-sm" style={iconStyle}>
                 <Clock size={24} />
               </div>
               <h3 className="mb-2 font-bold text-foreground">Working Hours</h3>
@@ -78,7 +84,7 @@ export default async function ContactPage() {
               {hoursWeekend && (
                 <p className="text-sm text-muted-foreground">{hoursWeekend}</p>
               )}
-            </div>
+            </Card>
           </div>
 
           <ContactForm />

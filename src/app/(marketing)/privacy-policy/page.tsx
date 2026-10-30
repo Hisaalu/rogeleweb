@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ShieldAlert } from 'lucide-react'
 import { fetchPublicSettings } from '@/lib/settings.server'
+import { Card } from '@/components/ui/card'
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await fetchPublicSettings()
@@ -24,7 +25,7 @@ export default async function PrivacyPolicyPage() {
     <div className="mx-auto max-w-4xl space-y-8 px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
       
       <div className="border-b border-border pb-8 text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-accent) 10%, transparent)' }}>
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-sm" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-accent) 10%, transparent)' }}>
           <ShieldAlert size={32} style={{ color: 'var(--brand-accent)' }} />
         </div>
         <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl" style={{ color: 'var(--brand-primary)' }}>
@@ -35,18 +36,18 @@ export default async function PrivacyPolicyPage() {
         </p>
       </div>
 
-      <div className="space-y-10 rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-10">
+      <Card className="space-y-10 p-6 shadow-sm sm:p-10">
         
         <section id="introduction" className="scroll-mt-24 space-y-4">
           <h2 className="text-xl font-bold text-foreground sm:text-2xl">1. Introduction</h2>
           <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
-            <Link href="/" className="font-semibold text-brand-primary hover:underline">{schoolName}</Link>{' '}
+            <Link href="/" className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>{schoolName}</Link>{' '}
             respects your privacy and is committed to protecting your personal data. 
             This privacy policy explains how we collect, use, disclose, and safeguard your information when you use our e-learning platform.
           </p>
           <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
             Please read this privacy policy carefully. By accessing our platform, you also agree to our{' '}
-            <Link href="/terms-of-service" className="font-semibold text-brand-primary hover:underline">
+            <Link href="/terms-of-service" className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>
               Terms of Service
             </Link>.
           </p>
@@ -62,7 +63,7 @@ export default async function PrivacyPolicyPage() {
             <li>Registering for an account</li>
             <li>Enrolling for lessons</li>
             <li>Taking quizzes, homework and assessments</li>
-            <li>Contacting our <Link href="/contact" className="font-semibold text-brand-primary hover:underline">support team</Link></li>
+            <li>Contacting our <Link href="/contact" className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>support team</Link></li>
           </ul>
           <p className="text-sm font-medium text-foreground sm:text-base">This information includes:</p>
           <ul className="list-inside list-disc space-y-1 pl-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
@@ -91,7 +92,7 @@ export default async function PrivacyPolicyPage() {
             <li>Create and manage your account</li>
             <li>Provide access to Lessons, homework and quizzes</li>
             <li>Track your progress and performance</li>
-            <li>Process payments and manage <Link href="/learner/subscription" className="font-semibold text-brand-primary hover:underline">subscriptions</Link></li>
+            <li>Process payments and manage <Link href="/learner/subscription" className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>subscriptions</Link></li>
           </ul>
           
           <h3 className="mt-4 text-lg font-semibold text-foreground">3.2 Communication</h3>
@@ -116,8 +117,8 @@ export default async function PrivacyPolicyPage() {
           <ul className="list-inside list-disc space-y-1 pl-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
             <li>
               <strong>Service Providers:</strong> Payment processors like{' '}
-              <a href="https://www.mtn.co.ug/momo/" target="_blank" rel="noopener noreferrer" className="font-semibold text-brand-primary hover:underline">MTN Mobile Money</a> and{' '}
-              <a href="https://www.airtel.co.ug/airtel-money" target="_blank" rel="noopener noreferrer" className="font-semibold text-brand-primary hover:underline">Airtel Money</a>, cloud hosting, and email service providers.
+              <a href="https://www.mtn.co.ug/momo/" target="_blank" rel="noopener noreferrer" className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>MTN Mobile Money</a> and{' '}
+              <a href="https://www.airtel.co.ug/airtel-money" target="_blank" rel="noopener noreferrer" className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>Airtel Money</a>, cloud hosting, and email service providers.
             </li>
             <li><strong>Educational Partners:</strong> Teachers and schools affiliated with your account, or with your explicit consent.</li>
             <li><strong>Legal Requirements:</strong> If required by law, court order, or to protect our rights and user safety.</li>
@@ -145,19 +146,19 @@ export default async function PrivacyPolicyPage() {
             <li>Request a copy of your data in a machine-readable format</li>
           </ul>
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
-            To exercise these rights, contact us at <a href={`mailto:${contactEmail}`} className="font-semibold text-brand-primary hover:underline">{contactEmail}</a>.
+            To exercise these rights, contact us at <a href={`mailto:${contactEmail}`} className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>{contactEmail}</a>.
           </p>
         </section>
 
         <section id="children" className="scroll-mt-24 space-y-4">
-          <h2 className="text-xl font-bold text-foreground sm:text-2xl">7. Children's Privacy</h2>
+          <h2 className="text-xl font-bold text-foreground sm:text-2xl">7. Children&apos;s Privacy</h2>
           <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
-            Our platform is designed for students of all ages. We take special care to protect children's privacy:
+            Our platform is designed for students of all ages. We take special care to protect children&apos;s privacy:
           </p>
           <ul className="list-inside list-disc space-y-1 pl-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
             <li>We only collect information necessary for educational purposes</li>
             <li>We do not target advertising to children</li>
-            <li>Parents/guardians have full access to their child's account and can review, update, or delete information</li>
+            <li>Parents/guardians have full access to their child&apos;s account and can review, update, or delete information</li>
           </ul>
         </section>
 
@@ -178,16 +179,16 @@ export default async function PrivacyPolicyPage() {
           <h2 className="text-xl font-bold text-foreground sm:text-2xl">9. Contact Information</h2>
           <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
             If you have questions about this privacy policy, please visit our{' '}
-            <Link href="/contact" className="font-semibold text-brand-primary hover:underline">Contact Page</Link> or reach us directly:
+            <Link href="/contact" className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>Contact Page</Link> or reach us directly:
           </p>
           <ul className="space-y-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
-            <li><strong className="text-foreground">Email:</strong> <a href={`mailto:${contactEmail}`} className="text-brand-primary hover:underline">{contactEmail}</a></li>
+            <li><strong className="text-foreground">Email:</strong> <a href={`mailto:${contactEmail}`} className="hover:underline" style={{ color: 'var(--brand-primary)' }}>{contactEmail}</a></li>
             <li><strong className="text-foreground">Phone:</strong> {contactPhone}</li>
             <li><strong className="text-foreground">Address:</strong> {contactAddress}</li>
           </ul>
         </section>
 
-      </div>
+      </Card>
     </div>
   )
 }

@@ -3,6 +3,8 @@
 import { Check, CreditCard, Crown, Rocket } from 'lucide-react'
 import Link from 'next/link'
 import type { SubscriptionPlan } from '@/types/subscription'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 function fmtMoney(n: number): string {
   return Math.round(n).toLocaleString('en-US')
@@ -48,7 +50,7 @@ function PlanIcon({ tier }: { tier: 'monthly' | 'termly' | 'yearly' }) {
   const Icon = tier === 'yearly' ? Crown : tier === 'termly' ? Rocket : CreditCard
   return (
     <div
-      className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl"
+      className="mb-4 flex h-14 w-14 items-center justify-center rounded-sm"
       style={{
         backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)',
       }}
@@ -115,13 +117,9 @@ export function PlanCard({
   const perMonth = plan.price / months
   const benefits = buildBenefits(tier, savings)
 
-  const buttonStyles: React.CSSProperties = {
-    backgroundColor: recommended ? 'var(--brand-primary)' : 'var(--brand-accent)',
-  }
-
   return (
-    <div
-      className="relative flex h-full flex-col items-start text-left rounded-3xl border-2 bg-card p-6 transition hover:-translate-y-1 hover:shadow-lg"
+    <Card
+      className="relative flex h-full flex-col items-start text-left border-2 p-6 transition hover:-translate-y-1 hover:shadow-lg"
       style={{
         borderColor: recommended ? 'var(--brand-accent)' : 'hsl(var(--border))',
         background: recommended
@@ -131,7 +129,7 @@ export function PlanCard({
     >
       {recommended && (
         <div
-          className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-4 py-1 text-[11px] font-bold uppercase tracking-wider text-white"
+          className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-sm px-4 py-1 text-[11px] font-bold uppercase tracking-wider text-white"
           style={{ backgroundColor: 'var(--brand-primary)' }}
         >
           Recommended
@@ -190,31 +188,29 @@ export function PlanCard({
       </ul>
 
       {isCurrentPlan && (
-        <div className="mt-6 w-full rounded-full bg-muted py-2.5 text-center text-sm font-semibold text-muted-foreground">
+        <Button variant="outline" disabled className="mt-6 w-full">
           Current Plan
-        </div>
+        </Button>
       )}
 
       {!isCurrentPlan && showButton && (
         href ? (
-          <Link
-            href={href}
-            className="mt-6 flex w-full items-center justify-center rounded-full py-2.5 text-center text-sm font-semibold text-white transition hover:opacity-90"
-            style={buttonStyles}
-          >
-            {buttonLabel}
+          <Link href={href} className="mt-6 w-full">
+            <Button variant={recommended ? 'primary' : 'secondary'} className="w-full">
+              {buttonLabel}
+            </Button>
           </Link>
         ) : (
-          <button
+          <Button
             type="button"
+            variant={recommended ? 'primary' : 'secondary'}
             onClick={onSelect}
-            className="mt-6 w-full rounded-full py-2.5 text-center text-sm font-semibold text-white transition hover:opacity-90"
-            style={buttonStyles}
+            className="mt-6 w-full"
           >
             {buttonLabel}
-          </button>
+          </Button>
         )
       )}
-    </div>
+    </Card>
   )
 }

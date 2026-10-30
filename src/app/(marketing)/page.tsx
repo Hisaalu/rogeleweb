@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { getHomePageData } from '@/lib/home.server'
 import { fetchPublicSettings } from '@/lib/settings.server'
 import { PlanCard } from '@/components/subscription/plan-card'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import {
   ArrowRight,
   PlayCircle,
@@ -21,7 +23,6 @@ export const revalidate = 3600
 export async function generateMetadata(): Promise<Metadata> {
   try {
     const settings = await fetchPublicSettings()
-    const siteTitle = settings['site.browser_title']?.trim() || 'NexaT'
     return {
       title: `Quality Education`,
       description: 'Join our innovative E-learning Environment. Interactive lessons, smart quizzes, and progress tracking.',
@@ -116,29 +117,37 @@ export default async function HomePage() {
               </h1>
 
               <p className="mt-6 max-w-lg text-lg text-white/90">
-                Join our innovative Rays of Grace E-Learning Environment from Primary One to Primary Two.
+                Join our innovative {schoolName} E-Learning Environment from {classRange}.
                 Interactive lessons, smart quizzes, and progress tracking all in one place.
               </p>
 
               <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:gap-4">
-                <Link
-                  href="/register"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-8 py-3.5 text-sm font-semibold transition hover:-translate-y-0.5 hover:shadow-xl sm:w-auto"
-                  style={{ color: 'var(--brand-primary)' }}
-                >
-                  Start Free Trial <ArrowRight size={16} />
+                <Link href="/register" className="w-full sm:w-auto">
+                  <Button
+                    size="lg"
+                    className="w-full bg-white hover:bg-white/90"
+                    style={{ color: 'var(--brand-primary)' }}
+                  >
+                    Start Free Trial <ArrowRight size={16} className="ml-2" />
+                  </Button>
                 </Link>
                 <a
                   href="https://youtu.be/8DrZ80nR2o0"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-full border-2 border-white/40 px-8 py-3.5 text-sm font-semibold text-white transition hover:bg-white/10 sm:w-auto"
+                  className="w-full sm:w-auto"
                 >
-                  <PlayCircle size={16} /> See How It Works
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full border-white/40 bg-transparent text-white hover:bg-white/10"
+                  >
+                    <PlayCircle size={16} className="mr-2" /> See How It Works
+                  </Button>
                 </a>
               </div>
 
-              <div className="mt-10 flex flex-wrap items-center gap-6 rounded-2xl bg-white/10 p-5 backdrop-blur-sm sm:gap-10 sm:px-8">
+              <div className="mt-10 flex flex-wrap items-center gap-6 rounded-sm bg-white/10 p-5 backdrop-blur-sm sm:gap-10 sm:px-8">
                 <Stat label="Students" value={stats.students} />
                 <Divider />
                 <Stat label="Teachers" value={stats.teachers} />
@@ -148,14 +157,14 @@ export default async function HomePage() {
             </div>
 
             <div className="flex justify-center lg:justify-end">
-              <div className="relative rounded-3xl bg-white/10 p-4 backdrop-blur-sm sm:p-8">
+              <div className="relative rounded-sm bg-white/10 p-4 backdrop-blur-sm sm:p-8">
                 <Image
                   src="/images/logo.jpg"
                   alt={`${schoolName} Logo`}
                   width={320}
                   height={320}
                   priority
-                  className="h-auto w-full max-w-[280px] rounded-2xl object-contain drop-shadow-2xl sm:max-w-[320px]"
+                  className="h-auto w-full max-w-[280px] rounded-sm object-contain drop-shadow-2xl sm:max-w-[320px]"
                 />
               </div>
             </div>
@@ -180,9 +189,9 @@ export default async function HomePage() {
             {STEPS.map((step, i) => {
               const Icon = step.icon
               return (
-                <div
+                <Card
                   key={step.title}
-                  className="flex flex-col items-center rounded-3xl border border-border bg-card p-8 shadow-sm transition hover:-translate-y-2 hover:shadow-lg"
+                  className="flex flex-col items-center p-8 transition hover:-translate-y-2 hover:shadow-lg"
                 >
                   <div
                     className="mb-6 flex h-16 w-16 items-center justify-center rounded-full text-2xl font-bold text-white shadow-lg"
@@ -193,7 +202,7 @@ export default async function HomePage() {
                   <Icon size={32} className="mb-4" style={{ color: 'var(--brand-accent)' }} />
                   <h3 className="mb-2 text-xl font-bold text-foreground">{step.title}</h3>
                   <p className="text-center text-sm text-muted-foreground">{step.body}</p>
-                </div>
+                </Card>
               )
             })}
           </div>
@@ -217,9 +226,9 @@ export default async function HomePage() {
             {FEATURES.map((feature) => {
               const Icon = feature.icon
               return (
-                <div
+                <Card
                   key={feature.title}
-                  className="rounded-3xl border border-border bg-card p-8 text-center shadow-sm transition hover:-translate-y-2 hover:border-brand-accent hover:shadow-lg"
+                  className="p-8 text-center transition hover:-translate-y-2 hover:border-brand-accent hover:shadow-lg"
                 >
                   <div
                     className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full"
@@ -235,7 +244,7 @@ export default async function HomePage() {
                     {feature.title}
                   </h3>
                   <p className="text-sm text-muted-foreground">{feature.body}</p>
-                </div>
+                </Card>
               )
             })}
           </div>
@@ -256,7 +265,7 @@ export default async function HomePage() {
           </h2>
 
           {plans.length === 0 ? (
-            <div className="mx-auto mt-16 max-w-md rounded-3xl border border-border bg-card p-8 text-center">
+            <Card className="mx-auto mt-16 max-w-md p-8 text-center">
               <p className="text-sm font-semibold text-foreground">
                 Plans are being updated
               </p>
@@ -264,14 +273,12 @@ export default async function HomePage() {
                 Pricing will be available shortly. Create a free account to get
                 started in the meantime.
               </p>
-              <Link
-                href="/register"
-                className="mt-6 inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-                style={{ backgroundColor: 'var(--brand-primary)' }}
-              >
-                Create Free Account <ArrowRight size={16} />
+              <Link href="/register" className="mt-6 inline-block">
+                <Button>
+                  Create Free Account <ArrowRight size={16} className="ml-2" />
+                </Button>
               </Link>
-            </div>
+            </Card>
           ) : (
             <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
               {plans.map((plan) => (
@@ -321,21 +328,23 @@ export default async function HomePage() {
                 a: 'Our built-in analytics dashboard automatically records quiz scores, homework completion rates, and lesson activities.',
               },
             ].map((faq) => (
-              <details
+              <Card
                 key={faq.q}
-                className="group rounded-2xl border border-border bg-card p-5 transition open:border-brand-accent open:shadow-sm"
+                className="group p-5 transition open:border-brand-accent open:shadow-sm"
               >
-                <summary className="flex cursor-pointer items-center justify-between font-semibold text-foreground outline-none">
-                  {faq.q}
-                  <ChevronDown
-                    size={18}
-                    className="transition-transform group-open:rotate-180"
-                  />
-                </summary>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  {faq.a}
-                </p>
-              </details>
+                <details>
+                  <summary className="flex cursor-pointer items-center justify-between font-semibold text-foreground outline-none">
+                    {faq.q}
+                    <ChevronDown
+                      size={18}
+                      className="transition-transform group-open:rotate-180"
+                    />
+                  </summary>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                    {faq.a}
+                  </p>
+                </details>
+              </Card>
             ))}
           </div>
         </div>
@@ -349,12 +358,14 @@ export default async function HomePage() {
           <p className="mt-4 text-lg text-white/90">
             Join thousands of students already learning on {schoolName}.
           </p>
-          <Link
-            href="/register"
-            className="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-8 py-3.5 text-sm font-bold transition hover:-translate-y-0.5 hover:shadow-xl"
-            style={{ color: 'var(--brand-primary)' }}
-          >
-            Create Free Account <ArrowRight size={16} />
+          <Link href="/register" className="mt-8 inline-block">
+            <Button
+              size="lg"
+              className="bg-white hover:bg-white/90"
+              style={{ color: 'var(--brand-primary)' }}
+            >
+              Create Free Account <ArrowRight size={16} className="ml-2" />
+            </Button>
           </Link>
         </div>
       </section>
