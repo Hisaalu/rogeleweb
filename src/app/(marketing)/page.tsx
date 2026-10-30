@@ -117,7 +117,7 @@ export default async function HomePage() {
               </h1>
 
               <p className="mt-6 max-w-lg text-lg text-white/90">
-                Join our innovative {schoolName} E-Learning Environment from {classRange}.
+                Join our innovative Rays of Grace E-Learning Environment from Primary One to Primary Seven.
                 Interactive lessons, smart quizzes, and progress tracking all in one place.
               </p>
 
