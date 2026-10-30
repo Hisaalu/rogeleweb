@@ -76,7 +76,7 @@ export function UserMenu({ user }: { user?: SessionUser | null }) {
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-full z-50 mt-2 w-56 max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-xl border border-border bg-card shadow-xl"
+          className="absolute right-0 top-full z-50 mt-2 w-56 max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-md border border-border bg-card shadow-xl"
         >
           <div className="border-b border-border bg-muted/30 px-4 py-3">
             <p className="truncate text-sm font-bold text-foreground">{fullName}</p>
@@ -88,7 +88,7 @@ export function UserMenu({ user }: { user?: SessionUser | null }) {
               href={`${rolePath}/profile`}
               onClick={() => setOpen(false)}
               role="menuitem"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted hover:text-brand-accent"
+              className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted hover:text-brand-accent"
             >
               <UserIcon size={16} style={{ color: 'var(--brand-accent)' }} />
               Profile
@@ -97,7 +97,7 @@ export function UserMenu({ user }: { user?: SessionUser | null }) {
               href={`${rolePath}/settings`}
               onClick={() => setOpen(false)}
               role="menuitem"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted hover:text-brand-accent"
+              className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted hover:text-brand-accent"
             >
               <Settings size={16} style={{ color: 'var(--brand-accent)' }} />
               Settings
@@ -109,7 +109,7 @@ export function UserMenu({ user }: { user?: SessionUser | null }) {
               type="button"
               onClick={toggleTheme}
               role="menuitem"
-              className="flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium text-foreground transition hover:bg-muted hover:text-brand-accent"
+              className="flex w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-left text-sm font-medium text-foreground transition hover:bg-muted hover:text-brand-accent"
             >
               <span className="flex items-center gap-3">
                 {isDark ? (
@@ -127,7 +127,8 @@ export function UserMenu({ user }: { user?: SessionUser | null }) {
               type="button"
               onClick={handleLogout}
               role="menuitem"
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-bold text-danger-fg transition hover:bg-danger-bg"
+              className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-bold transition hover:bg-danger-bg"
+              style={{ color: 'var(--danger-fg)' }}
             >
               <LogOut size={16} />
               Logout
