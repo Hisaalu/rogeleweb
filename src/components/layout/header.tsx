@@ -40,11 +40,11 @@ export function Header({
           aria-label={`${schoolName} — Go to Dashboard`}
           className="flex min-w-0 flex-col justify-center transition-opacity hover:opacity-80 lg:hidden"
         >
-          <span className="truncate text-base font-semibold leading-tight text-foreground">
+          <span className="truncate text-sm font-medium leading-tight text-foreground">
             {schoolName}
           </span>
           {tagline && (
-            <span className="truncate text-xs leading-tight text-muted-foreground">
+            <span className="truncate text-[11px] leading-tight text-muted-foreground">
               {tagline}
             </span>
           )}
@@ -55,19 +55,23 @@ export function Header({
         {user.role !== 'teacher' &&
           (isPro ? (
             <div
-              className="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-bold text-white shadow-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-xs"
-              style={{ backgroundColor: 'var(--success-border)' }}
+              className="flex items-center gap-1.5 rounded-sm px-2.5 py-1.5 text-[11px] text-white shadow-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-xs"
+              style={{
+                backgroundColor: 'color-mix(in srgb, var(--success-border) 70%, transparent)',
+              }}
             >
-              <Crown size={13} className="shrink-0" />
+              <Crown size={12} className="shrink-0" />
               <span>Pro</span>
             </div>
           ) : (
             <Link
               href="/learner/subscription"
-              className="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-bold text-white transition hover:opacity-90 sm:gap-2 sm:px-4 sm:py-2 sm:text-xs"
-              style={{ backgroundColor: 'var(--success-border)' }}
+              className="flex items-center gap-1.5 rounded-sm px-2.5 py-1.5 text-[10px] text-white shadow-sm transition hover:opacity-80 sm:gap-2 sm:px-4 sm:py-2 sm:text-xs"
+              style={{
+                backgroundColor: 'color-mix(in srgb, var(--success-border) 70%, transparent)',
+              }}
             >
-              <Zap size={13} className="shrink-0" />
+              <Zap size={12} className="shrink-0" />
               <span>Upgrade</span>
             </Link>
           ))}
