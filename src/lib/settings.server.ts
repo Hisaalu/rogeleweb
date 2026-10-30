@@ -1,18 +1,32 @@
 import 'server-only'
-import { serverApiRequest } from './server-api'
-import type { Setting } from '@/types/admin'
+import { unstable_cache } from 'next/cache'
 
-function unwrap<T>(res: unknown): T[] {
-  if (Array.isArray(res)) return res as T[]
-  if (res && typeof res === 'object') {
-    const obj = res as Record<string, unknown>
-    if (Array.isArray(obj.data)) return obj.data as T[]
-    if (Array.isArray(obj.value)) return obj.value as T[]
+interface PublicSettingsResponse {
+  settings?: Record<string, string>
+  data?: Record<string, string>
+}
+
+async function fetchPublicSettingsRaw(): Promise<Record<string, string>> {
+  const API_URL = process.env.ROGELEDB_API_URL ?? 'http://localhost:8080'
+  const res = await fetch(`${API_URL}/api/v1/config/public`, {
+    cache: 'no-store',
+  })
+  if (!res.ok) {
+    throw new Error(`settings fetch failed: ${res.status}`)
   }
-  return []
+  const data: PublicSettingsResponse = await res.json()
+  const raw = data.settings ?? data.data ?? {}
+  const result: Record<string, string> = {}
+  for (const [key, value] of Object.entries(raw)) {
+    if (key.startsWith('branding.')) continue
+    if (value == null) continue
+    result[key] = String(value)
+  }
+  return result
 }
 
-export async function listSettingsServer(): Promise<Setting[]> {
-  const res = await serverApiRequest<unknown>('/api/v1/settings?per_page=200')
-  return unwrap<Setting>(res)
-}
+export const fetchPublicSettings = unstable_cache(
+  fetchPublicSettingsRaw,
+  ['public-settings'],
+  { revalidate: 60, tags: ['public-settings'] },
+)

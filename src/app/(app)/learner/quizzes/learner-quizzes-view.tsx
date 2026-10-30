@@ -21,20 +21,16 @@ export function LearnerQuizzesView({
   quizzes: Quiz[]
   attempts: QuizAttempt[]
 }) {
-  const now = Date.now()
-
-  const visibleQuizzes = quizzes.filter((q) => {
-    if ((q.question_count ?? 0) === 0) return false
-    if (q.end_date && new Date(q.end_date).getTime() < now) return false
-    return true
-  })
+  const visibleQuizzes = quizzes.filter((q) => (q.question_count ?? 0) > 0)
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-8">
       <div className="text-center">
         <h1 className="flex items-center justify-center gap-2 text-2xl font-bold text-foreground sm:text-3xl">
           <HelpCircle size={28} style={{ color: 'var(--brand-primary)' }} />
-          <span style={{ color: 'var(--brand-primary)' }}>Practice Quizzes</span>
+          <span style={{ color: 'var(--brand-primary)' }}>
+            Practice Quizzes
+          </span>
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Test your knowledge with interactive quizzes
@@ -43,8 +39,14 @@ export function LearnerQuizzesView({
 
       {visibleQuizzes.length === 0 ? (
         <Card className="px-6 py-16 text-center">
-          <HelpCircle size={48} className="mx-auto mb-4 opacity-30" style={{ color: 'var(--brand-accent)' }} />
-          <h3 className="text-lg font-bold text-foreground">No Quizzes Available</h3>
+          <HelpCircle
+            size={48}
+            className="mx-auto mb-4 opacity-30"
+            style={{ color: 'var(--brand-accent)' }}
+          />
+          <h3 className="text-lg font-bold text-foreground">
+            No Quizzes Available
+          </h3>
           <p className="mt-2 text-sm text-muted-foreground">
             Check back later for new quizzes!
           </p>
@@ -53,21 +55,33 @@ export function LearnerQuizzesView({
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {visibleQuizzes.map((quiz) => {
             const quizAttempts = attempts.filter((a) => a.quiz_id === quiz.id)
-            const completedAttempts = quizAttempts.filter((a) => a.status === 'completed')
+            const completedAttempts = quizAttempts.filter(
+              (a) => a.status === 'completed',
+            )
             const attemptCount = completedAttempts.length
-            const inProgressAttempt = quizAttempts.find((a) => a.status === 'in_progress')
-            
+            const inProgressAttempt = quizAttempts.find(
+              (a) => a.status === 'in_progress',
+            )
+
             const maxAttempts = quiz.max_attempts ?? 3
             const remainingAttempts = Math.max(0, maxAttempts - attemptCount)
             const noAttemptsLeft = remainingAttempts === 0
-            
-            const bestScore = completedAttempts.reduce((max, a) => Math.max(max, a.score ?? 0), 0)
+
+            const bestScore = completedAttempts.reduce(
+              (max, a) => Math.max(max, a.score ?? 0),
+              0,
+            )
             const passingScore = quiz.passing_score ?? 70
             const passed = bestScore >= passingScore
-            
-            const latestCompletedId = completedAttempts.length > 0
-              ? completedAttempts.sort((a, b) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime())[0].id
-              : null
+
+            const latestCompletedId =
+              completedAttempts.length > 0
+                ? [...completedAttempts].sort(
+                    (a, b) =>
+                      new Date(b.started_at).getTime() -
+                      new Date(a.started_at).getTime(),
+                  )[0].id
+                : null
 
             return (
               <Card
@@ -82,7 +96,8 @@ export function LearnerQuizzesView({
                   <span
                     className="rounded-md px-2.5 py-1 text-xs font-semibold"
                     style={{
-                      backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)',
+                      backgroundColor:
+                        'color-mix(in srgb, var(--brand-primary) 10%, transparent)',
                       color: 'var(--brand-primary)',
                     }}
                   >
@@ -91,7 +106,8 @@ export function LearnerQuizzesView({
                   <span
                     className="rounded-md px-2.5 py-1 text-xs font-semibold"
                     style={{
-                      backgroundColor: 'color-mix(in srgb, var(--brand-accent) 10%, transparent)',
+                      backgroundColor:
+                        'color-mix(in srgb, var(--brand-accent) 10%, transparent)',
                       color: 'var(--brand-accent)',
                     }}
                   >
@@ -99,7 +115,9 @@ export function LearnerQuizzesView({
                   </span>
                 </div>
 
-                <h3 className="mb-2 text-lg font-bold text-foreground">{quiz.title}</h3>
+                <h3 className="mb-2 text-lg font-bold text-foreground">
+                  {quiz.title}
+                </h3>
                 {quiz.description && (
                   <p className="mb-4 line-clamp-2 flex-grow text-sm text-muted-foreground">
                     {quiz.description}
@@ -108,19 +126,31 @@ export function LearnerQuizzesView({
 
                 <div className="mb-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
-                    <HelpCircle size={13} style={{ color: 'var(--brand-accent)' }} />
+                    <HelpCircle
+                      size={13}
+                      style={{ color: 'var(--brand-accent)' }}
+                    />
                     {quiz.question_count ?? 0} qns
                   </span>
                   <span className="flex items-center gap-1">
-                    <Clock size={13} style={{ color: 'var(--brand-accent)' }} />
+                    <Clock
+                      size={13}
+                      style={{ color: 'var(--brand-accent)' }}
+                    />
                     {quiz.time_limit ?? 30}m
                   </span>
                   <span className="flex items-center gap-1">
-                    <Trophy size={13} style={{ color: 'var(--brand-accent)' }} />
+                    <Trophy
+                      size={13}
+                      style={{ color: 'var(--brand-accent)' }}
+                    />
                     {passingScore}% pass
                   </span>
                   <span className="flex items-center gap-1">
-                    <RefreshCw size={13} style={{ color: 'var(--brand-accent)' }} />
+                    <RefreshCw
+                      size={13}
+                      style={{ color: 'var(--brand-accent)' }}
+                    />
                     {attemptCount}/{maxAttempts} attempts
                   </span>
                 </div>
@@ -161,7 +191,10 @@ export function LearnerQuizzesView({
 
                 <div className="mt-auto flex items-center gap-2">
                   {inProgressAttempt ? (
-                    <Link href={`/learner/quizzes/${quiz.id}`} className="w-full">
+                    <Link
+                      href={`/learner/quizzes/${quiz.id}`}
+                      className="w-full"
+                    >
                       <Button className="w-full" variant="secondary">
                         <Play size={15} /> Resume Quiz
                       </Button>
@@ -172,17 +205,28 @@ export function LearnerQuizzesView({
                         No Attempts
                       </Button>
                       {latestCompletedId && (
-                        <Link href={`/learner/quizzes/results/${latestCompletedId}`}>
-                          <Button variant="outline" size="icon" title="View Results">
+                        <Link
+                          href={`/learner/quizzes/results/${latestCompletedId}`}
+                        >
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            title="View Results"
+                          >
                             <BarChart2 size={16} />
                           </Button>
                         </Link>
                       )}
                     </>
                   ) : (
-                    <Link href={`/learner/quizzes/${quiz.id}`} className="w-full">
+                    <Link
+                      href={`/learner/quizzes/${quiz.id}`}
+                      className="w-full"
+                    >
                       <Button className="w-full">
-                        {attemptCount > 0 ? 'Try Another Attempt' : 'Start Quiz'}
+                        {attemptCount > 0
+                          ? 'Try Another Attempt'
+                          : 'Start Quiz'}
                         <Play size={15} />
                       </Button>
                     </Link>

@@ -5,7 +5,7 @@ const SERVICE_TOKEN = process.env.ROGELE_SERVICE_TOKEN
 
 export async function serverApiRequest<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<T> {
   const cookieStore = cookies()
   const accessToken = cookieStore.get('rogele_access_token')?.value
@@ -22,8 +22,7 @@ export async function serverApiRequest<T>(
   const response = await fetch(`${API_URL}${endpoint}`, {
     ...options,
     headers,
-    cache: options.cache || 'no-store',
-    next: { revalidate: 0 },
+    cache: 'no-store',
   })
 
   if (!response.ok) {
@@ -31,8 +30,7 @@ export async function serverApiRequest<T>(
     try {
       const errorBody = await response.json()
       errorMessage = errorBody.error?.message || errorMessage
-    } catch {
-    }
+    } catch {}
     throw new Error(errorMessage)
   }
 

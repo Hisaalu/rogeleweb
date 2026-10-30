@@ -14,15 +14,27 @@ import { useToast } from '@/components/ui/toast-provider'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
-function computeSecondsLeft(attempt: QuizAttempt, timeLimitMinutes: number): number {
-  const startedAt = new Date(attempt.started_at).getTime()
-  const now = Date.now()
-  const elapsedSeconds = Math.max(0, Math.floor((now - startedAt) / 1000))
+function computeSecondsLeft(
+  attempt: QuizAttempt,
+  timeLimitMinutes: number,
+): number {
   const totalSeconds = timeLimitMinutes * 60
-  return Math.max(0, totalSeconds - elapsedSeconds)
+  const startedAt = new Date(attempt.started_at).getTime()
+  if (!Number.isFinite(startedAt)) return totalSeconds
+  const elapsedSeconds = Math.max(
+    0,
+    Math.floor((Date.now() - startedAt) / 1000),
+  )
+  return Math.max(0, Math.min(totalSeconds, totalSeconds - elapsedSeconds))
 }
 
-export function TakeQuizView({ quiz, questions }: { quiz: Quiz; questions: QuizQuestion[] }) {
+export function TakeQuizView({
+  quiz,
+  questions,
+}: {
+  quiz: Quiz
+  questions: QuizQuestion[]
+}) {
   const router = useRouter()
   const { showToast } = useToast()
 
@@ -36,15 +48,22 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz; questions: QuizQ
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const saveTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({})
   const hasAutoSubmitted = useRef(false)
   const hasFetchedAttempt = useRef(false)
   const attemptStorageKey = `quiz_attempt_${quiz.id}`
   const answerStorageKey = `quiz_answers_${quiz.id}`
 
+  const flushPendingSaves = useCallback(() => {
+    Object.values(saveTimers.current).forEach(clearTimeout)
+    saveTimers.current = {}
+  }, [])
+
   const handleAutoSubmit = useCallback(async () => {
     if (!attemptId || isSubmitting || hasAutoSubmitted.current) return
     hasAutoSubmitted.current = true
     setIsSubmitting(true)
+    flushPendingSaves()
 
     showToast('Time is up! Submitting your answers...', 'info')
 
@@ -55,12 +74,22 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz; questions: QuizQ
       router.refresh()
       router.push(`/learner/quizzes/results/${attemptId}`)
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Auto-submit failed.'
+      const message =
+        err instanceof Error ? err.message : 'Auto-submit failed.'
       setError(message)
       showToast(message, 'error')
       setIsSubmitting(false)
     }
-  }, [attemptId, answers, isSubmitting, router, showToast, answerStorageKey, attemptStorageKey])
+  }, [
+    attemptId,
+    answers,
+    isSubmitting,
+    router,
+    showToast,
+    answerStorageKey,
+    attemptStorageKey,
+    flushPendingSaves,
+  ])
 
   useEffect(() => {
     if (initialized) return
@@ -120,7 +149,15 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz; questions: QuizQ
     }
 
     bootstrap()
-  }, [quiz.id, quiz.time_limit, initialized, router, showToast, attemptStorageKey, answerStorageKey])
+  }, [
+    quiz.id,
+    quiz.time_limit,
+    initialized,
+    router,
+    showToast,
+    attemptStorageKey,
+    answerStorageKey,
+  ])
 
   useEffect(() => {
     if (loading || isSubmitting || timeLeft <= 0) return
@@ -153,22 +190,37 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz; questions: QuizQ
     }
   }, [answers, loading, answerStorageKey])
 
+  useEffect(() => {
+    return () => {
+      Object.values(saveTimers.current).forEach(clearTimeout)
+      saveTimers.current = {}
+    }
+  }, [])
+
   const answeredCount = Object.keys(answers).length
 
   async function handleSelectOption(qId: number, optIdx: number) {
     setAnswers((prev) => ({ ...prev, [qId]: optIdx }))
-    if (attemptId) {
+
+    if (!attemptId) return
+
+    const existing = saveTimers.current[qId]
+    if (existing) clearTimeout(existing)
+
+    saveTimers.current[qId] = setTimeout(async () => {
+      delete saveTimers.current[qId]
       try {
         await saveAnswerClient(attemptId, qId, optIdx)
       } catch {
         showToast('Saved locally. Will sync on submit.', 'info')
       }
-    }
+    }, 500)
   }
 
   async function handleManualSubmit() {
     if (!attemptId || isSubmitting) return
     setIsSubmitting(true)
+    flushPendingSaves()
     try {
       await submitAttemptClient(attemptId, answers)
       localStorage.removeItem(answerStorageKey)
@@ -193,14 +245,21 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz; questions: QuizQ
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader2 className="animate-spin" size={32} style={{ color: 'var(--brand-accent)' }} />
+        <Loader2
+          className="animate-spin"
+          size={32}
+          style={{ color: 'var(--brand-accent)' }}
+        />
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="p-10 text-center font-medium" style={{ color: 'var(--danger-fg)' }}>
+      <div
+        className="p-10 text-center font-medium"
+        style={{ color: 'var(--danger-fg)' }}
+      >
         {error}
       </div>
     )
@@ -215,7 +274,9 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz; questions: QuizQ
         <div className="flex items-center gap-2 font-semibold">
           <Clock size={20} />
           <span
-            className={`font-mono text-xl ${timeLeft < 60 ? 'animate-pulse' : ''}`}
+            className={`font-mono text-xl ${
+              timeLeft < 60 ? 'animate-pulse' : ''
+            }`}
             style={{ color: timeLeft < 60 ? 'var(--danger-fg)' : 'white' }}
           >
             {formatTime(timeLeft)}
@@ -244,7 +305,8 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz; questions: QuizQ
           <div>
             <strong className="block text-sm">Important Notice:</strong>
             <p className="text-sm opacity-90">
-              Your answers are saved automatically. Refreshing or changing pages will not lose them.
+              Your answers are saved automatically. Refreshing or changing
+              pages will not lose them.
             </p>
           </div>
         </div>
@@ -256,7 +318,9 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz; questions: QuizQ
             <div className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
               Question {idx + 1} of {questions.length}
             </div>
-            <div className="mb-5 text-base font-semibold text-foreground">{q.question_text}</div>
+            <div className="mb-5 text-base font-semibold text-foreground">
+              {q.question_text}
+            </div>
 
             <div className="space-y-3">
               {(q.options || []).map((opt, optIdx) => {
@@ -266,7 +330,9 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz; questions: QuizQ
                     key={optIdx}
                     className="flex cursor-pointer items-center gap-3 rounded-md border-2 p-3 transition-all"
                     style={{
-                      borderColor: isSelected ? 'var(--brand-accent)' : 'hsl(var(--border))',
+                      borderColor: isSelected
+                        ? 'var(--brand-accent)'
+                        : 'hsl(var(--border))',
                       backgroundColor: isSelected
                         ? 'color-mix(in srgb, var(--brand-accent) 5%, transparent)'
                         : 'hsl(var(--background))',
@@ -285,13 +351,19 @@ export function TakeQuizView({ quiz, questions }: { quiz: Quiz; questions: QuizQ
                         borderColor: isSelected
                           ? 'var(--brand-accent)'
                           : 'hsl(var(--muted-foreground))',
-                        backgroundColor: isSelected ? 'var(--brand-accent)' : 'transparent',
-                        color: isSelected ? 'white' : 'hsl(var(--muted-foreground))',
+                        backgroundColor: isSelected
+                          ? 'var(--brand-accent)'
+                          : 'transparent',
+                        color: isSelected
+                          ? 'white'
+                          : 'hsl(var(--muted-foreground))',
                       }}
                     >
                       {['A', 'B', 'C', 'D'][optIdx]}
                     </div>
-                    <span className="text-sm font-medium text-foreground">{opt}</span>
+                    <span className="text-sm font-medium text-foreground">
+                      {opt}
+                    </span>
                   </label>
                 )
               })}

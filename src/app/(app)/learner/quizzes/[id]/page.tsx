@@ -9,6 +9,9 @@ import { fetchPublicSettings } from '@/lib/settings.server.public'
 import { TakeQuizView } from './take-quiz-view'
 import type { Metadata } from 'next'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export async function generateMetadata({
   params,
 }: {
@@ -16,17 +19,18 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const id = Number(params.id)
   if (!Number.isFinite(id)) return { title: 'Quiz' }
-
-  const [quiz, settings] = await Promise.all([
-    getQuizServer(id),
-    fetchPublicSettings(),
-  ])
-
-  const siteTitle = settings['site.browser_title']?.trim() || 'NexaT'
-  const quizTitle = quiz?.title?.trim()
-
-  return {
-    title: quizTitle ? `${quizTitle}` : `Quiz | ${siteTitle}`,
+  try {
+    const [quiz, settings] = await Promise.all([
+      getQuizServer(id),
+      fetchPublicSettings(),
+    ])
+    const siteTitle = settings['site.browser_title']?.trim() || 'NexaT'
+    const quizTitle = quiz?.title?.trim()
+    return {
+      title: quizTitle ? `${quizTitle}` : `Quiz | ${siteTitle}`,
+    }
+  } catch {
+    return { title: 'Quiz' }
   }
 }
 
