@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { useToast } from '@/components/ui/toast-provider'
 
-export function SettingsView({ role }: { role: string }) {
+export function SettingsView({ role: _role }: { role: string }) {
   const { showToast } = useToast()
   
   const [currentPassword, setCurrentPassword] = useState('')
