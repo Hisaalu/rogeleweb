@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useMemo } from 'react'
+import { useState, useRef, useMemo, useEffect } from 'react'
 import { useRouter } from 'nextjs-toploader/app'
 import Link from 'next/link'
 import { 
@@ -15,7 +15,7 @@ import { formatDate } from '@/lib/utils'
 import { useToast } from '@/components/ui/toast-provider'
 import { Avatar } from '@/components/ui/avatar'
 import { PremiumGate } from '@/components/premium-gate'
-import { getAccessReason } from '@/lib/access'
+import type { AccessReason } from '@/lib/access'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -48,14 +48,26 @@ export function LearnerProfileView({
   const [phone, setPhone] = useState(profile?.phone ?? '')
   const [classId, setClassId] = useState(profile?.class_id ? String(profile.class_id) : '')
 
+  useEffect(() => {
+    setFirstName(profile?.first_name ?? '')
+    setLastName(profile?.last_name ?? '')
+    setEmail(profile?.email ?? '')
+    setPhone(profile?.phone ?? '')
+    setClassId(profile?.class_id ? String(profile.class_id) : '')
+  }, [
+    profile?.first_name, 
+    profile?.last_name, 
+    profile?.email, 
+    profile?.phone, 
+    profile?.class_id
+  ])
+
   const initials = useMemo(() => {
     return [firstName, lastName].filter(Boolean).map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'U'
   }, [firstName, lastName])
 
   const hasActiveSubscription = subscription?.status === 'active'
   const isInTrial = !hasActiveSubscription && trial?.is_in_trial
-  const accessReason = getAccessReason(subscription, trial)
-  const gateReason = accessReason === 'ok' ? 'no_plan' : accessReason
 
   async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -330,7 +342,7 @@ export function LearnerProfileView({
         <PremiumGate
           open={gateOpen}
           context="profile"
-          reason={gateReason}
+          reason={(subscription?.status !== 'active' && trial && trial.end_date && trial.days_remaining <= 0) ? 'trial_expired' : 'no_plan'}
           onDismiss={() => setGateOpen(false)}
         />
       )}

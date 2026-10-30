@@ -2,7 +2,6 @@ import 'server-only'
 import { serverApiRequest } from './server-api'
 import type { User } from '@/types/api'
 import type { Class } from '@/types/admin'
-import type { SubscriptionSummary, TrialStatus } from '@/types/dashboard'
 
 export async function getProfileServer(): Promise<User | null> {
   try {
@@ -22,37 +21,5 @@ export async function getClassesServer(): Promise<Class[]> {
     return []
   } catch {
     return []
-  }
-}
-
-export async function getTrialStatusServer(): Promise<TrialStatus | null> {
-  try {
-    const res = await serverApiRequest<any>('/api/v1/trials/me')
-    if (!res) return null
-    return {
-      is_in_trial: Boolean(res.is_in_trial ?? (res.days > 0 && !!res.end_date)),
-      days_remaining: Number(res.days_remaining ?? res.days ?? 0),
-      end_date: res.end_date ?? null,
-      total_days: Number(res.total_days ?? 60),
-      percentage_used: 0,
-    }
-  } catch {
-    return null
-  }
-}
-
-export async function getActiveSubscriptionServer(): Promise<SubscriptionSummary | null> {
-  try {
-    const res = await serverApiRequest<any>('/api/v1/subscriptions/me')
-    if (!res || !res.id) return null
-    return {
-      id: Number(res.id),
-      plan_type: String(res.plan_type),
-      status: String(res.status),
-      start_date: String(res.start_date),
-      end_date: String(res.end_date),
-    }
-  } catch {
-    return null
   }
 }
