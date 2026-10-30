@@ -1,5 +1,7 @@
 import 'server-only'
 import { unstable_cache } from 'next/cache'
+import { serverApiRequest } from './server-api'
+import type { Setting } from '@/types/admin'
 
 interface PublicSettingsResponse {
   settings?: Record<string, string>
@@ -30,3 +32,21 @@ export const fetchPublicSettings = unstable_cache(
   ['public-settings'],
   { revalidate: 60, tags: ['public-settings'] },
 )
+
+export async function listSettingsServer(): Promise<Setting[]> {
+  try {
+    const res = await serverApiRequest<unknown>('/api/v1/settings?per_page=100')
+    if (!res) return []
+
+    if (Array.isArray(res)) return res as Setting[]
+    
+    const r = (res ?? {}) as { data?: Setting[]; value?: Setting[] }
+    if (Array.isArray(r.data)) return r.data
+    if (Array.isArray(r.value)) return r.value
+    
+    return []
+  } catch (err) {
+    console.error('[settings] failed to fetch admin settings:', err)
+    return []
+  }
+}
