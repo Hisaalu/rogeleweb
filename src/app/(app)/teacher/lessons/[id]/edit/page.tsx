@@ -8,6 +8,9 @@ import {
 import { LessonForm } from '../../create/lesson-form'
 import { ExistingMaterialsPanel } from './existing-materials-panel'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export const metadata: Metadata = {
   title: 'Edit Lesson',
 }

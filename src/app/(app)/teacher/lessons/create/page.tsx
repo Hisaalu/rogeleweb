@@ -3,6 +3,9 @@ import { getSessionUser } from '@/lib/auth'
 import { listClassesServer, listSubjectsServer } from '@/lib/lessons.server'
 import { LessonForm } from './lesson-form'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export const metadata: Metadata = {
   title: 'Create Lesson',
 }

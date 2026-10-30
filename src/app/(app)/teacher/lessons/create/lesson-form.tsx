@@ -11,7 +11,6 @@ import type { Class, Subject } from '@/types/admin'
 import type { CreateLessonPayload, Lesson } from '@/types/lesson'
 import { createLesson, updateLesson, addMaterialFromFile } from '@/lib/lessons.mutations'
 import { useToast } from '@/components/ui/toast-provider'
-import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
@@ -92,12 +91,20 @@ export function LessonForm({
         throw new Error('Missing lesson')
       }
 
+      const failedFiles: string[] = []
       for (const file of files) {
         try {
           await addMaterialFromFile(lessonId, file)
         } catch {
-          showToast(`Failed to upload ${file.name}`, 'error')
+          failedFiles.push(file.name)
         }
+      }
+
+      if (failedFiles.length > 0) {
+        showToast(`Lesson saved, but failed to upload: ${failedFiles.join(', ')}`, 'error')
+        setBusy(false)
+        setFiles((prev) => prev.filter((f) => failedFiles.includes(f.name)))
+        return
       }
 
       showToast(mode === 'create' ? 'Lesson created successfully' : 'Lesson updated successfully', 'success')

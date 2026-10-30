@@ -8,6 +8,9 @@ import { getLessonServer, listMaterialsServer } from '@/lib/lessons.server'
 import { getYoutubeId, formatDate } from '@/lib/utils'
 import { formatFileSize, materialDownloadUrl } from '@/lib/materials'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export const metadata: Metadata = { title: 'Preview Lesson' }
 
 export default async function LessonPreviewPage({
