@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   ArrowLeft,
   BookOpen,
@@ -57,6 +57,10 @@ export function LearnerLessonDetail({
   const { showToast } = useToast()
   const [bookmarked, setBookmarked] = useState(lesson.is_bookmarked)
   const [busy, setBusy] = useState(false)
+
+  useEffect(() => {
+    setBookmarked(lesson.is_bookmarked)
+  }, [lesson.is_bookmarked, lesson.id])
 
   const youtubeId = getYoutubeId(lesson.video_url)
   const edited = isRealEdit(lesson.created_at, lesson.updated_at)
@@ -135,7 +139,8 @@ export function LearnerLessonDetail({
           </span>
           <span className="inline-flex items-center gap-1">
             <Paperclip size={14} style={accentIcon} />
-            {lesson.materials_count} file{lesson.materials_count === 1 ? '' : 's'}
+            {lesson.materials_count} file
+            {lesson.materials_count === 1 ? '' : 's'}
           </span>
           {lesson.duration ? (
             <span className="inline-flex items-center gap-1">
@@ -203,7 +208,11 @@ export function LearnerLessonDetail({
                     className="group flex flex-col gap-2 rounded-md border border-border bg-muted/40 p-3 text-sm transition hover:border-brand-accent hover:bg-muted sm:flex-row sm:items-center sm:gap-3 sm:p-3.5"
                   >
                     <div className="flex min-w-0 flex-1 items-center gap-3">
-                      <FileText size={18} style={accentIcon} className="shrink-0" />
+                      <FileText
+                        size={18}
+                        style={accentIcon}
+                        className="shrink-0"
+                      />
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-medium text-foreground">
                           {name}

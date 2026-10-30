@@ -9,6 +9,9 @@ import { PremiumGate } from '@/components/premium-gate'
 import { ErrorToaster } from '@/components/error-toaster'
 import { LearnerLessonsView } from './learner-lessons-view'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export const metadata: Metadata = {
   title: 'Learning Materials',
 }
@@ -22,7 +25,12 @@ function parsePositiveInt(value: string | undefined): number | undefined {
 export default async function LearnerLessonsPage({
   searchParams,
 }: {
-  searchParams: { q?: string; subject_id?: string; page?: string; locked?: string }
+  searchParams: {
+    q?: string
+    subject_id?: string
+    page?: string
+    locked?: string
+  }
 }) {
   const session = await getSessionUser()
   if (!session) return null

@@ -8,6 +8,9 @@ import {
 import { getAccessReason } from '@/lib/access'
 import { LearnerLessonDetail } from './learner-lesson-detail'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export const metadata: Metadata = {
   title: 'Lesson',
 }
@@ -36,7 +39,8 @@ export default async function LearnerLessonPage({
 
   const reason = getAccessReason(subscription, trial)
   if (reason !== 'ok') {
-    const target = RETURN_TARGETS[searchParams.from ?? 'lessons'] ?? '/learner/lessons'
+    const target =
+      RETURN_TARGETS[searchParams.from ?? 'lessons'] ?? '/learner/lessons'
     redirect(`${target}?locked=${reason}`)
   }
 
@@ -44,9 +48,10 @@ export default async function LearnerLessonPage({
     getLessonServer(id),
     listMaterialsServer(id),
   ])
-  
+
   if (!lesson) {
-    const target = RETURN_TARGETS[searchParams.from ?? 'lessons'] ?? '/learner/lessons'
+    const target =
+      RETURN_TARGETS[searchParams.from ?? 'lessons'] ?? '/learner/lessons'
     redirect(`${target}?error=not_found`)
   }
 

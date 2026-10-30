@@ -7,10 +7,38 @@ import type {
   TrialStatus,
 } from '@/types/dashboard'
 
+function isTransient(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err)
+  if (/API error: 5\d\d/.test(msg)) return true
+  if (/API error: 429/.test(msg)) return true
+  if (/fetch failed|ECONNRESET|ECONNREFUSED|timeout|socket hang up/i.test(msg))
+    return true
+  return false
+}
+
+async function retry<T>(
+  fn: () => Promise<T>,
+  attempts = 3,
+  baseMs = 60,
+): Promise<T> {
+  let lastErr: unknown
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fn()
+    } catch (err) {
+      lastErr = err
+      if (!isTransient(err) || i === attempts - 1) throw err
+      await new Promise((r) => setTimeout(r, baseMs * 2 ** i))
+    }
+  }
+  throw lastErr
+}
+
 async function safeRequest<T>(path: string): Promise<T | null> {
   try {
-    return await serverApiRequest<T>(path)
-  } catch {
+    return await retry(() => serverApiRequest<T>(path))
+  } catch (err) {
+    console.error('[dashboard.server] request failed', { path, err })
     return null
   }
 }
@@ -55,8 +83,10 @@ export async function getTrialStatusServer(): Promise<TrialStatus | null> {
   const totalDays = Number(r.total_days ?? 60) || 60
   const endDate = normalizeUTC((r.end_date as string | undefined) ?? null)
   const rawRemaining = Number(r.days_remaining ?? r.days ?? 0)
-  const daysRemaining = Number.isFinite(rawRemaining) ? Math.max(0, rawRemaining) : 0
-  const isInTrial = Boolean(r.is_in_trial ?? (daysRemaining > 0 && !!endDate))
+  const daysRemaining = Number.isFinite(rawRemaining)
+    ? Math.max(0, rawRemaining)
+    : 0
+  const isInTrial = Boolean(r.is_in_trial ?? false)
 
   return {
     is_in_trial: isInTrial,
@@ -165,7 +195,9 @@ export async function getCalendarEventsServer(): Promise<CalendarEvent[]> {
     })
   }
 
-  events.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+  events.sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+  )
   return events
 }
 
