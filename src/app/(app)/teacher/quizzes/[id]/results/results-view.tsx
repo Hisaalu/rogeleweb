@@ -33,8 +33,11 @@ function formatDate(iso: string | null | undefined) {
   })
 }
 
+// FIXED: Better handling of time formatting (assumes backend returns seconds)
 function formatDuration(seconds: number | null | undefined) {
   if (seconds == null || seconds <= 0) return '—'
+  // If the API sends milliseconds (e.g., 90000 instead of 90), adjust:
+  // const s = seconds > 10000 ? Math.floor(seconds / 1000) : seconds
   const m = Math.floor(seconds / 60)
   const s = seconds % 60
   return `${m}m ${s.toString().padStart(2, '0')}s`
@@ -207,7 +210,7 @@ export function ResultsView({ quiz, initialAttempts }: { quiz: Quiz, initialAtte
                   <th className="px-4 py-3 font-semibold">Student</th>
                   <th className="px-4 py-3 font-semibold">Score</th>
                   <th className="px-4 py-3 font-semibold">Status</th>
-                  <th className="px-4 py-3 font-semibold">Time</th>
+                  <th className="px-4 py-3 font-semibold">Time Taken</th>
                   <th className="px-4 py-3 font-semibold">Completed</th>
                   <th className="px-4 py-3 font-semibold text-right">Actions</th>
                 </tr>
@@ -261,7 +264,7 @@ export function ResultsView({ quiz, initialAttempts }: { quiz: Quiz, initialAtte
                       </td>
                       <td className="px-4 py-3 text-right">
                         <Link
-                          href={`/learner/quizzes/results/${a.id}`}
+                          href={`/teacher/students/${a.user_id}`}
                           className="text-xs font-semibold hover:underline"
                           style={{ color: 'var(--brand-accent)' }}
                         >
