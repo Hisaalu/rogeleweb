@@ -6,6 +6,10 @@ import {
   sessionCookieOptions,
 } from '@/lib/cookies'
 
+export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
+export const revalidate = 0
+
 const API_URL = process.env.ROGELEDB_API_URL ?? 'http://localhost:8080'
 
 async function tryRefresh(refreshToken: string): Promise<{
@@ -111,9 +115,14 @@ async function proxy(req: NextRequest, { params }: { params: { path: string[] } 
   if (upstreamContentType) responseHeaders['content-type'] = upstreamContentType
 
   return new NextResponse(text, {
-    status: upstream.status,
-    headers: responseHeaders,
-  })
+  status: upstream.status,
+  headers: {
+    'content-type': upstreamContentType || 'application/json',
+    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+    'Pragma': 'no-cache',
+    'Expires': '0',
+  },
+})
 }
 
 export const GET = proxy
@@ -123,7 +132,3 @@ export const PATCH = proxy
 export const DELETE = proxy
 export const HEAD = proxy
 export const OPTIONS = proxy
-
-export const dynamic = 'force-dynamic'
-export const fetchCache = 'force-no-store'
-export const revalidate = 0

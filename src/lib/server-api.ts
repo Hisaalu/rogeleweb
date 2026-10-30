@@ -23,6 +23,7 @@ export async function serverApiRequest<T>(
     ...options,
     headers,
     cache: options.cache || 'no-store',
+    next: { revalidate: 0 },
   })
 
   if (!response.ok) {
