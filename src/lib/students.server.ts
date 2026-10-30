@@ -13,9 +13,10 @@ export async function listStudentsServer(params: {
   q?: string
   class_id?: number
   page?: number
+  per_page?: number
 }): Promise<{ students: AdminUser[]; meta: StudentListMeta }> {
   const page = params.page ?? 1
-  const per_page = 10
+  const per_page = params.per_page ?? 10
 
   const sp = new URLSearchParams()
   sp.set('page', String(page))

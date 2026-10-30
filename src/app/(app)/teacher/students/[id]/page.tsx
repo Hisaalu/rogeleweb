@@ -5,12 +5,18 @@ import { StudentProgressView } from './student-progress-view'
 
 export const metadata: Metadata = { title: 'Student Progress' }
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+const ANALYTICS_URL = process.env.ANALYTICS_API_URL ?? 'http://localhost:9000'
 
 async function fetchPython(endpoint: string, params: Record<string, string> = {}) {
   const search = new URLSearchParams(params).toString()
-  const url = `http://localhost:9000/analytics/${endpoint}${search ? `?${search}` : ''}`
+  const url = `${ANALYTICS_URL}/analytics/${endpoint}${search ? `?${search}` : ''}`
   try {
-    const res = await fetch(url, { cache: 'no-store' })
+    const res = await fetch(url, { 
+      cache: 'no-store',
+      headers: { Accept: 'application/json' }
+    })
     if (!res.ok) return null
     return res.json()
   } catch {
@@ -24,7 +30,7 @@ export default async function StudentProgressPage({ params }: { params: { id: st
 
   const [data, atRiskData] = await Promise.all([
     serverApiRequest<any>(`/api/v1/admin/users/${id}/details`).catch(() => null),
-    fetchPython('at-risk-learners', { limit: '100' }).catch(() => null)
+    fetchPython('at-risk-learners', { limit: '100' }) 
   ])
 
   if (!data || !data.user) notFound()

@@ -79,8 +79,15 @@ export function StudentProgressView({
     }))
   }, [recentAttempts])
 
-  const studentRisk = atRiskData?.learners?.find((l: any) => l.user_id === student.id)
-  const improvementTrend = studentRisk?.risk_band === 'at_risk' ? 'Needs Attention' : studentRisk?.risk_band === 'watch' ? 'Slipping' : 'Stable'
+  const studentRisk = Array.isArray(atRiskData?.learners) 
+    ? atRiskData.learners.find((l: any) => l.user_id === student.id) 
+    : null
+    
+  const improvementTrend = studentRisk?.risk_band === 'at_risk' 
+    ? 'Needs Attention' 
+    : studentRisk?.risk_band === 'watch' 
+    ? 'Slipping' 
+    : 'Stable'
 
   const handleExport = useCallback(() => {
     const headers = ['Quiz ID', 'Score', 'Result', 'Date']

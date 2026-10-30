@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { useState, useMemo, useTransition } from 'react'
+import { useState, useMemo, useTransition, useEffect } from 'react'
 import {
   Search, Users, GraduationCap, Mail, BarChart2,
   User, Crown, Star, Loader2
@@ -54,7 +54,12 @@ export function StudentsView({
   const [searchTerm, setSearchTerm] = useState(params.get('search') ?? '')
   const [selectedClass, setSelectedClass] = useState(params.get('class_id') ?? '')
 
-  const totalStudents = meta.total
+  useEffect(() => {
+    setSearchTerm(params.get('search') ?? '')
+    setSelectedClass(params.get('class_id') ?? '')
+  }, [params])
+
+  const totalStudents = meta.total || students.length
   const avgPerformance = useMemo(() => {
     const valid = students.filter(s => (s.quizzes_taken ?? 0) > 0)
     if (valid.length === 0) return 0

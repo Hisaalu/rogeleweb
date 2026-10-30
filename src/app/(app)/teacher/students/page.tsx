@@ -5,6 +5,7 @@ import { StudentsView } from './students-view'
 
 export const metadata: Metadata = { title: 'My Students' }
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export default async function TeacherStudentsPage({
   searchParams,
@@ -19,7 +20,7 @@ export default async function TeacherStudentsPage({
   const page = searchParams.page ? Number(searchParams.page) : 1
 
   const [result, classes] = await Promise.all([
-    listStudentsServer({ q: search, class_id: classId, page }),
+    listStudentsServer({ q: search, class_id: classId, page, per_page: 12 }),
     listClassesServer(),
   ])
 
