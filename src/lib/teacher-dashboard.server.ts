@@ -7,7 +7,7 @@ export interface TeacherDashboardData {
   totalLessons: number
   totalQuizzes: number
   totalStudents: number
-  averageScore: number | null // <-- CHANGED to allow null
+  averageScore: number | null
   recentLessons: Lesson[]
   recentQuizzes: Quiz[]
 }
@@ -69,7 +69,6 @@ export async function getTeacherDashboardDataServer(teacherId: number): Promise<
     ? learnerCountsRaw.reduce((sum, c) => sum + (c.learner_count ?? 0), 0)
     : 0)
 
-  // Fall back to null instead of 0
   const averageScore = overview?.average_score ?? null
 
   return {
@@ -80,4 +79,18 @@ export async function getTeacherDashboardDataServer(teacherId: number): Promise<
     recentLessons: lessonsData.items.slice(0, 4),
     recentQuizzes: quizzesData.items.slice(0, 4),
   }
+}
+
+export async function getTeacherCountsServer(): Promise<{ totalLessons: number; totalStudents: number }> {
+  const [lessonsRaw, learnerCountsRaw] = await Promise.all([
+    serverApiRequest<unknown>('/api/v1/lessons?per_page=1').catch(() => null),
+    serverApiRequest<ClassLearnerCount[]>('/api/v1/admin/learners-by-class').catch(() => null),
+  ])
+
+  const lessonsData = getItemsAndTotal<Lesson>(lessonsRaw)
+  const totalStudents = Array.isArray(learnerCountsRaw)
+    ? learnerCountsRaw.reduce((sum, c) => sum + (c.learner_count ?? 0), 0)
+    : 0
+
+  return { totalLessons: lessonsData.total, totalStudents }
 }

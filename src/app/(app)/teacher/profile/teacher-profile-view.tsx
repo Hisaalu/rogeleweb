@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react' 
 import { useRouter } from 'nextjs-toploader/app'
 import { 
   UserCircle, Camera, Calendar, Clock, Edit, Save, User, Mail, Phone, 
@@ -37,6 +37,24 @@ export function TeacherProfileView({
   const [bio, setBio] = useState(profile?.bio ?? '')
   const [qualification, setQualification] = useState(profile?.qualification ?? '')
   const [specialization, setSpecialization] = useState(profile?.specialization ?? '')
+
+  useEffect(() => {
+    setFirstName(profile?.first_name ?? '')
+    setLastName(profile?.last_name ?? '')
+    setEmail(profile?.email ?? '')
+    setPhone(profile?.phone ?? '')
+    setBio(profile?.bio ?? '')
+    setQualification(profile?.qualification ?? '')
+    setSpecialization(profile?.specialization ?? '')
+  }, [
+    profile?.first_name, 
+    profile?.last_name, 
+    profile?.email, 
+    profile?.phone, 
+    profile?.bio,
+    profile?.qualification,
+    profile?.specialization
+  ])
 
   const initials = [firstName, lastName].filter(Boolean).map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'T'
 
