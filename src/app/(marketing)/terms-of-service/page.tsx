@@ -33,7 +33,7 @@ export default async function TermsOfServicePage() {
           Terms of Service
         </h1>
         <p className="mt-3 text-sm text-muted-foreground">
-          Last Updated: October 12, 2026
+          Last Updated: November 1, 2026
         </p>
       </div>
 
@@ -56,7 +56,7 @@ export default async function TermsOfServicePage() {
         <section id="description" className="scroll-mt-24 space-y-4">
           <h2 className="text-xl font-bold text-foreground sm:text-2xl">2. Description of Service</h2>
           <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
-            <Link href="/" className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>{schoolName}</Link>{' '}
+            <Link href="https://raysofgrace.ac.ug/" target="_blank" className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>{schoolName}</Link>{' '}
             provides an online learning platform that allows users to access educational content, 
             take quizzes, submit homework, track progress, and interact with teachers.
           </p>
@@ -111,7 +111,7 @@ export default async function TermsOfServicePage() {
         <section id="ownership" className="scroll-mt-24 space-y-4">
           <h2 className="text-xl font-bold text-foreground sm:text-2xl">6. Content Ownership</h2>
           <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
-            All content provided on the platform, including lessons, text, graphics, logos, and software, is the property of <Link href="/" className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>{schoolName}</Link>{' '}
+            All content provided on the platform, including lessons, text, graphics, logos, and software, is the property of <Link href="https://raysofgrace.ac.ug/" target="_blank" className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>{schoolName}</Link>{' '}
             and is protected by copyright laws. You may not reproduce or distribute it without explicit permission.
           </p>
           <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
@@ -130,7 +130,7 @@ export default async function TermsOfServicePage() {
         <section id="liability" className="scroll-mt-24 space-y-4">
           <h2 className="text-xl font-bold text-foreground sm:text-2xl">8. Limitation of Liability</h2>
           <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
-            To the maximum extent permitted by law, <Link href="/" className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>{schoolName}</Link>{' '}
+            To the maximum extent permitted by law, <Link href="https://raysofgrace.ac.ug/" target="_blank" className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>{schoolName}</Link>{' '}
             shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the platform. 
             Our total liability shall not exceed the amount paid by you for using the platform during the twelve months preceding the claim.
           </p>

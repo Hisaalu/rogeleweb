@@ -32,7 +32,7 @@ export default async function PrivacyPolicyPage() {
           Privacy Policy
         </h1>
         <p className="mt-3 text-sm text-muted-foreground">
-          Last Updated: October 12, 2026
+          Last Updated: November 1, 2026
         </p>
       </div>
 
@@ -41,7 +41,7 @@ export default async function PrivacyPolicyPage() {
         <section id="introduction" className="scroll-mt-24 space-y-4">
           <h2 className="text-xl font-bold text-foreground sm:text-2xl">1. Introduction</h2>
           <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
-            <Link href="/" className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>{schoolName}</Link>{' '}
+            <Link href="https://raysofgrace.ac.ug/" target="_blank" className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>{schoolName}</Link>{' '}
             respects your privacy and is committed to protecting your personal data. 
             This privacy policy explains how we collect, use, disclose, and safeguard your information when you use our e-learning platform.
           </p>
