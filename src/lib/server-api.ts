@@ -19,10 +19,12 @@ export async function serverApiRequest<T>(
     headers.set('Authorization', `Bearer ${token}`)
   }
 
+  const cacheStrategy = options.cache ?? (options.next ? undefined : 'no-store')
+
   const response = await fetch(`${API_URL}${endpoint}`, {
     ...options,
     headers,
-    cache: 'no-store',
+    cache: cacheStrategy as RequestCache | undefined,
   })
 
   if (!response.ok) {

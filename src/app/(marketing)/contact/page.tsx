@@ -6,7 +6,7 @@ import { Mail, Phone, MapPin, Clock } from 'lucide-react'
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await fetchPublicSettings()
-  const siteTitle = settings['site.browser_title'] || 'ROGELE'
+  const siteTitle = settings['site.browser_title']?.trim() || 'NexaT'
   return {
     title: `Contact`,
     description: `Get in touch with ${siteTitle}.`,
@@ -16,13 +16,13 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ContactPage() {
   const settings = await fetchPublicSettings()
 
-  const email = settings['contact.email'] || 'info@raysofgrace.ac.ug'
-  const altEmail = settings['contact.alt_email'] || 'nelson@raysofgrace.ac.ug'
-  const phone = settings['contact.phone'] || '+256 786 764 239'
-  const altPhone = settings['contact.alt_phone'] || '+256 751 719 313'
-  const address = settings['contact.address'] || 'Njeru, Uganda'
-  const hoursWeekday = settings['contact.hours_weekday'] || 'Mon-Fri: 8AM - 5PM'
-  const hoursWeekend = settings['contact.hours_weekend'] || 'Sat: 9AM - 1PM'
+  const email = settings['contact.email']?.trim() || 'info@raysofgrace.ac.ug'
+  const altEmail = settings['contact.alt_email']?.trim() || 'nelson@raysofgrace.ac.ug'
+  const phone = settings['contact.phone']?.trim() || '+256 786 764 239'
+  const altPhone = settings['contact.alt_phone']?.trim() || '+256 751 719 313'
+  const address = settings['contact.address']?.trim() || 'Njeru, Uganda'
+  const hoursWeekday = settings['contact.hours_weekday']?.trim() || 'Mon-Fri: 8AM - 5PM'
+  const hoursWeekend = settings['contact.hours_weekend']?.trim() || 'Sat: 9AM - 1PM'
 
   const iconStyle = {
     backgroundColor: 'color-mix(in srgb, var(--brand-accent) 10%, transparent)',
@@ -45,6 +45,7 @@ export default async function ContactPage() {
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
           
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            
             <Card className="flex flex-col items-center justify-center p-6 text-center transition hover:-translate-y-1 hover:border-brand-accent">
               <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-sm" style={iconStyle}>
                 <Mail size={24} />
@@ -85,6 +86,7 @@ export default async function ContactPage() {
                 <p className="text-sm text-muted-foreground">{hoursWeekend}</p>
               )}
             </Card>
+
           </div>
 
           <ContactForm />

@@ -67,11 +67,11 @@ export function ContactForm() {
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-1.5">
           <label className="block text-sm font-medium text-foreground">Your Name</label>
-          <Input type="text" name="name" required placeholder="John Doe" />
+          <Input type="text" name="name" required placeholder="Ivan Mukisa" />
         </div>
         <div className="space-y-1.5">
           <label className="block text-sm font-medium text-foreground">Email Address</label>
-          <Input type="email" name="email" required placeholder="john@example.com" />
+          <Input type="email" name="email" required placeholder="mukisa@example.com" />
         </div>
         <div className="space-y-1.5">
           <label className="block text-sm font-medium text-foreground">Subject</label>

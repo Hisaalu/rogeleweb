@@ -6,24 +6,39 @@ import type { Setting } from '@/types/admin'
 interface PublicSettingsResponse {
   settings?: Record<string, string>
   data?: Record<string, string>
+  branding?: Record<string, string>
 }
 
 async function fetchPublicSettingsRaw(): Promise<Record<string, string>> {
   const API_URL = process.env.ROGELEDB_API_URL ?? 'http://localhost:8080'
   const res = await fetch(`${API_URL}/api/v1/config/public`, {
     cache: 'no-store',
+    headers: {
+      Accept: 'application/json',
+    },
   })
+
   if (!res.ok) {
     throw new Error(`settings fetch failed: ${res.status}`)
   }
+
   const data: PublicSettingsResponse = await res.json()
-  const raw = data.settings ?? data.data ?? {}
+  
+  const rawSettings = data.settings ?? data.data ?? {}
+  const rawBranding = data.branding ?? {}
+  
   const result: Record<string, string> = {}
-  for (const [key, value] of Object.entries(raw)) {
-    if (value == null) continue
-    if (key.startsWith('branding.') && key !== 'branding.school_name') continue
-    result[key] = String(value)
+  
+  for (const [key, value] of Object.entries(rawSettings)) {
+    if (value != null) result[key] = String(value)
   }
+  
+  for (const [key, value] of Object.entries(rawBranding)) {
+    if (value != null) {
+      result[`branding.${key}`] = String(value)
+    }
+  }
+  
   return result
 }
 

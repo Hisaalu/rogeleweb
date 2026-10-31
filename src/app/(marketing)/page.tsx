@@ -18,20 +18,12 @@ import {
   ChevronDown,
 } from 'lucide-react'
 
-export const revalidate = 3600 
+export const revalidate = 3600
 
 export async function generateMetadata(): Promise<Metadata> {
-  try {
-    const settings = await fetchPublicSettings()
-    return {
-      title: `Quality Education`,
-      description: 'Join our innovative E-learning Environment. Interactive lessons, smart quizzes, and progress tracking.',
-    }
-  } catch {
-    return {
-      title: 'Home',
-      description: 'Join our innovative E-learning Environment. Interactive lessons, smart quizzes, and progress tracking.',
-    }
+  return {
+    title: 'Quality Education',
+    description: 'Join our innovative E-learning Environment. Interactive lessons, smart quizzes, and progress tracking.',
   }
 }
 
@@ -85,7 +77,8 @@ export default async function HomePage() {
   const { plans, stats, classRange: range } = data
 
   const siteTitle = settings['site.browser_title']?.trim() || 'NexaT'
-  const schoolName = settings['branding.school_name']?.trim() || siteTitle
+  const schoolName = settings['branding.school_name']?.trim() || 'NexaT'
+  const tagline = settings['branding.tagline']?.trim() || 'NexaT'
 
   const classRange = `${range.first} to ${range.last}`
 
@@ -117,7 +110,7 @@ export default async function HomePage() {
               </h1>
 
               <p className="mt-6 max-w-lg text-lg text-white/90">
-                Join our innovative Rays of Grace E-Learning Environment from Primary One to Primary Seven.
+                Join our innovative {schoolName} {tagline} from {classRange}.
                 Interactive lessons, smart quizzes, and progress tracking all in one place.
               </p>
 

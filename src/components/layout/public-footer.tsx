@@ -22,7 +22,7 @@ export function PublicFooter() {
   const youtube = getSetting('social.youtube')
   const website = branding.websiteUrl
   
-  const siteTitle = getSetting('site.browser_title') || branding.schoolName
+  const schoolName = branding.schoolName || 'NexaT'
 
   useEffect(() => {
     const handleScroll = () => {
@@ -144,9 +144,9 @@ export function PublicFooter() {
 
         </div>
 
-        <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 text-center sm:flex-row sm:text-left">
+        <div className="mt-16 border-t border-border pt-8 text-center">
           <p className="text-xs text-muted-foreground">
-            &copy; {currentYear} {siteTitle}. All rights reserved.
+            &copy; {currentYear} {schoolName}. All rights reserved.
           </p>
         </div>
       </div>

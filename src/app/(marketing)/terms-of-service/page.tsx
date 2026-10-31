@@ -20,6 +20,7 @@ export default async function TermsOfServicePage() {
   const contactEmail = settings['contact.email'] || 'info@raysofgrace.ac.ug'
   const contactPhone = settings['contact.phone'] || '+256 786 764 239'
   const contactAddress = settings['contact.address'] || 'Njeru, Uganda'
+    const tagline = settings['branding.tagline']?.trim() || 'NexaT'
 
   return (
     <div className="mx-auto max-w-4xl space-y-8 px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
@@ -41,7 +42,7 @@ export default async function TermsOfServicePage() {
         <section id="acceptance" className="scroll-mt-24 space-y-4">
           <h2 className="text-xl font-bold text-foreground sm:text-2xl">1. Acceptance of Terms</h2>
           <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
-            By accessing or using <Link href="/" className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>{schoolName}</Link> (&quot;{siteTitle}&quot;), you agree to be bound by these Terms of Service. 
+            By accessing or using <Link href="/" className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>{schoolName} {tagline} </Link> (&quot;{siteTitle}&quot;), you agree to be bound by these Terms of Service. 
             If you do not agree to these terms, please do not use our platform.
           </p>
           <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
@@ -129,7 +130,7 @@ export default async function TermsOfServicePage() {
         <section id="liability" className="scroll-mt-24 space-y-4">
           <h2 className="text-xl font-bold text-foreground sm:text-2xl">8. Limitation of Liability</h2>
           <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
-            To the maximum extent permitted by law, <Link href="/" className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>{siteTitle}</Link>{' '}
+            To the maximum extent permitted by law, <Link href="/" className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>{schoolName}</Link>{' '}
             shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the platform. 
             Our total liability shall not exceed the amount paid by you for using the platform during the twelve months preceding the claim.
           </p>
