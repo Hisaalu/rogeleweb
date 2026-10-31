@@ -13,9 +13,7 @@ import type { SubscriptionSummary, TrialStatus } from '@/types/dashboard'
 import { updateProfileClient, uploadAvatarClient } from '@/lib/profile.client'
 import { formatDate } from '@/lib/utils'
 import { useToast } from '@/components/ui/toast-provider'
-import { Avatar } from '@/components/ui/avatar'
 import { PremiumGate } from '@/components/premium-gate'
-import type { AccessReason } from '@/lib/access'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -145,14 +143,19 @@ export function LearnerProfileView({
           
           <Card className="space-y-6 p-5 sm:p-8">
             <div className="text-center">
+              
               <div className="relative mx-auto mb-5 h-32 w-32 sm:h-[150px] sm:w-[150px]">
-                
-                <Avatar
-                  src={profile?.profile_photo}
-                  fallback={initials}
-                  size={150}
-                  className="h-full w-full border-4 border-white shadow-xl"
-                />
+                {profile?.profile_photo ? (
+                  <img 
+                    src={profile.profile_photo} 
+                    alt="Profile" 
+                    className="h-full w-full rounded-full border-4 border-card object-cover shadow-xl"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center rounded-full border-4 border-card bg-brand-primary text-4xl font-bold text-white shadow-xl sm:text-5xl">
+                    {initials}
+                  </div>
+                )}
                 
                 <button 
                   onClick={handlePhotoClick}
