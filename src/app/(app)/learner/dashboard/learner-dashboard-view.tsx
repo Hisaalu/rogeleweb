@@ -49,7 +49,19 @@ export function LearnerDashboardView({
       : 0
 
   const isYearly = subscription?.plan_type === 'yearly' || subscription?.plan_type === '3'
-  const buttonLabel = hasActiveSubscription ? (isYearly ? "Pro" : "Upgrade Plan") : "Subscribe Now"
+  
+  let buttonLabel = ""
+  let showButton = false
+
+  if (isInTrial || (!hasActiveSubscription && !isInTrial)) {
+    buttonLabel = "Subscribe Now"
+    showButton = true
+  } else if (hasActiveSubscription && isYearly) {
+    buttonLabel = "Pro"
+    showButton = true
+  } else if (hasActiveSubscription && !isYearly) {
+    showButton = false
+  }
 
   return (
     <div className="mx-auto max-w-6xl space-y-5 px-4 py-6 sm:space-y-6 sm:px-6 sm:py-8">
@@ -67,8 +79,8 @@ export function LearnerDashboardView({
             title="Subscribed."
             description="You have full access to all premium features."
             endDate={subscription.end_date}
-            actionLabel={buttonLabel}
-            actionHref="/learner/subscription"
+            actionLabel={showButton ? buttonLabel : undefined}
+            actionHref={showButton ? "/learner/subscription" : undefined}
             showCrown={isYearly}
             isPro={isYearly}
           />
@@ -104,9 +116,11 @@ export function LearnerDashboardView({
                   </p>
                 )}
               </div>
-              <Link href="/learner/subscription" className="shrink-0">
-                <Button variant="secondary">Subscribe Now</Button>
-              </Link>
+              {showButton && (
+                <Link href="/learner/subscription" className="shrink-0">
+                  <Button variant="secondary">{buttonLabel}</Button>
+                </Link>
+              )}
             </div>
 
             <div className="mt-4">

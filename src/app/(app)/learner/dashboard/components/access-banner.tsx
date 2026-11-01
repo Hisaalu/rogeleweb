@@ -49,8 +49,8 @@ export function AccessBanner({
   title: string
   description: string
   endDate?: string | null
-  actionLabel: string
-  actionHref: string
+  actionLabel?: string   
+  actionHref?: string     
   showCrown?: boolean
   isPro?: boolean
 }) {
@@ -88,14 +88,16 @@ export function AccessBanner({
         )}
       </div>
 
-      <Link
-        href={actionHref}
-        className="flex shrink-0 items-center gap-1.5 rounded-full px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-        style={{ backgroundColor: 'var(--success-border)' }}
-      >
-        {showCrown && <Crown size={14} className="shrink-0" />}
-        {actionLabel}
-      </Link>
+      {actionHref && actionLabel && (
+        <Link
+          href={actionHref}
+          className="flex shrink-0 items-center gap-1.5 rounded-full px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+          style={{ backgroundColor: 'var(--success-border)' }}
+        >
+          {showCrown && <Crown size={14} className="shrink-0" />}
+          {actionLabel}
+        </Link>
+      )}
     </div>
   )
 }

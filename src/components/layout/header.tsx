@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Menu, Zap, Crown } from 'lucide-react'
+import { Menu, Crown } from 'lucide-react'
 import { useBranding } from '@/components/brand/brand-provider'
 import { UserMenu } from './user-menu'
 import { NotificationBell } from '@/components/notifications/notification-bell'
@@ -52,29 +52,17 @@ export function Header({
       </div>
 
       <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
-        {user.role !== 'teacher' &&
-          (isPro ? (
-            <div
-              className="flex items-center gap-1.5 rounded-sm px-2.5 py-1.5 text-[11px] text-white shadow-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-xs"
-              style={{
-                backgroundColor: 'color-mix(in srgb, var(--success-border) 70%, transparent)',
-              }}
-            >
-              <Crown size={12} className="shrink-0" />
-              <span>Pro</span>
-            </div>
-          ) : (
-            <Link
-              href="/learner/subscription"
-              className="flex items-center gap-1.5 rounded-sm px-2.5 py-1.5 text-[10px] text-white shadow-sm transition hover:opacity-80 sm:gap-2 sm:px-4 sm:py-2 sm:text-xs"
-              style={{
-                backgroundColor: 'color-mix(in srgb, var(--success-border) 70%, transparent)',
-              }}
-            >
-              <Zap size={12} className="shrink-0" />
-              <span>Upgrade</span>
-            </Link>
-          ))}
+        {user.role !== 'teacher' && isPro && (
+          <div
+            className="flex items-center gap-1.5 rounded-sm px-2.5 py-1.5 text-[11px] text-white shadow-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-xs"
+            style={{
+              backgroundColor: 'color-mix(in srgb, var(--success-border) 70%, transparent)',
+            }}
+          >
+            <Crown size={12} className="shrink-0" />
+            <span>Pro</span>
+          </div>
+        )}
         <NotificationBell compact />
         <UserMenu user={user} />
       </div>
