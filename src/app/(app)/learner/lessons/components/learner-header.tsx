@@ -12,7 +12,7 @@ export function LearnerHeader({ bookmarkCount }: { bookmarkCount: number }) {
           <span style={{ color: 'var(--brand-primary)' }}>Lessons</span>
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Explore lessons and resources
+          Explore lessons
         </p>
       </div>
 

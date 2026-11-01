@@ -59,7 +59,7 @@ export function SettingsView({ role: _role }: { role: string }) {
           <Settings size={26} className="shrink-0 sm:h-7 sm:w-7" />
           <span>Settings</span>
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">Manage your account security and preferences</p>
+        <p className="mt-1 text-sm text-muted-foreground">Manage your account security</p>
       </div>
 
       <div className="space-y-6">

@@ -226,7 +226,7 @@ export function AnalyticsView({
         tone: 'warning',
         title: `${atRisk.summary.watch} students to watch`,
         description:
-          'These learners are starting to slip. A gentle nudge might help.',
+          'These learners are starting to slip. A gentle nudge might help them .',
       })
     }
     return recs

@@ -151,12 +151,12 @@ export function QuizForm({
             </label>
             <label className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
               <input type="checkbox" checked={showResults} onChange={e => setShowResults(e.target.checked)} className="h-4 w-4 rounded border-input" style={{ accentColor: 'var(--brand-accent)' }} />
-              Allow students to view their results after submitting their attempt
+              Allow students to view results after
             </label>
             {!isPublished && (
               <div className="mt-4 flex items-start gap-3 rounded-md p-4 text-sm" style={{ backgroundColor: 'var(--warning-bg)', color: 'var(--warning-fg)' }}>
                 <AlertTriangle size={18} className="shrink-0" />
-                <p>Don&apos;t forget to add questions after creating the quiz. Students will only see the quiz once you&apos;ve added questions and published it.</p>
+                <p>Don&apos;t forget to add questions after creating the quiz.</p>
               </div>
             )}
           </Section>

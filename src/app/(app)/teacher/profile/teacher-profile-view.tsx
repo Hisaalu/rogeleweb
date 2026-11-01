@@ -120,7 +120,7 @@ export function TeacherProfileView({
           <UserCircle size={26} className="shrink-0 sm:h-7 sm:w-7" />
           <span>Profile</span>
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">Manage your personal information and account settings</p>
+        <p className="mt-1 text-sm text-muted-foreground">Manage your personal information</p>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[350px_1fr] lg:gap-8">

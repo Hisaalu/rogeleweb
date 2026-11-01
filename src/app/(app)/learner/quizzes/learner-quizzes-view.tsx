@@ -33,7 +33,7 @@ export function LearnerQuizzesView({
           </span>
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Test your knowledge with interactive quizzes
+          Test your knowledge with timed quizzes
         </p>
       </div>
 

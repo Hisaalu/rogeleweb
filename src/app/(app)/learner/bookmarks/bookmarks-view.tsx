@@ -27,7 +27,7 @@ export function BookmarksView({ lessons: initial }: { lessons: Lesson[] }) {
             <span style={{ color: 'var(--brand-primary)' }}>Bookmarks</span>
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Lessons you&apos;ve saved for later.
+            Lessons you&apos;ve saved.
           </p>
         </div>
 

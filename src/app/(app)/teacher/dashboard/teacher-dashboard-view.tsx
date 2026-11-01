@@ -65,7 +65,7 @@ export function TeacherDashboardView({
             !
           </h1>
           <p className="mt-2 text-sm text-white/80">
-            Here&apos;s what&apos;s happening with your classes today
+            See what&apos;s happening today
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-2 self-start rounded-md bg-white/20 px-4 py-2 text-sm font-medium backdrop-blur-sm sm:self-auto sm:px-5 sm:py-2.5">

@@ -60,7 +60,7 @@ export function SubscriptionView({
           Choose Your Learning Path
         </h1>
         <p className="mt-2 text-sm text-muted-foreground sm:text-base">
-          Select the perfect plan for your educational journey
+          Select the perfect learning plan
         </p>
       </div>
 
