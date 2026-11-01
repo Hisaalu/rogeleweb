@@ -82,10 +82,11 @@ export async function getTrialStatusServer(): Promise<TrialStatus | null> {
   const r = res as Record<string, unknown>
   const totalDays = Number(r.total_days ?? 60) || 60
   const endDate = normalizeUTC((r.end_date as string | undefined) ?? null)
-  const rawRemaining = Number(r.days_remaining ?? r.days ?? 0)
+  const rawRemaining = Number(r.days_remaining ?? 0)
   const daysRemaining = Number.isFinite(rawRemaining)
     ? Math.max(0, rawRemaining)
     : 0
+  
   const isInTrial = Boolean(r.is_in_trial ?? false)
 
   return {
