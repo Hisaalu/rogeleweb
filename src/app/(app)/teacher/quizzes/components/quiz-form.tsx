@@ -29,7 +29,7 @@ export function QuizForm({
   const [maxAttempts, setMaxAttempts] = useState(initial?.max_attempts ?? 1)
   const [endDate, setEndDate] = useState(initial?.end_date ? initial.end_date.slice(0, 16) : '')
   const [isPublished, setIsPublished] = useState(initial?.is_published ?? true)
-  const [showResults, setShowResults] = useState(initial?.show_results_to_students ?? true)
+  const [showResults, setShowResults] = useState(initial?.show_results_to_students ?? false)
 
   const [busy, setBusy] = useState(false)
 
