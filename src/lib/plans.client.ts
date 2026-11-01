@@ -64,3 +64,21 @@ export async function updatePlanClient(
 export async function deletePlanClient(id: number): Promise<void> {
   await proxy<void>(`/subscription-plans/${id}`, { method: 'DELETE' })
 }
+
+export async function updateTrialDurationClient(days: number): Promise<void> {
+  const res = await fetch('/api/proxy/settings/update-trial', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ 
+      setting_key: 'trial.duration_days', 
+      setting_value: String(days) 
+    }),
+  })
+  
+  if (!res.ok) {
+    const text = await res.text()
+    throw new Error(text || 'Failed to update trial duration')
+  }
+
+  await fetch('/api/revalidate-settings', { method: 'POST' })
+}

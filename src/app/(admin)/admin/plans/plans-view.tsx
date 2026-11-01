@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState, useCallback } from 'react'
-import { CreditCard, Plus } from 'lucide-react'
+import { CreditCard, Plus, Clock, Save, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -11,12 +11,20 @@ import {
   createPlanClient,
   deletePlanClient,
   updatePlanClient,
+  updateTrialDurationClient,
 } from '@/lib/plans.client'
 import type { SubscriptionPlan } from '@/types/admin'
 import { PlanTable } from './plan-table'
 import { PlanFormModal, type PlanFormValues } from './plan-form-modal'
+import { Card } from '@/components/ui/card'
 
-export function PlansView({ initialPlans }: { initialPlans: SubscriptionPlan[] }) {
+export function PlansView({ 
+  initialPlans, 
+  initialTrialDays 
+}: { 
+  initialPlans: SubscriptionPlan[]
+  initialTrialDays: number 
+}) {
   const { showToast } = useToast()
 
   const [plans, setPlans] = useState<SubscriptionPlan[]>(initialPlans)
@@ -26,6 +34,9 @@ export function PlansView({ initialPlans }: { initialPlans: SubscriptionPlan[] }
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<SubscriptionPlan | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<SubscriptionPlan | null>(null)
+
+  const [trialDays, setTrialDays] = useState(String(initialTrialDays))
+  const [savingTrial, setSavingTrial] = useState(false)
 
   const filtered = useMemo(() => {
     let list = plans
@@ -100,6 +111,23 @@ export function PlansView({ initialPlans }: { initialPlans: SubscriptionPlan[] }
     }
   }, [showToast])
 
+  async function handleSaveTrial() {
+    const days = Number(trialDays)
+    if (!days || days < 1 || days > 365) {
+      return showToast('Trial days must be between 1 and 365', 'error')
+    }
+    
+    setSavingTrial(true)
+    try {
+      await updateTrialDurationClient(days)
+      showToast('Trial duration updated successfully.', 'success')
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Failed to update trial settings', 'error')
+    } finally {
+      setSavingTrial(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -114,6 +142,33 @@ export function PlansView({ initialPlans }: { initialPlans: SubscriptionPlan[] }
           <Plus size={16} /> New plan
         </Button>
       </div>
+
+      <Card className="p-5 sm:p-6 border-brand-accent/20 bg-brand-accent/5">
+        <div className="flex items-center gap-2 mb-4">
+          <Clock size={20} style={{ color: 'var(--brand-accent)' }} />
+          <h2 className="text-lg font-semibold">Free Trial Settings</h2>
+        </div>
+        <p className="text-sm text-muted-foreground mb-4 max-w-2xl">
+          Set the default duration for new users who sign up. Changing this will instantly update the trial end date for all existing users who are currently on a trial.
+        </p>
+        <div className="flex flex-wrap items-end gap-4">
+          <div className="space-y-1.5 w-full sm:w-48">
+            <label className="block text-sm font-medium">Trial Duration (Days)</label>
+            <Input
+              type="number"
+              min={1}
+              max={365}
+              value={trialDays}
+              onChange={(e) => setTrialDays(e.target.value)}
+              disabled={savingTrial}
+            />
+          </div>
+          <Button onClick={handleSaveTrial} disabled={savingTrial}>
+            {savingTrial ? <Loader2 size={16} className="animate-spin mr-2" /> : <Save size={16} className="mr-2" />}
+            Save Trial Settings
+          </Button>
+        </div>
+      </Card>
 
       {plans.length === 0 ? (
         <EmptyState

@@ -38,7 +38,12 @@ async function safeRequest<T>(path: string): Promise<T | null> {
   try {
     return await retry(() => serverApiRequest<T>(path))
   } catch (err) {
-    console.error('[dashboard.server] request failed', { path, err })
+    const msg = err instanceof Error ? err.message : String(err)
+    
+    if (!msg.includes('resource not found')) {
+      console.error('[dashboard.server] request failed', { path, err })
+    }
+    
     return null
   }
 }
