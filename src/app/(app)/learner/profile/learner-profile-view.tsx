@@ -67,11 +67,13 @@ export function LearnerProfileView({
   const hasActiveSubscription = subscription?.status === 'active'
   const isInTrial = !hasActiveSubscription && trial?.is_in_trial
 
+  const canUploadPhoto = hasActiveSubscription
+
   async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
     
-    if (!hasAccess) {
+    if (!canUploadPhoto) {
       return showToast('Subscribe to a plan to change your profile photo.', 'error')
     }
 
@@ -119,7 +121,7 @@ export function LearnerProfileView({
   }
 
   function handlePhotoClick() {
-    if (!hasAccess) {
+    if (!canUploadPhoto) {
       showToast('Upgrade to Premium to change your profile photo.', 'info')
       setGateOpen(true)
       return
@@ -161,11 +163,11 @@ export function LearnerProfileView({
                   onClick={handlePhotoClick}
                   disabled={photoBusy}
                   className="absolute bottom-1 right-1 flex h-10 w-10 items-center justify-center rounded-full bg-card text-foreground shadow-lg transition hover:scale-110 hover:bg-brand-primary hover:text-white disabled:opacity-50"
-                  title={hasAccess ? "Change photo" : "Upgrade to change photo"}
+                  title={canUploadPhoto ? "Change photo" : "Subscribe to change photo"}
                 >
                   {photoBusy ? (
                     <Loader2 size={18} className="animate-spin" />
-                  ) : hasAccess ? (
+                  ) : canUploadPhoto ? (
                     <Camera size={18} />
                   ) : (
                     <Lock size={18} style={{ color: 'var(--warning-border)' }} />
@@ -177,14 +179,14 @@ export function LearnerProfileView({
                   onChange={handlePhotoUpload} 
                   accept="image/*" 
                   className="hidden" 
-                  disabled={!hasAccess}
+                  disabled={!canUploadPhoto}
                 />
               </div>
 
               <h2 className="text-lg font-bold text-foreground sm:text-xl">{firstName} {lastName}</h2>
               <p className="capitalize text-sm text-muted-foreground">{profile?.role ?? 'Learner'}</p>
               
-              {hasAccess ? (
+              {canUploadPhoto ? (
                 <div className="mx-auto mt-4 inline-flex items-center gap-2 rounded-full bg-muted px-4 py-1.5 text-xs text-muted-foreground">
                   <Camera size={13} style={{ color: 'var(--brand-accent)' }} />
                   Click icon to change photo
@@ -341,7 +343,7 @@ export function LearnerProfileView({
         </div>
       </div>
 
-      {!hasAccess && (
+      {!canUploadPhoto && (
         <PremiumGate
           open={gateOpen}
           context="profile"
