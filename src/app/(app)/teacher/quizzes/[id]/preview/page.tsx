@@ -1,7 +1,18 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Edit, HelpCircle, Clock, Trophy, Calendar, RefreshCw, CheckCircle2, Eye } from 'lucide-react'
+import { 
+  ArrowLeft, 
+  Edit, 
+  HelpCircle, 
+  Clock, 
+  Trophy, 
+  Calendar, 
+  RefreshCw, 
+  CheckCircle2, 
+  Eye,
+  EyeOff
+} from 'lucide-react'
 import { getQuizServer, listQuestionsServer } from '@/lib/quizzes.server'
 
 export const dynamic = 'force-dynamic'
@@ -15,6 +26,8 @@ export default async function PreviewQuizPage({ params }: { params: { id: string
 
   const [quiz, questions] = await Promise.all([getQuizServer(id), listQuestionsServer(id)])
   if (!quiz) notFound()
+
+  const showResults = quiz.show_results_to_students !== false
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">
@@ -39,6 +52,17 @@ export default async function PreviewQuizPage({ params }: { params: { id: string
           <span className="flex items-center gap-1"><Calendar size={14} style={{ color: 'var(--brand-accent)' }} /> {quiz.end_date ? new Date(quiz.end_date).toLocaleString() : 'No Deadline'}</span>
           <span className="flex items-center gap-1"><Trophy size={14} style={{ color: 'var(--brand-accent)' }} /> {quiz.passing_score ?? 70}% to pass</span>
           <span className="flex items-center gap-1"><RefreshCw size={14} style={{ color: 'var(--brand-accent)' }} /> {quiz.max_attempts ?? 1} attempts</span>
+          
+          <span 
+            className="flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold"
+            style={{ 
+              backgroundColor: showResults ? 'var(--success-bg)' : 'hsl(var(--muted))',
+              color: showResults ? 'var(--success-fg)' : 'hsl(var(--muted-foreground))'
+            }}
+          >
+            {showResults ? <Eye size={12} /> : <EyeOff size={12} />}
+            {showResults ? 'Results Visible' : 'Results Hidden'}
+          </span>
         </div>
         {quiz.description && <p className="text-sm text-foreground">{quiz.description}</p>}
       </div>
