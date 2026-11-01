@@ -199,26 +199,20 @@ export function LearnerQuizzesView({
                         <Play size={15} /> Resume Quiz
                       </Button>
                     </Link>
-                  ) : noAttemptsLeft ? (
-                    <>
-                      <Button disabled className="flex-1" variant="outline">
-                        No Attempts
-                      </Button>
-                      {latestCompletedId && (
-                        <Link
-                          href={`/learner/quizzes/results/${latestCompletedId}`}
-                        >
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            title="View Results"
-                          >
-                            <BarChart2 size={16} />
-                          </Button>
-                        </Link>
-                      )}
-                    </>
-                  ) : (
+                    ) : noAttemptsLeft ? (
+                      <>
+                        <Button disabled className="flex-1" variant="outline">
+                          No Attempts
+                        </Button>
+                        {latestCompletedId && quiz.show_results_to_students !== false && (
+                          <Link href={`/learner/quizzes/results/${latestCompletedId}`}>
+                            <Button variant="outline" size="icon" title="View Results">
+                              <BarChart2 size={16} />
+                            </Button>
+                          </Link>
+                        )}
+                      </>
+                    ) : (
                     <Link
                       href={`/learner/quizzes/${quiz.id}`}
                       className="w-full"

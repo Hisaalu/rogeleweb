@@ -15,6 +15,7 @@ export interface Quiz {
   question_count?: number
   attempt_count?: number
   created_at: string
+  show_results_to_students?: boolean
 }
 
 export interface QuizQuestion {

@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import { getAttemptServer, getQuizServer } from '@/lib/quizzes.server'
 import { fetchPublicSettings } from '@/lib/settings.server'
@@ -41,6 +41,11 @@ export default async function ResultPage({
 
   const attempt = await getAttemptServer(id)
   if (!attempt) notFound()
+
+  const quiz = await getQuizServer(attempt.quiz_id)
+  if (quiz && quiz.show_results_to_students === false) {
+    redirect('/learner/quizzes?error=results_hidden')
+  }
 
   return <ResultView attempt={attempt} />
 }

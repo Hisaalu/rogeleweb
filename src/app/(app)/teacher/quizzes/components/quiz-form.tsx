@@ -29,6 +29,7 @@ export function QuizForm({
   const [maxAttempts, setMaxAttempts] = useState(initial?.max_attempts ?? 1)
   const [endDate, setEndDate] = useState(initial?.end_date ? initial.end_date.slice(0, 16) : '')
   const [isPublished, setIsPublished] = useState(initial?.is_published ?? true)
+  const [showResults, setShowResults] = useState(initial?.show_results_to_students ?? true)
 
   const [busy, setBusy] = useState(false)
 
@@ -50,7 +51,8 @@ export function QuizForm({
       passing_score: Number(passingScore),
       max_attempts: Number(maxAttempts), 
       end_date: new Date(endDate).toISOString(),
-      is_published: isPublished
+      is_published: isPublished,
+      show_results_to_students: showResults,
     }
 
     try {
@@ -146,6 +148,10 @@ export function QuizForm({
             <label className="flex items-center gap-2 text-sm text-foreground">
               <input type="checkbox" checked={isPublished} onChange={e => setIsPublished(e.target.checked)} className="h-4 w-4 rounded border-input" style={{ accentColor: 'var(--brand-accent)' }} />
               Publish immediately
+            </label>
+            <label className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
+              <input type="checkbox" checked={showResults} onChange={e => setShowResults(e.target.checked)} className="h-4 w-4 rounded border-input" style={{ accentColor: 'var(--brand-accent)' }} />
+              Allow students to view their results after submitting their attempt
             </label>
             {!isPublished && (
               <div className="mt-4 flex items-start gap-3 rounded-md p-4 text-sm" style={{ backgroundColor: 'var(--warning-bg)', color: 'var(--warning-fg)' }}>
