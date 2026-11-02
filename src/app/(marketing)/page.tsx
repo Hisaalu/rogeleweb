@@ -349,7 +349,7 @@ export default async function HomePage() {
             Ready to Start Learning?
           </h2>
           <p className="mt-4 text-lg text-white/90">
-            Join thousands of students already learning on {schoolName}.
+            Join thousands of students already learning on {siteTitle}.
           </p>
           <Link href="/register" className="mt-8 inline-block">
             <Button
