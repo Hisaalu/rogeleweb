@@ -1,38 +1,51 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
-import { Sidebar } from './sidebar'
+import { useState } from 'react'
 import { Header } from './header'
+import { Sidebar } from './sidebar'
 import { MobileMenu } from './mobile-menu'
 import type { SessionUser } from '@/lib/auth'
 
 export function AppShell({
   user,
-  children,
   isPro,
+  isInTrial,
+  hasActiveSubscription,
+  children,
 }: {
   user: SessionUser
-  children: ReactNode
   isPro?: boolean
+  isInTrial?: boolean
+  hasActiveSubscription?: boolean
+  children: React.ReactNode
 }) {
-  const [mobileOpen, setMobileOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
-    <div className="flex min-h-screen bg-muted/30">
-      <Sidebar user={user} />
-
-      <div className="flex min-w-0 flex-1 flex-col lg:pl-64">
-        <Header user={user} onMenuClick={() => setMobileOpen(true)} isPro={isPro} />
-        <main className="flex-1 px-3 py-4 sm:px-5 sm:py-6 lg:px-8">
-          <div className="mx-auto max-w-7xl">{children}</div>
+    <div className="flex min-h-screen flex-col bg-background">
+      <Header 
+        user={user} 
+        onMenuClick={() => setSidebarOpen(true)} 
+        isPro={isPro} 
+        isInTrial={isInTrial}
+        hasActiveSubscription={hasActiveSubscription}
+      />
+      
+      <div className="flex flex-1 overflow-hidden">
+        <Sidebar user={user} />
+        
+        <MobileMenu 
+          user={user} 
+          open={sidebarOpen} 
+          onClose={() => setSidebarOpen(false)} 
+        />
+        
+        <main className="flex-1 overflow-y-auto lg:pl-64">
+          <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
+            {children}
+          </div>
         </main>
       </div>
-
-      <MobileMenu
-        user={user}
-        open={mobileOpen}
-        onClose={() => setMobileOpen(false)}
-      />
     </div>
   )
 }
