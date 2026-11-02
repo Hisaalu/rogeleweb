@@ -84,7 +84,7 @@ export const Sidebar = memo(function Sidebar({ user }: { user: SessionUser }) {
           onClick={handleLogout}
           className="flex w-full items-center gap-3 rounded-full px-4 py-2.5 text-[20px] font-semibold text-danger-fg transition hover:bg-danger-bg"
         >
-          <LogOut size={18} className="shrink-0" />
+          <LogOut size={25} className="shrink-0" />
           <span className="truncate">Logout</span>
         </button>
       </div>
@@ -116,7 +116,7 @@ const NavLink = memo(function NavLink({
         )}
       >
         <Icon
-          size={18}
+          size={25}
           className={active ? 'text-brand-accent' : 'text-brand-accent/70'}
         />
         <span className="truncate">{item.label}</span>
