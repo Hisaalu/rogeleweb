@@ -95,7 +95,7 @@ export function TeacherDashboardView({
             href="/teacher/lessons/create"
             icon={PlusCircle}
             title="Create New Lesson"
-            description="Add new learning materials for your students"
+            description="Add a new lesson"
           />
           <ActionCard
             href="/teacher/quizzes/create"
@@ -107,13 +107,13 @@ export function TeacherDashboardView({
             href="/teacher/students"
             icon={Users}
             title="View Students"
-            description="See all your students and their progress"
+            description="See all your students"
           />
           <ActionCard
             href="/teacher/analytics"
             icon={BarChart}
             title="Analytics"
-            description="View detailed performance insights"
+            description="View performance insights"
           />
         </div>
       </section>
