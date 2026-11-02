@@ -169,7 +169,7 @@ export function MobileMenu({
                     )}
                   >
                     <Icon
-                      size={18}
+                      size={25}
                       className={active ? 'text-brand-accent' : 'text-brand-accent/70'}
                     />
                     <span className="truncate">{item.label}</span>
@@ -184,7 +184,7 @@ export function MobileMenu({
                 className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-[20px] font-semibold transition hover:bg-muted sm:py-3"
                 style={{ color: 'var(--danger-fg)' }}
               >
-                <LogOut size={18} />
+                <LogOut size={25} />
                 Logout
               </button>
             </li>
