@@ -101,7 +101,7 @@ export function TeacherDashboardView({
             href="/teacher/quizzes/create"
             icon={PlusCircle}
             title="Create New Quiz"
-            description="Design a new quiz for your class"
+            description="Design a new quiz"
           />
           <ActionCard
             href="/teacher/students"
