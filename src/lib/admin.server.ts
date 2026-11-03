@@ -32,8 +32,15 @@ export async function getRecentPaymentsServer(limit = 10): Promise<AdminPaymentS
   return unwrapList<AdminPaymentSummary>(res)
 }
 
-export async function getRecentActivityServer(limit = 25): Promise<AdminActivityItem[]> {
-  const res = await serverApiRequest<unknown>(`/api/v1/admin/activity?limit=${limit}`)
+export async function getRecentActivityServer(
+  limit = 25,
+  cursor: string | null = null,
+): Promise<AdminActivityItem[]> {
+  let url = `/api/v1/admin/activity?limit=${limit}`
+  if (cursor) {
+    url += `&cursor=${encodeURIComponent(cursor)}`
+  }
+  const res = await serverApiRequest<unknown>(url)
   return unwrapList<AdminActivityItem>(res)
 }
 
