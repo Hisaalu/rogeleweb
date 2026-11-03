@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Wand2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -14,6 +14,14 @@ import {
 import { useToast } from '@/components/ui/toast-provider'
 import { createCampaignClient } from '@/lib/email-campaigns.client'
 import type { EmailCampaign, RecipientType } from '@/types/email-campaign'
+
+function plainTextToHtml(text: string): string {
+  const paragraphs = text.split(/\n{2,}/)
+  return paragraphs
+    .map((p) => p.replace(/\n/g, '<br>\n'))
+    .map((p) => `<p>${p}</p>`)
+    .join('\n')
+}
 
 export function CampaignFormModal({
   open, onOpenChange, onCreated,
@@ -44,6 +52,19 @@ export function CampaignFormModal({
     if (recipientType !== 'custom_emails') return []
     return customEmails.split(/[\n,]/).map((s) => s.trim()).filter(Boolean)
   }, [customEmails, recipientType])
+
+  function handleFormatText() {
+    if (!body.trim()) {
+      showToast('Write some text first', 'error')
+      return
+    }
+    if (/<[a-z][\s\S]*>/i.test(body)) {
+      showToast('Body already contains HTML tags', 'info')
+      return
+    }
+    setBody(plainTextToHtml(body))
+    showToast('Converted plain text to HTML', 'success')
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -104,17 +125,36 @@ export function CampaignFormModal({
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="body">Body (HTML)</Label>
-                  <span className="text-[10px] text-muted-foreground">{body.length} characters</span>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleFormatText}
+                      disabled={submitting || !body.trim()}
+                    >
+                      <Wand2 size={14} className="mr-1" />
+                      Format text
+                    </Button>
+                    <span className="text-[10px] text-muted-foreground">
+                      {body.length} chars
+                    </span>
+                  </div>
                 </div>
                 <Textarea
                   id="body"
                   value={body}
                   onChange={(e) => setBody(e.target.value)}
-                  placeholder="<h2>Hello {{.FirstName}}</h2><p>...</p>"
+                  placeholder={'<h2>Hello {{.FirstName}}</h2>\n\n<p>Welcome to ROGELE.</p>\n\n<p>See you soon!</p>'}
                   rows={10}
                   className="font-mono text-xs"
                   disabled={submitting}
                 />
+                <p className="text-xs text-muted-foreground">
+                  Newlines in HTML collapse to a single space. Use <code>&lt;br&gt;</code> or
+                  paragraphs <code>&lt;p&gt;</code>, or click <strong>Format text</strong> to
+                  auto-convert your plain text.
+                </p>
               </div>
 
               <div className="space-y-1.5">
