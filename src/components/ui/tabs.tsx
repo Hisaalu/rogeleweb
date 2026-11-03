@@ -46,7 +46,7 @@ export function TabsList({
   return (
     <div
       className={cn(
-        'inline-flex flex-wrap gap-1 rounded-lg border border-border bg-card p-1',
+        'inline-flex flex-nowrap gap-1 overflow-x-auto rounded-sm border border-border bg-card p-1 no-scrollbar',
         className,
       )}
     >
@@ -72,7 +72,7 @@ export function TabsTrigger({
       type="button"
       onClick={() => ctx.setValue(value)}
       className={cn(
-        'rounded-md px-3 py-1.5 text-xs font-medium transition',
+        'whitespace-nowrap rounded-sm px-3 py-1.5 text-xs font-medium transition',
         active
           ? 'bg-brand-primary/10 text-brand-primary'
           : 'text-muted-foreground hover:bg-muted hover:text-foreground',
