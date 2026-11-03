@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useMemo, useState, useEffect, useCallback } from 'react'
-import { DollarSign, Download } from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { DollarSign, Download, Loader2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -25,6 +26,13 @@ const currencyFormatter = new Intl.NumberFormat('en-UG', {
 })
 
 const STATUSES = ['pending', 'completed', 'failed', 'refunded']
+
+export interface PaymentListMeta {
+  page: number
+  per_page: number
+  total: number
+  last_page: number
+}
 
 function displayUser(p: AdminPayment): string {
   const full = [p.user_first_name, p.user_last_name].filter(Boolean).join(' ').trim()
@@ -160,10 +168,28 @@ const MobilePaymentCard = React.memo(function MobilePaymentCard({ payment }: { p
   )
 })
 
-export function PaymentsView({ initialPayments }: { initialPayments: AdminPayment[] }) {
+export function PaymentsView({
+  initialPayments,
+  initialMeta,
+}: {
+  initialPayments: AdminPayment[]
+  initialMeta: PaymentListMeta
+}) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const currentPage = Math.max(1, Number(searchParams.get('page')) || 1)
+
+  const [payments, setPayments] = useState<AdminPayment[]>(initialPayments)
+  const [meta, setMeta] = useState<PaymentListMeta>(initialMeta)
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('')
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    setPayments(initialPayments)
+    setMeta(initialMeta)
+  }, [initialPayments, initialMeta])
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 300)
@@ -171,7 +197,7 @@ export function PaymentsView({ initialPayments }: { initialPayments: AdminPaymen
   }, [search])
 
   const filtered = useMemo(() => {
-    let list = initialPayments
+    let list = payments
     if (debouncedSearch.trim()) {
       const q = debouncedSearch.trim().toLowerCase()
       list = list.filter(
@@ -184,7 +210,7 @@ export function PaymentsView({ initialPayments }: { initialPayments: AdminPaymen
     }
     if (statusFilter) list = list.filter((p) => p.status === statusFilter)
     return list
-  }, [initialPayments, debouncedSearch, statusFilter])
+  }, [payments, debouncedSearch, statusFilter])
 
   const stats = useMemo(() => {
     let completed = 0, failed = 0, pending = 0, total = 0
@@ -202,6 +228,18 @@ export function PaymentsView({ initialPayments }: { initialPayments: AdminPaymen
   const handleExport = useCallback(() => {
     exportCsv(filtered)
   }, [filtered])
+
+  const goToPage = useCallback(
+    (next: number) => {
+      const target = Math.max(1, Math.min(next, meta.last_page))
+      if (target === currentPage) return
+      setLoading(true)
+      const params = new URLSearchParams(searchParams.toString())
+      params.set('page', String(target))
+      router.push(`?${params.toString()}`)
+    },
+    [currentPage, meta.last_page, router, searchParams],
+  )
 
   return (
     <div className="space-y-6">
@@ -238,38 +276,73 @@ export function PaymentsView({ initialPayments }: { initialPayments: AdminPaymen
         </Select>
       </div>
 
-      {filtered.length === 0 ? (
+      {filtered.length === 0 && !loading ? (
         <EmptyState
           icon={DollarSign}
           title="No payments match"
           description="Try changing the filters."
         />
       ) : (
-        <Card className="overflow-hidden shadow-sm">
-          <div className="hidden overflow-x-auto sm:block">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  {['User', 'Amount', 'Plan', 'Method', 'Transaction', 'Status', 'Date'].map((h) => (
-                    <TableHead key={h}>{h}</TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((p) => <PaymentRow key={p.id} payment={p} />)}
-              </TableBody>
-            </Table>
+        <div className="relative space-y-4">
+          {loading && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-background/50 backdrop-blur-sm">
+              <Loader2 className="h-6 w-6 animate-spin text-brand-primary" />
+            </div>
+          )}
+          <div
+            className={`transition-opacity duration-200 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}
+          >
+            <Card className="overflow-hidden shadow-sm">
+              <div className="hidden overflow-x-auto sm:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      {['User', 'Amount', 'Plan', 'Method', 'Transaction', 'Status', 'Date'].map((h) => (
+                        <TableHead key={h}>{h}</TableHead>
+                      ))}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filtered.map((p) => <PaymentRow key={p.id} payment={p} />)}
+                  </TableBody>
+                </Table>
+              </div>
+
+              <div className="flex flex-col sm:hidden">
+                {filtered.map((p) => <MobilePaymentCard key={p.id} payment={p} />)}
+              </div>
+            </Card>
           </div>
 
-          <div className="flex flex-col sm:hidden">
-            {filtered.map((p) => <MobilePaymentCard key={p.id} payment={p} />)}
+          <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
+            <span>
+              Showing {filtered.length} of {meta.total} payments
+              {meta.last_page > 1 && ` · page ${meta.page} of ${meta.last_page}`}
+            </span>
+            {meta.last_page > 1 && (
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => goToPage(currentPage - 1)}
+                  disabled={currentPage <= 1 || loading}
+                  className="rounded-sm border border-border bg-card px-3 py-1.5 font-medium transition hover:border-brand-accent disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Previous
+                </button>
+                <span className="px-2">Page {meta.page} of {meta.last_page}</span>
+                <button
+                  type="button"
+                  onClick={() => goToPage(currentPage + 1)}
+                  disabled={currentPage >= meta.last_page || loading}
+                  className="rounded-sm border border-border bg-card px-3 py-1.5 font-medium transition hover:border-brand-accent disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
-        </Card>
+        </div>
       )}
-
-      <p className="text-xs text-muted-foreground">
-        Showing {filtered.length} of {initialPayments.length} payments
-      </p>
     </div>
   )
 }

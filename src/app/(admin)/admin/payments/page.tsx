@@ -9,13 +9,23 @@ export const metadata: Metadata = {
 
 export const revalidate = 60
 
-export default async function AdminPaymentsPage() {
+export default async function AdminPaymentsPage({
+  searchParams,
+}: {
+  searchParams: { page?: string }
+}) {
+  const page = Math.max(1, Number(searchParams.page) || 1)
+
   let payments: AdminPayment[] = []
+  let meta = { page: 1, per_page: 50, total: 0, last_page: 1 }
+
   try {
-    payments = await listPaymentsServer({ per_page: 200 })
+    const result = await listPaymentsServer({ page, per_page: 50 })
+    payments = result.payments
+    meta = result.meta
   } catch {
     payments = []
   }
 
-  return <PaymentsView initialPayments={payments} />
+  return <PaymentsView initialPayments={payments} initialMeta={meta} />
 }
