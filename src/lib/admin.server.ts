@@ -7,37 +7,34 @@ import type {
   AdminUserSummary,
 } from '@/types/admin'
 
+function unwrapList<T>(res: unknown): T[] {
+  if (Array.isArray(res)) return res as T[]
+  if (res && typeof res === 'object') {
+    const obj = res as Record<string, unknown>
+    if (Array.isArray(obj.data)) return obj.data as T[]
+    if (Array.isArray(obj.value)) return obj.value as T[]
+    if (Array.isArray(obj.items)) return obj.items as T[]
+  }
+  return []
+}
+
 export async function getAdminOverviewServer(): Promise<AdminOverview> {
   return serverApiRequest<AdminOverview>('/api/v1/admin/stats')
 }
 
 export async function getRecentSignupsServer(limit = 10): Promise<AdminUserSummary[]> {
-  const res = await serverApiRequest<unknown>(
-    `/api/v1/admin/recent-signups?limit=${limit}`,
-  )
-  if (Array.isArray(res)) return res as AdminUserSummary[]
-  return []
+  const res = await serverApiRequest<unknown>(`/api/v1/admin/recent-signups?limit=${limit}`)
+  return unwrapList<AdminUserSummary>(res)
 }
 
 export async function getRecentPaymentsServer(limit = 10): Promise<AdminPaymentSummary[]> {
-  const res = await serverApiRequest<unknown>(
-    `/api/v1/admin/recent-payments?limit=${limit}`,
-  )
-  if (Array.isArray(res)) return res as AdminPaymentSummary[]
-  return []
+  const res = await serverApiRequest<unknown>(`/api/v1/admin/recent-payments?limit=${limit}`)
+  return unwrapList<AdminPaymentSummary>(res)
 }
 
-export async function getRecentActivityServer(
-  limit: number = 25, 
-  cursor: string | null = null
-): Promise<AdminActivityItem[]> {
-  let url = `/api/v1/admin/activity?limit=${limit}`
-  if (cursor) {
-    url += `&cursor=${encodeURIComponent(cursor)}`
-  }
-  
-  const res = await serverApiRequest<unknown>(url)
-  return Array.isArray(res) ? (res as AdminActivityItem[]) : []
+export async function getRecentActivityServer(limit = 25): Promise<AdminActivityItem[]> {
+  const res = await serverApiRequest<unknown>(`/api/v1/admin/activity?limit=${limit}`)
+  return unwrapList<AdminActivityItem>(res)
 }
 
 export interface ClassLearnerCount {
@@ -48,12 +45,5 @@ export interface ClassLearnerCount {
 
 export async function getLearnersByClassServer(): Promise<ClassLearnerCount[]> {
   const res = await serverApiRequest<unknown>('/api/v1/admin/learners-by-class')
-  return Array.isArray(res) ? (res as ClassLearnerCount[]) : []
-}
-
-export async function getRecentActivityServerV2(limit = 20): Promise<AdminActivityItem[]> {
-  const res = await serverApiRequest<unknown>(
-    `/api/v1/admin/activity?limit=${limit}`,
-  )
-  return Array.isArray(res) ? (res as AdminActivityItem[]) : []
+  return unwrapList<ClassLearnerCount>(res)
 }

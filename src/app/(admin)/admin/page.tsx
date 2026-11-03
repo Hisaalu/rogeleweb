@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { fetchPublicSettings } from '@/lib/settings.server'
 import {
   getAdminOverviewServer,
   getLearnersByClassServer,
@@ -19,38 +20,34 @@ export const metadata: Metadata = {
   title: 'Overview',
 }
 
-export default async function AdminPage() {
-  let overview: AdminOverview | null = null
-  let signups: AdminUserSummary[] = []
-  let payments: AdminPaymentSummary[] = []
-  let activity: AdminActivityItem[] = []
-  let learnersByClass: ClassLearnerCount[] = []
+export const revalidate = 60
 
-  try {
-    overview = await getAdminOverviewServer()
-  } catch {
-    overview = null
-  }
-  try {
-    signups = await getRecentSignupsServer(5)
-  } catch {
-    signups = []
-  }
-  try {
-    payments = await getRecentPaymentsServer(5)
-  } catch {
-    payments = []
-  }
-  try {
-    activity = await getRecentActivityServer(5)
-  } catch {
-    activity = []
-  }
-  try {
-    learnersByClass = await getLearnersByClassServer()
-  } catch {
-    learnersByClass = []
-  }
+export default async function AdminPage() {
+  const [
+    overviewRes,
+    signupsRes,
+    paymentsRes,
+    activityRes,
+    learnersRes,
+    settings
+  ] = await Promise.allSettled([
+    getAdminOverviewServer(),
+    getRecentSignupsServer(5),
+    getRecentPaymentsServer(5),
+    getRecentActivityServer(5),
+    getLearnersByClassServer(),
+    fetchPublicSettings(),
+  ])
+
+  const overview = overviewRes.status === 'fulfilled' ? overviewRes.value : null
+  const signups = signupsRes.status === 'fulfilled' ? signupsRes.value : []
+  const payments = paymentsRes.status === 'fulfilled' ? paymentsRes.value : []
+  const activity = activityRes.status === 'fulfilled' ? activityRes.value : []
+  const learnersByClass = learnersRes.status === 'fulfilled' ? learnersRes.value : []
+  
+  const siteTitle = settings.status === 'fulfilled' 
+    ? settings.value['site.browser_title']?.trim() 
+    : undefined
 
   return (
     <AdminDashboardView
@@ -59,6 +56,7 @@ export default async function AdminPage() {
       payments={payments}
       activity={activity}
       learnersByClass={learnersByClass}
+      siteTitle={siteTitle}
     />
   )
 }

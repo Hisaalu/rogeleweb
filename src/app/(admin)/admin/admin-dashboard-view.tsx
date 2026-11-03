@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/ui/empty-state'
+import { useBranding } from '@/components/brand/brand-provider'
 import type {
   AdminActivityItem,
   AdminOverview,
@@ -38,7 +39,13 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
   year: 'numeric',
 })
 
-const StatCard = React.memo(function StatCard({
+function formatDate(val: string | null | undefined) {
+  if (!val) return '—'
+  const d = new Date(val)
+  return isNaN(d.getTime()) ? '—' : dateFormatter.format(d)
+}
+
+function StatCard({
   icon: Icon,
   label,
   value,
@@ -46,6 +53,7 @@ const StatCard = React.memo(function StatCard({
   hintIcon: HintIcon,
   hintTone = 'default',
   tone = 'default',
+  href,
 }: {
   icon: any
   label: string
@@ -54,6 +62,7 @@ const StatCard = React.memo(function StatCard({
   hintIcon?: any
   hintTone?: 'default' | 'success' | 'danger'
   tone?: 'default' | 'primary' | 'accent' | 'success' | 'info'
+  href?: string
 }) {
   const tones = {
     default: { bg: 'bg-muted', fg: 'text-muted-foreground' },
@@ -70,8 +79,8 @@ const StatCard = React.memo(function StatCard({
     danger: 'text-danger-fg',
   }
 
-  return (
-    <div className="rounded-xl border border-border bg-card p-5 shadow-sm transition-shadow hover:shadow-md">
+  const content = (
+    <div className="rounded-xl border border-border bg-card p-5 shadow-sm transition-all hover:shadow-md">
       <div className="flex items-start justify-between">
         <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${t.bg}`}>
           <Icon size={18} className={t.fg} />
@@ -89,19 +98,31 @@ const StatCard = React.memo(function StatCard({
       </div>
     </div>
   )
-})
 
-const CompactStat = React.memo(function CompactStat({
+  if (href) {
+    return (
+      <Link href={href} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent rounded-xl">
+        {content}
+      </Link>
+    )
+  }
+
+  return content
+}
+
+function CompactStat({
   icon: Icon,
   label,
   value,
+  href,
 }: {
   icon: any
   label: string
   value: number
+  href?: string
 }) {
-  return (
-    <div className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 shadow-sm transition-shadow hover:shadow-md">
+  const content = (
+    <div className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 shadow-sm transition-all hover:shadow-md">
       <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted">
         <Icon size={16} className="text-[var(--brand-accent)]" />
       </div>
@@ -111,9 +132,19 @@ const CompactStat = React.memo(function CompactStat({
       </div>
     </div>
   )
-})
 
-const Panel = React.memo(function Panel({
+  if (href) {
+    return (
+      <Link href={href} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent rounded-lg">
+        {content}
+      </Link>
+    )
+  }
+
+  return content
+}
+
+function Panel({
   title,
   subtitle,
   children,
@@ -123,15 +154,15 @@ const Panel = React.memo(function Panel({
   children: React.ReactNode
 }) {
   return (
-    <section className="rounded-xl border border-border bg-card shadow-sm">
+    <section className="rounded-xl border border-border bg-card shadow-sm flex flex-col">
       <header className="border-b border-border px-5 py-4">
         <h3 className="text-sm font-semibold">{title}</h3>
         {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
       </header>
-      <div className="px-5 py-2">{children}</div>
+      <div className="flex-1 px-5 py-2">{children}</div>
     </section>
   )
-})
+}
 
 export function AdminDashboardView({
   overview,
@@ -139,13 +170,18 @@ export function AdminDashboardView({
   payments,
   activity,
   learnersByClass,
+  siteTitle,
 }: {
   overview: AdminOverview | null
   signups: AdminUserSummary[]
   payments: AdminPaymentSummary[]
   activity: AdminActivityItem[]
   learnersByClass: ClassLearnerCount[]
+  siteTitle?: string
 }) {
+  const branding = useBranding()
+  const displayTitle = siteTitle || branding.schoolName
+
   const revenueDelta = useMemo(() => {
     if (!overview || overview.revenue_last_month <= 0) return 0
     return ((overview.revenue_this_month - overview.revenue_last_month) / overview.revenue_last_month) * 100
@@ -162,9 +198,9 @@ export function AdminDashboardView({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold sm:text-3xl">Admin overview</h1>
+        <h1 className="text-2xl font-bold sm:text-3xl">Welcome!</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Platform statistics and recent activity
+          A quick summary of {displayTitle}.
         </p>
       </div>
 
@@ -175,6 +211,7 @@ export function AdminDashboardView({
           value={String(overview.total_users)}
           hint={`${overview.new_users_last_30_days} new in last 30 days`}
           tone="primary"
+          href="/admin/users"
         />
         <StatCard
           icon={DollarSign}
@@ -188,6 +225,7 @@ export function AdminDashboardView({
           hintIcon={revenueDelta >= 0 ? TrendingUp : TrendingDown}
           hintTone={revenueDelta >= 0 ? 'success' : 'danger'}
           tone="accent"
+          href="/admin/payments"
         />
         <StatCard
           icon={UserPlus}
@@ -195,6 +233,7 @@ export function AdminDashboardView({
           value={String(overview.active_subscriptions)}
           hint={`${overview.active_trials} trials in progress`}
           tone="success"
+          href="/admin/subscriptions"
         />
         <StatCard
           icon={Activity}
@@ -206,25 +245,27 @@ export function AdminDashboardView({
               : 'No completed payments'
           }
           tone="info"
+          href="/admin/payments"
         />
       </div>
 
       <div>
         <h2 className="mb-3 text-lg font-semibold">Content overview</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <CompactStat icon={GraduationCap} label="Classes" value={overview.total_classes} />
-          <CompactStat icon={BookOpen} label="Subjects" value={overview.total_subjects} />
+          <CompactStat icon={GraduationCap} label="Classes" value={overview.total_classes} href="/admin/classes" />
+          <CompactStat icon={BookOpen} label="Subjects" value={overview.total_subjects} href="/admin/subjects" />
           <CompactStat icon={BookOpen} label="Lessons" value={overview.total_lessons} />
           <CompactStat icon={ClipboardList} label="Homework" value={overview.total_homework} />
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <CompactStat icon={HelpCircle} label="Quizzes" value={overview.total_quizzes} />
-          <CompactStat icon={Users} label="Admins" value={overview.users_by_role.admin ?? 0} />
-          <CompactStat icon={GraduationCap} label="Teachers" value={overview.users_by_role.teacher ?? 0} />
+          <CompactStat icon={Users} label="Admins" value={overview.users_by_role.admin ?? 0} href="/admin/users?role=admin" />
+          <CompactStat icon={GraduationCap} label="Teachers" value={overview.users_by_role.teacher ?? 0} href="/admin/users?role=teacher" />
           <CompactStat
             icon={Users}
             label="Learners"
             value={(overview.users_by_role.learner ?? 0) + (overview.users_by_role.external ?? 0)}
+            href="/admin/users?role=learner"
           />
         </div>
       </div>
@@ -256,7 +297,7 @@ export function AdminDashboardView({
                         {u.role}
                       </Badge>
                       <span className="text-xs text-muted-foreground">
-                        {dateFormatter.format(new Date(u.created_at))}
+                        {formatDate(u.created_at)}
                       </span>
                     </div>
                   </li>
@@ -342,7 +383,7 @@ export function AdminDashboardView({
                         {a.description ? ` — ${a.description}` : ''}
                       </p>
                       <p className="truncate text-xs text-muted-foreground">
-                        {a.user_email ?? 'system'} · {dateFormatter.format(new Date(a.created_at))}
+                        {a.user_email ?? 'system'} · {formatDate(a.created_at)}
                       </p>
                     </div>
                   </li>
