@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
 import { useToast } from '@/components/ui/toast-provider'
 import {
   createSubjectClient,
@@ -140,36 +141,34 @@ export function SubjectsView({
         />
       ) : (
         <>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-3">
             <Input
               placeholder="Search subjects..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
 
-            <select
+            <Select
               value={classFilter ?? ''}
               onChange={(e) => setClassFilter(e.target.value ? Number(e.target.value) : null)}
-              className="h-10 rounded-lg border border-input bg-background px-3 text-sm outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/25"
             >
               <option value="">All classes</option>
               {classes.map((c) => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
-            </select>
+            </Select>
 
-            <select
+            <Select
               value={activeFilter === null ? '' : activeFilter ? 'true' : 'false'}
               onChange={(e) => {
                 const v = e.target.value
                 setActiveFilter(v === '' ? null : v === 'true')
               }}
-              className="h-10 rounded-lg border border-input bg-background px-3 text-sm outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/25"
             >
               <option value="">Any status</option>
               <option value="true">Active</option>
               <option value="false">Inactive</option>
-            </select>
+            </Select>
           </div>
 
           <SubjectTable

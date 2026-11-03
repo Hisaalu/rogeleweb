@@ -11,26 +11,18 @@ export const metadata: Metadata = {
   title: 'Subjects',
 }
 
-export default async function AdminSubjectsPage() {
-  let subjects: Subject[] = []
-  let classes: Class[] = []
-  let teachers: TeacherOption[] = []
+export const revalidate = 60
 
-  try {
-    subjects = await listSubjectsServer({ per_page: 100 })
-  } catch {
-    subjects = []
-  }
-  try {
-    classes = await listClassesServer()
-  } catch {
-    classes = []
-  }
-  try {
-    teachers = await listTeachersServer()
-  } catch {
-    teachers = []
-  }
+export default async function AdminSubjectsPage() {
+  const [subjectsRes, classesRes, teachersRes] = await Promise.allSettled([
+    listSubjectsServer({ per_page: 100 }),
+    listClassesServer(),
+    listTeachersServer(),
+  ])
+
+  const subjects = subjectsRes.status === 'fulfilled' ? subjectsRes.value : []
+  const classes = classesRes.status === 'fulfilled' ? classesRes.value : []
+  const teachers = teachersRes.status === 'fulfilled' ? teachersRes.value : []
 
   return (
     <SubjectsView
