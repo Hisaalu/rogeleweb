@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useMemo, useState, useEffect, useCallback } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
 import { DollarSign, Download, Loader2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -12,6 +11,7 @@ import { Select } from '@/components/ui/select'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table'
+import { listPaymentsClient } from '@/lib/payments.client'
 import type { AdminPayment } from '@/types/admin'
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
@@ -51,7 +51,9 @@ function exportCsv(payments: AdminPayment[]) {
     p.payment_method ?? '',
     p.transaction_id ?? '',
     p.status,
-    p.payment_date ? dateFormatter.format(new Date(p.payment_date)) : dateFormatter.format(new Date(p.created_at)),
+    p.payment_date
+      ? dateFormatter.format(new Date(p.payment_date))
+      : dateFormatter.format(new Date(p.created_at)),
   ])
   const csv = [header, ...rows]
     .map((r) =>
@@ -115,12 +117,24 @@ const PaymentRow = React.memo(function PaymentRow({ payment }: { payment: AdminP
       <TableCell className="text-muted-foreground">{payment.payment_method ?? '—'}</TableCell>
       <TableCell className="max-w-[140px] truncate text-muted-foreground">{payment.transaction_id ?? '—'}</TableCell>
       <TableCell>
-        <Badge tone={payment.status === 'completed' ? 'success' : payment.status === 'failed' ? 'danger' : payment.status === 'refunded' ? 'default' : 'warning'}>
+        <Badge
+          tone={
+            payment.status === 'completed'
+              ? 'success'
+              : payment.status === 'failed'
+                ? 'danger'
+                : payment.status === 'refunded'
+                  ? 'default'
+                  : 'warning'
+          }
+        >
           {payment.status}
         </Badge>
       </TableCell>
       <TableCell className="text-muted-foreground">
-        {payment.payment_date ? dateFormatter.format(new Date(payment.payment_date)) : dateFormatter.format(new Date(payment.created_at))}
+        {payment.payment_date
+          ? dateFormatter.format(new Date(payment.payment_date))
+          : dateFormatter.format(new Date(payment.created_at))}
       </TableCell>
     </TableRow>
   )
@@ -133,11 +147,21 @@ const MobilePaymentCard = React.memo(function MobilePaymentCard({ payment }: { p
   return (
     <div className="flex flex-col gap-3 border-b border-border p-4 last:border-0 hover:bg-muted/30">
       <div className="flex items-start justify-between gap-2">
-        <div className="flex flex-col min-w-0">
+        <div className="flex min-w-0 flex-col">
           <span className="font-medium text-foreground">{name}</span>
           {showEmail && <span className="truncate text-xs text-muted-foreground">{payment.user_email}</span>}
         </div>
-        <Badge tone={payment.status === 'completed' ? 'success' : payment.status === 'failed' ? 'danger' : payment.status === 'refunded' ? 'default' : 'warning'}>
+        <Badge
+          tone={
+            payment.status === 'completed'
+              ? 'success'
+              : payment.status === 'failed'
+                ? 'danger'
+                : payment.status === 'refunded'
+                  ? 'default'
+                  : 'warning'
+          }
+        >
           {payment.status}
         </Badge>
       </div>
@@ -157,7 +181,9 @@ const MobilePaymentCard = React.memo(function MobilePaymentCard({ payment }: { p
         <div>
           <p className="text-xs text-muted-foreground">Date</p>
           <p className="font-medium">
-            {payment.payment_date ? dateFormatter.format(new Date(payment.payment_date)) : dateFormatter.format(new Date(payment.created_at))}
+            {payment.payment_date
+              ? dateFormatter.format(new Date(payment.payment_date))
+              : dateFormatter.format(new Date(payment.created_at))}
           </p>
         </div>
       </div>
@@ -175,21 +201,12 @@ export function PaymentsView({
   initialPayments: AdminPayment[]
   initialMeta: PaymentListMeta
 }) {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const currentPage = Math.max(1, Number(searchParams.get('page')) || 1)
-
   const [payments, setPayments] = useState<AdminPayment[]>(initialPayments)
   const [meta, setMeta] = useState<PaymentListMeta>(initialMeta)
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('')
-  const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    setPayments(initialPayments)
-    setMeta(initialMeta)
-  }, [initialPayments, initialMeta])
+  const [fetching, setFetching] = useState(false)
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 300)
@@ -230,15 +247,26 @@ export function PaymentsView({
   }, [filtered])
 
   const goToPage = useCallback(
-    (next: number) => {
+    async (next: number) => {
       const target = Math.max(1, Math.min(next, meta.last_page))
-      if (target === currentPage) return
-      setLoading(true)
-      const params = new URLSearchParams(searchParams.toString())
-      params.set('page', String(target))
-      router.push(`?${params.toString()}`)
+      if (target === meta.page || fetching) return
+
+      setFetching(true)
+      try {
+        const result = await listPaymentsClient({
+          page: target,
+          per_page: meta.per_page,
+          status: statusFilter || undefined,
+        })
+        setPayments(result.payments)
+        setMeta(result.meta)
+      } catch (err) {
+        console.error('[payments] page fetch failed', err)
+      } finally {
+        setFetching(false)
+      }
     },
-    [currentPage, meta.last_page, router, searchParams],
+    [meta.last_page, meta.page, meta.per_page, statusFilter, fetching],
   )
 
   return (
@@ -276,43 +304,34 @@ export function PaymentsView({
         </Select>
       </div>
 
-      {filtered.length === 0 && !loading ? (
+      {filtered.length === 0 && !fetching ? (
         <EmptyState
           icon={DollarSign}
           title="No payments match"
           description="Try changing the filters."
         />
       ) : (
-        <div className="relative space-y-4">
-          {loading && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-background/50 backdrop-blur-sm">
-              <Loader2 className="h-6 w-6 animate-spin text-brand-primary" />
+        <div className="space-y-4">
+          <Card className="overflow-hidden shadow-sm">
+            <div className="hidden overflow-x-auto sm:block">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    {['User', 'Amount', 'Plan', 'Method', 'Transaction', 'Status', 'Date'].map((h) => (
+                      <TableHead key={h}>{h}</TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((p) => <PaymentRow key={p.id} payment={p} />)}
+                </TableBody>
+              </Table>
             </div>
-          )}
-          <div
-            className={`transition-opacity duration-200 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}
-          >
-            <Card className="overflow-hidden shadow-sm">
-              <div className="hidden overflow-x-auto sm:block">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      {['User', 'Amount', 'Plan', 'Method', 'Transaction', 'Status', 'Date'].map((h) => (
-                        <TableHead key={h}>{h}</TableHead>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filtered.map((p) => <PaymentRow key={p.id} payment={p} />)}
-                  </TableBody>
-                </Table>
-              </div>
 
-              <div className="flex flex-col sm:hidden">
-                {filtered.map((p) => <MobilePaymentCard key={p.id} payment={p} />)}
-              </div>
-            </Card>
-          </div>
+            <div className="flex flex-col sm:hidden">
+              {filtered.map((p) => <MobilePaymentCard key={p.id} payment={p} />)}
+            </div>
+          </Card>
 
           <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
             <span>
@@ -323,20 +342,20 @@ export function PaymentsView({
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => goToPage(currentPage - 1)}
-                  disabled={currentPage <= 1 || loading}
+                  onClick={() => goToPage(meta.page - 1)}
+                  disabled={meta.page <= 1 || fetching}
                   className="rounded-sm border border-border bg-card px-3 py-1.5 font-medium transition hover:border-brand-accent disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Previous
+                  {fetching ? <Loader2 size={12} className="animate-spin" /> : 'Previous'}
                 </button>
                 <span className="px-2">Page {meta.page} of {meta.last_page}</span>
                 <button
                   type="button"
-                  onClick={() => goToPage(currentPage + 1)}
-                  disabled={currentPage >= meta.last_page || loading}
+                  onClick={() => goToPage(meta.page + 1)}
+                  disabled={meta.page >= meta.last_page || fetching}
                   className="rounded-sm border border-border bg-card px-3 py-1.5 font-medium transition hover:border-brand-accent disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Next
+                  {fetching ? <Loader2 size={12} className="animate-spin" /> : 'Next'}
                 </button>
               </div>
             )}

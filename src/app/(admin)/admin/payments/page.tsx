@@ -9,18 +9,12 @@ export const metadata: Metadata = {
 
 export const revalidate = 60
 
-export default async function AdminPaymentsPage({
-  searchParams,
-}: {
-  searchParams: { page?: string }
-}) {
-  const page = Math.max(1, Number(searchParams.page) || 1)
-
+export default async function AdminPaymentsPage() {
   let payments: AdminPayment[] = []
   let meta = { page: 1, per_page: 50, total: 0, last_page: 1 }
 
   try {
-    const result = await listPaymentsServer({ page, per_page: 50 })
+    const result = await listPaymentsServer({ page: 1, per_page: 50 })
     payments = result.payments
     meta = result.meta
   } catch {
