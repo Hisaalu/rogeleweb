@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
@@ -111,86 +112,90 @@ export function UserCreateModal({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="grid gap-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={values.email} onChange={(e) => set('email', e.target.value)} placeholder="user@example.com" autoFocus disabled={submitting} />
-            </div>
+        <Card className="border-none shadow-none">
+          <CardContent className="p-0">
+            <form onSubmit={handleSubmit} className="grid gap-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" type="email" value={values.email} onChange={(e) => set('email', e.target.value)} placeholder="user@example.com" autoFocus disabled={submitting} />
+                </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="password">Temporary password</Label>
-              <div className="relative">
-                <Input id="password" type={showPassword ? 'text' : 'password'} value={values.password} onChange={(e) => set('password', e.target.value)} placeholder="At least 8 characters" disabled={submitting} className="pr-10" />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" tabIndex={-1}>
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
+                <div className="space-y-1.5">
+                  <Label htmlFor="password">Temporary password</Label>
+                  <div className="relative">
+                    <Input id="password" type={showPassword ? 'text' : 'password'} value={values.password} onChange={(e) => set('password', e.target.value)} placeholder="At least 8 characters" disabled={submitting} className="pr-10" />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" tabIndex={-1}>
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="first_name">First name</Label>
+                  <Input id="first_name" value={values.first_name} onChange={(e) => set('first_name', e.target.value)} disabled={submitting} />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="last_name">Last name</Label>
+                  <Input id="last_name" value={values.last_name} onChange={(e) => set('last_name', e.target.value)} disabled={submitting} />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input id="phone" value={values.phone} onChange={(e) => set('phone', e.target.value)} disabled={submitting} />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="role">Role</Label>
+                  <Select id="role" value={values.role} onChange={(e) => set('role', e.target.value as UserRole)} disabled={submitting}>
+                    <option value="learner">Learner</option>
+                    <option value="teacher">Teacher</option>
+                    <option value="external">External</option>
+                    <option value="admin">Admin</option>
+                  </Select>
+                </div>
+
+                {showClass && (
+                  <div className="space-y-1.5">
+                    <Label htmlFor="class_id">Class</Label>
+                    <Select id="class_id" value={values.class_id ?? ''} onChange={(e) => set('class_id', e.target.value ? Number(e.target.value) : null)} disabled={submitting}>
+                      <option value="">Unassigned</option>
+                      {classes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </Select>
+                  </div>
+                )}
+
+                {showTeacherFields && (
+                  <>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="qualification">Qualification</Label>
+                      <Input id="qualification" value={values.qualification} onChange={(e) => set('qualification', e.target.value)} disabled={submitting} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="specialization">Specialization</Label>
+                      <Input id="specialization" value={values.specialization} onChange={(e) => set('specialization', e.target.value)} disabled={submitting} />
+                    </div>
+                  </>
+                )}
               </div>
-            </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="first_name">First name</Label>
-              <Input id="first_name" value={values.first_name} onChange={(e) => set('first_name', e.target.value)} disabled={submitting} />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="last_name">Last name</Label>
-              <Input id="last_name" value={values.last_name} onChange={(e) => set('last_name', e.target.value)} disabled={submitting} />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="phone">Phone</Label>
-              <Input id="phone" value={values.phone} onChange={(e) => set('phone', e.target.value)} disabled={submitting} />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="role">Role</Label>
-              <Select id="role" value={values.role} onChange={(e) => set('role', e.target.value as UserRole)} disabled={submitting}>
-                <option value="learner">Learner</option>
-                <option value="teacher">Teacher</option>
-                <option value="external">External</option>
-                <option value="admin">Admin</option>
-              </Select>
-            </div>
-
-            {showClass && (
               <div className="space-y-1.5">
-                <Label htmlFor="class_id">Class</Label>
-                <Select id="class_id" value={values.class_id ?? ''} onChange={(e) => set('class_id', e.target.value ? Number(e.target.value) : null)} disabled={submitting}>
-                  <option value="">Unassigned</option>
-                  {classes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </Select>
+                <Label htmlFor="bio">Bio</Label>
+                <Textarea id="bio" value={values.bio} onChange={(e) => set('bio', e.target.value)} rows={3} disabled={submitting} />
               </div>
-            )}
 
-            {showTeacherFields && (
-              <>
-                <div className="space-y-1.5">
-                  <Label htmlFor="qualification">Qualification</Label>
-                  <Input id="qualification" value={values.qualification} onChange={(e) => set('qualification', e.target.value)} disabled={submitting} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="specialization">Specialization</Label>
-                  <Input id="specialization" value={values.specialization} onChange={(e) => set('specialization', e.target.value)} disabled={submitting} />
-                </div>
-              </>
-            )}
-          </div>
+              {error && <div className="rounded-sm border border-danger-border/40 bg-danger-bg px-3 py-2 text-sm text-danger-fg">{error}</div>}
 
-          <div className="space-y-1.5">
-            <Label htmlFor="bio">Bio</Label>
-            <Textarea id="bio" value={values.bio} onChange={(e) => set('bio', e.target.value)} rows={3} disabled={submitting} />
-          </div>
-
-          {error && <div className="rounded-lg border border-danger-border/40 bg-danger-bg px-3 py-2 text-sm text-danger-fg">{error}</div>}
-
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>Cancel</Button>
-            <Button type="submit" disabled={submitting}>
-              {submitting && <Loader2 size={14} className="animate-spin" />} Create user
-            </Button>
-          </DialogFooter>
-        </form>
+              <DialogFooter className="pt-4">
+                <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>Cancel</Button>
+                <Button type="submit" disabled={submitting}>
+                  {submitting && <Loader2 size={14} className="animate-spin" />} Create user
+                </Button>
+              </DialogFooter>
+            </form>
+          </CardContent>
+        </Card>
       </DialogContent>
     </Dialog>
   )

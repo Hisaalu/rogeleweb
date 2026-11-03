@@ -5,7 +5,7 @@ import { Loader2, Plus, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { useToast } from '@/components/ui/toast-provider'
-import { listUsersClient, updateUserClient } from '@/lib/users.client'
+import { listUsersClient, updateUserClient, exportAllUsersClient } from '@/lib/users.client'
 import type {
   AdminUser, Class, UpdateUserPayload, UserListMeta, UserRole,
 } from '@/types/admin'
@@ -16,6 +16,7 @@ import { UserStatusModal } from './user-status-modal'
 import { UserCreateModal } from './user-create-modal'
 import { BulkActionsBar } from './bulk-actions-bar'
 import { ExportButton } from './export-button'
+import { cn } from '@/lib/utils'
 
 const INITIAL_FILTERS: UserFilterState = { q: '', role: '', class_id: null, status: 'all' }
 
@@ -43,6 +44,7 @@ export function UsersView({
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
+  const [exporting, setExporting] = useState(false)
 
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
   const [bulkBusy, setBulkBusy] = useState(false)
@@ -143,6 +145,18 @@ export function UsersView({
     }
   }, [selectedIds, handleClear, showToast])
 
+  const handleExportAll = useCallback(async () => {
+    setExporting(true)
+    try {
+      const allUsers = await exportAllUsersClient()
+      showToast(`Fetched ${allUsers.length} users for export`, 'info')
+    } catch {
+      showToast('Failed to fetch all users for export', 'error')
+    } finally {
+      setExporting(false)
+    }
+  }, [showToast])
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -171,23 +185,26 @@ export function UsersView({
         busy={bulkBusy}
       />
 
-      {loading ? (
-        <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-6 text-sm text-muted-foreground">
-          <Loader2 size={14} className="animate-spin" /> Loading users...
-        </div>
-      ) : users.length === 0 ? (
+      {users.length === 0 && !loading ? (
         <EmptyState icon={Users} title="No users match your filters" description="Try changing the filters or search term." />
       ) : (
-        <>
-          <UserTable
-            users={users}
-            classes={classes}
-            selectedIds={selectedIds}
-            onSelectOne={handleSelectOne}
-            onSelectAll={handleSelectAll}
-            onChangeRole={setRoleTarget}
-            onChangeStatus={setStatusTarget}
-          />
+        <div className="relative space-y-4">
+          {loading && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/50 backdrop-blur-sm rounded-xl">
+              <Loader2 className="h-6 w-6 animate-spin text-brand-primary" />
+            </div>
+          )}
+          <div className={cn("transition-opacity duration-200", loading ? "opacity-50 pointer-events-none" : "opacity-100")}>
+            <UserTable
+              users={users}
+              classes={classes}
+              selectedIds={selectedIds}
+              onSelectOne={handleSelectOne}
+              onSelectAll={handleSelectAll}
+              onChangeRole={setRoleTarget}
+              onChangeStatus={setStatusTarget}
+            />
+          </div>
 
           <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
             <span>Showing {users.length} of {meta.total} users</span>
@@ -197,7 +214,7 @@ export function UsersView({
               <button type="button" onClick={() => setPage((p) => p + 1)} disabled={page >= meta.last_page || loading} className="rounded-lg border border-border bg-card px-3 py-1.5 font-medium transition hover:border-brand-accent disabled:cursor-not-allowed disabled:opacity-50">Next</button>
             </div>
           </div>
-        </>
+        </div>
       )}
 
       <UserRoleModal user={roleTarget} onClose={() => setRoleTarget(null)} onSubmit={handleRoleChange} />

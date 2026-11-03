@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -55,7 +56,7 @@ const RowActions = React.memo(function RowActions({
       </Button>
 
       {open && (
-        <div className="absolute right-0 top-full z-30 mt-1 w-52 overflow-hidden rounded-lg border border-border bg-card shadow-lg">
+        <div className="absolute right-0 top-full z-30 mt-1 w-52 overflow-hidden rounded-sm border border-border bg-card shadow-lg">
           <Link href={`/admin/users/${user.id}`} onClick={() => setOpen(false)} className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition hover:bg-muted">
             <Eye size={14} /> View profile
           </Link>
@@ -100,13 +101,13 @@ const UserTableRow = React.memo(function UserTableRow({
           type="checkbox"
           checked={selected}
           onChange={(e) => onSelectOne(user.id, e.target.checked)}
-          className="h-4 w-4 rounded border-input"
+          className="h-4 w-4 rounded-sm border-input"
           aria-label={`Select ${name}`}
         />
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white" style={{ backgroundColor: 'var(--brand-accent)' }}>
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-accent text-xs font-semibold text-white">
             {getInitials(name)}
           </div>
           <div className="min-w-0">
@@ -155,9 +156,9 @@ const MobileUserCard = React.memo(function MobileUserCard({
             type="checkbox"
             checked={selected}
             onChange={(e) => onSelectOne(user.id, e.target.checked)}
-            className="h-4 w-4 rounded border-input mt-1"
+            className="mt-1 h-4 w-4 rounded-sm border-input"
           />
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white" style={{ backgroundColor: 'var(--brand-accent)' }}>
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-accent text-sm font-semibold text-white">
             {getInitials(name)}
           </div>
           <div className="min-w-0">
@@ -170,7 +171,7 @@ const MobileUserCard = React.memo(function MobileUserCard({
         <RowActions user={user} onChangeRole={onChangeRole} onChangeStatus={onChangeStatus} />
       </div>
       
-      <div className="grid grid-cols-2 gap-2 text-sm ml-7">
+      <div className="ml-7 grid grid-cols-2 gap-2 text-sm">
         <div>
           <p className="text-xs text-muted-foreground">Role</p>
           <Badge tone={roleTone(user.role)} className="mt-1">{user.role}</Badge>
@@ -227,7 +228,7 @@ export function UserTable({
   }
 
   return (
-    <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+    <Card className="overflow-hidden shadow-sm">
       <div className="hidden sm:block">
         <Table>
           <TableHeader>
@@ -238,7 +239,7 @@ export function UserTable({
                   type="checkbox"
                   checked={allSelected}
                   onChange={(e) => onSelectAll(e.target.checked)}
-                  className="h-4 w-4 rounded border-input"
+                  className="h-4 w-4 rounded-sm border-input"
                 />
               </TableHead>
               <TableHead>User</TableHead>
@@ -279,6 +280,6 @@ export function UserTable({
           />
         ))}
       </div>
-    </div>
+    </Card>
   )
 }

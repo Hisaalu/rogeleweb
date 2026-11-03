@@ -11,22 +11,16 @@ export const metadata: Metadata = {
 }
 
 export default async function AdminUsersPage() {
-  let users: AdminUser[] = []
-  let meta: UserListMeta = { page: 1, per_page: 20, total: 0, last_page: 1 }
-  let classes: Class[] = []
+  const [usersResult, classesResult] = await Promise.allSettled([
+    listUsersServer({ page: 1, per_page: 20 }),
+    listClassesForFilterServer(),
+  ])
 
-  try {
-    const result = await listUsersServer({ page: 1, per_page: 20 })
-    users = result.users
-    meta = result.meta
-  } catch {
-    users = []
-  }
-  try {
-    classes = await listClassesForFilterServer()
-  } catch {
-    classes = []
-  }
+  const users = usersResult.status === 'fulfilled' ? usersResult.value.users : []
+  const meta = usersResult.status === 'fulfilled' 
+    ? usersResult.value.meta 
+    : { page: 1, per_page: 20, total: 0, last_page: 1 }
+  const classes = classesResult.status === 'fulfilled' ? classesResult.value : []
 
   return <UsersView initialUsers={users} initialMeta={meta} classes={classes} />
 }

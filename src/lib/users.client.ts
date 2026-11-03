@@ -193,10 +193,14 @@ export interface CreateUserPayload {
 }
 
 export async function createUserClient(payload: CreateUserPayload): Promise<AdminUser> {
-  // Step 1: create the base user via the public register endpoint
   const created = await proxyFetch<{ user: AdminUser }>('/auth/register', {
     method: 'POST',
     body: JSON.stringify(payload),
   })
   return created.user
+}
+
+export async function exportAllUsersClient(): Promise<AdminUser[]> {
+  const res = await proxyFetch<unknown>(`/users?per_page=1000`)
+  return unwrapList<AdminUser>(res)
 }

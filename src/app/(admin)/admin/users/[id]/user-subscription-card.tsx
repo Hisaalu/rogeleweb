@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { CreditCard, Loader2 } from 'lucide-react'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { getUserSubscriptionClient, type SubscriptionSummary } from '@/lib/users.client'
 import { formatDate } from '@/lib/utils'
@@ -25,11 +26,11 @@ export function UserSubscriptionCard({ userId }: { userId: number }) {
   }, [userId])
 
   return (
-    <section className="rounded-xl border border-border bg-card shadow-sm">
-      <header className="border-b border-border px-5 py-3">
-        <h3 className="text-sm font-semibold">Subscription</h3>
-      </header>
-      <div className="p-5">
+    <Card>
+      <CardHeader>
+        <CardTitle>Subscription</CardTitle>
+      </CardHeader>
+      <CardContent>
         {loading ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 size={14} className="animate-spin" /> Loading...
@@ -56,8 +57,8 @@ export function UserSubscriptionCard({ userId }: { userId: number }) {
             <Row label="Ends">{formatDate(subscription.end_date)}</Row>
           </dl>
         )}
-      </div>
-    </section>
+      </CardContent>
+    </Card>
   )
 }
 

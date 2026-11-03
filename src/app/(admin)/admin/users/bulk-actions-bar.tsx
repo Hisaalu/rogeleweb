@@ -41,36 +41,73 @@ export function BulkActionsBar({
 
   return (
     <>
-      <div className="sticky top-14 z-20 flex flex-wrap items-center gap-2 rounded-lg border border-brand-primary/30 bg-brand-primary/5 px-4 py-3 shadow-sm">
+      <div className="sticky top-14 z-20 flex flex-wrap items-center gap-3 rounded-sm border border-brand-primary/30 bg-brand-primary/5 px-4 py-3 shadow-sm">
         <span className="text-sm font-medium text-brand-primary">
           {selectedCount} user{selectedCount === 1 ? '' : 's'} selected
         </span>
 
         <div className="ml-auto flex flex-wrap items-center gap-2">
-          <ExportButton users={selectedUsers} classes={classes} label="Export selected" filename={`users_selected_${new Date().toISOString().slice(0, 10)}.csv`} />
+          <ExportButton
+            users={selectedUsers}
+            classes={classes}
+            label="Export selected"
+            filename={`users_selected_${new Date().toISOString().slice(0, 10)}.csv`}
+          />
 
           <Button variant="outline" size="sm" onClick={() => setPending('role')} disabled={busy}>
             <Shield size={14} /> Change role
           </Button>
 
-          <Button variant="outline" size="sm" onClick={() => setPending('suspend')} disabled={busy} className="text-warning-fg hover:bg-warning-bg">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPending('suspend')}
+            disabled={busy}
+            className="text-warning-fg hover:bg-warning-bg"
+          >
             <Ban size={14} /> Suspend
           </Button>
 
-          <Button variant="outline" size="sm" onClick={() => setPending('reactivate')} disabled={busy} className="text-success-fg hover:bg-success-bg">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPending('reactivate')}
+            disabled={busy}
+            className="text-success-fg hover:bg-success-bg"
+          >
             <CheckCircle2 size={14} /> Reactivate
           </Button>
 
           {busy && <Loader2 size={14} className="animate-spin text-muted-foreground" />}
 
-          <button type="button" onClick={onClear} className="rounded-md p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground" aria-label="Clear selection">
+          <button
+            type="button"
+            onClick={onClear}
+            className="rounded-sm p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
+            aria-label="Clear selection"
+          >
             <X size={16} />
           </button>
         </div>
       </div>
 
-      <ConfirmDialog open={pending === 'suspend'} onOpenChange={(o) => !o && setPending(null)} title={`Suspend ${selectedCount} user${selectedCount === 1 ? '' : 's'}`} description="They will not be able to log in until reactivated." confirmLabel="Suspend" destructive onConfirm={() => handle('suspend')} />
-      <ConfirmDialog open={pending === 'reactivate'} onOpenChange={(o) => !o && setPending(null)} title={`Reactivate ${selectedCount} user${selectedCount === 1 ? '' : 's'}`} description="They will regain access to the platform." confirmLabel="Reactivate" onConfirm={() => handle('reactivate')} />
+      <ConfirmDialog
+        open={pending === 'suspend'}
+        onOpenChange={(o) => !o && setPending(null)}
+        title={`Suspend ${selectedCount} user${selectedCount === 1 ? '' : 's'}`}
+        description="They will not be able to log in until reactivated."
+        confirmLabel="Suspend"
+        destructive
+        onConfirm={() => handle('suspend')}
+      />
+      <ConfirmDialog
+        open={pending === 'reactivate'}
+        onOpenChange={(o) => !o && setPending(null)}
+        title={`Reactivate ${selectedCount} user${selectedCount === 1 ? '' : 's'}`}
+        description="They will regain access to the platform."
+        confirmLabel="Reactivate"
+        onConfirm={() => handle('reactivate')}
+      />
 
       <Dialog open={pending === 'role'} onOpenChange={(o) => !o && setPending(null)}>
         <DialogContent className="max-w-md">
@@ -81,14 +118,22 @@ export function BulkActionsBar({
 
           <div className="grid gap-2">
             {(['learner', 'teacher', 'external', 'admin'] as UserRole[]).map((r) => (
-              <button key={r} type="button" onClick={() => handleRole(r)} disabled={busy} className="flex items-center justify-between rounded-lg border border-border px-4 py-3 text-left text-sm font-medium capitalize transition hover:border-brand-accent disabled:cursor-not-allowed disabled:opacity-50">
+              <button
+                key={r}
+                type="button"
+                onClick={() => handleRole(r)}
+                disabled={busy}
+                className="flex items-center justify-between rounded-sm border border-border px-4 py-3 text-left text-sm font-medium capitalize transition hover:border-brand-accent disabled:cursor-not-allowed disabled:opacity-50"
+              >
                 <span>{r}</span>
               </button>
             ))}
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setPending(null)} disabled={busy}>Cancel</Button>
+            <Button variant="outline" onClick={() => setPending(null)} disabled={busy}>
+              Cancel
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { HelpCircle } from 'lucide-react'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import type { QuizAttempt } from '@/types/admin'
 
@@ -45,12 +46,11 @@ const AttemptRow = React.memo(function AttemptRow({ attempt }: { attempt: QuizAt
 
 export function UserAttemptsCard({ attempts }: { attempts: QuizAttempt[] }) {
   return (
-    <section className="rounded-xl border border-border bg-card shadow-sm">
-      <header className="border-b border-border px-5 py-3">
-        <h3 className="text-sm font-semibold">Recent quiz attempts</h3>
-      </header>
-
-      <div className="p-2">
+    <Card>
+      <CardHeader>
+        <CardTitle>Recent quiz attempts</CardTitle>
+      </CardHeader>
+      <CardContent className="p-2">
         {attempts.length === 0 ? (
           <div className="flex items-center gap-3 px-3 py-6 text-sm text-muted-foreground">
             <HelpCircle size={16} />
@@ -63,7 +63,7 @@ export function UserAttemptsCard({ attempts }: { attempts: QuizAttempt[] }) {
             ))}
           </ul>
         )}
-      </div>
-    </section>
+      </CardContent>
+    </Card>
   )
 }

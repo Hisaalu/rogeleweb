@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -106,12 +107,11 @@ export function UserActionsCard({
 
   return (
     <>
-      <section className="rounded-xl border border-border bg-card">
-        <header className="border-b border-border px-5 py-3">
-          <h3 className="text-sm font-semibold">Actions</h3>
-        </header>
-
-        <div className="space-y-2 p-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Actions</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2 p-4">
           <Button variant="outline" className="w-full justify-start" onClick={() => setSetPasswordOpen(true)} disabled={busy}>
             <KeyRound size={14} /> Set new password
           </Button>
@@ -148,8 +148,8 @@ export function UserActionsCard({
               <Loader2 size={12} className="animate-spin" /> Working...
             </div>
           )}
-        </div>
-      </section>
+        </CardContent>
+      </Card>
 
       <Dialog open={setPasswordOpen} onOpenChange={(o) => { setSetPasswordOpen(o); if (!o) { setNewPassword(''); setConfirmPassword(''); setShowPassword(false) } }}>
         <DialogContent className="max-w-md">

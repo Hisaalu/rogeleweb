@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { DollarSign, Loader2 } from 'lucide-react'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { getUserPaymentsClient, type PaymentRow } from '@/lib/users.client'
 import { formatDate } from '@/lib/utils'
@@ -25,11 +26,11 @@ export function UserPaymentsCard({ userId }: { userId: number }) {
   }, [userId])
 
   return (
-    <section className="rounded-xl border border-border bg-card shadow-sm">
-      <header className="border-b border-border px-5 py-3">
-        <h3 className="text-sm font-semibold">Recent payments</h3>
-      </header>
-      <div className="p-2">
+    <Card>
+      <CardHeader>
+        <CardTitle>Recent payments</CardTitle>
+      </CardHeader>
+      <CardContent className="p-2">
         {loading ? (
           <div className="flex items-center gap-2 px-3 py-4 text-sm text-muted-foreground">
             <Loader2 size={14} className="animate-spin" /> Loading...
@@ -63,7 +64,7 @@ export function UserPaymentsCard({ userId }: { userId: number }) {
             ))}
           </ul>
         )}
-      </div>
-    </section>
+      </CardContent>
+    </Card>
   )
 }

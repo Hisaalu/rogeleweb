@@ -79,8 +79,8 @@ export function UserStatusModal({
         <DialogHeader>
           <div className="flex items-start gap-3">
             {destructive && (
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100">
-                <AlertTriangle size={20} className="text-red-600" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-danger-bg">
+                <AlertTriangle size={20} className="text-danger-fg" />
               </div>
             )}
             <div>
@@ -91,7 +91,7 @@ export function UserStatusModal({
         </DialogHeader>
 
         {error && (
-          <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          <div className="rounded-sm border border-danger-border/40 bg-danger-bg px-3 py-2 text-sm text-danger-fg">
             {error}
           </div>
         )}

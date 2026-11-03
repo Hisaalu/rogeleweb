@@ -1,5 +1,6 @@
 'use client'
 
+import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { getInitials, formatDate } from '@/lib/utils'
 import type { AdminUser, Class } from '@/types/admin'
@@ -11,14 +12,10 @@ function displayName(u: AdminUser): string {
 
 function roleTone(role: string): 'default' | 'info' | 'warning' | 'success' {
   switch (role) {
-    case 'admin':
-      return 'info'
-    case 'teacher':
-      return 'warning'
-    case 'learner':
-      return 'success'
-    default:
-      return 'default'
+    case 'admin': return 'info'
+    case 'teacher': return 'warning'
+    case 'learner': return 'success'
+    default: return 'default'
   }
 }
 
@@ -33,20 +30,16 @@ export function UserProfileCard({
   const name = displayName(user)
 
   return (
-    <section className="rounded-xl border border-border bg-card">
+    <Card className="overflow-hidden">
       <div className="flex flex-col items-center border-b border-border px-5 py-6 text-center">
         {user.profile_photo ? (
-          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={user.profile_photo}
             alt={name}
             className="h-20 w-20 rounded-full border-4 border-background object-cover shadow"
           />
         ) : (
-          <div
-            className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-background text-2xl font-semibold text-white shadow"
-            style={{ backgroundColor: 'var(--brand-accent)' }}
-          >
+          <div className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-background bg-brand-accent text-2xl font-semibold text-white shadow">
             {getInitials(name)}
           </div>
         )}
@@ -65,18 +58,20 @@ export function UserProfileCard({
         </div>
       </div>
 
-      <dl className="divide-y divide-border">
-        <Row label="User ID" value={`#${user.id}`} />
-        <Row label="Class" value={classObj?.name ?? '—'} />
-        <Row label="Phone" value={user.phone ?? '—'} />
-        <Row label="Joined" value={formatDate(user.created_at)} />
-        <Row
-          label="Last login"
-          value={user.last_login ? formatDate(user.last_login) : 'Never'}
-        />
-        <Row label="Trial started" value={formatDate(user.trial_start_date)} />
-      </dl>
-    </section>
+      <CardContent className="p-0">
+        <dl className="divide-y divide-border">
+          <Row label="User ID" value={`#${user.id}`} />
+          <Row label="Class" value={classObj?.name ?? '—'} />
+          <Row label="Phone" value={user.phone ?? '—'} />
+          <Row label="Joined" value={formatDate(user.created_at)} />
+          <Row
+            label="Last login"
+            value={user.last_login ? formatDate(user.last_login) : 'Never'}
+          />
+          <Row label="Trial started" value={formatDate(user.trial_start_date)} />
+        </dl>
+      </CardContent>
+    </Card>
   )
 }
 

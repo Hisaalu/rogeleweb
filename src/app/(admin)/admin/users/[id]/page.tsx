@@ -35,25 +35,11 @@ export default async function UserDetailPage({
 
   if (!user) notFound()
 
-  let classes: Class[] = []
-  let attempts: QuizAttempt[] = []
-  let submissions: HomeworkSubmission[] = []
-
-  try {
-    classes = await listClassesForFilterServer()
-  } catch {
-    classes = []
-  }
-  try {
-    attempts = await listUserAttemptsServer(userId)
-  } catch {
-    attempts = []
-  }
-  try {
-    submissions = await listUserSubmissionsServer(userId)
-  } catch {
-    submissions = []
-  }
+  const [classes, attempts, submissions] = await Promise.all([
+    listClassesForFilterServer().catch(() => []),
+    listUserAttemptsServer(userId).catch(() => []),
+    listUserSubmissionsServer(userId).catch(() => []),
+  ])
 
   return (
     <UserDetailView
