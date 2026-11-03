@@ -29,6 +29,40 @@ function displayName(u: AdminUser): string {
   return name || u.email
 }
 
+const UserAvatar = React.memo(function UserAvatar({
+  user,
+  size = 36,
+}: {
+  user: AdminUser
+  size?: number
+}) {
+  const [imgError, setImgError] = useState(false)
+  const name = displayName(user)
+  const sizeClass = size >= 40 ? 'h-10 w-10 text-sm' : 'h-9 w-9 text-xs'
+
+  if (user.profile_photo && !imgError) {
+    return (
+      <img
+        src={user.profile_photo}
+        alt={name}
+        width={size}
+        height={size}
+        className={`${sizeClass} shrink-0 rounded-full border border-border object-cover`}
+        onError={() => setImgError(true)}
+        loading="lazy"
+      />
+    )
+  }
+
+  return (
+    <div
+      className={`${sizeClass} flex shrink-0 items-center justify-center rounded-full bg-brand-accent font-semibold text-white`}
+    >
+      {getInitials(name)}
+    </div>
+  )
+})
+
 const RowActions = React.memo(function RowActions({
   user,
   onChangeRole,
@@ -107,9 +141,7 @@ const UserTableRow = React.memo(function UserTableRow({
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-accent text-xs font-semibold text-white">
-            {getInitials(name)}
-          </div>
+          <UserAvatar user={user} />
           <div className="min-w-0">
             <Link href={`/admin/users/${user.id}`} className="block truncate font-medium text-foreground hover:text-brand-primary">
               {name}
@@ -158,9 +190,7 @@ const MobileUserCard = React.memo(function MobileUserCard({
             onChange={(e) => onSelectOne(user.id, e.target.checked)}
             className="mt-1 h-4 w-4 rounded-sm border-input"
           />
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-accent text-sm font-semibold text-white">
-            {getInitials(name)}
-          </div>
+          <UserAvatar user={user} size={40} />
           <div className="min-w-0">
             <Link href={`/admin/users/${user.id}`} className="block truncate font-medium text-foreground hover:text-brand-primary">
               {name}
@@ -170,7 +200,7 @@ const MobileUserCard = React.memo(function MobileUserCard({
         </div>
         <RowActions user={user} onChangeRole={onChangeRole} onChangeStatus={onChangeStatus} />
       </div>
-      
+
       <div className="ml-7 grid grid-cols-2 gap-2 text-sm">
         <div>
           <p className="text-xs text-muted-foreground">Role</p>

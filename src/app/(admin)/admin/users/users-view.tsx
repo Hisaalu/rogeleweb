@@ -5,7 +5,7 @@ import { Loader2, Plus, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { useToast } from '@/components/ui/toast-provider'
-import { listUsersClient, updateUserClient, exportAllUsersClient } from '@/lib/users.client'
+import { listUsersClient, updateUserClient } from '@/lib/users.client'
 import type {
   AdminUser, Class, UpdateUserPayload, UserListMeta, UserRole,
 } from '@/types/admin'
@@ -44,7 +44,6 @@ export function UsersView({
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
-  const [exporting, setExporting] = useState(false)
 
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
   const [bulkBusy, setBulkBusy] = useState(false)
@@ -145,18 +144,6 @@ export function UsersView({
     }
   }, [selectedIds, handleClear, showToast])
 
-  const handleExportAll = useCallback(async () => {
-    setExporting(true)
-    try {
-      const allUsers = await exportAllUsersClient()
-      showToast(`Fetched ${allUsers.length} users for export`, 'info')
-    } catch {
-      showToast('Failed to fetch all users for export', 'error')
-    } finally {
-      setExporting(false)
-    }
-  }, [showToast])
-
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -190,11 +177,11 @@ export function UsersView({
       ) : (
         <div className="relative space-y-4">
           {loading && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/50 backdrop-blur-sm rounded-xl">
+            <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-background/50 backdrop-blur-sm">
               <Loader2 className="h-6 w-6 animate-spin text-brand-primary" />
             </div>
           )}
-          <div className={cn("transition-opacity duration-200", loading ? "opacity-50 pointer-events-none" : "opacity-100")}>
+          <div className={cn('transition-opacity duration-200', loading ? 'opacity-50 pointer-events-none' : 'opacity-100')}>
             <UserTable
               users={users}
               classes={classes}
@@ -209,9 +196,23 @@ export function UsersView({
           <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
             <span>Showing {users.length} of {meta.total} users</span>
             <div className="flex items-center gap-2">
-              <button type="button" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1 || loading} className="rounded-lg border border-border bg-card px-3 py-1.5 font-medium transition hover:border-brand-accent disabled:cursor-not-allowed disabled:opacity-50">Previous</button>
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page <= 1 || loading}
+                className="rounded-sm border border-border bg-card px-3 py-1.5 font-medium transition hover:border-brand-accent disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Previous
+              </button>
               <span className="px-2">Page {meta.page} of {meta.last_page}</span>
-              <button type="button" onClick={() => setPage((p) => p + 1)} disabled={page >= meta.last_page || loading} className="rounded-lg border border-border bg-card px-3 py-1.5 font-medium transition hover:border-brand-accent disabled:cursor-not-allowed disabled:opacity-50">Next</button>
+              <button
+                type="button"
+                onClick={() => setPage((p) => p + 1)}
+                disabled={page >= meta.last_page || loading}
+                className="rounded-sm border border-border bg-card px-3 py-1.5 font-medium transition hover:border-brand-accent disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Next
+              </button>
             </div>
           </div>
         </div>
