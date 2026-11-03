@@ -1,11 +1,13 @@
 'use client'
 
-import React, { useMemo, useState, useEffect, useCallback, useRef } from 'react'
+import React, { useMemo, useState, useEffect, useCallback } from 'react'
 import { Activity, Search, Loader2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
+import { cn } from '@/lib/utils'
 import type { AdminActivityItem } from '@/types/admin'
 import { fetchMoreActivity } from './actions'
 
@@ -16,6 +18,12 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
   hour: '2-digit',
   minute: '2-digit',
 })
+
+function formatDate(val: string | null | undefined) {
+  if (!val) return '—'
+  const d = new Date(val)
+  return isNaN(d.getTime()) ? '—' : dateFormatter.format(d)
+}
 
 function actionTone(action: string): 'default' | 'info' | 'success' | 'warning' | 'danger' {
   switch (action) {
@@ -35,35 +43,21 @@ function userName(a: AdminActivityItem): string {
 const ActivityRow = React.memo(function ActivityRow({ item }: { item: AdminActivityItem }) {
   return (
     <tr className="transition-colors hover:bg-muted/30">
-      <td className="whitespace-nowrap px-4 py-3 text-xs text-muted-foreground">
-        {dateFormatter.format(new Date(item.created_at))}
-      </td>
-      <td className="px-4 py-3">
-        <Badge tone={actionTone(item.action)}>{item.action}</Badge>
-      </td>
-      <td className="max-w-[280px] truncate px-4 py-3 text-muted-foreground">
-        {item.description ?? '—'}
-      </td>
+      <td className="whitespace-nowrap px-4 py-3 text-xs text-muted-foreground">{formatDate(item.created_at)}</td>
+      <td className="px-4 py-3"><Badge tone={actionTone(item.action)}>{item.action}</Badge></td>
+      <td className="max-w-[280px] truncate px-4 py-3 text-muted-foreground">{item.description ?? '—'}</td>
       <td className="px-4 py-3">
         <div className="min-w-0">
           <p className="truncate font-medium">{userName(item)}</p>
-          {item.user_email && (
-            <p className="truncate text-xs text-muted-foreground">{item.user_email}</p>
-          )}
+          {item.user_email && <p className="truncate text-xs text-muted-foreground">{item.user_email}</p>}
         </div>
       </td>
       <td className="px-4 py-3">
         {item.user_role ? (
-          <Badge
-            tone={
-              item.user_role === 'admin' ? 'info' : item.user_role === 'teacher' ? 'warning' : 'default'
-            }
-          >
+          <Badge tone={item.user_role === 'admin' ? 'info' : item.user_role === 'teacher' ? 'warning' : 'default'}>
             {item.user_role}
           </Badge>
-        ) : (
-          <span className="text-muted-foreground">—</span>
-        )}
+        ) : <span className="text-muted-foreground">—</span>}
       </td>
     </tr>
   )
@@ -80,8 +74,8 @@ const MobileActivityCard = React.memo(function MobileActivityCard({ item }: { it
         <Badge tone={actionTone(item.action)}>{item.action}</Badge>
       </div>
       <p className="text-sm text-muted-foreground">{item.description ?? 'No description'}</p>
-      <div className="flex items-center justify-between mt-1">
-        <span className="text-xs text-muted-foreground">{dateFormatter.format(new Date(item.created_at))}</span>
+      <div className="mt-1 flex items-center justify-between">
+        <span className="text-xs text-muted-foreground">{formatDate(item.created_at)}</span>
         {item.user_role && (
           <Badge tone={item.user_role === 'admin' ? 'info' : item.user_role === 'teacher' ? 'warning' : 'default'}>
             {item.user_role}
@@ -92,16 +86,23 @@ const MobileActivityCard = React.memo(function MobileActivityCard({ item }: { it
   )
 })
 
-export function ActivityView({ initialActivity }: { initialActivity: AdminActivityItem[] }) {
-  const [items, setItems] = useState<AdminActivityItem[]>(initialActivity)
+export function ActivityView({
+  initialActivity,
+  initialNextCursor,
+  initialHasMore,
+}: {
+  initialActivity: AdminActivityItem[]
+  initialNextCursor: string | null
+  initialHasMore: boolean
+}) {
+  const [items, setItems] = useState(initialActivity)
+  const [nextCursor, setNextCursor] = useState<string | null>(initialNextCursor)
+  const [hasMore, setHasMore] = useState(initialHasMore)
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [actionFilter, setActionFilter] = useState<string>('')
-  
   const [isLoadingMore, setIsLoadingMore] = useState(false)
-  const [hasMore, setHasMore] = useState(initialActivity.length === 25)
-  
-  const observerTarget = useRef<HTMLDivElement>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 300)
@@ -118,72 +119,42 @@ export function ActivityView({ initialActivity }: { initialActivity: AdminActivi
     let list = items
     if (debouncedSearch.trim()) {
       const q = debouncedSearch.trim().toLowerCase()
-      list = list.filter(
-        (a) =>
-          a.action.toLowerCase().includes(q) ||
-          (a.description ?? '').toLowerCase().includes(q) ||
-          (a.user_email ?? '').toLowerCase().includes(q) ||
-          (a.user_first_name ?? '').toLowerCase().includes(q) ||
-          (a.user_last_name ?? '').toLowerCase().includes(q),
+      list = list.filter((a) =>
+        a.action.toLowerCase().includes(q) ||
+        (a.description ?? '').toLowerCase().includes(q) ||
+        (a.user_email ?? '').toLowerCase().includes(q) ||
+        (a.user_first_name ?? '').toLowerCase().includes(q) ||
+        (a.user_last_name ?? '').toLowerCase().includes(q),
       )
     }
-    if (actionFilter) {
-      list = list.filter((a) => a.action === actionFilter)
-    }
+    if (actionFilter) list = list.filter((a) => a.action === actionFilter)
     return list
   }, [items, debouncedSearch, actionFilter])
 
-    const loadMore = useCallback(async () => {
-    if (isLoadingMore || !hasMore) return
+  const handleLoadMore = useCallback(async () => {
+    if (isLoadingMore || !hasMore || !nextCursor) return
     setIsLoadingMore(true)
-    
+    setLoadError(null)
     try {
-      const lastItem = items[items.length - 1]
-      const cursor = lastItem ? lastItem.created_at : null 
-      
-      const newItems = await fetchMoreActivity(cursor)
-      
-      if (newItems.length < 25) {
+      const page = await fetchMoreActivity(nextCursor)
+      if (page.items.length === 0) {
         setHasMore(false)
+        setNextCursor(null)
+        return
       }
-      
-      setItems((prev: AdminActivityItem[]) => {
-        const existingIds = new Set(prev.map((item: AdminActivityItem) => item.id))
-        const uniqueNewItems = newItems.filter((item: AdminActivityItem) => !existingIds.has(item.id))
-        return [...prev, ...uniqueNewItems]
+      setItems((prev) => {
+        const existingIds = new Set(prev.map((i) => i.id))
+        const unique = page.items.filter((i) => !existingIds.has(i.id))
+        return [...prev, ...unique]
       })
-    } catch {
+      setNextCursor(page.nextCursor)
+      setHasMore(page.hasMore)
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : 'Failed to load more')
     } finally {
       setIsLoadingMore(false)
     }
-  }, [isLoadingMore, hasMore, items])
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
-          loadMore()
-        }
-      },
-      { threshold: 1.0 }
-    )
-    
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current)
-    }
-    
-    return () => {
-      if (observerTarget.current) observer.unobserve(observerTarget.current)
-    }
-  }, [loadMore, hasMore, isLoadingMore])
-
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value)
-  }, [])
-
-  const handleFilterChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setActionFilter(e.target.value)
-  }, [])
+  }, [isLoadingMore, hasMore, nextCursor])
 
   return (
     <div className="space-y-6">
@@ -200,71 +171,67 @@ export function ActivityView({ initialActivity }: { initialActivity: AdminActivi
           <Input
             placeholder="Search action, description, or user..."
             value={search}
-            onChange={handleSearchChange}
+            onChange={(e) => setSearch(e.target.value)}
             className="pl-9"
           />
         </div>
-        <select
-          value={actionFilter}
-          onChange={handleFilterChange}
-          className="h-10 rounded-lg border border-input bg-background px-3 text-sm outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/25"
-        >
+        <Select value={actionFilter} onChange={(e) => setActionFilter(e.target.value)}>
           <option value="">All actions</option>
-          {actions.map((a) => (
-            <option key={a} value={a}>{a}</option>
-          ))}
-        </select>
+          {actions.map((a) => <option key={a} value={a}>{a}</option>)}
+        </Select>
       </div>
 
       <Card className="overflow-hidden">
         <CardHeader className="border-b border-border bg-muted/10">
-          <CardTitle>
-            {filtered.length} matching events
-          </CardTitle>
+          <CardTitle>{filtered.length} matching events</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {filtered.length === 0 ? (
             <div className="px-5 py-12">
-              <EmptyState
-                icon={Activity}
-                title="No matching activity"
-                description="Try changing the filter or search term."
-              />
+              <EmptyState icon={Activity} title="No matching activity" description="Try changing the filter or search term." />
             </div>
           ) : (
             <>
               <div className="hidden max-h-[640px] overflow-y-auto sm:block">
                 <table className="w-full text-sm">
-                  <thead className="sticky top-0 bg-muted/80 backdrop-blur z-10 shadow-sm">
+                  <thead className="sticky top-0 z-10 bg-muted/80 shadow-sm backdrop-blur">
                     <tr>
                       {['When', 'Action', 'Description', 'User', 'Role'].map((h) => (
-                        <th
-                          key={h}
-                          className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground"
-                        >
-                          {h}
-                        </th>
+                        <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                    {filtered.map((a) => (
-                      <ActivityRow key={a.id} item={a} />
-                    ))}
+                    {filtered.map((a) => <ActivityRow key={a.id} item={a} />)}
                   </tbody>
                 </table>
               </div>
               <div className="flex max-h-[640px] flex-col overflow-y-auto sm:hidden">
-                {filtered.map((a) => (
-                  <MobileActivityCard key={a.id} item={a} />
-                ))}
+                {filtered.map((a) => <MobileActivityCard key={a.id} item={a} />)}
               </div>
-              
-              <div ref={observerTarget} className="flex h-12 items-center justify-center border-t border-border">
-                {isLoadingMore && <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}
-                {!hasMore && filtered.length > 0 && (
+
+              <div className="flex flex-col items-center justify-center gap-2 border-t border-border px-4 py-4">
+                {hasMore ? (
+                  <button
+                    type="button"
+                    onClick={handleLoadMore}
+                    disabled={isLoadingMore || !nextCursor}
+                    className={cn(
+                      'inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors',
+                      'text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent',
+                      (isLoadingMore || !nextCursor) && 'cursor-not-allowed opacity-50',
+                    )}
+                  >
+                    {isLoadingMore ? (
+                      <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading more...</>
+                    ) : (
+                      'Load more events'
+                    )}
+                  </button>
+                ) : (
                   <span className="text-xs text-muted-foreground">End of activity</span>
                 )}
+                {loadError && <p className="text-xs text-danger-fg">{loadError}</p>}
               </div>
             </>
           )}

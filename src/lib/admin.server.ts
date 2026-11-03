@@ -32,16 +32,37 @@ export async function getRecentPaymentsServer(limit = 10): Promise<AdminPaymentS
   return unwrapList<AdminPaymentSummary>(res)
 }
 
+export interface ActivityPage {
+  items: AdminActivityItem[]
+  nextCursor: string | null
+  hasMore: boolean
+}
+
 export async function getRecentActivityServer(
   limit = 25,
   cursor: string | null = null,
-): Promise<AdminActivityItem[]> {
+): Promise<ActivityPage> {
   let url = `/api/v1/admin/activity?limit=${limit}`
-  if (cursor) {
-    url += `&cursor=${encodeURIComponent(cursor)}`
-  }
+  if (cursor) url += `&cursor=${encodeURIComponent(cursor)}`
+
   const res = await serverApiRequest<unknown>(url)
-  return unwrapList<AdminActivityItem>(res)
+
+  if (res && typeof res === 'object' && !Array.isArray(res)) {
+    const obj = res as Record<string, any>
+    const items = Array.isArray(obj.data) ? (obj.data as AdminActivityItem[]) : []
+    return {
+      items,
+      nextCursor: typeof obj.next_cursor === 'string' ? obj.next_cursor : null,
+      hasMore: Boolean(obj.has_more),
+    }
+  }
+
+  const items = unwrapList<AdminActivityItem>(res)
+  return {
+    items,
+    nextCursor: null,
+    hasMore: items.length === limit,
+  }
 }
 
 export interface ClassLearnerCount {

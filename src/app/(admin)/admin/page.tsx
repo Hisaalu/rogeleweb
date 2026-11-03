@@ -29,7 +29,7 @@ export default async function AdminPage() {
     paymentsRes,
     activityRes,
     learnersRes,
-    settings
+    settingsRes,
   ] = await Promise.allSettled([
     getAdminOverviewServer(),
     getRecentSignupsServer(5),
@@ -42,12 +42,14 @@ export default async function AdminPage() {
   const overview = overviewRes.status === 'fulfilled' ? overviewRes.value : null
   const signups = signupsRes.status === 'fulfilled' ? signupsRes.value : []
   const payments = paymentsRes.status === 'fulfilled' ? paymentsRes.value : []
-  const activity = activityRes.status === 'fulfilled' ? activityRes.value : []
-  const learnersByClass = learnersRes.status === 'fulfilled' ? learnersRes.value : []
-  
-  const siteTitle = settings.status === 'fulfilled' 
-    ? settings.value['site.browser_title']?.trim() 
-    : undefined
+  const activity: AdminActivityItem[] =
+    activityRes.status === 'fulfilled' ? activityRes.value.items : []
+  const learnersByClass: ClassLearnerCount[] =
+    learnersRes.status === 'fulfilled' ? learnersRes.value : []
+  const siteTitle =
+    settingsRes.status === 'fulfilled'
+      ? settingsRes.value['site.browser_title']?.trim()
+      : undefined
 
   return (
     <AdminDashboardView

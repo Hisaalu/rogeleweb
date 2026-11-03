@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
-import { getRecentActivityServer } from '@/lib/admin.server'
-import type { AdminActivityItem } from '@/types/admin'
+import { getRecentActivityServer, type ActivityPage } from '@/lib/admin.server'
 import { ActivityView } from './activity-view'
 
 export const metadata: Metadata = {
@@ -8,13 +7,18 @@ export const metadata: Metadata = {
 }
 
 export default async function AdminActivityPage() {
-  let initialActivity: AdminActivityItem[] = []
+  let initial: ActivityPage = { items: [], nextCursor: null, hasMore: false }
   try {
-    // Only load the first 25 items on initial load
-    initialActivity = await getRecentActivityServer(25, null)
+    initial = await getRecentActivityServer(25, null)
   } catch {
-    initialActivity = []
+    initial = { items: [], nextCursor: null, hasMore: false }
   }
 
-  return <ActivityView initialActivity={initialActivity} />
+  return (
+    <ActivityView
+      initialActivity={initial.items}
+      initialNextCursor={initial.nextCursor}
+      initialHasMore={initial.hasMore}
+    />
+  )
 }
