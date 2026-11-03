@@ -4,8 +4,13 @@ import React, { useMemo, useState, useEffect, useCallback } from 'react'
 import { CreditCard, Download } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from '@/components/ui/table'
 import type { AdminSubscription } from '@/types/admin'
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
@@ -22,8 +27,9 @@ const currencyFormatter = new Intl.NumberFormat('en-UG', {
 const STATUSES = ['active', 'expired', 'cancelled', 'pending']
 
 function displayUser(s: AdminSubscription): string {
-  const name = [s.user_first_name, s.user_last_name].filter(Boolean).join(' ')
-  return name || s.user_email || `User #${s.user_id ?? '—'}`
+  const full = [s.user_first_name, s.user_last_name].filter(Boolean).join(' ').trim()
+  if (full) return full
+  return s.user_email?.trim() || `User #${s.user_id ?? '—'}`
 }
 
 function exportCsv(subs: AdminSubscription[]) {
@@ -76,45 +82,51 @@ const Stat = React.memo(function Stat({
     primary: 'text-brand-primary',
   }
   return (
-    <div className="rounded-xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md">
+    <Card className="p-4 shadow-sm transition-shadow hover:shadow-md">
       <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
       <p className={`mt-1 text-xl font-semibold ${colors[tone]}`}>{value}</p>
-    </div>
+    </Card>
   )
 })
 
 const SubscriptionRow = React.memo(function SubscriptionRow({ sub }: { sub: AdminSubscription }) {
+  const name = displayUser(sub)
+  const showEmail = Boolean(sub.user_email) && name !== sub.user_email
+
   return (
-    <tr className="transition hover:bg-muted/30">
-      <td className="px-4 py-3">
+    <TableRow>
+      <TableCell>
         <div className="min-w-0">
-          <p className="truncate font-medium">{displayUser(sub)}</p>
-          {sub.user_email && <p className="truncate text-xs text-muted-foreground">{sub.user_email}</p>}
+          <p className="truncate font-medium">{name}</p>
+          {showEmail && <p className="truncate text-xs text-muted-foreground">{sub.user_email}</p>}
         </div>
-      </td>
-      <td className="px-4 py-3 capitalize text-muted-foreground">{sub.plan_type}</td>
-      <td className="px-4 py-3 font-semibold">
+      </TableCell>
+      <TableCell className="capitalize text-muted-foreground">{sub.plan_type}</TableCell>
+      <TableCell className="font-semibold">
         {sub.amount != null ? currencyFormatter.format(sub.amount) : '—'}
-      </td>
-      <td className="px-4 py-3">
+      </TableCell>
+      <TableCell>
         <Badge tone={sub.status === 'active' ? 'success' : sub.status === 'expired' ? 'danger' : sub.status === 'pending' ? 'warning' : 'default'}>
           {sub.status}
         </Badge>
-      </td>
-      <td className="px-4 py-3 text-muted-foreground">{sub.auto_renew ? 'Yes' : 'No'}</td>
-      <td className="px-4 py-3 text-muted-foreground">{dateFormatter.format(new Date(sub.start_date))}</td>
-      <td className="px-4 py-3 text-muted-foreground">{dateFormatter.format(new Date(sub.end_date))}</td>
-    </tr>
+      </TableCell>
+      <TableCell className="text-muted-foreground">{sub.auto_renew ? 'Yes' : 'No'}</TableCell>
+      <TableCell className="text-muted-foreground">{dateFormatter.format(new Date(sub.start_date))}</TableCell>
+      <TableCell className="text-muted-foreground">{dateFormatter.format(new Date(sub.end_date))}</TableCell>
+    </TableRow>
   )
 })
 
 const MobileSubscriptionCard = React.memo(function MobileSubscriptionCard({ sub }: { sub: AdminSubscription }) {
+  const name = displayUser(sub)
+  const showEmail = Boolean(sub.user_email) && name !== sub.user_email
+
   return (
     <div className="flex flex-col gap-3 border-b border-border p-4 last:border-0 hover:bg-muted/30">
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-col min-w-0">
-          <span className="font-medium text-foreground">{displayUser(sub)}</span>
-          {sub.user_email && <span className="truncate text-xs text-muted-foreground">{sub.user_email}</span>}
+          <span className="font-medium text-foreground">{name}</span>
+          {showEmail && <span className="truncate text-xs text-muted-foreground">{sub.user_email}</span>}
         </div>
         <Badge tone={sub.status === 'active' ? 'success' : sub.status === 'expired' ? 'danger' : sub.status === 'pending' ? 'warning' : 'default'}>
           {sub.status}
@@ -163,6 +175,7 @@ export function SubscriptionsView({
       const q = debouncedSearch.trim().toLowerCase()
       list = list.filter(
         (s) =>
+          displayUser(s).toLowerCase().includes(q) ||
           (s.user_email ?? '').toLowerCase().includes(q) ||
           (s.transaction_id ?? '').toLowerCase().includes(q) ||
           s.plan_type.toLowerCase().includes(q),
@@ -213,14 +226,13 @@ export function SubscriptionsView({
           onChange={(e) => setSearch(e.target.value)}
           className="sm:col-span-2"
         />
-        <select
+        <Select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="h-10 rounded-lg border border-input bg-background px-3 text-sm outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/25"
         >
           <option value="">Any status</option>
           {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
+        </Select>
       </div>
 
       {filtered.length === 0 ? (
@@ -230,28 +242,26 @@ export function SubscriptionsView({
           description="Try changing the filters."
         />
       ) : (
-        <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+        <Card className="overflow-hidden shadow-sm">
           <div className="hidden overflow-x-auto sm:block">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
-                <tr>
+            <Table>
+              <TableHeader>
+                <TableRow>
                   {['User', 'Plan', 'Amount', 'Status', 'Auto-renew', 'Start', 'End'].map((h) => (
-                    <th key={h} className="whitespace-nowrap px-4 py-3 text-left font-semibold tracking-wide">
-                      {h}
-                    </th>
+                    <TableHead key={h}>{h}</TableHead>
                   ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {filtered.map((s) => <SubscriptionRow key={s.id} sub={s} />)}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
 
           <div className="flex flex-col sm:hidden">
             {filtered.map((s) => <MobileSubscriptionCard key={s.id} sub={s} />)}
           </div>
-        </div>
+        </Card>
       )}
 
       <p className="text-xs text-muted-foreground">

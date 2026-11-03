@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   title: 'Subscriptions',
 }
 
+export const revalidate = 60
+
 export default async function AdminSubscriptionsPage() {
   let subscriptions: AdminSubscription[] = []
   try {
