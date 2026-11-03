@@ -10,11 +10,19 @@ async function proxy(
   const path = params.path.join('/')
   const search = req.nextUrl.search
 
+  const headers: HeadersInit = {
+    Accept: 'application/json',
+  }
+  const authHeader = req.headers.get('authorization')
+  if (authHeader) {
+    headers['Authorization'] = authHeader
+  }
+
   let upstream: Response
   try {
     upstream = await fetch(`${ANALYTICS_URL}/analytics/${path}${search}`, {
       method: req.method,
-      headers: { Accept: 'application/json' },
+      headers,
       cache: 'no-store',
     })
   } catch (err) {
