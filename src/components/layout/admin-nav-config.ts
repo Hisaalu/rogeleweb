@@ -31,9 +31,9 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
     id: 'overview',
     label: 'Overview',
     items: [
-      { label: 'ROGELE Dashboard', href: '/admin', icon: BarChart3 },
-      { label: 'ROGELE Activity', href: '/admin/activity', icon: Activity },
-      { label: 'ROGELE Analytics', href: '/admin/analytics', icon: ClipboardList },
+      { label: 'Dashboard', href: '/admin', icon: BarChart3 },
+      { label: 'Activity Logs', href: '/admin/activity', icon: Activity },
+      { label: 'Analytics', href: '/admin/analytics', icon: ClipboardList },
     ],
   },
   {

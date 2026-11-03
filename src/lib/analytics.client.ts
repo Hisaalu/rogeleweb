@@ -119,7 +119,7 @@ async function analyticsFetch<T>(path: string, signal?: AbortSignal): Promise<T>
 
   const res = await fetch(`${baseUrl}/api/analytics${path}`, {
     headers: { Accept: 'application/json' },
-    cache: 'no-store',
+    next: { revalidate: 60 },
     signal,
   })
 

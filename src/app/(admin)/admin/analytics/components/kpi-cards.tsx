@@ -60,11 +60,11 @@ function Kpi({
   hintTone = 'default',
   tone = 'default',
 }: {
-  icon: any
+  icon: React.ElementType
   label: string
   value: string
   hint?: string
-  hintIcon?: any
+  hintIcon?: React.ElementType
   hintTone?: 'default' | 'success' | 'danger'
   tone?: 'default' | 'primary' | 'accent' | 'success' | 'info' | 'danger'
 }) {
