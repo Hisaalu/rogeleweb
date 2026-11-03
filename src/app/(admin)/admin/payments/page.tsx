@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   title: 'Payments',
 }
 
+export const revalidate = 60
+
 export default async function AdminPaymentsPage() {
   let payments: AdminPayment[] = []
   try {

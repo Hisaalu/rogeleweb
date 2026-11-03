@@ -4,8 +4,13 @@ import React, { useMemo, useState, useEffect, useCallback } from 'react'
 import { DollarSign, Download } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from '@/components/ui/table'
 import type { AdminPayment } from '@/types/admin'
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
@@ -22,8 +27,9 @@ const currencyFormatter = new Intl.NumberFormat('en-UG', {
 const STATUSES = ['pending', 'completed', 'failed', 'refunded']
 
 function displayUser(p: AdminPayment): string {
-  const name = [p.user_first_name, p.user_last_name].filter(Boolean).join(' ')
-  return name || p.user_email || `User #${p.user_id ?? '—'}`
+  const full = [p.user_first_name, p.user_last_name].filter(Boolean).join(' ').trim()
+  if (full) return full
+  return p.user_email?.trim() || `User #${p.user_id ?? '—'}`
 }
 
 function exportCsv(payments: AdminPayment[]) {
@@ -75,47 +81,53 @@ const Stat = React.memo(function Stat({
     primary: 'text-brand-primary',
   }
   return (
-    <div className="rounded-xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md">
+    <Card className="p-4 shadow-sm transition-shadow hover:shadow-md">
       <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
       <p className={`mt-1 text-xl font-semibold ${colors[tone]}`}>{value}</p>
-    </div>
+    </Card>
   )
 })
 
 const PaymentRow = React.memo(function PaymentRow({ payment }: { payment: AdminPayment }) {
+  const name = displayUser(payment)
+  const showEmail = Boolean(payment.user_email) && name !== payment.user_email
+
   return (
-    <tr className="transition hover:bg-muted/30">
-      <td className="px-4 py-3">
+    <TableRow>
+      <TableCell>
         <div className="min-w-0">
-          <p className="truncate font-medium">{displayUser(payment)}</p>
-          {payment.user_email && <p className="truncate text-xs text-muted-foreground">{payment.user_email}</p>}
+          <p className="truncate font-medium">{name}</p>
+          {showEmail && <p className="truncate text-xs text-muted-foreground">{payment.user_email}</p>}
         </div>
-      </td>
-      <td className="px-4 py-3 font-semibold">
+      </TableCell>
+      <TableCell className="font-semibold">
         {payment.amount != null ? currencyFormatter.format(payment.amount) : '—'}
-      </td>
-      <td className="px-4 py-3 text-muted-foreground">{payment.plan_type ?? '—'}</td>
-      <td className="px-4 py-3 text-muted-foreground">{payment.payment_method ?? '—'}</td>
-      <td className="max-w-[140px] truncate px-4 py-3 text-muted-foreground">{payment.transaction_id ?? '—'}</td>
-      <td className="px-4 py-3">
+      </TableCell>
+      <TableCell className="text-muted-foreground">{payment.plan_type ?? '—'}</TableCell>
+      <TableCell className="text-muted-foreground">{payment.payment_method ?? '—'}</TableCell>
+      <TableCell className="max-w-[140px] truncate text-muted-foreground">{payment.transaction_id ?? '—'}</TableCell>
+      <TableCell>
         <Badge tone={payment.status === 'completed' ? 'success' : payment.status === 'failed' ? 'danger' : payment.status === 'refunded' ? 'default' : 'warning'}>
           {payment.status}
         </Badge>
-      </td>
-      <td className="px-4 py-3 text-muted-foreground">
+      </TableCell>
+      <TableCell className="text-muted-foreground">
         {payment.payment_date ? dateFormatter.format(new Date(payment.payment_date)) : dateFormatter.format(new Date(payment.created_at))}
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   )
 })
 
 const MobilePaymentCard = React.memo(function MobilePaymentCard({ payment }: { payment: AdminPayment }) {
+  const name = displayUser(payment)
+  const showEmail = Boolean(payment.user_email) && name !== payment.user_email
+
   return (
     <div className="flex flex-col gap-3 border-b border-border p-4 last:border-0 hover:bg-muted/30">
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-col min-w-0">
-          <span className="font-medium text-foreground">{displayUser(payment)}</span>
-          {payment.user_email && <span className="truncate text-xs text-muted-foreground">{payment.user_email}</span>}
+          <span className="font-medium text-foreground">{name}</span>
+          {showEmail && <span className="truncate text-xs text-muted-foreground">{payment.user_email}</span>}
         </div>
         <Badge tone={payment.status === 'completed' ? 'success' : payment.status === 'failed' ? 'danger' : payment.status === 'refunded' ? 'default' : 'warning'}>
           {payment.status}
@@ -164,6 +176,7 @@ export function PaymentsView({ initialPayments }: { initialPayments: AdminPaymen
       const q = debouncedSearch.trim().toLowerCase()
       list = list.filter(
         (p) =>
+          displayUser(p).toLowerCase().includes(q) ||
           (p.user_email ?? '').toLowerCase().includes(q) ||
           (p.transaction_id ?? '').toLowerCase().includes(q) ||
           (p.phone_number ?? '').toLowerCase().includes(q),
@@ -216,14 +229,13 @@ export function PaymentsView({ initialPayments }: { initialPayments: AdminPaymen
           onChange={(e) => setSearch(e.target.value)}
           className="sm:col-span-2"
         />
-        <select
+        <Select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="h-10 rounded-lg border border-input bg-background px-3 text-sm outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/25"
         >
           <option value="">Any status</option>
           {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
+        </Select>
       </div>
 
       {filtered.length === 0 ? (
@@ -233,28 +245,26 @@ export function PaymentsView({ initialPayments }: { initialPayments: AdminPaymen
           description="Try changing the filters."
         />
       ) : (
-        <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+        <Card className="overflow-hidden shadow-sm">
           <div className="hidden overflow-x-auto sm:block">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
-                <tr>
+            <Table>
+              <TableHeader>
+                <TableRow>
                   {['User', 'Amount', 'Plan', 'Method', 'Transaction', 'Status', 'Date'].map((h) => (
-                    <th key={h} className="whitespace-nowrap px-4 py-3 text-left font-semibold tracking-wide">
-                      {h}
-                    </th>
+                    <TableHead key={h}>{h}</TableHead>
                   ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {filtered.map((p) => <PaymentRow key={p.id} payment={p} />)}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
 
           <div className="flex flex-col sm:hidden">
             {filtered.map((p) => <MobilePaymentCard key={p.id} payment={p} />)}
           </div>
-        </div>
+        </Card>
       )}
 
       <p className="text-xs text-muted-foreground">
