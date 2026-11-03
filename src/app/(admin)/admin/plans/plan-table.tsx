@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -56,7 +57,7 @@ const RowActions = React.memo(function RowActions({
       </Button>
 
       {open && (
-        <div className="absolute right-0 top-full z-30 mt-1 w-48 overflow-hidden rounded-lg border border-border bg-card shadow-lg">
+        <div className="absolute right-0 top-full z-30 mt-1 w-48 overflow-hidden rounded-sm border border-border bg-card shadow-lg">
           <button type="button" onClick={() => { onEdit(plan); setOpen(false) }} className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition hover:bg-muted">
             <Pencil size={14} /> Edit
           </button>
@@ -161,7 +162,7 @@ export function PlanTable({
   }
 
   return (
-    <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+    <Card className="overflow-hidden shadow-sm">
       <div className="hidden sm:block">
         <Table>
           <TableHeader>
@@ -187,6 +188,6 @@ export function PlanTable({
           <MobilePlanCard key={p.id} plan={p} onEdit={onEdit} onDelete={onDelete} onToggleActive={onToggleActive} />
         ))}
       </div>
-    </div>
+    </Card>
   )
 }

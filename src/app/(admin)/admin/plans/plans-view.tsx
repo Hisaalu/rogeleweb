@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
 import { useToast } from '@/components/ui/toast-provider'
 import {
   createPlanClient,
@@ -145,11 +146,11 @@ export function PlansView({
 
       <Card className="p-5 sm:p-6 border-brand-accent/20 bg-brand-accent/5">
         <div className="flex items-center gap-2 mb-4">
-          <Clock size={20} style={{ color: 'var(--brand-accent)' }} />
+          <Clock size={20} className="text-brand-accent" />
           <h2 className="text-lg font-semibold">Free Trial Settings</h2>
         </div>
         <p className="text-sm text-muted-foreground mb-4 max-w-2xl">
-          Set the default duration for new users who sign up. Changing this will instantly update the trial end date for all existing users who are currently on a trial.
+          Set the default duration for all users who are currently on free trials or whose subscription ended. 
         </p>
         <div className="flex flex-wrap items-end gap-4">
           <div className="space-y-1.5 w-full sm:w-48">
@@ -183,27 +184,24 @@ export function PlansView({
         />
       ) : (
         <>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             <Input
               placeholder="Search plans..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
 
-            <select
+            <Select
               value={activeFilter === null ? '' : activeFilter ? 'true' : 'false'}
               onChange={(e) => {
                 const v = e.target.value
                 setActiveFilter(v === '' ? null : v === 'true')
               }}
-              className="h-10 rounded-lg border border-input bg-background px-3 text-sm outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/25"
             >
               <option value="">Any status</option>
               <option value="true">Active</option>
               <option value="false">Inactive</option>
-            </select>
-
-            <div className="hidden lg:block" />
+            </Select>
           </div>
 
           <PlanTable
