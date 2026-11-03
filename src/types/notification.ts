@@ -19,13 +19,22 @@ export interface Notification {
   created_at: string
 }
 
+export type BroadcastAudience =
+  | { kind: 'all' }
+  | { kind: 'role'; role: 'learner' | 'teacher' | 'admin' | 'external' }
+  | { kind: 'class'; class_id: number }
+  | { kind: 'users'; user_ids: number[] }
+
 export interface SendBroadcastPayload {
   title: string
   message: string
   link?: string
   type?: NotificationType
+  audience?: BroadcastAudience
 }
 
 export interface SendBroadcastResponse {
   sent: number
+  audience: string
+  recipients: number
 }

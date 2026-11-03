@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { Megaphone } from 'lucide-react'
+import { Card } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
 import type { Notification } from '@/types/notification'
 
@@ -9,7 +10,14 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
   month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit',
 })
 
-const BroadcastItem = React.memo(function BroadcastItem({ broadcast }: { broadcast: Notification }) {
+interface BroadcastMeta { id: number; audience: string; recipients: number }
+
+const BroadcastItem = React.memo(function BroadcastItem({
+  broadcast, meta,
+}: {
+  broadcast: Notification
+  meta?: BroadcastMeta
+}) {
   return (
     <li className="px-4 py-4 transition-colors hover:bg-muted/30 sm:px-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
@@ -21,6 +29,15 @@ const BroadcastItem = React.memo(function BroadcastItem({ broadcast }: { broadca
           {broadcast.link && broadcast.link.trim() !== '' && (
             <p className="mt-1 text-xs font-medium text-brand-primary">
               → {broadcast.link}
+            </p>
+          )}
+          {meta && (
+            <p className="mt-1 text-xs text-muted-foreground">
+              Sent to <span className="font-medium text-foreground">{meta.audience}</span>
+              {' · '}
+              <span className="font-medium text-foreground">
+                {meta.recipients} recipient{meta.recipients === 1 ? '' : 's'}
+              </span>
             </p>
           )}
         </div>
@@ -37,9 +54,14 @@ const BroadcastItem = React.memo(function BroadcastItem({ broadcast }: { broadca
   )
 })
 
-export function BroadcastHistory({ broadcasts }: { broadcasts: Notification[] }) {
+export function BroadcastHistory({
+  broadcasts, meta,
+}: {
+  broadcasts: Notification[]
+  meta: Record<number, BroadcastMeta>
+}) {
   return (
-    <section className="rounded-xl border border-border bg-card shadow-sm">
+    <Card>
       <header className="border-b border-border px-5 py-4">
         <h2 className="text-sm font-semibold">Sent broadcasts</h2>
         <p className="text-xs text-muted-foreground">{broadcasts.length} sent</p>
@@ -54,10 +76,12 @@ export function BroadcastHistory({ broadcasts }: { broadcasts: Notification[] })
           />
         ) : (
           <ul className="divide-y divide-border">
-            {broadcasts.map((b) => <BroadcastItem key={b.id} broadcast={b} />)}
+            {broadcasts.map((b) => (
+              <BroadcastItem key={b.id} broadcast={b} meta={meta[b.id]} />
+            ))}
           </ul>
         )}
       </div>
-    </section>
+    </Card>
   )
 }

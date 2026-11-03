@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Loader2, Send } from 'lucide-react'
+import { Loader2, Send, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
@@ -12,28 +13,91 @@ import {
 } from '@/components/ui/dialog'
 import { useToast } from '@/components/ui/toast-provider'
 import { sendBroadcastClient } from '@/lib/notifications.client'
-import type { Notification, NotificationType } from '@/types/notification'
+import type { BroadcastAudience, Notification, NotificationType } from '@/types/notification'
+import type { Class } from '@/types/admin'
+
+type AudienceKind = 'all' | 'role' | 'class' | 'users'
 
 const TYPES: Array<{ value: NotificationType; label: string }> = [
   { value: 'announcement', label: 'Announcement' },
   { value: 'system', label: 'System message' },
 ]
 
+const QUICK_LINKS: Array<{ label: string; href: string }> = [
+  { label: 'Notifications', href: '/notifications' },
+  { label: 'Contact', href: '/contact' },
+  { label: 'Privacy policy', href: '/privacy-policy' },
+  { label: 'Terms of service', href: '/terms-of-service' },
+  { label: 'Learner · Lessons', href: '/learner/lessons' },
+  { label: 'Learner · Homework', href: '/learner/homework' },
+  { label: 'Learner · Quizzes', href: '/learner/quizzes' },
+  { label: 'Learner · Subscription', href: '/learner/subscription' },
+  { label: 'Teacher · Analytics', href: '/teacher/analytics' },
+  { label: 'Admin · Users', href: '/admin/users' },
+  { label: 'Admin · Payments', href: '/admin/payments' },
+]
+
 export function BroadcastComposer({
+  classes,
   onSent,
 }: {
-  onSent: (n: Notification) => void
+  classes: Class[]
+  onSent: (n: Notification, meta: { audience: string; recipients: number }) => void
 }) {
   const { showToast } = useToast()
-  
+
   const [title, setTitle] = useState('')
   const [message, setMessage] = useState('')
   const [link, setLink] = useState('')
   const [type, setType] = useState<NotificationType>('announcement')
+  const [audienceKind, setAudienceKind] = useState<AudienceKind>('all')
+  const [audienceRole, setAudienceRole] = useState<'learner' | 'teacher' | 'admin' | 'external'>('learner')
+  const [audienceClassId, setAudienceClassId] = useState<number | null>(null)
+  const [audienceUsersRaw, setAudienceUsersRaw] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
 
-  const isFormValid = title.trim().length > 0 && message.trim().length > 0
+  const isFormValid =
+    title.trim().length > 0 &&
+    message.trim().length > 0 &&
+    (audienceKind !== 'class' || audienceClassId !== null) &&
+    (audienceKind !== 'users' || audienceUsersRaw.trim().length > 0)
+
+  function buildAudience(): BroadcastAudience {
+    switch (audienceKind) {
+      case 'role':
+        return { kind: 'role', role: audienceRole }
+      case 'class':
+        return { kind: 'class', class_id: audienceClassId! }
+      case 'users':
+        return {
+          kind: 'users',
+          user_ids: audienceUsersRaw
+            .split(/[,\s]+/)
+            .map((s) => Number(s))
+            .filter((n) => Number.isFinite(n) && n > 0),
+        }
+      default:
+        return { kind: 'all' }
+    }
+  }
+
+  function audienceSummary(): string {
+    switch (audienceKind) {
+      case 'all':
+        return 'Everyone'
+      case 'role':
+        return `All ${audienceRole}s`
+      case 'class': {
+        const c = classes.find((x) => x.id === audienceClassId)
+        return c ? `Class: ${c.name}` : 'Class'
+      }
+      case 'users': {
+        const n = audienceUsersRaw.split(/[,\s]+/).filter(Boolean).length
+        return `${n} selected user${n === 1 ? '' : 's'}`
+      }
+    }
+  }
 
   function openConfirm(e: React.FormEvent) {
     e.preventDefault()
@@ -46,28 +110,35 @@ export function BroadcastComposer({
     setSubmitting(true)
 
     try {
-      await sendBroadcastClient({
+      const audience = buildAudience()
+      const res = await sendBroadcastClient({
         title: title.trim(),
         message: message.trim(),
         link: link.trim() || undefined,
         type,
+        audience,
       })
 
-      onSent({
-        id: -Date.now(),
-        type,
-        title: title.trim(),
-        message: message.trim(),
-        link: link.trim() || undefined,
-        is_read: false,
-        created_at: new Date().toISOString(),
-      })
+      onSent(
+        {
+          id: -Date.now(),
+          type,
+          title: title.trim(),
+          message: message.trim(),
+          link: link.trim() || undefined,
+          is_read: false,
+          created_at: new Date().toISOString(),
+        },
+        { audience: res.audience, recipients: res.recipients },
+      )
 
-      showToast('Broadcast sent to all users.', 'success')
+      showToast(`Sent to ${res.recipients} recipient${res.recipients === 1 ? '' : 's'}.`, 'success')
       setTitle('')
       setMessage('')
       setLink('')
       setType('announcement')
+      setAudienceKind('all')
+      setAudienceUsersRaw('')
       setConfirmOpen(false)
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'Failed to send broadcast', 'error')
@@ -78,11 +149,11 @@ export function BroadcastComposer({
 
   return (
     <>
-      <form onSubmit={openConfirm} className="rounded-xl border border-border bg-card shadow-sm">
+      <Card>
         <header className="border-b border-border px-5 py-4">
           <h2 className="text-sm font-semibold text-foreground">New broadcast</h2>
           <p className="text-xs text-muted-foreground">
-            Sends to every active user. Cannot be undone.
+            Targeted delivery — everyone by default.
           </p>
         </header>
 
@@ -126,46 +197,128 @@ export function BroadcastComposer({
             />
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="link">Link (optional)</Label>
-            <Input
-              id="link"
-              value={link}
-              onChange={(e) => setLink(e.target.value)}
-              placeholder="/lessons"
+          <div className="space-y-2">
+            <Label htmlFor="audience_kind">Send to</Label>
+            <Select
+              id="audience_kind"
+              value={audienceKind}
+              onChange={(e) => setAudienceKind(e.target.value as AudienceKind)}
               disabled={submitting}
-            />
-            <p className="text-xs text-muted-foreground">
-              Where users go when they click the notification.
-            </p>
+            >
+              <option value="all">Everyone (all active users)</option>
+              <option value="role">A specific role…</option>
+              <option value="class">A specific class…</option>
+              <option value="users">Specific user IDs…</option>
+            </Select>
+
+            {audienceKind === 'role' && (
+              <Select
+                value={audienceRole}
+                onChange={(e) =>
+                  setAudienceRole(e.target.value as 'learner' | 'teacher' | 'admin' | 'external')
+                }
+                disabled={submitting}
+              >
+                <option value="learner">All learners</option>
+                <option value="external">All external learners</option>
+                <option value="teacher">All teachers</option>
+                <option value="admin">All admins</option>
+              </Select>
+            )}
+
+            {audienceKind === 'class' && (
+              <Select
+                value={audienceClassId ?? ''}
+                onChange={(e) =>
+                  setAudienceClassId(e.target.value ? Number(e.target.value) : null)
+                }
+                disabled={submitting}
+              >
+                <option value="">Choose a class…</option>
+                {classes.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </Select>
+            )}
+
+            {audienceKind === 'users' && (
+              <Input
+                placeholder="Comma-separated user IDs, e.g. 12, 34, 56"
+                value={audienceUsersRaw}
+                onChange={(e) => setAudienceUsersRaw(e.target.value)}
+                disabled={submitting}
+              />
+            )}
+          </div>
+
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <Label htmlFor="link">Link (optional)</Label>
+              {link && (
+                <a
+                  href={link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-[10px] font-medium text-brand-primary hover:underline"
+                >
+                  Preview <ExternalLink size={10} />
+                </a>
+              )}
+            </div>
+            <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
+              <Input
+                id="link"
+                value={link}
+                onChange={(e) => setLink(e.target.value)}
+                placeholder="/notifications"
+                disabled={submitting}
+              />
+              <Select
+                aria-label="Choose a quick link"
+                defaultValue=""
+                onChange={(e) => {
+                  if (e.target.value) setLink(e.target.value)
+                  e.target.value = ''
+                }}
+                disabled={submitting}
+              >
+                <option value="">Quick link…</option>
+                {QUICK_LINKS.map((q) => (
+                  <option key={q.href} value={q.href}>{q.label} ({q.href})</option>
+                ))}
+              </Select>
+            </div>
           </div>
         </div>
 
-        <footer className="flex justify-end border-t border-border px-5 py-3 bg-muted/10">
-          <Button type="submit" disabled={submitting || !isFormValid}>
+        <footer className="flex justify-end border-t border-border bg-muted/10 px-5 py-3">
+          <Button type="submit" onClick={openConfirm} disabled={submitting || !isFormValid}>
             <Send size={14} /> Send broadcast
           </Button>
         </footer>
-      </form>
+      </Card>
 
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Send broadcast?</DialogTitle>
             <DialogDescription>
-              This will deliver a notification to every active user on the platform.
+              Delivery target: <strong>{audienceSummary()}</strong>. Cannot be undone.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="rounded-lg border border-border bg-muted/40 p-4 text-sm">
-            <div className="flex items-center gap-2 mb-2">
+          <div className="rounded-sm border border-border bg-muted/40 p-4 text-sm">
+            <div className="mb-2 flex items-center gap-2">
               <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                 {type}
               </span>
+              <span className="rounded-full bg-brand-primary/10 px-2 py-0.5 text-[10px] font-semibold text-brand-primary">
+                {audienceSummary()}
+              </span>
             </div>
             <p className="font-semibold text-foreground">{title}</p>
-            <p className="mt-1 text-muted-foreground whitespace-pre-wrap">{message}</p>
-            {link && <p className="mt-2 text-xs text-brand-primary font-medium">→ {link}</p>}
+            <p className="mt-1 whitespace-pre-wrap text-muted-foreground">{message}</p>
+            {link && <p className="mt-2 text-xs font-medium text-brand-primary">→ {link}</p>}
           </div>
 
           <DialogFooter>

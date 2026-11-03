@@ -1,4 +1,5 @@
 import type {
+  BroadcastAudience,
   Notification,
   SendBroadcastPayload,
   SendBroadcastResponse,
@@ -53,10 +54,35 @@ async function proxyFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
   return data as T
 }
 
-export async function listNotificationsClient(params: {
-  page?: number
-  per_page?: number
-} = {}): Promise<Notification[]> {
+function audienceToBody(audience: BroadcastAudience | undefined) {
+  if (!audience || audience.kind === 'all') {
+    return { audience_kind: 'all' as const }
+  }
+  if (audience.kind === 'role') {
+    return { audience_kind: 'role', audience_value: audience.role }
+  }
+  if (audience.kind === 'class') {
+    return { audience_kind: 'class', audience_class_id: audience.class_id }
+  }
+  return { audience_kind: 'users', audience_user_ids: audience.user_ids }
+}
+
+export async function sendBroadcastClient(
+  payload: SendBroadcastPayload,
+): Promise<SendBroadcastResponse> {
+  return proxyFetch<SendBroadcastResponse>('/admin/notifications/broadcast', {
+    method: 'POST',
+    body: JSON.stringify({
+      title: payload.title,
+      message: payload.message,
+      link: payload.link,
+      type: payload.type,
+      ...audienceToBody(payload.audience),
+    }),
+  })
+}
+
+export async function listNotificationsClient(params: { page?: number; per_page?: number } = {}): Promise<Notification[]> {
   const search = new URLSearchParams()
   search.set('page', String(params.page ?? 1))
   search.set('per_page', String(params.per_page ?? 50))
@@ -65,9 +91,7 @@ export async function listNotificationsClient(params: {
 }
 
 export async function getUnreadCountClient(): Promise<number> {
-  const res = await proxyFetch<{ count: number }>(
-    '/notifications/me/unread-count',
-  )
+  const res = await proxyFetch<{ count: number }>('/notifications/me/unread-count')
   return res?.count ?? 0
 }
 
@@ -76,30 +100,14 @@ export async function markNotificationReadClient(id: number): Promise<void> {
 }
 
 export async function markAllNotificationsReadClient(): Promise<number> {
-  const res = await proxyFetch<{ marked: number }>('/notifications/read-all', {
-    method: 'POST',
-  })
+  const res = await proxyFetch<{ marked: number }>('/notifications/read-all', { method: 'POST' })
   return res?.marked ?? 0
 }
 
-export async function sendBroadcastClient(
-  payload: SendBroadcastPayload,
-): Promise<SendBroadcastResponse> {
-  return proxyFetch<SendBroadcastResponse>('/admin/notifications/broadcast', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  })
-}
-
-export async function listBroadcastsClient(params: {
-  page?: number
-  per_page?: number
-} = {}): Promise<Notification[]> {
+export async function listBroadcastsClient(params: { page?: number; per_page?: number } = {}): Promise<Notification[]> {
   const search = new URLSearchParams()
   search.set('page', String(params.page ?? 1))
   search.set('per_page', String(params.per_page ?? 50))
-  const res = await proxyFetch<unknown>(
-    `/admin/notifications?${search.toString()}`,
-  )
+  const res = await proxyFetch<unknown>(`/admin/notifications?${search.toString()}`)
   return unwrap<Notification>(res)
 }
