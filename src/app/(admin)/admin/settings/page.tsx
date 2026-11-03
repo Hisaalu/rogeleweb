@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   title: 'Settings',
 }
 
+export const revalidate = 60
+
 export default async function AdminSettingsPage() {
   let settings: Setting[] = []
   try {

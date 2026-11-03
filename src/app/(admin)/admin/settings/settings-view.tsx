@@ -2,8 +2,9 @@
 
 import React, { useState, useCallback } from 'react'
 import { useRouter } from 'nextjs-toploader/app'
-import { Save, Settings as SettingsIcon } from 'lucide-react'
+import { Loader2, Save, Settings as SettingsIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/components/ui/toast-provider'
@@ -49,7 +50,7 @@ const BrandingField = React.memo(function BrandingField({
             id={field.key}
             value={value || '#000000'}
             onChange={(e) => onChange(e.target.value)}
-            className="h-10 w-14 cursor-pointer rounded-lg border border-input bg-background"
+            className="h-10 w-14 cursor-pointer rounded-sm border border-input bg-background"
           />
           <Input
             value={value}
@@ -134,17 +135,15 @@ export function SettingsView({ initialSettings }: { initialSettings: Setting[] }
         </p>
       </div>
 
-      <section className="rounded-xl border border-border bg-card shadow-sm">
-        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
-          <div>
-            <h2 className="text-sm font-semibold">Branding</h2>
-          </div>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between gap-3">
+          <CardTitle>Branding</CardTitle>
           <Button onClick={saveBranding} disabled={saving}>
-            <Save size={14} /> {saving ? 'Saving...' : 'Save'}
+            {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+            {saving ? 'Saving...' : 'Save'}
           </Button>
-        </header>
-
-        <div className="grid gap-5 p-5 sm:grid-cols-2">
+        </CardHeader>
+        <CardContent className="grid gap-5 sm:grid-cols-2">
           {BRANDING_FIELDS.map((f) => (
             <BrandingField
               key={f.key}
@@ -154,8 +153,8 @@ export function SettingsView({ initialSettings }: { initialSettings: Setting[] }
               disabled={saving}
             />
           ))}
-        </div>
-      </section>
+        </CardContent>
+      </Card>
 
       <AdvancedSettings
         settings={settings}
@@ -163,7 +162,7 @@ export function SettingsView({ initialSettings }: { initialSettings: Setting[] }
         onDelete={deleteSettingClient}
       />
 
-      <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-4 py-3 text-xs text-muted-foreground">
+      <div className="flex items-center gap-2 rounded-sm border border-border bg-muted/40 px-4 py-3 text-xs text-muted-foreground">
         <SettingsIcon size={14} />
         The public config endpoint caches settings for 60 seconds. Changes appear everywhere after a short delay or a hard refresh.
       </div>

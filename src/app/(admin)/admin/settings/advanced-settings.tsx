@@ -5,6 +5,7 @@ import { useRouter } from 'nextjs-toploader/app'
 import { Loader2, Plus, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { useToast } from '@/components/ui/toast-provider'
 import { createSettingClient, updateSettingClient } from '@/lib/settings.client'
@@ -65,7 +66,7 @@ const AdvancedSettingRow = React.memo(function AdvancedSettingRow({
             <button
               type="button"
               onClick={onDelete}
-              className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-danger-bg hover:text-danger-fg"
+              className="rounded-sm p-2 text-muted-foreground transition-colors hover:bg-danger-bg hover:text-danger-fg"
               aria-label="Delete setting"
             >
               <Trash2 size={14} />
@@ -164,10 +165,10 @@ export function AdvancedSettings({
 
   return (
     <>
-      <section className="rounded-xl border border-border bg-card shadow-sm">
-        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between gap-3">
           <div>
-            <h2 className="text-sm font-semibold">Advanced</h2>
+            <CardTitle>Advanced</CardTitle>
             <p className="text-xs text-muted-foreground">
               Raw key-value settings. Anything not under <code>branding.*</code>
             </p>
@@ -175,7 +176,7 @@ export function AdvancedSettings({
           <Button variant="outline" onClick={() => setAdding((a) => !a)}>
             <Plus size={14} /> Add setting
           </Button>
-        </header>
+        </CardHeader>
 
         {adding && (
           <form onSubmit={handleAdd} className="grid gap-3 border-b border-border bg-muted/20 p-5 sm:grid-cols-[1fr_1fr_auto]">
@@ -192,7 +193,7 @@ export function AdvancedSettings({
           </form>
         )}
 
-        <div className="divide-y divide-border">
+        <CardContent className="divide-y divide-border p-0">
           {nonBranding.length === 0 && !adding ? (
             <div className="px-5 py-6 text-sm text-muted-foreground">
               No extra settings yet. Add one if you need to store configuration values.
@@ -215,8 +216,8 @@ export function AdvancedSettings({
               />
             ))
           )}
-        </div>
-      </section>
+        </CardContent>
+      </Card>
 
       <ConfirmDialog
         open={deleteTarget !== null}
