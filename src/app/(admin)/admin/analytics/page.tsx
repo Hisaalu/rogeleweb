@@ -17,25 +17,32 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 export default async function AdminAnalyticsPage() {
-  const [enrollment, revenue, scores, heatmap, retention, atRisk, forecast] =
-    await Promise.allSettled([
-      getEnrollmentTrendClient(30),
-      getRevenueSeriesClient(30),
-      getScoreDistributionClient(),
-      getHeatmapClient(),
-      getRetentionClient(),
-      getAtRiskClient(),
-      getForecastClient(),
-    ])
+  const [
+    enrollment,
+    revenue,
+    scores,
+    heatmap,
+    retention,
+    atRisk,
+    forecast,
+  ] = await Promise.all([
+    getEnrollmentTrendClient(30).catch(() => null),
+    getRevenueSeriesClient(30).catch(() => null),
+    getScoreDistributionClient().catch(() => null),
+    getHeatmapClient().catch(() => null),
+    getRetentionClient().catch(() => null),
+    getAtRiskClient().catch(() => null),
+    getForecastClient().catch(() => null),
+  ])
 
   const data = {
-    enrollment: enrollment.status === 'fulfilled' ? (enrollment.value ?? null) : null,
-    revenue: revenue.status === 'fulfilled' ? (revenue.value ?? null) : null,
-    scores: scores.status === 'fulfilled' ? (scores.value ?? null) : null,
-    heatmap: heatmap.status === 'fulfilled' ? (heatmap.value ?? null) : null,
-    retention: retention.status === 'fulfilled' ? (retention.value ?? null) : null,
-    atRisk: atRisk.status === 'fulfilled' ? (atRisk.value ?? null) : null,
-    forecast: forecast.status === 'fulfilled' ? (forecast.value ?? null) : null,
+    enrollment,
+    revenue,
+    scores,
+    heatmap,
+    retention,
+    atRisk,
+    forecast,
   }
 
   return <AnalyticsView data={data} />

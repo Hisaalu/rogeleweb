@@ -113,11 +113,11 @@ export interface RevenueForecast {
 async function analyticsFetch<T>(path: string, signal?: AbortSignal): Promise<T> {
   const isServer = typeof window === 'undefined'
 
-  const baseUrl = isServer
-    ? (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')
-    : ''
+  const url = isServer
+    ? `${process.env.ANALYTICS_API_URL || 'http://localhost:9000'}/analytics${path}`
+    : `/api/analytics${path}`
 
-  const res = await fetch(`${baseUrl}/api/analytics${path}`, {
+  const res = await fetch(url, {
     headers: { Accept: 'application/json' },
     cache: 'no-store',
     signal,

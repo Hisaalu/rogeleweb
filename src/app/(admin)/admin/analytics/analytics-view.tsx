@@ -43,7 +43,7 @@ export function AnalyticsView({ data }: { data: AnalyticsData }) {
   const total = dataValues.length
 
   const error = failed === total
-    ? 'Analytics service is unreachable.'
+    ? 'Analytics service is unreachable. Please ensure the ANALYTICS_API_URL is set correctly in the Next.js environment.'
     : failed > 0
       ? `${failed} of ${total} analytics sections failed to load.`
       : null
@@ -53,7 +53,7 @@ export function AnalyticsView({ data }: { data: AnalyticsData }) {
       <div>
         <h1 className="text-2xl font-bold sm:text-3xl">Analytics</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Decision-making insights.
+          Decision-making insights across users, content, revenue, and engagement.
         </p>
       </div>
 
