@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useMemo, useState, useEffect, useCallback } from 'react'
-import { CreditCard, Download } from 'lucide-react'
+import { CreditCard, Download, Loader2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -11,6 +11,7 @@ import { Select } from '@/components/ui/select'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table'
+import { listSubscriptionsClient } from '@/lib/subscriptions.client'
 import type { AdminSubscription } from '@/types/admin'
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
@@ -25,6 +26,13 @@ const currencyFormatter = new Intl.NumberFormat('en-UG', {
 })
 
 const STATUSES = ['active', 'expired', 'cancelled', 'pending']
+
+export interface SubscriptionListMeta {
+  page: number
+  per_page: number
+  total: number
+  last_page: number
+}
 
 function displayUser(s: AdminSubscription): string {
   const full = [s.user_first_name, s.user_last_name].filter(Boolean).join(' ').trim()
@@ -157,12 +165,17 @@ const MobileSubscriptionCard = React.memo(function MobileSubscriptionCard({ sub 
 
 export function SubscriptionsView({
   initialSubscriptions,
+  initialMeta,
 }: {
   initialSubscriptions: AdminSubscription[]
+  initialMeta: SubscriptionListMeta
 }) {
+  const [subscriptions, setSubscriptions] = useState<AdminSubscription[]>(initialSubscriptions)
+  const [meta, setMeta] = useState<SubscriptionListMeta>(initialMeta)
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('')
+  const [fetching, setFetching] = useState(false)
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 300)
@@ -170,7 +183,7 @@ export function SubscriptionsView({
   }, [search])
 
   const filtered = useMemo(() => {
-    let list = initialSubscriptions
+    let list = subscriptions
     if (debouncedSearch.trim()) {
       const q = debouncedSearch.trim().toLowerCase()
       list = list.filter(
@@ -183,7 +196,7 @@ export function SubscriptionsView({
     }
     if (statusFilter) list = list.filter((s) => s.status === statusFilter)
     return list
-  }, [initialSubscriptions, debouncedSearch, statusFilter])
+  }, [subscriptions, debouncedSearch, statusFilter])
 
   const stats = useMemo(() => {
     let active = 0, expired = 0, pending = 0, cancelled = 0
@@ -199,6 +212,29 @@ export function SubscriptionsView({
   const handleExport = useCallback(() => {
     exportCsv(filtered)
   }, [filtered])
+
+  const goToPage = useCallback(
+    async (next: number) => {
+      const target = Math.max(1, Math.min(next, meta.last_page))
+      if (target === meta.page || fetching) return
+
+      setFetching(true)
+      try {
+        const result = await listSubscriptionsClient({
+          page: target,
+          per_page: meta.per_page,
+          status: statusFilter || undefined,
+        })
+        setSubscriptions(result.subscriptions)
+        setMeta(result.meta)
+      } catch (err) {
+        console.error('[subscriptions] page fetch failed', err)
+      } finally {
+        setFetching(false)
+      }
+    },
+    [meta.last_page, meta.page, meta.per_page, statusFilter, fetching],
+  )
 
   return (
     <div className="space-y-6">
@@ -235,38 +271,64 @@ export function SubscriptionsView({
         </Select>
       </div>
 
-      {filtered.length === 0 ? (
+      {filtered.length === 0 && !fetching ? (
         <EmptyState
           icon={CreditCard}
           title="No subscriptions match"
           description="Try changing the filters."
         />
       ) : (
-        <Card className="overflow-hidden shadow-sm">
-          <div className="hidden overflow-x-auto sm:block">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  {['User', 'Plan', 'Amount', 'Status', 'Auto-renew', 'Start', 'End'].map((h) => (
-                    <TableHead key={h}>{h}</TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((s) => <SubscriptionRow key={s.id} sub={s} />)}
-              </TableBody>
-            </Table>
-          </div>
+        <div className="space-y-4">
+          <Card className="overflow-hidden shadow-sm">
+            <div className="hidden overflow-x-auto sm:block">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    {['User', 'Plan', 'Amount', 'Status', 'Auto-renew', 'Start', 'End'].map((h) => (
+                      <TableHead key={h}>{h}</TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((s) => <SubscriptionRow key={s.id} sub={s} />)}
+                </TableBody>
+              </Table>
+            </div>
 
-          <div className="flex flex-col sm:hidden">
-            {filtered.map((s) => <MobileSubscriptionCard key={s.id} sub={s} />)}
+            <div className="flex flex-col sm:hidden">
+              {filtered.map((s) => <MobileSubscriptionCard key={s.id} sub={s} />)}
+            </div>
+          </Card>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
+            <span>
+              Showing {filtered.length} of {meta.total} subscriptions
+              {meta.last_page > 1 && ` · page ${meta.page} of ${meta.last_page}`}
+            </span>
+            {meta.last_page > 1 && (
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => goToPage(meta.page - 1)}
+                  disabled={meta.page <= 1 || fetching}
+                  className="rounded-sm border border-border bg-card px-3 py-1.5 font-medium transition hover:border-brand-accent disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {fetching ? <Loader2 size={12} className="animate-spin" /> : 'Previous'}
+                </button>
+                <span className="px-2">Page {meta.page} of {meta.last_page}</span>
+                <button
+                  type="button"
+                  onClick={() => goToPage(meta.page + 1)}
+                  disabled={meta.page >= meta.last_page || fetching}
+                  className="rounded-sm border border-border bg-card px-3 py-1.5 font-medium transition hover:border-brand-accent disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {fetching ? <Loader2 size={12} className="animate-spin" /> : 'Next'}
+                </button>
+              </div>
+            )}
           </div>
-        </Card>
+        </div>
       )}
-
-      <p className="text-xs text-muted-foreground">
-        Showing {filtered.length} of {initialSubscriptions.length} subscriptions
-      </p>
     </div>
   )
 }

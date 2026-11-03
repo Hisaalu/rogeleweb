@@ -11,11 +11,15 @@ export const revalidate = 60
 
 export default async function AdminSubscriptionsPage() {
   let subscriptions: AdminSubscription[] = []
+  let meta = { page: 1, per_page: 50, total: 0, last_page: 1 }
+
   try {
-    subscriptions = await listSubscriptionsServer({ per_page: 200 })
+    const result = await listSubscriptionsServer({ page: 1, per_page: 50 })
+    subscriptions = result.subscriptions
+    meta = result.meta
   } catch {
     subscriptions = []
   }
 
-  return <SubscriptionsView initialSubscriptions={subscriptions} />
+  return <SubscriptionsView initialSubscriptions={subscriptions} initialMeta={meta} />
 }

@@ -4,6 +4,16 @@ import { listPlansServer } from './plans.server'
 import type { Payment, Subscription, SubscriptionPlan } from '@/types/subscription'
 import type { AdminSubscription } from '@/types/admin'
 
+export interface SubscriptionsPage {
+  subscriptions: AdminSubscription[]
+  meta: {
+    page: number
+    per_page: number
+    total: number
+    last_page: number
+  }
+}
+
 function unwrap<T>(res: unknown): T[] {
   if (Array.isArray(res)) return res as T[]
   if (res && typeof res === 'object') {
@@ -24,17 +34,36 @@ export async function listSubscriptionsServer(params: {
   page?: number
   per_page?: number
   status?: string
-} = {}): Promise<AdminSubscription[]> {
+} = {}): Promise<SubscriptionsPage> {
   const search = new URLSearchParams()
-  if (params.page) search.set('page', String(params.page))
-  search.set('per_page', String(params.per_page ?? 200))
+  search.set('page', String(params.page ?? 1))
+  search.set('per_page', String(params.per_page ?? 50))
   if (params.status) search.set('status', params.status)
-  
-  const query = search.toString()
-  const path = query ? `/api/v1/subscriptions/all?${query}` : '/api/v1/subscriptions/all'
 
-  const res = await serverApiRequest<unknown>(path)
-  return unwrap<AdminSubscription>(res)
+  const res = await serverApiRequest<unknown>(
+    `/api/v1/subscriptions/all?${search.toString()}`,
+  )
+  const subscriptions = unwrap<AdminSubscription>(res)
+
+  let meta = {
+    page: params.page ?? 1,
+    per_page: params.per_page ?? 50,
+    total: subscriptions.length,
+    last_page: 1,
+  }
+  if (res && typeof res === 'object' && !Array.isArray(res)) {
+    const obj = res as Record<string, any>
+    if (obj.meta) {
+      meta = {
+        page: Number(obj.meta.page ?? meta.page),
+        per_page: Number(obj.meta.per_page ?? meta.per_page),
+        total: Number(obj.meta.total ?? subscriptions.length),
+        last_page: Number(obj.meta.last_page ?? 1),
+      }
+    }
+  }
+
+  return { subscriptions, meta }
 }
 
 export async function listActivePlansServer(): Promise<SubscriptionPlan[]> {
