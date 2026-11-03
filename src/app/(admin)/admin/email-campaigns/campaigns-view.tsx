@@ -4,8 +4,12 @@ import React, { useCallback, useState } from 'react'
 import { Mail, Plus } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { EmptyState } from '@/components/ui/empty-state'
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from '@/components/ui/table'
 import { useToast } from '@/components/ui/toast-provider'
 import {
   deleteCampaignClient,
@@ -52,23 +56,23 @@ const CampaignRow = React.memo(function CampaignRow({
   const canDelete = campaign.status === 'draft'
 
   return (
-    <tr className="transition hover:bg-muted/30">
-      <td className="max-w-xs px-4 py-3">
+    <TableRow>
+      <TableCell className="max-w-xs">
         <p className="truncate font-medium text-foreground">{campaign.subject}</p>
         <p className="truncate text-xs capitalize text-muted-foreground">
           {recipientLabel(campaign.recipient_type)}
         </p>
-      </td>
-      <td className="px-4 py-3 text-muted-foreground">{campaign.total_recipients}</td>
-      <td className="px-4 py-3 text-success-fg font-medium">{campaign.sent_count}</td>
-      <td className="px-4 py-3 text-danger-fg font-medium">{campaign.failed_count}</td>
-      <td className="px-4 py-3">
+      </TableCell>
+      <TableCell className="text-muted-foreground">{campaign.total_recipients}</TableCell>
+      <TableCell className="font-medium text-success-fg">{campaign.sent_count}</TableCell>
+      <TableCell className="font-medium text-danger-fg">{campaign.failed_count}</TableCell>
+      <TableCell>
         <Badge tone={statusTone(campaign.status)}>{campaign.status}</Badge>
-      </td>
-      <td className="px-4 py-3 text-muted-foreground">
+      </TableCell>
+      <TableCell className="text-muted-foreground">
         {dateFormatter.format(new Date(campaign.sent_at ?? campaign.created_at))}
-      </td>
-      <td className="px-4 py-3">
+      </TableCell>
+      <TableCell>
         <div className="flex flex-wrap justify-end gap-1">
           <Button size="sm" variant="outline" onClick={() => onPreview(campaign)}>
             Preview
@@ -82,13 +86,18 @@ const CampaignRow = React.memo(function CampaignRow({
             </Button>
           )}
           {canDelete && (
-            <Button size="sm" variant="outline" className="text-danger-fg hover:bg-danger-bg" onClick={() => onDelete(campaign)}>
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-danger-fg hover:bg-danger-bg"
+              onClick={() => onDelete(campaign)}
+            >
               Delete
             </Button>
           )}
         </div>
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   )
 })
 
@@ -113,9 +122,9 @@ const MobileCampaignCard = React.memo(function MobileCampaignCard({
   return (
     <div className="flex flex-col gap-3 border-b border-border p-4 last:border-0 hover:bg-muted/30">
       <div className="flex items-start justify-between gap-2">
-        <div className="flex flex-col min-w-0">
+        <div className="flex min-w-0 flex-col">
           <span className="font-medium text-foreground">{campaign.subject}</span>
-          <span className="text-xs text-muted-foreground capitalize">
+          <span className="text-xs capitalize text-muted-foreground">
             {recipientLabel(campaign.recipient_type)}
           </span>
         </div>
@@ -135,7 +144,7 @@ const MobileCampaignCard = React.memo(function MobileCampaignCard({
           <p className="font-medium text-danger-fg">{campaign.failed_count}</p>
         </div>
       </div>
-      <div className="flex flex-wrap items-center justify-between gap-2 mt-1">
+      <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
         <span className="text-xs text-muted-foreground">
           {dateFormatter.format(new Date(campaign.sent_at ?? campaign.created_at))}
         </span>
@@ -232,19 +241,19 @@ export function CampaignsView({
           }
         />
       ) : (
-        <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+        <Card className="overflow-hidden shadow-sm">
           <div className="hidden overflow-x-auto sm:block">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
-                <tr>
+            <Table>
+              <TableHeader>
+                <TableRow>
                   {['Subject', 'Recipients', 'Sent', 'Failed', 'Status', 'Date', ''].map((h, i) => (
-                    <th key={i} className="whitespace-nowrap px-4 py-3 text-left font-semibold tracking-wide">
+                    <TableHead key={i} className={i === 6 ? 'w-12 text-right' : ''}>
                       {h}
-                    </th>
+                    </TableHead>
                   ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {campaigns.map((c) => (
                   <CampaignRow
                     key={c.id}
@@ -256,8 +265,8 @@ export function CampaignsView({
                     onDelete={setDeleteTarget}
                   />
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
 
           <div className="flex flex-col sm:hidden">
@@ -273,7 +282,7 @@ export function CampaignsView({
               />
             ))}
           </div>
-        </div>
+        </Card>
       )}
 
       <CampaignFormModal open={formOpen} onOpenChange={setFormOpen} onCreated={handleCreated} />
@@ -286,6 +295,7 @@ export function CampaignsView({
         title="Send campaign"
         description={sendTarget ? `Queue "${sendTarget.subject}" for delivery? Emails will start sending within seconds.` : ''}
         confirmLabel="Send now"
+        loading={busyId !== null}
         onConfirm={handleSend}
       />
 

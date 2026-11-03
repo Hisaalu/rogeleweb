@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from 'react'
 import { Loader2 } from 'lucide-react'
-import {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+} from '@/components/ui/dialog'
 import { previewCampaignClient } from '@/lib/email-campaigns.client'
 import type { EmailCampaign, PreviewResponse } from '@/types/email-campaign'
 
@@ -32,7 +32,6 @@ export function CampaignPreviewModal({
       .then(setPreview)
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to preview'))
       .finally(() => setLoading(false))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [campaign])
 
   async function handleRefresh() {
@@ -60,13 +59,25 @@ export function CampaignPreviewModal({
         <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
           <div className="space-y-1.5">
             <Label htmlFor="preview_email">Sample email</Label>
-            <Input id="preview_email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading} />
+            <Input
+              id="preview_email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
+            />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="preview_name">Sample name</Label>
-            <Input id="preview_name" value={name} onChange={(e) => setName(e.target.value)} disabled={loading} />
+            <Input
+              id="preview_name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              disabled={loading}
+            />
           </div>
-          <Button variant="outline" onClick={handleRefresh} disabled={loading}>Refresh</Button>
+          <Button variant="outline" onClick={handleRefresh} disabled={loading}>
+            {loading ? <Loader2 size={14} className="animate-spin" /> : 'Refresh'}
+          </Button>
         </div>
 
         {loading ? (
@@ -74,12 +85,12 @@ export function CampaignPreviewModal({
             <Loader2 size={14} className="animate-spin" /> Loading preview...
           </div>
         ) : error ? (
-          <div className="rounded-lg border border-danger-border/40 bg-danger-bg px-3 py-2 text-sm text-danger-fg">
+          <div className="rounded-sm border border-danger-border/40 bg-danger-bg px-3 py-2 text-sm text-danger-fg">
             {error}
           </div>
         ) : preview ? (
           <div className="space-y-3">
-            <div className="rounded-lg border border-border bg-muted/30 px-4 py-3">
+            <div className="rounded-sm border border-border bg-muted/30 px-4 py-3">
               <p className="text-xs uppercase tracking-wide text-muted-foreground">Subject</p>
               <p className="mt-0.5 text-sm font-semibold text-foreground">{preview.subject}</p>
               <p className="mt-2 text-xs text-muted-foreground">
@@ -87,8 +98,8 @@ export function CampaignPreviewModal({
               </p>
             </div>
 
-            <div className="rounded-lg border border-border bg-white p-4">
-              <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: preview.html }} />
+            <div className="overflow-hidden rounded-sm border border-border bg-white">
+              <div className="prose prose-sm max-w-none p-4" dangerouslySetInnerHTML={{ __html: preview.html }} />
             </div>
           </div>
         ) : null}

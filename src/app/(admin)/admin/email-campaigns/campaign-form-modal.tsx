@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
@@ -39,6 +40,11 @@ export function CampaignFormModal({
     }
   }, [open])
 
+  const parsedEmails = useMemo(() => {
+    if (recipientType !== 'custom_emails') return []
+    return customEmails.split(/[\n,]/).map((s) => s.trim()).filter(Boolean)
+  }, [customEmails, recipientType])
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
@@ -48,7 +54,7 @@ export function CampaignFormModal({
 
     let emails: string[] | undefined
     if (recipientType === 'custom_emails') {
-      emails = customEmails.split(/[\n,]/).map((s) => s.trim()).filter(Boolean)
+      emails = parsedEmails
       if (emails.length === 0) return setError('Add at least one email address')
     }
 
@@ -76,52 +82,94 @@ export function CampaignFormModal({
           <DialogTitle>New campaign</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="grid gap-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="subject">Subject</Label>
-            <Input id="subject" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="e.g. Hi {{.FirstName}}, welcome!" autoFocus disabled={submitting} />
-            <p className="text-xs text-muted-foreground">
-              Templates support <code>{'{{.FirstName}}'}</code>, <code>{'{{.FullName}}'}</code>, and <code>{'{{.Email}}'}</code>.
-            </p>
-          </div>
+        <Card className="border-none shadow-none">
+          <CardContent className="p-0">
+            <form onSubmit={handleSubmit} className="grid gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="subject">Subject</Label>
+                <Input
+                  id="subject"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  placeholder="e.g. Hi {{.FirstName}}, welcome!"
+                  autoFocus
+                  disabled={submitting}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Templates support <code>{'{{.FirstName}}'}</code>,{' '}
+                  <code>{'{{.FullName}}'}</code>, and <code>{'{{.Email}}'}</code>.
+                </p>
+              </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="body">Body (HTML)</Label>
-            <Textarea id="body" value={body} onChange={(e) => setBody(e.target.value)} placeholder="<h2>Hello {{.FirstName}}</h2><p>...</p>" rows={10} className="font-mono text-xs" disabled={submitting} />
-          </div>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="body">Body (HTML)</Label>
+                  <span className="text-[10px] text-muted-foreground">{body.length} characters</span>
+                </div>
+                <Textarea
+                  id="body"
+                  value={body}
+                  onChange={(e) => setBody(e.target.value)}
+                  placeholder="<h2>Hello {{.FirstName}}</h2><p>...</p>"
+                  rows={10}
+                  className="font-mono text-xs"
+                  disabled={submitting}
+                />
+              </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="recipient_type">Recipients</Label>
-            <Select id="recipient_type" value={recipientType} onChange={(e) => setRecipientType(e.target.value as RecipientType)} disabled={submitting}>
-              <option value="all_users">All users</option>
-              <option value="teachers">Teachers only</option>
-              <option value="learners">Learners only</option>
-              <option value="external">External users only</option>
-              <option value="admins">Admins only</option>
-              <option value="custom_emails">Custom email addresses</option>
-            </Select>
-          </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="recipient_type">Recipients</Label>
+                <Select
+                  id="recipient_type"
+                  value={recipientType}
+                  onChange={(e) => setRecipientType(e.target.value as RecipientType)}
+                  disabled={submitting}
+                >
+                  <option value="all_users">All users</option>
+                  <option value="teachers">Teachers only</option>
+                  <option value="learners">Learners only</option>
+                  <option value="external">External users only</option>
+                  <option value="admins">Admins only</option>
+                  <option value="custom_emails">Custom email addresses</option>
+                </Select>
+              </div>
 
-          {recipientType === 'custom_emails' && (
-            <div className="space-y-1.5">
-              <Label htmlFor="emails">Email addresses</Label>
-              <Textarea id="emails" value={customEmails} onChange={(e) => setCustomEmails(e.target.value)} placeholder="one@example.com, two@example.com&#10;or one per line" rows={5} disabled={submitting} />
-            </div>
-          )}
+              {recipientType === 'custom_emails' && (
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="emails">Email addresses</Label>
+                    <span className="text-[10px] text-muted-foreground">
+                      {parsedEmails.length} email{parsedEmails.length === 1 ? '' : 's'}
+                    </span>
+                  </div>
+                  <Textarea
+                    id="emails"
+                    value={customEmails}
+                    onChange={(e) => setCustomEmails(e.target.value)}
+                    placeholder="one@example.com, two@example.com&#10;or one per line"
+                    rows={5}
+                    disabled={submitting}
+                  />
+                </div>
+              )}
 
-          {error && (
-            <div className="rounded-lg border border-danger-border/40 bg-danger-bg px-3 py-2 text-sm text-danger-fg">
-              {error}
-            </div>
-          )}
+              {error && (
+                <div className="rounded-sm border border-danger-border/40 bg-danger-bg px-3 py-2 text-sm text-danger-fg">
+                  {error}
+                </div>
+              )}
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>Cancel</Button>
-            <Button type="submit" disabled={submitting}>
-              {submitting && <Loader2 size={14} className="animate-spin" />} Save as draft
-            </Button>
-          </DialogFooter>
-        </form>
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={submitting}>
+                  {submitting && <Loader2 size={14} className="animate-spin" />} Save as draft
+                </Button>
+              </DialogFooter>
+            </form>
+          </CardContent>
+        </Card>
       </DialogContent>
     </Dialog>
   )

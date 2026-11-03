@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   title: 'Email campaigns',
 }
 
+export const revalidate = 60
+
 export default async function AdminEmailCampaignsPage() {
   let campaigns: EmailCampaign[] = []
   try {
