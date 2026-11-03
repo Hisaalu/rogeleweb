@@ -9,6 +9,19 @@ import { Avatar } from '@/components/ui/avatar'
 import { getInitials } from '@/lib/utils'
 import type { SessionUser } from '@/lib/auth'
 
+function basePathForRole(role: SessionUser['role']): string {
+  switch (role) {
+    case 'admin':
+      return '/admin'
+    case 'teacher':
+      return '/teacher'
+    case 'learner':
+    case 'external':
+    default:
+      return '/learner'
+  }
+}
+
 export function UserMenu({ user }: { user?: SessionUser | null }) {
   const router = useRouter()
   const { resolvedTheme, setTheme } = useTheme()
@@ -35,13 +48,15 @@ export function UserMenu({ user }: { user?: SessionUser | null }) {
     }
   }, [open])
 
-  const safeUser = user ?? { id: 0, email: '', role: 'learner' }
+  const safeUser = user ?? { id: 0, email: '', role: 'learner' as const }
   const fullName =
     [safeUser.first_name, safeUser.last_name].filter(Boolean).join(' ') ||
     safeUser.email ||
     'User'
 
-  const rolePath = safeUser.role === 'teacher' ? '/teacher' : '/learner'
+  const basePath = basePathForRole(safeUser.role)
+  const profileHref = `${basePath}/profile`
+  const settingsHref = `${basePath}/settings`
   const isDark = resolvedTheme === 'dark'
 
   function toggleTheme() {
@@ -85,7 +100,7 @@ export function UserMenu({ user }: { user?: SessionUser | null }) {
 
           <div className="p-1">
             <Link
-              href={`${rolePath}/profile`}
+              href={profileHref}
               onClick={() => setOpen(false)}
               role="menuitem"
               className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted hover:text-brand-accent"
@@ -94,7 +109,7 @@ export function UserMenu({ user }: { user?: SessionUser | null }) {
               Profile
             </Link>
             <Link
-              href={`${rolePath}/settings`}
+              href={settingsHref}
               onClick={() => setOpen(false)}
               role="menuitem"
               className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted hover:text-brand-accent"
