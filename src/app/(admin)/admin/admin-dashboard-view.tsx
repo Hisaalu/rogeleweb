@@ -15,6 +15,7 @@ import {
   UserPlus,
   Users,
 } from 'lucide-react'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/ui/empty-state'
 import { useBranding } from '@/components/brand/brand-provider'
@@ -55,11 +56,11 @@ function StatCard({
   tone = 'default',
   href,
 }: {
-  icon: any
+  icon: React.ElementType
   label: string
   value: string
   hint?: string
-  hintIcon?: any
+  hintIcon?: React.ElementType
   hintTone?: 'default' | 'success' | 'danger'
   tone?: 'default' | 'primary' | 'accent' | 'success' | 'info'
   href?: string
@@ -80,28 +81,33 @@ function StatCard({
   }
 
   const content = (
-    <div className="rounded-xl border border-border bg-card p-5 shadow-sm transition-all hover:shadow-md">
-      <div className="flex items-start justify-between">
-        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${t.bg}`}>
-          <Icon size={18} className={t.fg} />
+    <Card className="h-full transition-all hover:shadow-md">
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between">
+          <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${t.bg}`}>
+            <Icon size={18} className={t.fg} />
+          </div>
         </div>
-      </div>
-      <div className="mt-4">
-        <p className="text-sm text-muted-foreground">{label}</p>
-        <p className="mt-1 text-2xl font-bold">{value}</p>
-        {hint && (
-          <p className={`mt-1 flex items-center gap-1 text-xs ${hintColors[hintTone]}`}>
-            {HintIcon && <HintIcon size={12} />}
-            {hint}
-          </p>
-        )}
-      </div>
-    </div>
+        <div className="mt-4">
+          <p className="text-sm text-muted-foreground">{label}</p>
+          <p className="mt-1 text-2xl font-bold">{value}</p>
+          {hint && (
+            <p className={`mt-1 flex items-center gap-1 text-xs ${hintColors[hintTone]}`}>
+              {HintIcon && <HintIcon size={12} />}
+              {hint}
+            </p>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   )
 
   if (href) {
     return (
-      <Link href={href} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent rounded-xl">
+      <Link
+        href={href}
+        className="block rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
+      >
         {content}
       </Link>
     )
@@ -116,52 +122,37 @@ function CompactStat({
   value,
   href,
 }: {
-  icon: any
+  icon: React.ElementType
   label: string
   value: number
   href?: string
 }) {
   const content = (
-    <div className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 shadow-sm transition-all hover:shadow-md">
-      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted">
-        <Icon size={16} className="text-[var(--brand-accent)]" />
-      </div>
-      <div>
-        <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="text-base font-semibold">{value}</p>
-      </div>
-    </div>
+    <Card className="h-full transition-all hover:shadow-md">
+      <CardContent className="flex items-center gap-3 p-4">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+          <Icon size={16} className="text-[var(--brand-accent)]" />
+        </div>
+        <div>
+          <p className="text-xs text-muted-foreground">{label}</p>
+          <p className="text-base font-semibold">{value}</p>
+        </div>
+      </CardContent>
+    </Card>
   )
 
   if (href) {
     return (
-      <Link href={href} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent rounded-lg">
+      <Link
+        href={href}
+        className="block rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
+      >
         {content}
       </Link>
     )
   }
 
   return content
-}
-
-function Panel({
-  title,
-  subtitle,
-  children,
-}: {
-  title: string
-  subtitle?: string
-  children: React.ReactNode
-}) {
-  return (
-    <section className="rounded-xl border border-border bg-card shadow-sm flex flex-col">
-      <header className="border-b border-border px-5 py-4">
-        <h3 className="text-sm font-semibold">{title}</h3>
-        {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
-      </header>
-      <div className="flex-1 px-5 py-2">{children}</div>
-    </section>
-  )
 }
 
 export function AdminDashboardView({
@@ -271,88 +262,100 @@ export function AdminDashboardView({
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <Panel title="Recent signups" subtitle="Newest accounts">
-          {signups.length === 0 ? (
-            <EmptyState
-              icon={UserPlus}
-              title="No signups yet"
-              description="New registrations will appear here."
-            />
-          ) : (
-            <ul className="divide-y divide-border">
-              {signups.map((u) => {
-                const name = [u.first_name, u.last_name].filter(Boolean).join(' ') || u.email
-                return (
-                  <li key={u.id} className="flex items-center justify-between gap-3 py-3">
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent signups</CardTitle>
+            <CardDescription>Newest accounts</CardDescription>
+          </CardHeader>
+          <CardContent className="p-0 sm:px-5">
+            {signups.length === 0 ? (
+              <EmptyState
+                icon={UserPlus}
+                title="No signups yet"
+                description="New registrations will appear here."
+              />
+            ) : (
+              <ul className="divide-y divide-border">
+                {signups.map((u) => {
+                  const name = [u.first_name, u.last_name].filter(Boolean).join(' ') || u.email
+                  return (
+                    <li key={u.id} className="flex items-center justify-between gap-3 py-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">{name}</p>
+                        <p className="truncate text-xs text-muted-foreground">{u.email}</p>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2">
+                        <Badge
+                          tone={
+                            u.role === 'admin' ? 'info' : u.role === 'teacher' ? 'warning' : 'default'
+                          }
+                        >
+                          {u.role}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {formatDate(u.created_at)}
+                        </span>
+                      </div>
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent payments</CardTitle>
+            <CardDescription>Newest transactions</CardDescription>
+          </CardHeader>
+          <CardContent className="p-0 sm:px-5">
+            {payments.length === 0 ? (
+              <EmptyState
+                icon={DollarSign}
+                title="No payments yet"
+                description="Payment activity will appear here."
+              />
+            ) : (
+              <ul className="divide-y divide-border">
+                {payments.map((p) => (
+                  <li key={p.id} className="flex items-center justify-between gap-3 py-3">
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">{name}</p>
-                      <p className="truncate text-xs text-muted-foreground">{u.email}</p>
+                      <p className="truncate text-sm font-medium">
+                        {p.user_email ?? `User #${p.user_id}`}
+                      </p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {p.payment_method ?? 'unknown'} · {p.transaction_id?.slice(0, 12) ?? 'no txn id'}
+                      </p>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
+                      <span className="text-sm font-semibold">
+                        {currencyFormatter.format(p.amount ?? 0)}
+                      </span>
                       <Badge
                         tone={
-                          u.role === 'admin' ? 'info' : u.role === 'teacher' ? 'warning' : 'default'
+                          p.status === 'completed' ? 'success' : p.status === 'failed' ? 'danger' : 'warning'
                         }
                       >
-                        {u.role}
+                        {p.status}
                       </Badge>
-                      <span className="text-xs text-muted-foreground">
-                        {formatDate(u.created_at)}
-                      </span>
                     </div>
                   </li>
-                )
-              })}
-            </ul>
-          )}
-        </Panel>
-
-        <Panel title="Recent payments" subtitle="Newest transactions">
-          {payments.length === 0 ? (
-            <EmptyState
-              icon={DollarSign}
-              title="No payments yet"
-              description="Payment activity will appear here."
-            />
-          ) : (
-            <ul className="divide-y divide-border">
-              {payments.map((p) => (
-                <li key={p.id} className="flex items-center justify-between gap-3 py-3">
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">
-                      {p.user_email ?? `User #${p.user_id}`}
-                    </p>
-                    <p className="truncate text-xs text-muted-foreground">
-                      {p.payment_method ?? 'unknown'} · {p.transaction_id?.slice(0, 12) ?? 'no txn id'}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-2">
-                    <span className="text-sm font-semibold">
-                      {currencyFormatter.format(p.amount ?? 0)}
-                    </span>
-                    <Badge
-                      tone={
-                        p.status === 'completed' ? 'success' : p.status === 'failed' ? 'danger' : 'warning'
-                      }
-                    >
-                      {p.status}
-                    </Badge>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Panel>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <LearnersByClassChart data={learnersByClass} />
 
-        <section className="rounded-xl border border-border bg-card shadow-sm">
-          <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between gap-3">
             <div>
-              <h3 className="text-sm font-semibold">Recent activity</h3>
-              <p className="text-xs text-muted-foreground">Latest actions across the platform</p>
+              <CardTitle>Recent activity</CardTitle>
+              <CardDescription>Latest actions across the platform</CardDescription>
             </div>
             <Link
               href="/admin/activity"
@@ -361,9 +364,8 @@ export function AdminDashboardView({
               View all
               <ArrowRight size={12} />
             </Link>
-          </header>
-
-          <div className="px-5 py-2">
+          </CardHeader>
+          <CardContent className="p-0 sm:px-5">
             {activity.length === 0 ? (
               <EmptyState
                 icon={Activity}
@@ -390,8 +392,8 @@ export function AdminDashboardView({
                 ))}
               </ul>
             )}
-          </div>
-        </section>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
