@@ -89,14 +89,14 @@ export function ClassFormModal({
           </div>
 
           <div className="flex items-center gap-2">
-            <input id="is_active" type="checkbox" checked={values.is_active} onChange={(e) => set('is_active', e.target.checked)} className="h-4 w-4 rounded border-input" disabled={submitting} />
+            <input id="is_active" type="checkbox" checked={values.is_active} onChange={(e) => set('is_active', e.target.checked)} className="h-4 w-4 rounded-sm border-input" disabled={submitting} />
             <Label htmlFor="is_active" className="cursor-pointer font-normal">
               Active (visible to teachers and admins when assigning content)
             </Label>
           </div>
 
           {error && (
-            <div className="rounded-lg border border-danger-border/40 bg-danger-bg px-3 py-2 text-sm text-danger-fg">
+            <div className="rounded-sm border border-danger-border/40 bg-danger-bg px-3 py-2 text-sm text-danger-fg">
               {error}
             </div>
           )}

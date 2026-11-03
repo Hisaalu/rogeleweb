@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
 import { useToast } from '@/components/ui/toast-provider'
 import {
   createClassClient,
@@ -118,25 +119,23 @@ export function ClassesView({ initialClasses }: { initialClasses: Class[] }) {
         />
       ) : (
         <>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-3">
             <Input
               placeholder="Search classes..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <select
+            <Select
               value={activeFilter === null ? '' : activeFilter ? 'true' : 'false'}
               onChange={(e) => {
                 const v = e.target.value
                 setActiveFilter(v === '' ? null : v === 'true')
               }}
-              className="h-10 rounded-lg border border-input bg-background px-3 text-sm outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/25"
             >
               <option value="">Any status</option>
               <option value="true">Active</option>
               <option value="false">Inactive</option>
-            </select>
-            <div className="hidden lg:block" />
+            </Select>
           </div>
 
           <ClassTable

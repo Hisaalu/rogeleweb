@@ -5,6 +5,7 @@ import React from 'react'
 import { GraduationCap, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -40,7 +41,7 @@ const RowActions = React.memo(function RowActions({
       </Button>
 
       {open && (
-        <div className="absolute right-0 top-full z-30 mt-1 w-40 overflow-hidden rounded-lg border border-border bg-card shadow-lg">
+        <div className="absolute right-0 top-full z-30 mt-1 w-40 overflow-hidden rounded-sm border border-border bg-card shadow-lg">
           <button type="button" onClick={() => { onEdit(classItem); setOpen(false) }} className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition hover:bg-muted">
             <Pencil size={14} /> Edit
           </button>
@@ -123,7 +124,7 @@ export function ClassTable({
   }
 
   return (
-    <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+    <Card className="overflow-hidden shadow-sm">
       <div className="hidden sm:block">
         <Table>
           <TableHeader>
@@ -149,6 +150,6 @@ export function ClassTable({
           <MobileClassCard key={c.id} classItem={c} onEdit={onEdit} onDelete={onDelete} />
         ))}
       </div>
-    </div>
+    </Card>
   )
 }
