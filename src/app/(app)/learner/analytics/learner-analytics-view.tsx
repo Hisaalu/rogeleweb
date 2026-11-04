@@ -66,11 +66,11 @@ function exportCsv(data: LearnerAnalyticsData) {
 export function LearnerAnalyticsView({
   data,
   subscription,
-  fetching,
+  fetching = false,
 }: {
   data: LearnerAnalyticsData | null
   subscription: LearnerSubscriptionState
-  fetching: boolean
+  fetching?: boolean
 }) {
   const { showToast } = useToast()
   const [busy, setBusy] = useState(false)
