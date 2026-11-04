@@ -45,7 +45,7 @@ const customTooltipStyle = {
   borderColor: 'hsl(var(--border))',
   color: 'hsl(var(--foreground))',
   fontSize: 12,
-  borderRadius: '8px',
+  borderRadius: 8,
   boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
 }
 
@@ -62,23 +62,22 @@ const StatCard = React.memo(function StatCard({
   value,
   loading,
 }: {
-  icon: any
+  icon: React.ElementType
   label: string
   value: string | number
   loading?: boolean
 }) {
   return (
-    <Card className="flex items-center gap-3 p-4 transition-shadow hover:shadow-md sm:gap-4 sm:p-5">
-      <div
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-white sm:h-12 sm:w-12"
-        style={{ backgroundColor: 'var(--brand-accent)' }}
-      >
-        <Icon size={20} className="sm:hidden" />
+    <Card className="flex items-center gap-3 p-3 transition-shadow hover:shadow-md sm:gap-4 sm:p-5">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-brand-accent text-white sm:h-12 sm:w-12">
+        <Icon size={18} className="sm:hidden" />
         <Icon size={22} className="hidden sm:block" />
       </div>
       <div className="min-w-0">
-        <p className="text-xs font-medium text-muted-foreground">{label}</p>
-        <p className="truncate text-xl font-bold text-foreground sm:text-2xl">
+        <p className="text-[11px] font-medium text-muted-foreground sm:text-xs">
+          {label}
+        </p>
+        <p className="truncate text-lg font-bold tabular-nums text-foreground sm:text-2xl">
           {loading ? <span className="opacity-40">—</span> : value}
         </p>
       </div>
@@ -108,17 +107,18 @@ export function AnalyticsView({
   initialTeacherOverview,
   initialRange,
 }: {
-  stats: any
-  lessons: any[]
-  classCounts: any[]
+  stats: { users_by_role?: Record<string, number> } | null
+  lessons: { id: number; title: string; views?: number }[]
+  classCounts: { class_id: number; class_name: string; learner_count: number }[]
   initialEnrollment: EnrollmentTrend | null
   initialAtRisk: AtRiskData | null
   initialTeacherOverview: TeacherOverview | null
   initialRange: string
 }) {
   const totalStudents = useMemo(
-    () => initialTeacherOverview?.total_students ?? 
-         (stats?.users_by_role?.learner ?? 0) + (stats?.users_by_role?.external ?? 0),
+    () =>
+      initialTeacherOverview?.total_students ??
+      (stats?.users_by_role?.learner ?? 0) + (stats?.users_by_role?.external ?? 0),
     [stats, initialTeacherOverview],
   )
 
@@ -175,7 +175,7 @@ export function AnalyticsView({
         })
       })
       .catch((err) => {
-        if (err?.name === 'AbortError') return 
+        if (err?.name === 'AbortError') return
         console.error('[analytics] enrollment refetch failed', err)
         setIsFetching(false)
       })
@@ -194,10 +194,11 @@ export function AnalyticsView({
   )
 
   const totalEnrollment = enrollment?.total || 0
-  const averageScore = initialTeacherOverview?.average_score != null 
-    ? `${Math.round(initialTeacherOverview.average_score)}%` 
-    : 'N/A'
-  
+  const averageScore =
+    initialTeacherOverview?.average_score != null
+      ? `${Math.round(initialTeacherOverview.average_score)}%`
+      : 'N/A'
+
   const atRiskCount = atRisk?.summary?.at_risk || 0
 
   const enrollmentChartData = useMemo(() => {
@@ -212,7 +213,11 @@ export function AnalyticsView({
   }, [enrollment])
 
   const recommendations = useMemo(() => {
-    const recs: { tone: 'danger' | 'warning'; title: string; description: string }[] = []
+    const recs: {
+      tone: 'danger' | 'warning'
+      title: string
+      description: string
+    }[] = []
     if (atRiskCount > 0) {
       recs.push({
         tone: 'danger',
@@ -226,7 +231,7 @@ export function AnalyticsView({
         tone: 'warning',
         title: `${atRisk.summary.watch} students to watch`,
         description:
-          'These learners are starting to slip. A gentle nudge might help them .',
+          'These learners are starting to slip. A gentle nudge might help them.',
       })
     }
     return recs
@@ -236,12 +241,8 @@ export function AnalyticsView({
     <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <h1
-            className="flex items-center gap-2 text-xl font-bold sm:text-2xl lg:text-3xl"
-            style={{ color: 'var(--brand-primary)' }}
-          >
-            <BarChart2 size={24} className="shrink-0 sm:hidden" />
-            <BarChart2 size={28} className="hidden shrink-0 sm:block" />
+          <h1 className="flex items-center gap-2 text-2xl font-bold text-brand-primary sm:text-3xl">
+            <BarChart2 size={26} className="shrink-0 sm:h-7 sm:w-7" />
             <span className="truncate">Analytics</span>
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -271,41 +272,22 @@ export function AnalyticsView({
       </div>
 
       {recommendations.length > 0 && (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 sm:gap-4">
           {recommendations.map((rec, i) => {
             const isDanger = rec.tone === 'danger'
             return (
               <div
                 key={i}
-                className="flex gap-3 rounded-md border p-4"
-                style={{
-                  backgroundColor: isDanger ? 'var(--danger-bg)' : 'var(--warning-bg)',
-                  borderColor: isDanger ? 'var(--danger-border)' : 'var(--warning-border)',
-                }}
+                className={`flex gap-3 rounded-md border p-4 ${
+                  isDanger
+                    ? 'border-danger-border bg-danger-bg text-danger-fg'
+                    : 'border-warning-border bg-warning-bg text-warning-fg'
+                }`}
               >
-                <Lightbulb
-                  size={20}
-                  className="shrink-0"
-                  style={{
-                    color: isDanger ? 'var(--danger-fg)' : 'var(--warning-fg)',
-                  }}
-                />
+                <Lightbulb size={20} className="shrink-0" />
                 <div>
-                  <h4
-                    className="text-sm font-semibold"
-                    style={{
-                      color: isDanger ? 'var(--danger-fg)' : 'var(--warning-fg)',
-                    }}
-                  >
-                    {rec.title}
-                  </h4>
-                  <p
-                    className="mt-1 text-xs leading-relaxed"
-                    style={{
-                      color: isDanger ? 'var(--danger-fg)' : 'var(--warning-fg)',
-                      opacity: 0.9,
-                    }}
-                  >
+                  <h4 className="text-sm font-semibold">{rec.title}</h4>
+                  <p className="mt-1 text-xs leading-relaxed opacity-90">
                     {rec.description}
                   </p>
                 </div>
@@ -315,7 +297,7 @@ export function AnalyticsView({
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard
           icon={Users}
           label="New Enrollments"
@@ -335,11 +317,11 @@ export function AnalyticsView({
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
         <Card className="relative p-4 sm:p-6">
           <CardSpinner visible={isFetching} />
           <h3 className="mb-6 flex items-center gap-2 text-base font-semibold text-foreground">
-            <TrendingUp size={18} style={{ color: 'var(--brand-accent)' }} />{' '}
+            <TrendingUp size={18} className="text-brand-accent" />
             Enrollment Trend
           </h3>
           <div
@@ -358,7 +340,7 @@ export function AnalyticsView({
                   margin={{ top: 5, right: 10, bottom: 5, left: -20 }}
                 >
                   <defs>
-                    <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient id="teacherEnrollGradient" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="var(--brand-primary)" stopOpacity={0.3} />
                       <stop offset="95%" stopColor="var(--brand-primary)" stopOpacity={0} />
                     </linearGradient>
@@ -367,8 +349,24 @@ export function AnalyticsView({
                   <XAxis dataKey="period" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
                   <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" width={30} />
                   <Tooltip contentStyle={customTooltipStyle} />
-                  <Area type="monotone" dataKey="count" name="Signups" stroke="var(--brand-primary)" strokeWidth={1} fillOpacity={1} fill="url(#colorCount)" />
-                  <Area type="monotone" dataKey="moving_average" name="Trend" stroke="var(--brand-accent)" strokeWidth={1} strokeDasharray="4 4" fillOpacity={0} />
+                  <Area
+                    type="monotone"
+                    dataKey="count"
+                    name="Signups"
+                    stroke="var(--brand-primary)"
+                    strokeWidth={1.5}
+                    fillOpacity={1}
+                    fill="url(#teacherEnrollGradient)"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="moving_average"
+                    name="Trend"
+                    stroke="var(--brand-accent)"
+                    strokeWidth={1.5}
+                    strokeDasharray="4 4"
+                    fillOpacity={0}
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             )}
@@ -377,7 +375,7 @@ export function AnalyticsView({
 
         <Card className="p-4 sm:p-6">
           <h3 className="mb-6 flex items-center gap-2 text-base font-semibold text-foreground">
-            <Users size={18} style={{ color: 'var(--brand-accent)' }} />{' '}
+            <Users size={18} className="text-brand-accent" />
             Enrollment by Class
           </h3>
           <div className="h-[240px] sm:h-[300px]">
@@ -393,7 +391,7 @@ export function AnalyticsView({
                   barCategoryGap="25%"
                 >
                   <defs>
-                    <linearGradient id="barPrimary" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient id="teacherClassGradient" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="var(--brand-primary)" stopOpacity={1} />
                       <stop offset="100%" stopColor="var(--brand-primary)" stopOpacity={0.6} />
                     </linearGradient>
@@ -402,7 +400,7 @@ export function AnalyticsView({
                   <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
                   <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" width={30} tickLine={false} axisLine={false} />
                   <Tooltip contentStyle={customTooltipStyle} cursor={{ fill: 'hsl(var(--muted))', opacity: 0.5 }} />
-                  <Bar dataKey="students" name="Students" fill="url(#barPrimary)" radius={[0, 0, 0, 0]} maxBarSize={45} />
+                  <Bar dataKey="students" name="Students" fill="url(#teacherClassGradient)" radius={[0, 0, 0, 0]} maxBarSize={45} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -410,11 +408,11 @@ export function AnalyticsView({
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
         <Card className="p-4 sm:p-6">
           <h3 className="mb-6 flex items-center gap-2 text-base font-semibold text-foreground">
-            <Eye size={18} style={{ color: 'var(--brand-accent)' }} /> Top 5
-            Viewed Lessons
+            <Eye size={18} className="text-brand-accent" />
+            Top 5 Viewed Lessons
           </h3>
           <div className="h-[240px] sm:h-[300px]">
             {topLessonsData.length === 0 ? (
@@ -429,7 +427,7 @@ export function AnalyticsView({
                   barCategoryGap="25%"
                 >
                   <defs>
-                    <linearGradient id="barAccent" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient id="teacherLessonsGradient" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="var(--brand-accent)" stopOpacity={1} />
                       <stop offset="100%" stopColor="var(--brand-accent)" stopOpacity={0.6} />
                     </linearGradient>
@@ -438,7 +436,7 @@ export function AnalyticsView({
                   <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
                   <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" width={30} tickLine={false} axisLine={false} />
                   <Tooltip contentStyle={customTooltipStyle} cursor={{ fill: 'hsl(var(--muted))', opacity: 0.5 }} />
-                  <Bar dataKey="views" name="Views" fill="url(#barAccent)" radius={[0, 0, 0, 0]} maxBarSize={45} />
+                  <Bar dataKey="views" name="Views" fill="url(#teacherLessonsGradient)" radius={[0, 0, 0, 0]} maxBarSize={45} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -447,22 +445,16 @@ export function AnalyticsView({
 
         <Card className="flex flex-col">
           <div className="flex items-center justify-between border-b border-border px-4 py-4 sm:px-6">
-            <div>
+            <div className="min-w-0">
               <h3 className="flex items-center gap-2 text-base font-semibold text-foreground">
-                <AlertTriangle size={18} style={{ color: 'var(--danger-border)' }} />{' '}
-                Students Needing Attention
+                <AlertTriangle size={18} className="shrink-0 text-danger-border" />
+                <span className="truncate">Students Needing Attention</span>
               </h3>
               <p className="text-xs text-muted-foreground">
                 Ranked by risk score.
               </p>
             </div>
-            <span
-              className="rounded-full px-3 py-1 text-xs font-bold"
-              style={{
-                backgroundColor: 'var(--danger-bg)',
-                color: 'var(--danger-fg)',
-              }}
-            >
+            <span className="ml-2 shrink-0 rounded-full bg-danger-bg px-3 py-1 text-xs font-bold text-danger-fg">
               {atRiskCount} At Risk
             </span>
           </div>
@@ -470,18 +462,17 @@ export function AnalyticsView({
           <div className="flex-1 overflow-y-auto">
             {!atRisk?.learners || atRisk.learners.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center py-8 text-center">
-                <ShieldCheck size={32} className="mb-2 opacity-50" style={{ color: 'var(--success-border)' }} />
-                <p className="text-sm font-semibold text-foreground">
-                  All Clear!
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  No students at risk.
-                </p>
+                <ShieldCheck size={32} className="mb-2 text-success-border opacity-50" />
+                <p className="text-sm font-semibold text-foreground">All Clear!</p>
+                <p className="text-xs text-muted-foreground">No students at risk.</p>
               </div>
             ) : (
               <div className="divide-y divide-border">
                 {atRisk.learners.slice(0, 5).map((l) => (
-                  <div key={l.user_id} className="flex items-center justify-between px-4 py-3 sm:px-6">
+                  <div
+                    key={l.user_id}
+                    className="flex items-center justify-between gap-3 px-4 py-3 sm:px-6"
+                  >
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-foreground">
                         {l.first_name} {l.last_name}
@@ -490,7 +481,7 @@ export function AnalyticsView({
                         {l.reasons[0] || 'Multiple issues'}
                       </p>
                     </div>
-                    <Link href={`/teacher/students/${l.user_id}`} className="ml-3 shrink-0">
+                    <Link href={`/teacher/students/${l.user_id}`} className="shrink-0">
                       <Button size="sm">View</Button>
                     </Link>
                   </div>
