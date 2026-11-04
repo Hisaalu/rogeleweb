@@ -44,29 +44,45 @@ export interface LearnerAnalyticsData {
   recommendations: LearnerRecommendation[]
 }
 
-export interface LearnerSubscriptionState {
-  isPaid: boolean
-  reason: 'ok' | 'no_plan' | 'trial_expired'
+export type AccessReason = 'ok' | 'trial' | 'trial_expired' | 'no_plan'
+
+export interface LearnerAccessState {
+  hasAccess: boolean
+  reason: AccessReason
 }
 
-export async function getLearnerSubscriptionState(): Promise<LearnerSubscriptionState> {
-  const sub = await serverApiRequest<{ id?: number; status?: string }>(
-    '/api/v1/subscriptions/me',
-  ).catch(() => null)
+export async function getLearnerSubscriptionState(): Promise<LearnerAccessState> {
+  const [sub, trial] = await Promise.all([
+    serverApiRequest<{ id?: number; status?: string }>(
+      '/api/v1/subscriptions/me',
+    ).catch(() => null),
+    serverApiRequest<{
+      is_in_trial?: boolean
+      days_remaining?: number
+      end_date?: string | null
+    }>('/api/v1/trials/me').catch(() => null),
+  ])
+
+  console.log('[analytics access] sub =', sub, 'trial =', trial)
 
   if (sub && sub.status === 'active' && sub.id) {
-    return { isPaid: true, reason: 'ok' }
+    return { hasAccess: true, reason: 'ok' }
   }
 
-  const trial = await serverApiRequest<{ is_in_trial?: boolean }>(
-    '/api/v1/trials/me',
-  ).catch(() => null)
+  if (trial) {
+    const endDateMs = trial.end_date ? new Date(trial.end_date).getTime() : NaN
+    const endDateLive = Number.isFinite(endDateMs) && endDateMs > Date.now()
 
-  if (trial && trial.is_in_trial === false) {
-    return { isPaid: false, reason: 'trial_expired' }
+    if (trial.is_in_trial === true || endDateLive) {
+      return { hasAccess: true, reason: 'trial' }
+    }
+
+    if (trial.is_in_trial === false || Number.isFinite(endDateMs)) {
+      return { hasAccess: false, reason: 'trial_expired' }
+    }
   }
 
-  return { isPaid: false, reason: 'no_plan' }
+  return { hasAccess: false, reason: 'no_plan' }
 }
 
 export async function getLearnerAnalyticsServer(
@@ -74,10 +90,14 @@ export async function getLearnerAnalyticsServer(
   to: string,
 ): Promise<LearnerAnalyticsData | null> {
   const session = await getSessionUser()
-  if (!session) return null
+  if (!session) {
+    console.log('[analytics access] no session')
+    return null
+  }
 
   const state = await getLearnerSubscriptionState()
-  if (!state.isPaid) return null
+  console.log('[analytics access] decision =', state)
+  if (!state.hasAccess) return null
 
   const url = new URL(`${ANALYTICS_URL}/analytics/learner/overview`)
   url.searchParams.set('learner_id', String(session.id))
@@ -90,6 +110,9 @@ export async function getLearnerAnalyticsServer(
     next: { revalidate: 60 },
   })
 
-  if (!res.ok) return null
+  if (!res.ok) {
+    console.log('[analytics access] python fetch failed', res.status)
+    return null
+  }
   return (await res.json()) as LearnerAnalyticsData
 }

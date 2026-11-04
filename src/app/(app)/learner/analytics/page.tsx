@@ -25,12 +25,12 @@ async function AnalyticsContent({
   from: string
   to: string
 }) {
-  const [data, subscription] = await Promise.all([
+  const [data, access] = await Promise.all([
     getLearnerAnalyticsServer(from, to),
     getLearnerSubscriptionState(),
   ])
 
-  return <LearnerAnalyticsView data={data} subscription={subscription} />
+  return <LearnerAnalyticsView data={data} access={access} />
 }
 
 export default async function LearnerAnalyticsPage({

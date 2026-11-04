@@ -15,8 +15,9 @@ import { WeeklyActivityChart } from './components/weekly-activity-chart'
 import { RecommendationsPanel } from './components/recommendations-panel'
 import { DateFilterBar } from './components/date-filter-bar'
 import type {
+  AccessReason,
+  LearnerAccessState,
   LearnerAnalyticsData,
-  LearnerSubscriptionState,
 } from '@/lib/learner-analytics.server'
 
 function exportCsv(data: LearnerAnalyticsData) {
@@ -63,13 +64,25 @@ function exportCsv(data: LearnerAnalyticsData) {
   URL.revokeObjectURL(url)
 }
 
+function gateReason(reason: AccessReason): 'trial_expired' | 'no_plan' {
+  if (reason === 'trial_expired') return 'trial_expired'
+  return 'no_plan'
+}
+
+function badgeFor(state: LearnerAccessState): { label: string; tone: 'success' | 'info' | 'warning' } {
+  if (state.reason === 'ok') return { label: 'Subscribed', tone: 'success' }
+  if (state.reason === 'trial') return { label: 'Free trial', tone: 'info' }
+  if (state.reason === 'trial_expired') return { label: 'Trial ended', tone: 'warning' }
+  return { label: 'No plan', tone: 'warning' }
+}
+
 export function LearnerAnalyticsView({
   data,
-  subscription,
+  access,
   fetching = false,
 }: {
   data: LearnerAnalyticsData | null
-  subscription: LearnerSubscriptionState
+  access: LearnerAccessState
   fetching?: boolean
 }) {
   const { showToast } = useToast()
@@ -81,13 +94,14 @@ export function LearnerAnalyticsView({
         <PremiumGate
           open
           context="analytics"
-          reason={subscription.reason === 'ok' ? 'no_plan' : subscription.reason}
+          reason={gateReason(access.reason)}
         />
       </div>
     )
   }
 
   const safeData: LearnerAnalyticsData = data
+  const badge = badgeFor(access)
 
   const totalActivities = safeData.activity.daily_counts.reduce(
     (sum, d) => sum + d.count,
@@ -122,11 +136,11 @@ export function LearnerAnalyticsView({
             <span>Analytics</span>
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Track of {safeData.from} to {safeData.to}.
+            {safeData.from} to {safeData.to}.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge tone="success">Subscribed</Badge>
+          <Badge tone={badge.tone}>{badge.label}</Badge>
           <Button variant="outline" onClick={handleExport} disabled={busy}>
             <Download size={14} />
           </Button>
