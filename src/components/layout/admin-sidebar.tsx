@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import Link from 'next/link'
-import { X, Menu } from 'lucide-react'
+import { Menu } from 'lucide-react'
 import { BrandLogo } from '@/components/brand/brand-logo'
 import { useBranding } from '@/components/brand/brand-provider'
 import { cn } from '@/lib/utils'
@@ -97,7 +97,6 @@ export function AdminSidebar({
 }) {
   const mounted = useMountTransition(mobileOpen)
   const drawerRef = useRef<HTMLDivElement>(null)
-  const closeRef = useRef<HTMLButtonElement>(null)
   const isDark = useIsDark()
   const branding = useBranding()
 
@@ -107,7 +106,8 @@ export function AdminSidebar({
     if (!mobileOpen) return
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    closeRef.current?.focus()
+    
+    drawerRef.current?.querySelector<HTMLElement>('a[href], button:not([disabled])')?.focus()
 
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') {
@@ -176,7 +176,7 @@ export function AdminSidebar({
             )}
             style={surface}
           >
-            <div className="flex h-16 items-center justify-between border-b border-border px-4">
+            <div className="flex h-16 items-center border-b border-border px-4">
               <Link
                 href="/admin"
                 onClick={onClose}
@@ -184,15 +184,6 @@ export function AdminSidebar({
               >
                 <BrandLogo size={32} />
               </Link>
-              <button
-                ref={closeRef}
-                type="button"
-                onClick={onClose}
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
-                aria-label="Close menu"
-              >
-                <X size={18} />
-              </button>
             </div>
             <div className="flex min-h-0 flex-1 flex-col">
               <AdminSidebarNav onNavigate={onClose} />

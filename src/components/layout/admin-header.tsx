@@ -26,10 +26,10 @@ export function AdminHeader({
         <button
           type="button"
           onClick={onMenuClick}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent lg:hidden"
+          className="flex h-10 w-10 shrink-0 items-center justify-center text-foreground transition hover:bg-muted lg:hidden"
           aria-label="Open menu"
         >
-          <Menu size={20} />
+          <Menu size={24} />
         </button>
 
         <div className="flex flex-col min-w-0 lg:hidden">
