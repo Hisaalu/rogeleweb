@@ -25,7 +25,17 @@ const currencyFormatter = new Intl.NumberFormat('en-UG', {
   maximumFractionDigits: 0,
 })
 
-const STATUSES = ['active', 'expired', 'cancelled', 'pending']
+const STATUSES = ['active', 'expired', 'cancelled', 'pending'] as const
+
+const STAT_TONES = {
+  default: 'text-foreground',
+  success: 'text-success-fg',
+  danger: 'text-danger-fg',
+  warning: 'text-warning-fg',
+  primary: 'text-brand-primary',
+} as const
+
+type StatTone = keyof typeof STAT_TONES
 
 export interface SubscriptionListMeta {
   page: number
@@ -76,23 +86,22 @@ function exportCsv(subs: AdminSubscription[]) {
 }
 
 const Stat = React.memo(function Stat({
-  label, value, tone = 'default',
+  label,
+  value,
+  tone = 'default',
 }: {
   label: string
   value: string
-  tone?: 'default' | 'success' | 'danger' | 'warning' | 'primary'
+  tone?: StatTone
 }) {
-  const colors = {
-    default: 'text-foreground',
-    success: 'text-success-fg',
-    danger: 'text-danger-fg',
-    warning: 'text-warning-fg',
-    primary: 'text-brand-primary',
-  }
   return (
-    <Card className="p-4 shadow-sm transition-shadow hover:shadow-md">
-      <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className={`mt-1 text-xl font-semibold ${colors[tone]}`}>{value}</p>
+    <Card className="p-3 shadow-sm transition-shadow hover:shadow-md sm:p-4">
+      <p className="truncate text-[11px] uppercase tracking-wide text-muted-foreground sm:text-xs">
+        {label}
+      </p>
+      <p className={`mt-1 truncate text-lg font-semibold tabular-nums sm:text-xl ${STAT_TONES[tone]}`}>
+        {value}
+      </p>
     </Card>
   )
 })
@@ -110,17 +119,31 @@ const SubscriptionRow = React.memo(function SubscriptionRow({ sub }: { sub: Admi
         </div>
       </TableCell>
       <TableCell className="capitalize text-muted-foreground">{sub.plan_type}</TableCell>
-      <TableCell className="font-semibold">
+      <TableCell className="font-semibold tabular-nums">
         {sub.amount != null ? currencyFormatter.format(sub.amount) : '—'}
       </TableCell>
       <TableCell>
-        <Badge tone={sub.status === 'active' ? 'success' : sub.status === 'expired' ? 'danger' : sub.status === 'pending' ? 'warning' : 'default'}>
+        <Badge
+          tone={
+            sub.status === 'active'
+              ? 'success'
+              : sub.status === 'expired'
+                ? 'danger'
+                : sub.status === 'pending'
+                  ? 'warning'
+                  : 'default'
+          }
+        >
           {sub.status}
         </Badge>
       </TableCell>
       <TableCell className="text-muted-foreground">{sub.auto_renew ? 'Yes' : 'No'}</TableCell>
-      <TableCell className="text-muted-foreground">{dateFormatter.format(new Date(sub.start_date))}</TableCell>
-      <TableCell className="text-muted-foreground">{dateFormatter.format(new Date(sub.end_date))}</TableCell>
+      <TableCell className="whitespace-nowrap text-muted-foreground">
+        {dateFormatter.format(new Date(sub.start_date))}
+      </TableCell>
+      <TableCell className="whitespace-nowrap text-muted-foreground">
+        {dateFormatter.format(new Date(sub.end_date))}
+      </TableCell>
     </TableRow>
   )
 })
@@ -132,11 +155,21 @@ const MobileSubscriptionCard = React.memo(function MobileSubscriptionCard({ sub 
   return (
     <div className="flex flex-col gap-3 border-b border-border p-4 last:border-0 hover:bg-muted/30">
       <div className="flex items-start justify-between gap-2">
-        <div className="flex flex-col min-w-0">
+        <div className="flex min-w-0 flex-col">
           <span className="font-medium text-foreground">{name}</span>
           {showEmail && <span className="truncate text-xs text-muted-foreground">{sub.user_email}</span>}
         </div>
-        <Badge tone={sub.status === 'active' ? 'success' : sub.status === 'expired' ? 'danger' : sub.status === 'pending' ? 'warning' : 'default'}>
+        <Badge
+          tone={
+            sub.status === 'active'
+              ? 'success'
+              : sub.status === 'expired'
+                ? 'danger'
+                : sub.status === 'pending'
+                  ? 'warning'
+                  : 'default'
+          }
+        >
           {sub.status}
         </Badge>
       </div>
@@ -147,7 +180,9 @@ const MobileSubscriptionCard = React.memo(function MobileSubscriptionCard({ sub 
         </div>
         <div>
           <p className="text-xs text-muted-foreground">Amount</p>
-          <p className="font-semibold">{sub.amount != null ? currencyFormatter.format(sub.amount) : '—'}</p>
+          <p className="font-semibold tabular-nums">
+            {sub.amount != null ? currencyFormatter.format(sub.amount) : '—'}
+          </p>
         </div>
         <div>
           <p className="text-xs text-muted-foreground">Start</p>
@@ -158,7 +193,9 @@ const MobileSubscriptionCard = React.memo(function MobileSubscriptionCard({ sub 
           <p className="font-medium">{dateFormatter.format(new Date(sub.end_date))}</p>
         </div>
       </div>
-      <p className="text-xs text-muted-foreground">Auto-renew: {sub.auto_renew ? 'Yes' : 'No'}</p>
+      <p className="text-xs text-muted-foreground">
+        Auto-renew: {sub.auto_renew ? 'Yes' : 'No'}
+      </p>
     </div>
   )
 })
@@ -240,16 +277,25 @@ export function SubscriptionsView({
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold sm:text-3xl">Subscriptions</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Browse your subscriptions.</p>
+          <h1 className="text-2xl font-bold text-brand-primary sm:text-3xl">
+            Subscriptions
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Browse your subscriptions.
+          </p>
         </div>
-        <Button variant="outline" onClick={handleExport} disabled={filtered.length === 0}>
+        <Button
+          variant="outline"
+          onClick={handleExport}
+          disabled={filtered.length === 0}
+          className="whitespace-nowrap"
+        >
           <Download size={14} /> Export CSV
         </Button>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Total filtered" value={String(filtered.length)} />
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <Stat label="Total" value={String(filtered.length)} />
         <Stat label="Active" value={String(stats.active)} tone="success" />
         <Stat label="Expired" value={String(stats.expired)} tone="danger" />
         <Stat label="Pending" value={String(stats.pending)} tone="warning" />
