@@ -191,7 +191,7 @@ export function MobileMenu({
                     onClick={onClose}
                     aria-current={active ? 'page' : undefined}
                     className={cn(
-                      'flex items-center gap-3 rounded-lg px-4 py-2.5 text-[20px] font-medium transition sm:py-3',
+                      'flex items-center gap-3 rounded-lg px-4 py-2.5 text-[20px] font-bold transition sm:py-3',
                       active
                         ? 'nav-active font-semibold'
                         : 'text-foreground hover:bg-muted',
@@ -215,7 +215,7 @@ export function MobileMenu({
               <button
                 type="button"
                 onClick={handleLogout}
-                className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-[20px] font-semibold text-danger-fg transition hover:bg-danger-bg sm:py-3"
+                className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-[20px] font-bold text-danger-fg transition hover:bg-danger-bg sm:py-3"
               >
                 <LogOut size={25} />
                 Logout

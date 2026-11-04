@@ -110,7 +110,7 @@ export const Sidebar = memo(function Sidebar({ user }: { user: SessionUser }) {
         <button
           type="button"
           onClick={handleLogout}
-          className="flex w-full items-center gap-3 rounded-full px-4 py-2.5 text-[20px] font-semibold text-danger-fg transition hover:bg-danger-bg"
+          className="flex w-full items-center gap-3 rounded-full px-4 py-2.5 text-[20px] font-bold text-danger-fg transition hover:bg-danger-bg"
         >
           <LogOut size={25} className="shrink-0" />
           <span className="truncate">Logout</span>
@@ -139,7 +139,7 @@ const NavLink = memo(function NavLink({
         href={item.href}
         aria-current={active ? 'page' : undefined}
         className={cn(
-          'flex items-center gap-3 rounded-full px-4 py-2.5 text-[20px] font-medium transition',
+          'flex items-center gap-3 rounded-full px-4 py-2.5 text-[20px] font-bold transition',
           active
             ? 'nav-active font-semibold'
             : 'text-foreground hover:bg-muted hover:text-brand-accent',
