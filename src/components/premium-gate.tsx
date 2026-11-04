@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog'
 import type { AccessReason } from '@/lib/access'
 
-export type GateContext = 'lesson' | 'quiz' | 'homework' | 'profile'
+export type GateContext = 'lesson' | 'quiz' | 'homework' | 'profile' | 'analytics'
 
 interface GateCopy {
   title: string
@@ -87,6 +87,22 @@ const GATE_COPY: Record<GateContext, Record<GateReason, GateCopy>> = {
       dismissLabel: 'Maybe later',
     },
   },
+  analytics: {
+    trial_expired: {
+      title: 'Unlock your analytics with Premium',
+      description:
+        'Only Premium subscribers can view personalized learning analytics. Upgrade to see your homework and quiz insights.',
+      upgradeLabel: 'Upgrade',
+      dismissLabel: 'Maybe later',
+    },
+    no_plan: {
+      title: 'Unlock your analytics with Premium',
+      description:
+        'Only Premium subscribers can view personalized learning analytics. Upgrade to see your homework and quiz insights.',
+      upgradeLabel: 'Upgrade',
+      dismissLabel: 'Maybe later',
+    },
+  },
 }
 
 const FALLBACK_COPY: Record<GateReason, GateCopy> = {
@@ -125,7 +141,6 @@ export function PremiumGate({
 }: PremiumGateProps) {
   const [dismissed, setDismissed] = useState(false)
 
-  // Safety: normalize the reason so it can never be 'ok' or undefined
   const safeReason: GateReason =
     reason === 'trial_expired' ? 'trial_expired' : 'no_plan'
 
@@ -159,11 +174,10 @@ export function PremiumGate({
         <div className="flex flex-col gap-5 p-6">
           <div className="flex items-start gap-4">
             <div
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
-              style={{ backgroundColor: 'var(--warning-bg)' }}
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-warning-bg"
               aria-hidden
             >
-              <Lock size={20} style={{ color: 'var(--warning-fg)' }} />
+              <Lock size={20} className="text-warning-fg" />
             </div>
             <div className="flex flex-col gap-1 pt-0.5">
               <DialogTitle className="text-lg font-bold text-foreground">
@@ -186,8 +200,7 @@ export function PremiumGate({
             <Link
               href={upgradeHref}
               onClick={handleDismiss}
-              className="flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-              style={{ backgroundColor: 'var(--brand-accent)' }}
+              className="flex items-center justify-center gap-2 rounded-full bg-brand-accent px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
             >
               {copy.upgradeLabel}
             </Link>
