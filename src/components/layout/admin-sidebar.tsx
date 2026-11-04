@@ -1,12 +1,42 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import Link from 'next/link'
 import { X, Menu } from 'lucide-react'
 import { BrandLogo } from '@/components/brand/brand-logo'
+import { useBranding } from '@/components/brand/brand-provider'
 import { cn } from '@/lib/utils'
 import { AdminSidebarNav } from './admin-sidebar-nav'
 import { useMountTransition } from './use-mounted-transition'
+
+function useIsDark(): boolean {
+  const [isDark, setIsDark] = useState(false)
+
+  useEffect(() => {
+    const root = document.documentElement
+    const check = () => setIsDark(root.classList.contains('dark'))
+    check()
+
+    const observer = new MutationObserver(check)
+    observer.observe(root, { attributes: true, attributeFilter: ['class'] })
+    return () => observer.disconnect()
+  }, [])
+
+  return isDark
+}
+
+function buildSurface(
+  brandColor: string,
+  isDark: boolean,
+): CSSProperties | undefined {
+  if (!/^#[0-9a-fA-F]{6}$/.test(brandColor)) {
+    return undefined
+  }
+  const alphaByte = isDark ? '26' : '14'
+  return {
+    background: `linear-gradient(to bottom, hsl(var(--card)) 0%, hsl(var(--card)) 55%, ${brandColor}${alphaByte} 100%)`,
+  }
+}
 
 function SidebarBody({
   collapsed,
@@ -68,6 +98,10 @@ export function AdminSidebar({
   const mounted = useMountTransition(mobileOpen)
   const drawerRef = useRef<HTMLDivElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
+  const isDark = useIsDark()
+  const branding = useBranding()
+
+  const surface = buildSurface(branding.colorPrimary, isDark)
 
   useEffect(() => {
     if (!mobileOpen) return
@@ -110,6 +144,7 @@ export function AdminSidebar({
           'fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-border bg-card shadow-sm transition-[width] duration-200 lg:flex',
           collapsed ? 'w-20' : 'w-72',
         )}
+        style={surface}
       >
         <SidebarBody
           collapsed={collapsed}
@@ -139,6 +174,7 @@ export function AdminSidebar({
               'relative flex w-full max-w-[280px] flex-col bg-card shadow-2xl transition-transform duration-300 ease-in-out',
               mobileOpen ? 'translate-x-0' : '-translate-x-full',
             )}
+            style={surface}
           >
             <div className="flex h-16 items-center justify-between border-b border-border px-4">
               <Link
