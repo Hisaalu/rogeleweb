@@ -25,7 +25,16 @@ const currencyFormatter = new Intl.NumberFormat('en-UG', {
   maximumFractionDigits: 0,
 })
 
-const STATUSES = ['pending', 'completed', 'failed', 'refunded']
+const STATUSES = ['pending', 'completed', 'failed', 'refunded'] as const
+
+const STAT_TONES = {
+  default: 'text-foreground',
+  success: 'text-success-fg',
+  danger: 'text-danger-fg',
+  primary: 'text-brand-primary',
+} as const
+
+type StatTone = keyof typeof STAT_TONES
 
 export interface PaymentListMeta {
   page: number
@@ -38,6 +47,13 @@ function displayUser(p: AdminPayment): string {
   const full = [p.user_first_name, p.user_last_name].filter(Boolean).join(' ').trim()
   if (full) return full
   return p.user_email?.trim() || `User #${p.user_id ?? '—'}`
+}
+
+function statusTone(status: string): 'success' | 'danger' | 'default' | 'warning' {
+  if (status === 'completed') return 'success'
+  if (status === 'failed') return 'danger'
+  if (status === 'refunded') return 'default'
+  return 'warning'
 }
 
 function exportCsv(payments: AdminPayment[]) {
@@ -78,22 +94,22 @@ function exportCsv(payments: AdminPayment[]) {
 }
 
 const Stat = React.memo(function Stat({
-  label, value, tone = 'default',
+  label,
+  value,
+  tone = 'default',
 }: {
   label: string
   value: string
-  tone?: 'default' | 'success' | 'danger' | 'primary'
+  tone?: StatTone
 }) {
-  const colors = {
-    default: 'text-foreground',
-    success: 'text-success-fg',
-    danger: 'text-danger-fg',
-    primary: 'text-brand-primary',
-  }
   return (
-    <Card className="p-4 shadow-sm transition-shadow hover:shadow-md">
-      <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className={`mt-1 text-xl font-semibold ${colors[tone]}`}>{value}</p>
+    <Card className="p-3 shadow-sm transition-shadow hover:shadow-md sm:p-4">
+      <p className="truncate text-[11px] uppercase tracking-wide text-muted-foreground sm:text-xs">
+        {label}
+      </p>
+      <p className={`mt-1 truncate text-lg font-semibold tabular-nums sm:text-xl ${STAT_TONES[tone]}`}>
+        {value}
+      </p>
     </Card>
   )
 })
@@ -110,28 +126,18 @@ const PaymentRow = React.memo(function PaymentRow({ payment }: { payment: AdminP
           {showEmail && <p className="truncate text-xs text-muted-foreground">{payment.user_email}</p>}
         </div>
       </TableCell>
-      <TableCell className="font-semibold">
+      <TableCell className="font-semibold tabular-nums">
         {payment.amount != null ? currencyFormatter.format(payment.amount) : '—'}
       </TableCell>
       <TableCell className="text-muted-foreground">{payment.plan_type ?? '—'}</TableCell>
       <TableCell className="text-muted-foreground">{payment.payment_method ?? '—'}</TableCell>
-      <TableCell className="max-w-[140px] truncate text-muted-foreground">{payment.transaction_id ?? '—'}</TableCell>
-      <TableCell>
-        <Badge
-          tone={
-            payment.status === 'completed'
-              ? 'success'
-              : payment.status === 'failed'
-                ? 'danger'
-                : payment.status === 'refunded'
-                  ? 'default'
-                  : 'warning'
-          }
-        >
-          {payment.status}
-        </Badge>
+      <TableCell className="max-w-[140px] truncate text-muted-foreground">
+        {payment.transaction_id ?? '—'}
       </TableCell>
-      <TableCell className="text-muted-foreground">
+      <TableCell>
+        <Badge tone={statusTone(payment.status)}>{payment.status}</Badge>
+      </TableCell>
+      <TableCell className="whitespace-nowrap text-muted-foreground">
         {payment.payment_date
           ? dateFormatter.format(new Date(payment.payment_date))
           : dateFormatter.format(new Date(payment.created_at))}
@@ -151,24 +157,14 @@ const MobilePaymentCard = React.memo(function MobilePaymentCard({ payment }: { p
           <span className="font-medium text-foreground">{name}</span>
           {showEmail && <span className="truncate text-xs text-muted-foreground">{payment.user_email}</span>}
         </div>
-        <Badge
-          tone={
-            payment.status === 'completed'
-              ? 'success'
-              : payment.status === 'failed'
-                ? 'danger'
-                : payment.status === 'refunded'
-                  ? 'default'
-                  : 'warning'
-          }
-        >
-          {payment.status}
-        </Badge>
+        <Badge tone={statusTone(payment.status)}>{payment.status}</Badge>
       </div>
       <div className="grid grid-cols-2 gap-2 text-sm">
         <div>
           <p className="text-xs text-muted-foreground">Amount</p>
-          <p className="font-semibold">{payment.amount != null ? currencyFormatter.format(payment.amount) : '—'}</p>
+          <p className="font-semibold tabular-nums">
+            {payment.amount != null ? currencyFormatter.format(payment.amount) : '—'}
+          </p>
         </div>
         <div>
           <p className="text-xs text-muted-foreground">Plan</p>
@@ -188,7 +184,7 @@ const MobilePaymentCard = React.memo(function MobilePaymentCard({ payment }: { p
         </div>
       </div>
       {payment.transaction_id && (
-        <p className="text-xs text-muted-foreground truncate">Txn: {payment.transaction_id}</p>
+        <p className="truncate text-xs text-muted-foreground">Txn: {payment.transaction_id}</p>
       )}
     </div>
   )
@@ -273,16 +269,23 @@ export function PaymentsView({
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold sm:text-3xl">Payments</h1>
-          <p className="mt-1 text-sm text-muted-foreground">All your payment activities.</p>
+          <h1 className="text-2xl font-bold text-brand-primary sm:text-3xl">Payments</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            All your payment activities.
+          </p>
         </div>
-        <Button variant="outline" onClick={handleExport} disabled={filtered.length === 0}>
+        <Button
+          variant="outline"
+          onClick={handleExport}
+          disabled={filtered.length === 0}
+          className="whitespace-nowrap"
+        >
           <Download size={14} /> Export CSV
         </Button>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Total filtered" value={String(filtered.length)} />
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <Stat label="Total" value={String(filtered.length)} />
         <Stat label="Completed" value={String(stats.completed)} tone="success" />
         <Stat label="Failed" value={String(stats.failed)} tone="danger" />
         <Stat label="Collected" value={currencyFormatter.format(stats.total)} tone="primary" />
