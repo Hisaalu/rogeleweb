@@ -11,6 +11,21 @@ const currencyFormatter = new Intl.NumberFormat('en-UG', {
   maximumFractionDigits: 0,
 })
 
+const TONES = {
+  default: { bg: 'bg-muted', fg: 'text-muted-foreground' },
+  primary: { bg: 'bg-brand-primary/10', fg: 'text-brand-primary' },
+  accent: { bg: 'bg-brand-accent/10', fg: 'text-brand-accent' },
+  success: { bg: 'bg-success-bg', fg: 'text-success-fg' },
+  info: { bg: 'bg-blue-500/10 dark:bg-blue-400/10', fg: 'text-blue-600 dark:text-blue-400' },
+  danger: { bg: 'bg-danger-bg', fg: 'text-danger-fg' },
+} as const
+
+const HINT_COLORS = {
+  default: 'text-muted-foreground',
+  success: 'text-success-fg',
+  danger: 'text-danger-fg',
+} as const
+
 export function KpiCards({ data }: { data: AnalyticsData }) {
   const totalUsers = data.atRisk?.summary.total ?? 0
   const activeUsers = data.atRisk?.summary.healthy ?? 0
@@ -22,13 +37,23 @@ export function KpiCards({ data }: { data: AnalyticsData }) {
   const watch = data.atRisk?.summary.watch ?? 0
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <Kpi icon={Users} label="Total learners" value={String(totalUsers)} hint={`${activeUsers} healthy`} tone="primary" />
+    <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      <Kpi
+        icon={Users}
+        label="Total learners"
+        value={String(totalUsers)}
+        hint={`${activeUsers} healthy`}
+        tone="primary"
+      />
       <Kpi
         icon={DollarSign}
         label="Total revenue"
         value={currencyFormatter.format(revenue)}
-        hint={monthlyAvg > 0 ? `${currencyFormatter.format(monthlyAvg)} avg / period` : 'No revenue yet'}
+        hint={
+          monthlyAvg > 0
+            ? `${currencyFormatter.format(monthlyAvg)} avg / period`
+            : 'No revenue yet'
+        }
         tone="accent"
         hintIcon={revenue > 0 ? TrendingUp : TrendingDown}
         hintTone={revenue > 0 ? 'success' : 'danger'}
@@ -65,36 +90,33 @@ function Kpi({
   value: string
   hint?: string
   hintIcon?: React.ElementType
-  hintTone?: 'default' | 'success' | 'danger'
-  tone?: 'default' | 'primary' | 'accent' | 'success' | 'info' | 'danger'
+  hintTone?: keyof typeof HINT_COLORS
+  tone?: keyof typeof TONES
 }) {
-  const toneMap = {
-    default: { bg: 'bg-muted', fg: 'text-muted-foreground' },
-    primary: { bg: 'bg-[var(--brand-primary)]/10', fg: 'text-[var(--brand-primary)]' },
-    accent: { bg: 'bg-[var(--brand-accent)]/10', fg: 'text-[var(--brand-accent)]' },
-    success: { bg: 'bg-success-bg', fg: 'text-success-fg' },
-    info: { bg: 'bg-blue-500/10 dark:bg-blue-400/10', fg: 'text-blue-600 dark:text-blue-400' },
-    danger: { bg: 'bg-danger-bg', fg: 'text-danger-fg' },
-  }
-  const t = toneMap[tone]
-  const hintColor = {
-    default: 'text-muted-foreground',
-    success: 'text-success-fg',
-    danger: 'text-danger-fg',
-  }[hintTone]
+  const t = TONES[tone]
+  const hintColor = HINT_COLORS[hintTone]
 
   return (
     <Card className="transition-shadow hover:shadow-md">
-      <CardContent className="p-5">
-        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${t.bg}`}>
-          <Icon size={18} className={t.fg} />
+      <CardContent className="p-4 sm:p-5">
+        <div
+          className={`flex h-9 w-9 items-center justify-center rounded-lg sm:h-10 sm:w-10 ${t.bg}`}
+        >
+          <Icon size={16} className={`sm:hidden ${t.fg}`} />
+          <Icon size={18} className={`hidden sm:block ${t.fg}`} />
         </div>
-        <p className="mt-4 text-sm text-muted-foreground">{label}</p>
-        <p className="mt-1 text-2xl font-bold">{value}</p>
+        <p className="mt-3 truncate text-xs text-muted-foreground sm:mt-4 sm:text-sm">
+          {label}
+        </p>
+        <p className="mt-1 truncate text-xl font-bold tabular-nums sm:text-2xl">
+          {value}
+        </p>
         {hint && (
-          <p className={`mt-1 flex items-center gap-1 text-xs ${hintColor}`}>
-            {HintIcon && <HintIcon size={12} />}
-            {hint}
+          <p
+            className={`mt-1 flex items-center gap-1 text-[11px] sm:text-xs ${hintColor}`}
+          >
+            {HintIcon && <HintIcon size={12} className="shrink-0" />}
+            <span className="truncate">{hint}</span>
           </p>
         )}
       </CardContent>

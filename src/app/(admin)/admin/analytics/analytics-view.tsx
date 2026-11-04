@@ -32,7 +32,7 @@ export interface AnalyticsData {
 export function AnalyticsView({ data }: { data: AnalyticsData }) {
   if (!data) {
     return (
-      <div className="rounded-lg border border-danger-border/40 bg-danger-bg px-4 py-3 text-sm text-danger-fg">
+      <div className="rounded-sm border border-danger-border/40 bg-danger-bg px-4 py-3 text-sm text-danger-fg">
         Failed to load analytics data. The service may be unreachable.
       </div>
     )
@@ -42,23 +42,26 @@ export function AnalyticsView({ data }: { data: AnalyticsData }) {
   const failed = dataValues.filter((v) => v === null).length
   const total = dataValues.length
 
-  const error = failed === total
-    ? 'Analytics service is unreachable. Please ensure the ANALYTICS_API_URL is set correctly in the Next.js environment.'
-    : failed > 0
-      ? `${failed} of ${total} analytics sections failed to load.`
-      : null
+  const error =
+    failed === total
+      ? 'Analytics service is unreachable. Please ensure the ANALYTICS_API_URL is set correctly in the Next.js environment.'
+      : failed > 0
+        ? `${failed} of ${total} analytics sections failed to load.`
+        : null
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
       <div>
-        <h1 className="text-2xl font-bold sm:text-3xl">Analytics</h1>
+        <h1 className="text-2xl font-bold text-brand-primary sm:text-3xl">
+          Analytics
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Decision-making insights across users, content, revenue, and engagement.
         </p>
       </div>
 
       {error && (
-        <div className="rounded-lg border border-danger-border/40 bg-danger-bg px-4 py-3 text-sm text-danger-fg">
+        <div className="rounded-sm border border-danger-border/40 bg-danger-bg px-4 py-3 text-sm text-danger-fg">
           {error}
         </div>
       )}
@@ -66,7 +69,7 @@ export function AnalyticsView({ data }: { data: AnalyticsData }) {
       <KpiCards data={data} />
 
       <Tabs defaultValue="trends" className="w-full">
-        <TabsList className="w-full justify-start overflow-x-auto sm:w-auto no-scrollbar">
+        <TabsList className="w-full justify-start sm:w-auto">
           <TabsTrigger value="trends">Trends</TabsTrigger>
           <TabsTrigger value="engagement">Engagement</TabsTrigger>
           <TabsTrigger value="revenue">Revenue</TabsTrigger>
@@ -74,7 +77,7 @@ export function AnalyticsView({ data }: { data: AnalyticsData }) {
         </TabsList>
 
         <TabsContent value="trends" className="mt-6 space-y-6">
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
             <EnrollmentChart data={data.enrollment} />
             <ScoreDistributionChart data={data.scores} />
           </div>
@@ -86,8 +89,10 @@ export function AnalyticsView({ data }: { data: AnalyticsData }) {
         </TabsContent>
 
         <TabsContent value="revenue" className="mt-6 space-y-6">
-          <RevenueChart data={data.revenue} />
-          <ForecastChart data={data.forecast} />
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
+            <RevenueChart data={data.revenue} />
+            <ForecastChart data={data.forecast} />
+          </div>
         </TabsContent>
 
         <TabsContent value="risk" className="mt-6 space-y-6">
