@@ -20,16 +20,6 @@ import { formatDate } from '@/lib/utils'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
-const iconAccent = { color: 'var(--brand-accent)' } as const
-const iconSoftBg = {
-  backgroundColor: 'color-mix(in srgb, var(--brand-accent) 10%, transparent)',
-} as const
-const pillPublished = { backgroundColor: 'var(--success-bg)', color: 'var(--success-fg)' } as const
-const pillDraft = {
-  backgroundColor: 'hsl(var(--muted))',
-  color: 'hsl(var(--muted-foreground))',
-} as const
-
 export function TeacherDashboardView({
   profile,
   data,
@@ -45,17 +35,12 @@ export function TeacherDashboardView({
     day: 'numeric',
   })
 
-  const displayAverage = data.averageScore != null 
-    ? `${Math.round(data.averageScore)}%` 
-    : 'N/A'
+  const displayAverage =
+    data.averageScore != null ? `${Math.round(data.averageScore)}%` : 'N/A'
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 pb-10 sm:space-y-8">
-      
-      <div
-        className="flex flex-col gap-4 rounded-md p-5 text-white shadow-lg sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-6 sm:p-8"
-        style={{ backgroundColor: 'var(--brand-primary)' }}
-      >
+      <div className="flex flex-col gap-4 rounded-md bg-brand-primary p-5 text-white shadow-lg sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-6 sm:p-8">
         <div className="min-w-0">
           <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
             Welcome back, Tr.{' '}
@@ -75,22 +60,18 @@ export function TeacherDashboardView({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
         <StatCard icon={BookOpen} label="Total Lessons" value={data.totalLessons} />
         <StatCard icon={HelpCircle} label="Total Quizzes" value={data.totalQuizzes} />
         <StatCard icon={Users} label="Total Students" value={data.totalStudents} />
-        <StatCard 
-          icon={Activity} 
-          label="True Class Average" 
-          value={displayAverage} 
-        />
+        <StatCard icon={Activity} label="True Class Average" value={displayAverage} />
       </div>
 
       <section>
         <h2 className="mb-3 text-lg font-semibold text-foreground sm:mb-4 sm:text-xl">
           Quick Actions
         </h2>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           <ActionCard
             href="/teacher/lessons/create"
             icon={PlusCircle}
@@ -119,11 +100,10 @@ export function TeacherDashboardView({
       </section>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 lg:gap-6">
-        
         <Card className="overflow-hidden">
           <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3.5 sm:px-6 sm:py-4">
             <h3 className="flex min-w-0 items-center gap-2 text-sm font-semibold text-foreground sm:text-base">
-              <BookOpen size={18} style={iconAccent} className="shrink-0" />
+              <BookOpen size={18} className="shrink-0 text-brand-accent" />
               <span className="truncate">Recent Lessons</span>
             </h3>
             <Link href="/teacher/lessons" className="shrink-0">
@@ -147,11 +127,8 @@ export function TeacherDashboardView({
                     key={lesson.id}
                     className="flex items-center gap-3 rounded-md p-2.5 transition hover:bg-muted sm:gap-4 sm:p-3"
                   >
-                    <div
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md sm:h-11 sm:w-11"
-                      style={iconSoftBg}
-                    >
-                      <BookOpen size={18} style={iconAccent} />
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-brand-accent/10 sm:h-11 sm:w-11">
+                      <BookOpen size={18} className="text-brand-accent" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <h4 className="truncate text-sm font-semibold text-foreground">
@@ -169,8 +146,11 @@ export function TeacherDashboardView({
                       </div>
                     </div>
                     <span
-                      className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold sm:px-2.5 sm:py-1 sm:text-xs"
-                      style={lesson.is_published ? pillPublished : pillDraft}
+                      className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold sm:px-2.5 sm:py-1 sm:text-xs ${
+                        lesson.is_published
+                          ? 'bg-success-bg text-success-fg'
+                          : 'bg-muted text-muted-foreground'
+                      }`}
                     >
                       {lesson.is_published ? 'Published' : 'Draft'}
                     </span>
@@ -184,7 +164,7 @@ export function TeacherDashboardView({
         <Card className="overflow-hidden">
           <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3.5 sm:px-6 sm:py-4">
             <h3 className="flex min-w-0 items-center gap-2 text-sm font-semibold text-foreground sm:text-base">
-              <HelpCircle size={18} style={iconAccent} className="shrink-0" />
+              <HelpCircle size={18} className="shrink-0 text-brand-accent" />
               <span className="truncate">Recent Quizzes</span>
             </h3>
             <Link href="/teacher/quizzes" className="shrink-0">
@@ -209,11 +189,8 @@ export function TeacherDashboardView({
                     className="flex flex-col gap-2 rounded-md p-2.5 transition hover:bg-muted sm:flex-row sm:items-center sm:gap-4 sm:p-3"
                   >
                     <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
-                      <div
-                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md sm:h-11 sm:w-11"
-                        style={iconSoftBg}
-                      >
-                        <HelpCircle size={18} style={iconAccent} />
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-brand-accent/10 sm:h-11 sm:w-11">
+                        <HelpCircle size={18} className="text-brand-accent" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <h4 className="truncate text-sm font-semibold text-foreground">
@@ -262,17 +239,16 @@ function StatCard({
   const display = typeof value === 'number' ? value.toLocaleString('en-US') : value
 
   return (
-    <Card className="flex items-center gap-3 p-4 transition hover:-translate-y-1 hover:shadow-lg sm:gap-5 sm:p-6">
-      <div
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-white sm:h-14 sm:w-14"
-        style={{ backgroundColor: 'var(--brand-accent)' }}
-      >
-        <Icon size={20} className="sm:hidden" />
+    <Card className="flex items-center gap-3 p-3 transition hover:-translate-y-1 hover:shadow-lg sm:gap-5 sm:p-6">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-brand-accent text-white sm:h-14 sm:w-14">
+        <Icon size={18} className="sm:hidden" />
         <Icon size={24} className="hidden sm:block" />
       </div>
       <div className="min-w-0">
-        <p className="text-xs text-muted-foreground sm:text-sm">{label}</p>
-        <p className="truncate text-xl font-bold text-foreground sm:text-2xl">{display}</p>
+        <p className="text-[11px] text-muted-foreground sm:text-sm">{label}</p>
+        <p className="truncate text-lg font-bold tabular-nums text-foreground sm:text-2xl">
+          {display}
+        </p>
       </div>
     </Card>
   )
@@ -292,23 +268,23 @@ function ActionCard({
   return (
     <Link
       href={href}
-      className="group flex items-center gap-3 rounded-md border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:border-brand-accent hover:shadow-md sm:gap-4 sm:p-5"
+      className="group flex items-center gap-3 rounded-md border border-border bg-card p-3 transition hover:-translate-y-0.5 hover:border-brand-accent hover:shadow-md sm:gap-4 sm:p-5"
     >
-      <div
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md sm:h-12 sm:w-12"
-        style={iconSoftBg}
-      >
-        <Icon size={18} style={iconAccent} className="sm:hidden" />
-        <Icon size={20} style={iconAccent} className="hidden sm:block" />
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-brand-accent/10 sm:h-12 sm:w-12">
+        <Icon size={16} className="text-brand-accent sm:hidden" />
+        <Icon size={20} className="hidden text-brand-accent sm:block" />
       </div>
       <div className="min-w-0 flex-1">
-        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-        <p className="truncate text-xs text-muted-foreground">{description}</p>
+        <h3 className="truncate text-xs font-semibold text-foreground sm:text-sm">
+          {title}
+        </h3>
+        <p className="truncate text-[11px] text-muted-foreground sm:text-xs">
+          {description}
+        </p>
       </div>
       <ArrowRight
         size={16}
-        className="hidden shrink-0 text-muted-foreground opacity-0 transition group-hover:translate-x-1 group-hover:opacity-100 sm:block"
-        style={iconAccent}
+        className="hidden shrink-0 text-brand-accent opacity-0 transition group-hover:translate-x-1 group-hover:opacity-100 sm:block"
       />
     </Link>
   )
@@ -327,11 +303,7 @@ function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center py-8 text-center sm:py-10">
-      <Icon
-        size={40}
-        style={iconAccent}
-        className="mb-3 opacity-50"
-      />
+      <Icon size={40} className="mb-3 text-brand-accent opacity-50" />
       <p className="mb-4 px-2 text-sm text-muted-foreground">{title}</p>
       <Link href={actionHref}>
         <Button variant="secondary">{actionLabel}</Button>
