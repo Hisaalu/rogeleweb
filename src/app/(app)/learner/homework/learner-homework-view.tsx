@@ -14,11 +14,19 @@ import {
 import type { Homework } from '@/types/homework'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 function submissionStatus(hw: Homework): 'pending' | 'submitted' | 'graded' {
   if (hw.submission?.status === 'graded') return 'graded'
   if (hw.submission?.status === 'submitted') return 'submitted'
   return 'pending'
+}
+
+function statusBorderClass(status: 'pending' | 'submitted' | 'graded', isLate: boolean): string {
+  if (status === 'graded') return 'border-l-success-border'
+  if (status === 'submitted') return 'border-l-brand-accent'
+  if (isLate) return 'border-l-danger-border'
+  return 'border-l-warning-border'
 }
 
 export function LearnerHomeworkView({ homeworks }: { homeworks: Homework[] }) {
@@ -28,9 +36,7 @@ export function LearnerHomeworkView({ homeworks }: { homeworks: Homework[] }) {
   const currentStatus = params.get('status') ?? ''
 
   const total = homeworks.length
-  const pending = homeworks.filter(
-    (h) => submissionStatus(h) === 'pending',
-  ).length
+  const pending = homeworks.filter((h) => submissionStatus(h) === 'pending').length
   const graded = homeworks.filter((h) => submissionStatus(h) === 'graded').length
 
   function setStatus(status: string) {
@@ -49,64 +55,60 @@ export function LearnerHomeworkView({ homeworks }: { homeworks: Homework[] }) {
   })
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 px-4 py-8">
+    <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:py-8">
       <div>
-        <h1 className="flex items-center gap-2 text-2xl font-bold sm:text-3xl">
-          <ClipboardList size={26} style={{ color: 'var(--brand-primary)' }} />
-          <span style={{ color: 'var(--brand-primary)' }}>Homework</span>
+        <h1 className="flex items-center gap-2 text-2xl font-bold text-brand-primary sm:text-3xl">
+          <ClipboardList size={26} className="shrink-0" />
+          <span>Homework</span>
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           View and submit your assignments
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Card className="flex items-center gap-4 p-5">
-          <div
-            className="flex h-12 w-12 items-center justify-center rounded-md"
-            style={{
-              backgroundColor:
-                'color-mix(in srgb, var(--brand-primary) 10%, transparent)',
-              color: 'var(--brand-primary)',
-            }}
-          >
-            <ClipboardList size={22} />
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
+        <Card className="flex items-center gap-3 p-4 sm:gap-4 sm:p-5">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-brand-primary/10 text-brand-primary sm:h-12 sm:w-12">
+            <ClipboardList size={20} className="sm:hidden" />
+            <ClipboardList size={22} className="hidden sm:block" />
           </div>
-          <div>
-            <p className="text-2xl font-bold text-foreground">{total}</p>
-            <p className="text-xs font-medium text-muted-foreground">
+          <div className="min-w-0">
+            <p className="text-xl font-bold tabular-nums text-foreground sm:text-2xl">
+              {total}
+            </p>
+            <p className="truncate text-[11px] font-medium text-muted-foreground sm:text-xs">
               Total Assignments
             </p>
           </div>
         </Card>
-        <Card className="flex items-center gap-4 p-5">
-          <div
-            className="flex h-12 w-12 items-center justify-center rounded-md"
-            style={{
-              backgroundColor: 'var(--warning-bg)',
-              color: 'var(--warning-fg)',
-            }}
-          >
-            <Clock size={22} />
+
+        <Card className="flex items-center gap-3 p-4 sm:gap-4 sm:p-5">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-warning-bg text-warning-fg sm:h-12 sm:w-12">
+            <Clock size={20} className="sm:hidden" />
+            <Clock size={22} className="hidden sm:block" />
           </div>
-          <div>
-            <p className="text-2xl font-bold text-foreground">{pending}</p>
-            <p className="text-xs font-medium text-muted-foreground">Pending</p>
+          <div className="min-w-0">
+            <p className="text-xl font-bold tabular-nums text-foreground sm:text-2xl">
+              {pending}
+            </p>
+            <p className="truncate text-[11px] font-medium text-muted-foreground sm:text-xs">
+              Pending
+            </p>
           </div>
         </Card>
-        <Card className="flex items-center gap-4 p-5">
-          <div
-            className="flex h-12 w-12 items-center justify-center rounded-md"
-            style={{
-              backgroundColor: 'var(--success-bg)',
-              color: 'var(--success-fg)',
-            }}
-          >
-            <Star size={22} />
+
+        <Card className="col-span-2 flex items-center gap-3 p-4 sm:gap-4 sm:p-5 lg:col-span-1">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-success-bg text-success-fg sm:h-12 sm:w-12">
+            <Star size={20} className="sm:hidden" />
+            <Star size={22} className="hidden sm:block" />
           </div>
-          <div>
-            <p className="text-2xl font-bold text-foreground">{graded}</p>
-            <p className="text-xs font-medium text-muted-foreground">Graded</p>
+          <div className="min-w-0">
+            <p className="text-xl font-bold tabular-nums text-foreground sm:text-2xl">
+              {graded}
+            </p>
+            <p className="truncate text-[11px] font-medium text-muted-foreground sm:text-xs">
+              Graded
+            </p>
           </div>
         </Card>
       </div>
@@ -139,8 +141,7 @@ export function LearnerHomeworkView({ homeworks }: { homeworks: Homework[] }) {
         <Card className="border-dashed px-6 py-16 text-center">
           <ClipboardList
             size={40}
-            className="mx-auto mb-4 opacity-30"
-            style={{ color: 'var(--brand-accent)' }}
+            className="mx-auto mb-4 text-brand-accent opacity-30"
           />
           <h3 className="text-xl font-bold text-foreground">
             No Homework Assigned
@@ -150,74 +151,41 @@ export function LearnerHomeworkView({ homeworks }: { homeworks: Homework[] }) {
           </p>
         </Card>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
           {filteredHomeworks.map((hw) => {
             const status = submissionStatus(hw)
             const dueDate = new Date(hw.due_date)
             const submission = hw.submission
-
-            const isLate =
-              status === 'pending' && dueDate.getTime() < Date.now()
-
-            let borderColor = 'var(--warning-border)'
-            if (status === 'graded') borderColor = 'var(--success-border)'
-            else if (status === 'submitted') borderColor = 'var(--brand-accent)'
-            else if (isLate) borderColor = 'var(--danger-border)'
+            const isLate = status === 'pending' && dueDate.getTime() < Date.now()
 
             return (
               <Card
                 key={hw.id}
-                className="flex flex-col border-l-4 p-5 transition hover:-translate-y-1 hover:shadow-md"
-                style={{ borderLeftColor: borderColor }}
+                className={cn(
+                  'flex flex-col border-l-4 p-5 transition hover:-translate-y-1 hover:shadow-md',
+                  statusBorderClass(status, isLate),
+                )}
               >
                 <div className="mb-3 flex items-start justify-between gap-2">
-                  <h3 className="flex items-center gap-2 text-lg font-bold text-foreground">
-                    <FileText
-                      size={18}
-                      style={{ color: 'var(--brand-accent)' }}
-                    />{' '}
-                    {hw.title}
+                  <h3 className="flex min-w-0 items-center gap-2 text-lg font-bold text-foreground">
+                    <FileText size={18} className="shrink-0 text-brand-accent" />
+                    <span className="truncate">{hw.title}</span>
                   </h3>
-                  <div>
+                  <div className="shrink-0">
                     {status === 'graded' ? (
-                      <span
-                        className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
-                        style={{
-                          backgroundColor: 'var(--success-bg)',
-                          color: 'var(--success-fg)',
-                        }}
-                      >
+                      <span className="rounded-full bg-success-bg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-success-fg">
                         Graded
                       </span>
                     ) : status === 'submitted' ? (
-                      <span
-                        className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
-                        style={{
-                          backgroundColor:
-                            'color-mix(in srgb, var(--brand-accent) 10%, transparent)',
-                          color: 'var(--brand-accent)',
-                        }}
-                      >
+                      <span className="rounded-full bg-brand-accent/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-accent">
                         Submitted
                       </span>
                     ) : isLate ? (
-                      <span
-                        className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
-                        style={{
-                          backgroundColor: 'var(--danger-bg)',
-                          color: 'var(--danger-fg)',
-                        }}
-                      >
+                      <span className="rounded-full bg-danger-bg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-danger-fg">
                         Late
                       </span>
                     ) : (
-                      <span
-                        className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
-                        style={{
-                          backgroundColor: 'var(--warning-bg)',
-                          color: 'var(--warning-fg)',
-                        }}
-                      >
+                      <span className="rounded-full bg-warning-bg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-warning-fg">
                         Pending
                       </span>
                     )}
@@ -226,17 +194,11 @@ export function LearnerHomeworkView({ homeworks }: { homeworks: Homework[] }) {
 
                 <div className="mb-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
-                    <Book
-                      size={13}
-                      style={{ color: 'var(--brand-accent)' }}
-                    />{' '}
+                    <Book size={13} className="text-brand-accent" />
                     {hw.subject_name}
                   </span>
                   <span className="flex items-center gap-1">
-                    <Calendar
-                      size={13}
-                      style={{ color: 'var(--brand-accent)' }}
-                    />{' '}
+                    <Calendar size={13} className="text-brand-accent" />
                     Due: {dueDate.toLocaleDateString()}{' '}
                     {dueDate.toLocaleTimeString([], {
                       hour: '2-digit',
@@ -250,35 +212,23 @@ export function LearnerHomeworkView({ homeworks }: { homeworks: Homework[] }) {
                 </p>
 
                 {status === 'graded' && submission?.grade !== undefined && (
-                  <div
-                    className="mb-4 rounded-md p-3 text-center"
-                    style={{ backgroundColor: 'var(--success-bg)' }}
-                  >
-                    <span
-                      className="text-xs font-semibold"
-                      style={{ color: 'var(--success-fg)' }}
-                    >
+                  <div className="mb-4 rounded-md bg-success-bg p-3 text-center">
+                    <span className="text-xs font-semibold text-success-fg">
                       Grade:{' '}
                     </span>
-                    <span
-                      className="text-lg font-bold"
-                      style={{ color: 'var(--success-fg)' }}
-                    >
+                    <span className="text-lg font-bold text-success-fg">
                       {submission.grade}%
                     </span>
                   </div>
                 )}
 
-                <Link
-                  href={`/learner/homework/${hw.id}`}
-                  className="mt-auto w-full"
-                >
+                <Link href={`/learner/homework/${hw.id}`} className="mt-auto w-full">
                   <Button className="w-full">
                     {status === 'graded'
                       ? 'View Feedback'
                       : status === 'submitted'
-                      ? 'View Submission'
-                      : 'View / Submit Homework'}
+                        ? 'View Submission'
+                        : 'View / Submit Homework'}
                     <ArrowRight size={15} className="ml-1" />
                   </Button>
                 </Link>
