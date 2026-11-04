@@ -46,6 +46,20 @@ function formatDate(val: string | null | undefined) {
   return isNaN(d.getTime()) ? '—' : dateFormatter.format(d)
 }
 
+const STAT_TONES = {
+  default: { bg: 'bg-muted', fg: 'text-muted-foreground' },
+  primary: { bg: 'bg-brand-primary/10', fg: 'text-brand-primary' },
+  accent: { bg: 'bg-brand-accent/10', fg: 'text-brand-accent' },
+  success: { bg: 'bg-success-bg', fg: 'text-success-fg' },
+  info: { bg: 'bg-blue-500/10 dark:bg-blue-400/10', fg: 'text-blue-600 dark:text-blue-400' },
+} as const
+
+const HINT_COLORS = {
+  default: 'text-muted-foreground',
+  success: 'text-success-fg',
+  danger: 'text-danger-fg',
+} as const
+
 function StatCard({
   icon: Icon,
   label,
@@ -61,40 +75,26 @@ function StatCard({
   value: string
   hint?: string
   hintIcon?: React.ElementType
-  hintTone?: 'default' | 'success' | 'danger'
-  tone?: 'default' | 'primary' | 'accent' | 'success' | 'info'
+  hintTone?: keyof typeof HINT_COLORS
+  tone?: keyof typeof STAT_TONES
   href?: string
 }) {
-  const tones = {
-    default: { bg: 'bg-muted', fg: 'text-muted-foreground' },
-    primary: { bg: 'bg-[var(--brand-primary)]/10', fg: 'text-[var(--brand-primary)]' },
-    accent: { bg: 'bg-[var(--brand-accent)]/10', fg: 'text-[var(--brand-accent)]' },
-    success: { bg: 'bg-success-bg', fg: 'text-success-fg' },
-    info: { bg: 'bg-blue-500/10 dark:bg-blue-400/10', fg: 'text-blue-600 dark:text-blue-400' },
-  }
-  const t = tones[tone]
-
-  const hintColors = {
-    default: 'text-muted-foreground',
-    success: 'text-success-fg',
-    danger: 'text-danger-fg',
-  }
+  const t = STAT_TONES[tone]
 
   const content = (
     <Card className="h-full transition-all hover:shadow-md">
-      <CardContent className="p-5">
-        <div className="flex items-start justify-between">
-          <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${t.bg}`}>
-            <Icon size={18} className={t.fg} />
-          </div>
+      <CardContent className="p-4 sm:p-5">
+        <div className={`flex h-9 w-9 items-center justify-center rounded-lg sm:h-10 sm:w-10 ${t.bg}`}>
+          <Icon size={16} className={`sm:hidden ${t.fg}`} />
+          <Icon size={18} className={`hidden sm:block ${t.fg}`} />
         </div>
-        <div className="mt-4">
-          <p className="text-sm text-muted-foreground">{label}</p>
-          <p className="mt-1 text-2xl font-bold">{value}</p>
+        <div className="mt-3 sm:mt-4">
+          <p className="text-xs text-muted-foreground sm:text-sm">{label}</p>
+          <p className="mt-1 truncate text-xl font-bold tabular-nums sm:text-2xl">{value}</p>
           {hint && (
-            <p className={`mt-1 flex items-center gap-1 text-xs ${hintColors[hintTone]}`}>
-              {HintIcon && <HintIcon size={12} />}
-              {hint}
+            <p className={`mt-1 flex items-center gap-1 text-[11px] sm:text-xs ${HINT_COLORS[hintTone]}`}>
+              {HintIcon && <HintIcon size={12} className="shrink-0" />}
+              <span className="truncate">{hint}</span>
             </p>
           )}
         </div>
@@ -129,13 +129,14 @@ function CompactStat({
 }) {
   const content = (
     <Card className="h-full transition-all hover:shadow-md">
-      <CardContent className="flex items-center gap-3 p-4">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted">
-          <Icon size={16} className="text-[var(--brand-accent)]" />
+      <CardContent className="flex items-center gap-2.5 p-3 sm:gap-3 sm:p-4">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted sm:h-9 sm:w-9">
+          <Icon size={14} className="text-brand-accent sm:hidden" />
+          <Icon size={16} className="hidden text-brand-accent sm:block" />
         </div>
-        <div>
-          <p className="text-xs text-muted-foreground">{label}</p>
-          <p className="text-base font-semibold">{value}</p>
+        <div className="min-w-0">
+          <p className="truncate text-[11px] text-muted-foreground sm:text-xs">{label}</p>
+          <p className="text-sm font-semibold tabular-nums sm:text-base">{value}</p>
         </div>
       </CardContent>
     </Card>
@@ -195,7 +196,7 @@ export function AdminDashboardView({
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard
           icon={Users}
           label="Total users"
@@ -242,13 +243,13 @@ export function AdminDashboardView({
 
       <div>
         <h2 className="mb-3 text-lg font-semibold">Content overview</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           <CompactStat icon={GraduationCap} label="Classes" value={overview.total_classes} href="/admin/classes" />
           <CompactStat icon={BookOpen} label="Subjects" value={overview.total_subjects} href="/admin/subjects" />
           <CompactStat icon={BookOpen} label="Lessons" value={overview.total_lessons} />
           <CompactStat icon={ClipboardList} label="Homework" value={overview.total_homework} />
         </div>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-3 grid grid-cols-2 gap-3 sm:mt-4 sm:gap-4 lg:grid-cols-4">
           <CompactStat icon={HelpCircle} label="Quizzes" value={overview.total_quizzes} />
           <CompactStat icon={Users} label="Admins" value={overview.users_by_role.admin ?? 0} href="/admin/users?role=admin" />
           <CompactStat icon={GraduationCap} label="Teachers" value={overview.users_by_role.teacher ?? 0} href="/admin/users?role=teacher" />
@@ -292,7 +293,7 @@ export function AdminDashboardView({
                         >
                           {u.role}
                         </Badge>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="hidden text-xs text-muted-foreground sm:inline">
                           {formatDate(u.created_at)}
                         </span>
                       </div>
@@ -329,7 +330,7 @@ export function AdminDashboardView({
                       </p>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
-                      <span className="text-sm font-semibold">
+                      <span className="text-sm font-semibold tabular-nums">
                         {currencyFormatter.format(p.amount ?? 0)}
                       </span>
                       <Badge
@@ -359,7 +360,7 @@ export function AdminDashboardView({
             </div>
             <Link
               href="/admin/activity"
-              className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-[var(--brand-accent)] hover:text-foreground"
+              className="inline-flex items-center gap-1 rounded-sm border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-brand-accent hover:text-foreground"
             >
               View all
               <ArrowRight size={12} />
@@ -376,8 +377,8 @@ export function AdminDashboardView({
               <ul className="divide-y divide-border">
                 {activity.slice(0, 5).map((a) => (
                   <li key={a.id} className="flex items-center gap-3 py-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--brand-accent)]/10">
-                      <Activity size={14} className="text-[var(--brand-accent)]" />
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-accent/10">
+                      <Activity size={14} className="text-brand-accent" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm">
