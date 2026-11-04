@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import {
   BarChart3, Download, BookOpen, HelpCircle, Award, Activity,
+  Calendar,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -129,25 +130,56 @@ export function LearnerAnalyticsView({
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold text-brand-primary sm:text-3xl">
-            <BarChart3 size={26} className="shrink-0 sm:h-7 sm:w-7" />
-            <span>Analytics</span>
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {safeData.from} to {safeData.to}.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge tone={badge.tone}>{badge.label}</Badge>
-          <Button variant="outline" onClick={handleExport} disabled={busy}>
-            <Download size={14} />
-          </Button>
-        </div>
-      </div>
+      <section className="relative overflow-hidden rounded-xl border border-border bg-card transition-shadow hover:shadow-md">
+        <div className="relative flex flex-col gap-5 p-5 sm:p-7 lg:flex-row lg:items-start lg:justify-between lg:gap-8">
+          <div className="min-w-0 flex-1">
+            <h1 className="mt-3 flex items-center gap-2 text-2xl font-bold text-brand-primary sm:text-3xl">
+              <BarChart3 size={26} className="shrink-0 sm:h-7 sm:w-7" />
+              <span>Analytics</span>
+            </h1>
 
-      <DateFilterBar busy={fetching} />
+            <p className="mt-1.5 max-w-xl text-sm text-muted-foreground">
+              Your performance in summary
+            </p>
+
+            <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1">
+                <Calendar size={12} />
+                {safeData.from}
+                <span className="text-muted-foreground/60">→</span>
+                {safeData.to}
+              </span>
+              <Badge tone={badge.tone}>{badge.label}</Badge>
+              <Button
+                variant="outline"
+                onClick={handleExport}
+                disabled={busy}
+                aria-label="Export analytics as CSV"
+                className="gap-1.5 h-7 rounded-full px-3 text-[11px] sm:hidden"
+              >
+                <Download size={12} />
+              </Button>
+            </div>
+          </div>
+
+          <div className="hidden shrink-0 items-center gap-2 sm:flex">
+            <Button
+              variant="outline"
+              onClick={handleExport}
+              disabled={busy}
+              aria-label="Export analytics as CSV"
+              className="gap-1.5"
+            >
+              <Download size={14} />
+              <span>Export</span>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      <div className="rounded-xl border border-border bg-card p-1">
+        <DateFilterBar busy={fetching} />
+      </div>
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <KpiCard
