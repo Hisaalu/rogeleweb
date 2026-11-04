@@ -265,126 +265,130 @@ export function TakeQuizView({
     )
   }
 
+  const isLowTime = timeLeft < 60
+
   return (
-    <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
+    <div className="min-h-screen">
       <div
-        className="sticky top-0 z-40 flex items-center justify-between rounded-md px-5 py-3 text-white shadow-lg"
+        className="fixed inset-x-0 top-0 z-50 flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3 text-white shadow-lg sm:px-6"
         style={{ backgroundColor: 'var(--brand-primary)' }}
       >
-        <div className="flex items-center gap-2 font-semibold">
-          <Clock size={20} />
+        <div className="flex min-w-0 items-center gap-2 font-semibold">
+          <Clock size={18} className="shrink-0 sm:h-5 sm:w-5" />
           <span
-            className={`font-mono text-xl ${
-              timeLeft < 60 ? 'animate-pulse' : ''
+            className={`font-mono text-lg tabular-nums sm:text-xl ${
+              isLowTime ? 'animate-pulse' : ''
             }`}
-            style={{ color: timeLeft < 60 ? 'var(--danger-fg)' : 'white' }}
+            style={{ color: isLowTime ? 'var(--danger-fg)' : 'white' }}
           >
             {formatTime(timeLeft)}
           </span>
         </div>
-        <div className="flex items-center gap-2 font-semibold">
-          <CheckCircle2 size={20} />
-          <span>
-            {answeredCount} of {questions.length} Answered
+        <div className="flex min-w-0 items-center gap-2 text-xs font-semibold sm:text-sm">
+          <CheckCircle2 size={16} className="shrink-0 sm:h-5 sm:w-5" />
+          <span className="truncate">
+            {answeredCount} / {questions.length} answered
           </span>
         </div>
       </div>
 
-      <Card className="p-6">
-        <h1 className="text-2xl font-bold text-foreground">{quiz.title}</h1>
+      <div className="mx-auto max-w-3xl space-y-6 px-4 pb-8 pt-24 sm:pt-28">
+        <Card className="p-6">
+          <h1 className="text-2xl font-bold text-foreground">{quiz.title}</h1>
 
-        <div
-          className="mt-4 flex items-start gap-3 rounded-md border-l-4 p-4"
-          style={{
-            borderLeftColor: 'var(--warning-border)',
-            backgroundColor: 'var(--warning-bg)',
-            color: 'var(--warning-fg)',
-          }}
-        >
-          <AlertTriangle size={20} className="shrink-0" />
-          <div>
-            <strong className="block text-sm">Important Notice:</strong>
-            <p className="text-sm opacity-90">
-              Your answers are saved automatically. Refreshing or changing
-              pages will not lose them.
-            </p>
+          <div
+            className="mt-4 flex items-start gap-3 rounded-md border-l-4 p-4"
+            style={{
+              borderLeftColor: 'var(--warning-border)',
+              backgroundColor: 'var(--warning-bg)',
+              color: 'var(--warning-fg)',
+            }}
+          >
+            <AlertTriangle size={20} className="shrink-0" />
+            <div>
+              <strong className="block text-sm">Important Notice:</strong>
+              <p className="text-sm opacity-90">
+                Your answers are saved automatically. Refreshing or changing
+                pages will not lose them.
+              </p>
+            </div>
           </div>
-        </div>
-      </Card>
+        </Card>
 
-      <div className="space-y-4">
-        {questions.map((q, idx) => (
-          <Card key={q.id} className="p-6">
-            <div className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              Question {idx + 1} of {questions.length}
-            </div>
-            <div className="mb-5 text-base font-semibold text-foreground">
-              {q.question_text}
-            </div>
+        <div className="space-y-4">
+          {questions.map((q, idx) => (
+            <Card key={q.id} className="p-6">
+              <div className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Question {idx + 1} of {questions.length}
+              </div>
+              <div className="mb-5 text-base font-semibold text-foreground">
+                {q.question_text}
+              </div>
 
-            <div className="space-y-3">
-              {(q.options || []).map((opt, optIdx) => {
-                const isSelected = answers[q.id] === optIdx
-                return (
-                  <label
-                    key={optIdx}
-                    className="flex cursor-pointer items-center gap-3 rounded-md border-2 p-3 transition-all"
-                    style={{
-                      borderColor: isSelected
-                        ? 'var(--brand-accent)'
-                        : 'hsl(var(--border))',
-                      backgroundColor: isSelected
-                        ? 'color-mix(in srgb, var(--brand-accent) 5%, transparent)'
-                        : 'hsl(var(--background))',
-                    }}
-                  >
-                    <input
-                      type="radio"
-                      name={`question-${q.id}`}
-                      className="hidden"
-                      checked={isSelected}
-                      onChange={() => handleSelectOption(q.id, optIdx)}
-                    />
-                    <div
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-sm font-bold"
+              <div className="space-y-3">
+                {(q.options || []).map((opt, optIdx) => {
+                  const isSelected = answers[q.id] === optIdx
+                  return (
+                    <label
+                      key={optIdx}
+                      className="flex cursor-pointer items-center gap-3 rounded-md border-2 p-3 transition-all"
                       style={{
                         borderColor: isSelected
                           ? 'var(--brand-accent)'
-                          : 'hsl(var(--muted-foreground))',
+                          : 'hsl(var(--border))',
                         backgroundColor: isSelected
-                          ? 'var(--brand-accent)'
-                          : 'transparent',
-                        color: isSelected
-                          ? 'white'
-                          : 'hsl(var(--muted-foreground))',
+                          ? 'color-mix(in srgb, var(--brand-accent) 5%, transparent)'
+                          : 'hsl(var(--background))',
                       }}
                     >
-                      {['A', 'B', 'C', 'D'][optIdx]}
-                    </div>
-                    <span className="text-sm font-medium text-foreground">
-                      {opt}
-                    </span>
-                  </label>
-                )
-              })}
-            </div>
-          </Card>
-        ))}
-      </div>
+                      <input
+                        type="radio"
+                        name={`question-${q.id}`}
+                        className="hidden"
+                        checked={isSelected}
+                        onChange={() => handleSelectOption(q.id, optIdx)}
+                      />
+                      <div
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-sm font-bold"
+                        style={{
+                          borderColor: isSelected
+                            ? 'var(--brand-accent)'
+                            : 'hsl(var(--muted-foreground))',
+                          backgroundColor: isSelected
+                            ? 'var(--brand-accent)'
+                            : 'transparent',
+                          color: isSelected
+                            ? 'white'
+                            : 'hsl(var(--muted-foreground))',
+                        }}
+                      >
+                        {['A', 'B', 'C', 'D'][optIdx]}
+                      </div>
+                      <span className="text-sm font-medium text-foreground">
+                        {opt}
+                      </span>
+                    </label>
+                  )
+                })}
+              </div>
+            </Card>
+          ))}
+        </div>
 
-      <div className="flex items-center justify-center pt-6 pb-20">
-        <Button
-          onClick={handleManualSubmit}
-          disabled={isSubmitting || answeredCount !== questions.length}
-          className="h-12 rounded-full px-10 text-base"
-        >
-          {isSubmitting ? (
-            <Loader2 size={20} className="animate-spin mr-2" />
-          ) : (
-            <CheckCircle2 size={20} className="mr-2" />
-          )}
-          {isSubmitting ? 'Submitting...' : 'Submit Quiz'}
-        </Button>
+        <div className="flex items-center justify-center pt-6 pb-20">
+          <Button
+            onClick={handleManualSubmit}
+            disabled={isSubmitting || answeredCount !== questions.length}
+            className="h-12 rounded-full px-10 text-base"
+          >
+            {isSubmitting ? (
+              <Loader2 size={20} className="animate-spin mr-2" />
+            ) : (
+              <CheckCircle2 size={20} className="mr-2" />
+            )}
+            {isSubmitting ? 'Submitting...' : 'Submit Quiz'}
+          </Button>
+        </div>
       </div>
     </div>
   )
