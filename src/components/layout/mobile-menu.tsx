@@ -26,12 +26,13 @@ interface NavItem {
   label: string
   href: string
   icon: LucideIcon
+  isNew?: boolean
 }
 
 const TEACHER_NAV: NavItem[] = [
   { label: 'Dashboard', href: '/teacher/dashboard', icon: LayoutDashboard },
   { label: 'Students', href: '/teacher/students', icon: Users },
-  { label: 'Analytics', href: '/teacher/analytics', icon: BarChart3 },
+  { label: 'Analytics', href: '/teacher/analytics', icon: BarChart3, isNew: true },
   { label: 'Lessons', href: '/teacher/lessons', icon: BookOpen },
   { label: 'Quizzes', href: '/teacher/quizzes', icon: HelpCircle },
   { label: 'Homework', href: '/teacher/homework', icon: ClipboardList },
@@ -41,7 +42,7 @@ const TEACHER_NAV: NavItem[] = [
 
 const LEARNER_NAV: NavItem[] = [
   { label: 'Dashboard', href: '/learner/dashboard', icon: LayoutDashboard },
-  { label: 'Analytics', href: '/learner/analytics', icon: BarChart3 },
+  { label: 'Analytics', href: '/learner/analytics', icon: BarChart3, isNew: true },
   { label: 'Subscription', href: '/learner/subscription', icon: CreditCard },
   { label: 'Lessons', href: '/learner/lessons', icon: BookOpen },
   { label: 'Quizzes', href: '/learner/quizzes', icon: HelpCircle },
@@ -174,6 +175,11 @@ export function MobileMenu({
                       className={active ? 'text-brand-accent' : 'text-brand-accent/70'}
                     />
                     <span className="truncate">{item.label}</span>
+                    {item.isNew && (
+                      <span className="ml-auto shrink-0 rounded-full bg-brand-accent px-2 py-0.5 text-[15px] leading-none tracking-wider text-white shadow-sm">
+                        New
+                      </span>
+                    )}
                   </Link>
                 </li>
               )
@@ -182,8 +188,7 @@ export function MobileMenu({
               <button
                 type="button"
                 onClick={handleLogout}
-                className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-[20px] font-semibold transition hover:bg-muted sm:py-3"
-                style={{ color: 'var(--danger-fg)' }}
+                className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-[20px] font-semibold text-danger-fg transition hover:bg-danger-bg sm:py-3"
               >
                 <LogOut size={25} />
                 Logout

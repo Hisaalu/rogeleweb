@@ -18,19 +18,20 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { BrandLogo } from '@/components/brand/brand-logo'
-import { cn, getInitials } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import type { SessionUser } from '@/lib/auth'
 
 interface NavItem {
   label: string
   href: string
   icon: LucideIcon
+  isNew?: boolean
 }
 
 const TEACHER_NAV: NavItem[] = [
   { label: 'Dashboard', href: '/teacher/dashboard', icon: LayoutDashboard },
   { label: 'Students', href: '/teacher/students', icon: Users },
-  { label: 'Analytics', href: '/teacher/analytics', icon: BarChart3 },
+  { label: 'Analytics', href: '/teacher/analytics', icon: BarChart3, isNew: true },
   { label: 'Lessons', href: '/teacher/lessons', icon: BookOpen },
   { label: 'Quizzes', href: '/teacher/quizzes', icon: HelpCircle },
   { label: 'Homework', href: '/teacher/homework', icon: ClipboardList },
@@ -40,7 +41,7 @@ const TEACHER_NAV: NavItem[] = [
 
 const LEARNER_NAV: NavItem[] = [
   { label: 'Dashboard', href: '/learner/dashboard', icon: LayoutDashboard },
-  { label: 'Analytics', href: '/learner/analytics', icon: BarChart3 },
+  { label: 'Analytics', href: '/learner/analytics', icon: BarChart3, isNew: true },
   { label: 'Subscription', href: '/learner/subscription', icon: CreditCard },
   { label: 'Lessons', href: '/learner/lessons', icon: BookOpen },
   { label: 'Quizzes', href: '/learner/quizzes', icon: HelpCircle },
@@ -54,10 +55,6 @@ export const Sidebar = memo(function Sidebar({ user }: { user: SessionUser }) {
   const pathname = usePathname()
   const router = useRouter()
   const items = user.role === 'teacher' ? TEACHER_NAV : LEARNER_NAV
-
-  const fullName =
-    [user.first_name, user.last_name].filter(Boolean).join(' ') ||
-    user.email
 
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST' })
@@ -121,6 +118,11 @@ const NavLink = memo(function NavLink({
           className={active ? 'text-brand-accent' : 'text-brand-accent/70'}
         />
         <span className="truncate">{item.label}</span>
+        {item.isNew && (
+          <span className="ml-auto shrink-0 rounded-full bg-brand-accent px-2 py-0.5 text-[15px] leading-none tracking-wider text-white shadow-sm">
+            New
+          </span>
+        )}
       </Link>
     </li>
   )
