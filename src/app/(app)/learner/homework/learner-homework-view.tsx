@@ -162,74 +162,78 @@ export function LearnerHomeworkView({ homeworks }: { homeworks: Homework[] }) {
               <Card
                 key={hw.id}
                 className={cn(
-                  'flex flex-col border-l-4 p-5 transition hover:-translate-y-1 hover:shadow-md',
+                  'flex flex-col border-l-4 p-4 sm:p-5 transition hover:-translate-y-1 hover:shadow-md',
                   statusBorderClass(status, isLate),
                 )}
               >
                 <div className="mb-3 flex items-start justify-between gap-2">
-                  <h3 className="flex min-w-0 items-center gap-2 text-lg font-bold text-foreground">
-                    <FileText size={18} className="shrink-0 text-brand-accent" />
+                  <h3 className="flex min-w-0 flex-1 items-center gap-2 text-base font-bold text-foreground sm:text-lg">
+                    <FileText size={16} className="shrink-0 text-brand-accent sm:size-[18px]" />
                     <span className="truncate">{hw.title}</span>
                   </h3>
                   <div className="shrink-0">
                     {status === 'graded' ? (
-                      <span className="rounded-full bg-success-bg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-success-fg">
+                      <span className="rounded-full bg-success-bg px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-success-fg sm:px-2.5 sm:py-1 sm:text-[10px]">
                         Graded
                       </span>
                     ) : status === 'submitted' ? (
-                      <span className="rounded-full bg-brand-accent/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-accent">
+                      <span className="rounded-full bg-brand-accent/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-brand-accent sm:px-2.5 sm:py-1 sm:text-[10px]">
                         Submitted
                       </span>
                     ) : isLate ? (
-                      <span className="rounded-full bg-danger-bg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-danger-fg">
+                      <span className="rounded-full bg-danger-bg px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-danger-fg sm:px-2.5 sm:py-1 sm:text-[10px]">
                         Late
                       </span>
                     ) : (
-                      <span className="rounded-full bg-warning-bg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-warning-fg">
+                      <span className="rounded-full bg-warning-bg px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-warning-fg sm:px-2.5 sm:py-1 sm:text-[10px]">
                         Pending
                       </span>
                     )}
                   </div>
                 </div>
 
-                <div className="mb-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
+                <div className="mb-3 flex flex-wrap gap-x-3 gap-y-1.5 text-[11px] text-muted-foreground sm:text-xs">
                   <span className="flex items-center gap-1">
-                    <Book size={13} className="text-brand-accent" />
-                    {hw.subject_name}
+                    <Book size={12} className="shrink-0 text-brand-accent sm:size-[13px]" />
+                    <span className="truncate">{hw.subject_name}</span>
                   </span>
                   <span className="flex items-center gap-1">
-                    <Calendar size={13} className="text-brand-accent" />
-                    Due: {dueDate.toLocaleDateString()}{' '}
-                    {dueDate.toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
+                    <Calendar size={12} className="shrink-0 text-brand-accent sm:size-[13px]" />
+                    <span>
+                      Due: {dueDate.toLocaleDateString()}{' '}
+                      {dueDate.toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </span>
                   </span>
                 </div>
 
-                <p className="mb-4 line-clamp-2 text-sm text-muted-foreground">
+                <p className="mb-4 line-clamp-2 text-[13px] text-muted-foreground sm:text-sm">
                   {hw.description || 'No description provided.'}
                 </p>
 
                 {status === 'graded' && submission?.grade !== undefined && (
-                  <div className="mb-4 rounded-md bg-success-bg p-3 text-center">
-                    <span className="text-xs font-semibold text-success-fg">
+                  <div className="mb-4 rounded-md bg-success-bg p-2.5 text-center sm:p-3">
+                    <span className="text-[11px] font-semibold text-success-fg sm:text-xs">
                       Grade:{' '}
                     </span>
-                    <span className="text-lg font-bold text-success-fg">
+                    <span className="text-base font-bold text-success-fg sm:text-lg">
                       {submission.grade}%
                     </span>
                   </div>
                 )}
 
                 <Link href={`/learner/homework/${hw.id}`} className="mt-auto w-full">
-                  <Button className="w-full">
-                    {status === 'graded'
-                      ? 'View Feedback'
-                      : status === 'submitted'
-                        ? 'View Submission'
-                        : 'View / Submit Homework'}
-                    <ArrowRight size={15} className="ml-1" />
+                  <Button className="w-full h-9 text-xs sm:h-10 sm:text-sm">
+                    <span className="truncate">
+                      {status === 'graded'
+                        ? 'View Feedback'
+                        : status === 'submitted'
+                          ? 'View Submission'
+                          : 'Submit Homework'}
+                    </span>
+                    <ArrowRight size={14} className="ml-1 shrink-0 hidden sm:block" />
                   </Button>
                 </Link>
               </Card>
