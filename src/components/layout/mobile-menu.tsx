@@ -20,6 +20,11 @@ import {
 } from 'lucide-react'
 import { getInitials, cn } from '@/lib/utils'
 import { Avatar } from '@/components/ui/avatar'
+import {
+  isAnalyticsHintDismissed,
+  dismissAnalyticsHint,
+  toHintRole,
+} from '@/lib/nav-hints'
 import type { SessionUser } from '@/lib/auth'
 
 interface NavItem {
@@ -64,9 +69,29 @@ export function MobileMenu({
   const pathname = usePathname()
   const router = useRouter()
   const items = user.role === 'teacher' ? TEACHER_NAV : LEARNER_NAV
+  const analyticsHref =
+    user.role === 'teacher' ? '/teacher/analytics' : '/learner/analytics'
+
+  const hintRole = toHintRole(user.role)
+  const [hintDismissed, setHintDismissed] = useState(true)
 
   const closeRef = useRef<HTMLButtonElement>(null)
   const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    if (!hintRole) return
+    setHintDismissed(isAnalyticsHintDismissed(hintRole))
+  }, [open, hintRole])
+
+  useEffect(() => {
+    if (!hintRole || hintDismissed) return
+    const onAnalytics =
+      pathname === analyticsHref || pathname.startsWith(analyticsHref + '/')
+    if (onAnalytics) {
+      dismissAnalyticsHint(hintRole)
+      setHintDismissed(true)
+    }
+  }, [pathname, analyticsHref, hintDismissed, hintRole])
 
   useEffect(() => {
     if (!open) {
@@ -157,6 +182,8 @@ export function MobileMenu({
               const active =
                 pathname === item.href || pathname.startsWith(item.href + '/')
               const Icon = item.icon
+              const hideBadge =
+                item.href === analyticsHref && hintDismissed
               return (
                 <li key={item.href}>
                   <Link
@@ -175,7 +202,7 @@ export function MobileMenu({
                       className={active ? 'text-brand-accent' : 'text-brand-accent/70'}
                     />
                     <span className="truncate">{item.label}</span>
-                    {item.isNew && (
+                    {item.isNew && !hideBadge && (
                       <span className="ml-auto shrink-0 rounded-full bg-brand-accent px-2 py-0.5 text-[15px] leading-none tracking-wider text-white shadow-sm">
                         New
                       </span>

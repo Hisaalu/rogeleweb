@@ -1,6 +1,6 @@
 'use client'
 
-import { memo } from 'react'
+import { memo, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
@@ -19,6 +19,11 @@ import {
 } from 'lucide-react'
 import { BrandLogo } from '@/components/brand/brand-logo'
 import { cn } from '@/lib/utils'
+import {
+  isAnalyticsHintDismissed,
+  dismissAnalyticsHint,
+  toHintRole,
+} from '@/lib/nav-hints'
 import type { SessionUser } from '@/lib/auth'
 
 interface NavItem {
@@ -55,6 +60,26 @@ export const Sidebar = memo(function Sidebar({ user }: { user: SessionUser }) {
   const pathname = usePathname()
   const router = useRouter()
   const items = user.role === 'teacher' ? TEACHER_NAV : LEARNER_NAV
+  const analyticsHref =
+    user.role === 'teacher' ? '/teacher/analytics' : '/learner/analytics'
+
+  const hintRole = toHintRole(user.role)
+  const [hintDismissed, setHintDismissed] = useState(true)
+
+  useEffect(() => {
+    if (!hintRole) return
+    setHintDismissed(isAnalyticsHintDismissed(hintRole))
+  }, [hintRole])
+
+  useEffect(() => {
+    if (!hintRole || hintDismissed) return
+    const onAnalytics =
+      pathname === analyticsHref || pathname.startsWith(analyticsHref + '/')
+    if (onAnalytics) {
+      dismissAnalyticsHint(hintRole)
+      setHintDismissed(true)
+    }
+  }, [pathname, analyticsHref, hintDismissed, hintRole])
 
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST' })
@@ -71,7 +96,12 @@ export const Sidebar = memo(function Sidebar({ user }: { user: SessionUser }) {
       <nav className="flex-1 overflow-y-auto px-3 py-5">
         <ul className="space-y-1">
           {items.map((item) => (
-            <NavLink key={item.href} item={item} pathname={pathname} />
+            <NavLink
+              key={item.href}
+              item={item}
+              pathname={pathname}
+              hideBadge={item.href === analyticsHref && hintDismissed}
+            />
           ))}
         </ul>
       </nav>
@@ -93,9 +123,11 @@ export const Sidebar = memo(function Sidebar({ user }: { user: SessionUser }) {
 const NavLink = memo(function NavLink({
   item,
   pathname,
+  hideBadge,
 }: {
   item: NavItem
   pathname: string
+  hideBadge: boolean
 }) {
   const active =
     pathname === item.href || pathname.startsWith(item.href + '/')
@@ -118,7 +150,7 @@ const NavLink = memo(function NavLink({
           className={active ? 'text-brand-accent' : 'text-brand-accent/70'}
         />
         <span className="truncate">{item.label}</span>
-        {item.isNew && (
+        {item.isNew && !hideBadge && (
           <span className="ml-auto shrink-0 rounded-full bg-brand-accent px-2 py-0.5 text-[15px] leading-none tracking-wider text-white shadow-sm">
             New
           </span>
