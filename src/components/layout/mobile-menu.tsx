@@ -144,10 +144,7 @@ export function MobileMenu({
           visible ? 'translate-x-0' : 'translate-x-full',
         )}
       >
-        <div
-          className="relative overflow-hidden px-5 py-6 sm:px-6 sm:py-8"
-          style={{ backgroundColor: 'var(--brand-primary)' }}
-        >
+        <div className="relative overflow-hidden bg-brand-primary px-5 py-6 sm:px-6 sm:py-8">
           <button
             ref={closeRef}
             type="button"
@@ -163,7 +160,7 @@ export function MobileMenu({
               src={user.profile_photo}
               fallback={getInitials(fullName)}
               size={48}
-              className="h-12 w-12"
+              className="h-12 w-12 ring-1 ring-white/30"
             />
             <div className="min-w-0 flex-1">
               <p className="truncate text-base font-semibold text-white">
