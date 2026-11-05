@@ -93,7 +93,7 @@ export function LearnerHomeworkDetail({
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">
-      <div>
+      <div className="relative flex items-center justify-between gap-3">
         <Link
           href="/learner/homework"
           aria-label="Back to homework"
@@ -102,7 +102,10 @@ export function LearnerHomeworkDetail({
           <ArrowLeft size={26} className="shrink-0" />
           <span className="sr-only">Homework</span>
         </Link>
-        <h1 className="mt-3 text-2xl font-bold" style={{ color: 'var(--brand-primary)' }}>{homework.title}</h1>
+
+        <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 truncate text-2xl font-bold text-foreground sm:text-3xl">
+          {homework.title}
+        </span>
       </div>
 
       <Card className="overflow-hidden">
