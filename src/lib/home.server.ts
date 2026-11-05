@@ -1,76 +1,124 @@
 import 'server-only'
 import { serverApiRequest } from './server-api'
-import type { SubscriptionPlan } from '@/types/subscription'
+import type { Homework, HomeworkAttachment, HomeworkSubmission, HomeworkListMeta } from '@/types/homework'
+import type { AdminUser } from '@/types/admin'
 
-const STAT_FLOORS = { students: 0, teachers: 0, lessons: 0 } as const
-const CLASS_RANGE_FLOOR = {
-  first: 'Primary One',
-  last: 'Primary Seven',
-} as const
+function parseList<T>(res: unknown, requestedPage = 1, requestedPerPage = 10): { items: T[]; meta: HomeworkListMeta } {
+  if (!res) {
+    return { items: [], meta: { page: 1, per_page: requestedPerPage, total: 0, last_page: 1 } }
+  }
 
-function normalizeCount(v: unknown): number {
-  const n = typeof v === 'string' ? Number(v) : typeof v === 'number' ? v : NaN
-  return Number.isFinite(n) && n >= 0 ? Math.floor(n) : 0
+  if (Array.isArray(res)) {
+    const total = res.length
+    return {
+      items: res as T[],
+      meta: { page: 1, per_page: total, total, last_page: 1 },
+    }
+  }
+  
+  const r = (res ?? {}) as { data?: T[]; value?: T[]; meta?: any }
+  const items: T[] = []
+  if (Array.isArray(r.data)) items.push(...r.data)
+  else if (Array.isArray(r.value)) items.push(...r.value)
+  
+  const rawMeta = r.meta || {}
+  const per_page = typeof rawMeta.per_page === 'number' ? rawMeta.per_page : requestedPerPage
+  const total = typeof rawMeta.total === 'number' ? rawMeta.total : 0
+  const page = typeof rawMeta.page === 'number' ? rawMeta.page : requestedPage
+  
+  let last_page = typeof rawMeta.last_page === 'number' ? rawMeta.last_page : 1
+
+  if (!rawMeta.total && !rawMeta.last_page) {
+    if (items.length === requestedPerPage) {
+      last_page = page + 1
+    } else {
+      last_page = page
+    }
+  }
+
+  return { items, meta: { page, per_page, total: total || (last_page * per_page), last_page } }
 }
 
-function withFloor(actual: number, floor: number): number {
-  return Math.max(actual, floor)
-}
-
-export async function getHomePageData() {
+export async function listHomeworksServer(params: {
+  q?: string
+  class_id?: number
+  status?: string
+  page?: number
+}): Promise<{ homeworks: Homework[]; meta: HomeworkListMeta }> {
+  const page = params.page ?? 1
+  const per_page = 10
+  
+  const sp = new URLSearchParams()
+  sp.set('page', String(page))
+  sp.set('per_page', String(per_page))
+  if (params.q) sp.set('q', params.q)
+  if (params.class_id) sp.set('class_id', String(params.class_id))
+  
   try {
-    const [plansRes, statsRes, classesRes] = await Promise.all([
-      serverApiRequest<any>('/api/v1/subscription-plans?per_page=100', { next: { revalidate: 3600 } }).catch(() => []),
-      serverApiRequest<any>('/api/v1/admin/stats', { next: { revalidate: 300 } }).catch(() => null),
-      serverApiRequest<any>('/api/v1/classes?per_page=100&sort=name', { next: { revalidate: 3600 } }).catch(() => []),
-    ])
-
-    const rawPlans = Array.isArray(plansRes) ? plansRes : (plansRes?.data || [])
-
-    const plans: SubscriptionPlan[] = rawPlans
-      .filter((p: any) => p.is_active !== false && p.price > 0)
-      .sort((a: any, b: any) => a.price - b.price)
-
-    const rawClasses = Array.isArray(classesRes) ? classesRes : (classesRes?.data || [])
-    const classes = rawClasses.filter((c: any) => c.is_active !== false)
-
-    const stats = statsRes || {}
-    const roles = stats.users_by_role || {}
-
-    const actualStudents = normalizeCount(roles.learner) + normalizeCount(roles.external)
-    const actualTeachers = normalizeCount(roles.teacher)
-    const actualLessons = normalizeCount(stats.total_lessons)
-
-    const actualFirstClass = classes[0]?.name?.trim() || ''
-    const actualLastClass = classes[classes.length - 1]?.name?.trim() || ''
-
+    const res = await serverApiRequest<unknown>(`/api/v1/homework?${sp.toString()}`)
+    const { items, meta } = parseList<Homework>(res, page, per_page)
+    return { homeworks: items, meta }
+  } catch {
     return {
-      plans,
-      classes,
-      classRange: {
-        first: actualFirstClass || CLASS_RANGE_FLOOR.first,
-        last: actualLastClass || CLASS_RANGE_FLOOR.last,
-      },
-      stats: {
-        students: withFloor(actualStudents, STAT_FLOORS.students),
-        teachers: withFloor(actualTeachers, STAT_FLOORS.teachers),
-        lessons: withFloor(actualLessons, STAT_FLOORS.lessons),
-      },
+      homeworks: [],
+      meta: { page, per_page, total: 0, last_page: 1 }
     }
-  } catch (error) {
-    console.error('Failed to load homepage data:', error)
-    return {
-      plans: [] as SubscriptionPlan[],
-      classes: [],
-      classRange: {
-        first: CLASS_RANGE_FLOOR.first,
-        last: CLASS_RANGE_FLOOR.last,
-      },
-      stats: {
-        students: STAT_FLOORS.students,
-        teachers: STAT_FLOORS.teachers,
-        lessons: STAT_FLOORS.lessons,
-      },
+  }
+}
+
+export async function listLearnerHomeworksServer(params: {
+  class_id: number
+  status?: string
+}): Promise<Homework[]> {
+  try {
+    const res = await serverApiRequest<unknown>(`/api/v1/homework?class_id=${params.class_id}&per_page=50`)
+    const { items } = parseList<Homework>(res)
+    
+    const submissionsRes = await serverApiRequest<unknown>('/api/v1/homework/my-submissions')
+    const { items: submissions } = parseList<HomeworkSubmission>(submissionsRes)
+
+    const merged = items.map(hw => {
+      const sub = submissions.find(s => s.homework_id === hw.id)
+      return { ...hw, submission: sub || null }
+    })
+
+    if (params.status === 'pending') {
+      return merged.filter(h => !h.submission || (h.submission.status !== 'graded' && h.submission.status !== 'submitted'))
     }
+    if (params.status === 'graded') {
+      return merged.filter(h => h.submission?.status === 'graded')
+    }
+
+    return merged
+  } catch {
+    return []
+  }
+}
+
+export async function getHomeworkServer(id: number): Promise<Homework | null> {
+  try {
+    const res = await serverApiRequest<any>(`/api/v1/homework/${id}`)
+    if (!res) return null
+    return res as Homework
+  } catch {
+    return null
+  }
+}
+
+export async function listAttachmentsServer(homeworkId: number): Promise<HomeworkAttachment[]> {
+  try {
+    const res = await serverApiRequest<unknown>(`/api/v1/homework/${homeworkId}/attachments`)
+    return parseList<HomeworkAttachment>(res).items
+  } catch {
+    return []
+  }
+}
+
+export async function listSubmissionsServer(homeworkId: number): Promise<HomeworkSubmission[]> {
+  try {
+    const res = await serverApiRequest<unknown>(`/api/v1/homework/${homeworkId}/submissions`)
+    return parseList<HomeworkSubmission>(res).items
+  } catch {
+    return []
   }
 }

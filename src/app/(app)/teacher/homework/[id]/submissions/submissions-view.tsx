@@ -55,7 +55,6 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
     const rows = submissions.map(s => {
       const studentName = `${s.student_first_name || ''} ${s.student_last_name || ''}`.trim() || 'Student'
       
-      // Escape double quotes inside the fields for valid CSV
       return [
         `"${studentName}"`,
         `"${s.student_email || ''}"`,
@@ -86,12 +85,12 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
           <h1 className="mt-2 text-2xl font-bold text-foreground truncate max-w-full">Homework Submissions</h1>
           <p className="text-sm text-muted-foreground truncate max-w-full">{homework.title}</p>
         </div>
-        <Button onClick={downloadCSV} variant="secondary" className="shrink-0">
+        <Button onClick={downloadCSV} variant="secondary" className="shrink-0 whitespace-nowrap">
           <Download size={15} className="mr-2" /> Export Grades (CSV)
         </Button>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard icon={Users} label="Total Submissions" value={total} tone="brand" />
         <StatCard icon={CheckCircle2} label="Graded" value={gradedCount} tone="success" />
         <StatCard icon={AlertTriangle} label="Late" value={lateCount} tone="warning" />
@@ -100,7 +99,7 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
 
       {submissions.length === 0 ? (
         <Card className="border-dashed px-6 py-16 text-center">
-          <Users size={40} className="mx-auto mb-4 opacity-30" style={{ color: 'var(--brand-accent)' }} />
+          <Users size={40} className="mx-auto mb-4 text-brand-accent opacity-30" />
           <h3 className="text-xl font-bold text-foreground">No Submissions Yet</h3>
           <p className="mt-1 text-sm text-muted-foreground">Students haven&apos;t submitted this homework yet.</p>
         </Card>
@@ -150,7 +149,7 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
                     <div className="flex flex-wrap gap-2">
                       {sub.files.map(f => (
                         <a key={f.id} href={materialDownloadUrl(f.file_path)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-1.5 text-sm transition hover:border-brand-accent hover:bg-muted">
-                          <Download size={14} style={{ color: 'var(--brand-accent)' }} /> 
+                          <Download size={14} className="text-brand-accent" /> 
                           <span className="font-medium text-foreground max-w-[150px] truncate">{f.file_name}</span>
                           <span className="text-xs text-muted-foreground">({formatFileSize(f.file_size)})</span>
                         </a>
@@ -165,7 +164,7 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-semibold text-muted-foreground">Final Grade:</span>
-                          <span className="text-lg font-bold" style={{ color: passed ? 'var(--success-fg)' : 'var(--danger-fg)' }}>{sub.grade}%</span>
+                          <span className={`text-lg font-bold ${passed ? 'text-success-fg' : 'text-danger-fg'}`}>{sub.grade}%</span>
                         </div>
                         <Button 
                           variant="outline"
@@ -235,21 +234,22 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
 
 function StatCard({ icon: Icon, label, value, tone }: { icon: LucideIcon, label: string, value: string | number, tone: 'brand' | 'success' | 'warning' | 'primary' }) {
   const colors = {
-    brand: { bg: 'var(--brand-accent)', fg: 'white' },
-    primary: { bg: 'var(--brand-primary)', fg: 'white' },
-    success: { bg: 'var(--success-border)', fg: 'white' },
-    warning: { bg: 'var(--warning-border)', fg: 'white' },
+    brand: { bg: 'bg-brand-accent', fg: 'text-white' },
+    primary: { bg: 'bg-brand-primary', fg: 'text-white' },
+    success: { bg: 'bg-success-border', fg: 'text-white' },
+    warning: { bg: 'bg-warning-border', fg: 'text-white' },
   }
   const c = colors[tone]
 
   return (
-    <Card className="flex items-center gap-4 p-4">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md" style={{ backgroundColor: c.bg, color: c.fg }}>
-        <Icon size={18} />
+    <Card className="flex items-center gap-3 p-3 sm:gap-4 sm:p-4">
+      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-md sm:h-10 sm:w-10 ${c.bg} ${c.fg}`}>
+        <Icon size={16} className="sm:hidden" />
+        <Icon size={18} className="hidden sm:block" />
       </div>
       <div className="min-w-0">
-        <p className="truncate text-xl font-bold text-foreground">{value}</p>
-        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
+        <p className="truncate text-lg font-bold tabular-nums text-foreground sm:text-xl">{value}</p>
+        <p className="truncate text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
       </div>
     </Card>
   )
