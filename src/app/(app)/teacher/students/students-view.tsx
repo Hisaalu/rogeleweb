@@ -117,10 +117,9 @@ export function StudentsView({
       )}
 
       <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold text-brand-primary sm:text-3xl">
-            <Users size={26} className="shrink-0 sm:h-7 sm:w-7" />
-            <span className="truncate">My Students</span>
+        <div className="text-center sm:text-left">
+          <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">
+            My Students
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             View and track your students&apos; progress

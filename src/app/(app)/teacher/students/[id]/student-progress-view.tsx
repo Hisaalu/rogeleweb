@@ -140,23 +140,29 @@ export function StudentProgressView({
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-6 sm:px-6 sm:py-10">
-      <div>
+      <div className="relative flex items-center justify-between gap-3">
         <Link
           href="/teacher/students"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+          aria-label="Back to students"
+          className="inline-flex items-center gap-1.5 text-2xl font-bold text-foreground transition hover:opacity-80 sm:text-3xl"
         >
-          <ArrowLeft size={14} /> Students
+          <ArrowLeft size={26} className="shrink-0" />
+          <span className="sr-only">Students</span>
         </Link>
-        <h1 className="mt-2 flex items-center gap-2 text-2xl font-bold text-brand-primary">
-          <ChartIcon size={24} className="shrink-0" /> Student Performance
-        </h1>
-        <p className="text-sm text-muted-foreground">Quiz performance for {name}</p>
+
+        <div className="pointer-events-none absolute left-1/2 w-full max-w-[70%] -translate-x-1/2 text-center">
+          <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">
+            Student Performance
+          </h1>
+          <p className="mt-1 truncate text-sm text-muted-foreground">
+            Quiz performance for {name}
+          </p>
+        </div>
       </div>
 
       <Card className="flex flex-col items-center gap-5 p-5 sm:flex-row sm:items-start sm:gap-6 sm:p-8">
         <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-accent text-2xl font-bold text-white shadow-lg sm:h-24 sm:w-24 sm:text-3xl">
           {student.profile_photo ? (
-            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={student.profile_photo}
               alt={name}

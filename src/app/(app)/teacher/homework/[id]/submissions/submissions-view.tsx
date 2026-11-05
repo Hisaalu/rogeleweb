@@ -99,35 +99,45 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-6 sm:py-10">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <Link href="/teacher/homework" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft size={14} /> Homework
-          </Link>
-          <h1 className="mt-2 text-2xl font-bold text-foreground truncate max-w-full">Homework Submissions</h1>
-          <p className="text-sm text-muted-foreground truncate max-w-full">{homework.title}</p>
-        </div>
-        
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
-          <Button 
-            variant={isActive ? 'outline' : 'danger'} 
-            onClick={handleToggleVisibility}
-            disabled={toggling}
-            className="whitespace-nowrap"
+      <div className="flex flex-col gap-4 sm:relative sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+        <div className="flex items-center justify-between gap-3 sm:contents">
+          <Link
+            href="/teacher/homework"
+            aria-label="Back to homework"
+            className="inline-flex shrink-0 items-center gap-1.5 text-2xl font-bold text-foreground transition hover:opacity-80 sm:text-3xl"
           >
-            {toggling ? (
-              <Loader2 size={15} className="mr-2 animate-spin" />
-            ) : isActive ? (
-              <EyeOff size={15} className="mr-2" />
-            ) : (
-              <Eye size={15} className="mr-2" />
-            )}
-            {isActive ? 'Hide' : 'Show'}
-          </Button>
+            <ArrowLeft size={26} className="shrink-0" />
+            <span className="sr-only">Homework</span>
+          </Link>
 
-          <Button onClick={downloadCSV} variant="secondary" className="whitespace-nowrap">
-            <Download size={15} className="mr-2" /> Export
-          </Button>
+          <div className="flex flex-wrap items-center gap-2 sm:relative sm:z-10">
+            <Button 
+              variant={isActive ? 'outline' : 'danger'} 
+              onClick={handleToggleVisibility}
+              disabled={toggling}
+              className="whitespace-nowrap"
+            >
+              {toggling ? (
+                <Loader2 size={15} className="mr-2 animate-spin" />
+              ) : isActive ? (
+                <EyeOff size={15} className="mr-2" />
+              ) : (
+                <Eye size={15} className="mr-2" />
+              )}
+              {isActive ? 'Hide' : 'Show'}
+            </Button>
+
+            <Button onClick={downloadCSV} variant="secondary" className="whitespace-nowrap">
+              <Download size={15} className="mr-2" /> Export
+            </Button>
+          </div>
+        </div>
+
+        <div className="text-center sm:pointer-events-none sm:absolute sm:left-1/2 sm:w-full sm:max-w-[50%] sm:-translate-x-1/2">
+          <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">
+            Homework Submissions
+          </h1>
+          <p className="truncate text-sm text-muted-foreground">{homework.title}</p>
         </div>
       </div>
 

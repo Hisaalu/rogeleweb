@@ -121,15 +121,24 @@ export function HomeworkForm({
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-3 py-5 sm:px-4 sm:py-8">
-      <Link href="/teacher/homework" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft size={14} /> Homework
-      </Link>
+      <div className="relative flex items-center justify-between gap-3">
+        <Link
+          href="/teacher/homework"
+          aria-label="Back to homework"
+          className="inline-flex shrink-0 items-center gap-1.5 text-2xl font-bold text-foreground transition hover:opacity-80 sm:text-3xl"
+        >
+          <ArrowLeft size={26} className="shrink-0" />
+          <span className="sr-only">Homework</span>
+        </Link>
 
-      <div>
-        <h1 className="flex items-center gap-2 text-xl font-bold sm:text-2xl">
-          <span style={{ color: 'var(--brand-primary)' }}>{mode === 'create' ? 'Create New Homework' : 'Edit Homework'}</span>
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">{mode === 'create' ? 'Assign homework to your students' : `Editing: ${initial?.title}`}</p>
+        <div className="pointer-events-none absolute left-1/2 w-full max-w-[70%] -translate-x-1/2 text-center">
+          <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">
+            {mode === 'create' ? 'Create New Homework' : 'Edit Homework'}
+          </h1>
+          <p className="mt-1 truncate text-sm text-muted-foreground">
+            {mode === 'create' ? 'Assign homework to your students' : `Editing: ${initial?.title}`}
+          </p>
+        </div>
       </div>
 
       <Card className="p-5 sm:p-8">

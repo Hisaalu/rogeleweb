@@ -34,26 +34,29 @@ export default async function LessonPreviewPage({
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-3 py-5 sm:px-4 sm:py-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="flex items-center gap-2 text-xl font-bold sm:text-2xl">
-          <Eye size={22} style={{ color: 'var(--brand-accent)' }} />
-          <span style={{ color: 'var(--brand-primary)' }}>Lesson Preview</span>
-        </h1>
-        <div className="flex flex-wrap items-center gap-3">
-          <Link
-            href={`/teacher/lessons/${lesson.id}/edit`}
-            className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 sm:flex-none"
-            style={{ backgroundColor: 'var(--brand-primary)' }}
-          >
-            <Pencil size={15} /> Edit Lesson
-          </Link>
-          <Link
-            href="/teacher/lessons"
-            className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-semibold text-muted-foreground transition hover:bg-muted sm:flex-none"
-          >
-            <ArrowLeft size={15} /> Back
-          </Link>
+      <div className="relative flex items-center justify-between gap-3">
+        <Link
+          href="/teacher/lessons"
+          aria-label="Back to lessons"
+          className="inline-flex items-center gap-1.5 text-2xl font-bold text-foreground transition hover:opacity-80 sm:text-3xl"
+        >
+          <ArrowLeft size={26} className="shrink-0" />
+          <span className="sr-only">Lessons</span>
+        </Link>
+
+        <div className="pointer-events-none absolute left-1/2 w-full max-w-[70%] -translate-x-1/2 text-center">
+          <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">
+            Lesson Preview
+          </h1>
         </div>
+
+        <Link
+          href={`/teacher/lessons/${lesson.id}/edit`}
+          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+          style={{ backgroundColor: 'var(--brand-primary)' }}
+        >
+          <Pencil size={15} /> Edit
+        </Link>
       </div>
 
       <div className="relative rounded-2xl border border-border bg-card p-5 sm:p-8 lg:p-10">

@@ -31,18 +31,30 @@ export default async function PreviewQuizPage({ params }: { params: { id: string
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <Link href="/teacher/quizzes" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft size={14} /> Quizzes
+      <div className="flex flex-col gap-4 sm:relative sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+        <div className="flex items-center justify-between gap-3 sm:contents">
+          <Link
+            href="/teacher/quizzes"
+            aria-label="Back to quizzes"
+            className="inline-flex shrink-0 items-center gap-1.5 text-2xl font-bold text-foreground transition hover:opacity-80 sm:text-3xl"
+          >
+            <ArrowLeft size={26} className="shrink-0" />
+            <span className="sr-only">Quizzes</span>
           </Link>
-          <h1 className="mt-2 flex items-center gap-2 text-2xl font-bold">
-            <Eye size={22} style={{ color: 'var(--brand-primary)' }} /> Preview: {quiz.title}
+
+          <Link
+            href={`/teacher/quizzes/${quiz.id}/edit`}
+            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 sm:relative sm:z-10"
+          >
+            <Edit size={15} /> Edit
+          </Link>
+        </div>
+
+        <div className="text-center sm:pointer-events-none sm:absolute sm:left-1/2 sm:w-full sm:max-w-[60%] sm:-translate-x-1/2">
+          <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">
+            Preview: {quiz.title}
           </h1>
         </div>
-        <Link href={`/teacher/quizzes/${quiz.id}/edit`} className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">
-          <Edit size={15} /> Edit Quiz
-        </Link>
       </div>
 
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">

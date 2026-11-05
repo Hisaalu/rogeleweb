@@ -5,7 +5,7 @@ import { useMemo, useState, useCallback } from 'react'
 import Link from 'next/link'
 import {
   ArrowLeft, AlignLeft, Book, Clock, CloudUpload, FileText, Globe,
-  GraduationCap, Info, PlusCircle, Save, Type, Video, X, type LucideIcon
+  GraduationCap, Info, Save, Type, Video, X, type LucideIcon
 } from 'lucide-react'
 import type { Class, Subject } from '@/types/admin'
 import type { CreateLessonPayload, Lesson } from '@/types/lesson'
@@ -121,18 +121,24 @@ export function LessonForm({
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-3 py-5 sm:px-4 sm:py-6">
-      <Link href="/teacher/lessons" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground">
-        <ArrowLeft size={14} /> Lessons
-      </Link>
+      <div className="relative flex items-center justify-between gap-3">
+        <Link
+          href="/teacher/lessons"
+          aria-label="Back to lessons"
+          className="inline-flex items-center gap-1.5 text-2xl font-bold text-foreground transition hover:opacity-80 sm:text-3xl"
+        >
+          <ArrowLeft size={26} className="shrink-0" />
+          <span className="sr-only">Lessons</span>
+        </Link>
 
-      <div>
-        <h1 className="flex items-center gap-2 text-xl font-bold sm:text-2xl">
-          {mode === 'create' ? <PlusCircle size={22} style={{ color: 'var(--brand-accent)' }} /> : <Save size={22} style={{ color: 'var(--brand-accent)' }} />}
-          <span style={{ color: 'var(--brand-primary)' }}>{mode === 'create' ? 'Create New Lesson' : 'Edit Lesson'}</span>
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {mode === 'create' ? 'Create engaging content for your students' : `Editing: ${initial?.title ?? ''}`}
-        </p>
+        <div className="pointer-events-none absolute left-1/2 w-full max-w-[70%] -translate-x-1/2 text-center">
+          <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">
+            {mode === 'create' ? 'Create New Lesson' : 'Edit Lesson'}
+          </h1>
+          <p className="mt-1 truncate text-sm text-muted-foreground">
+            {mode === 'create' ? 'Create engaging content for your students' : `Editing: ${initial?.title ?? ''}`}
+          </p>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6 rounded-md border border-border bg-card p-5 sm:space-y-8 sm:p-8">

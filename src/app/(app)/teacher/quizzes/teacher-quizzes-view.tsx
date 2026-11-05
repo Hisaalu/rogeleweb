@@ -77,15 +77,14 @@ export function TeacherQuizzesView({
       )}
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold sm:text-3xl" style={{ color: 'var(--brand-primary)' }}>
-            <HelpCircle size={26} className="shrink-0" />
-            <span className="truncate">Quizzes</span>
+        <div className="text-center sm:text-left">
+          <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">
+            Quizzes
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">Create and Manage Quizzes</p>
         </div>
         <Link href="/teacher/quizzes/create" className="shrink-0">
-          <Button>
+          <Button className="w-full sm:w-auto">
             <PlusCircle size={16} className="mr-2" /> Create Quiz
           </Button>
         </Link>

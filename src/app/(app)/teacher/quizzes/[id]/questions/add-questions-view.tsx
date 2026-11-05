@@ -61,11 +61,22 @@ export function AddQuestionsView({ quiz }: { quiz: Quiz }) {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">
-      <Link href="/teacher/quizzes" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft size={14} /> Quizzes
-      </Link>
+      <div className="relative flex items-center justify-between gap-3">
+        <Link
+          href="/teacher/quizzes"
+          aria-label="Back to quizzes"
+          className="inline-flex items-center gap-1.5 text-2xl font-bold text-foreground transition hover:opacity-80 sm:text-3xl"
+        >
+          <ArrowLeft size={26} className="shrink-0" />
+          <span className="sr-only">Quizzes</span>
+        </Link>
 
-      <h1 className="text-2xl font-bold text-foreground">Add Questions to: {quiz.title}</h1>
+        <div className="pointer-events-none absolute left-1/2 w-full max-w-[70%] -translate-x-1/2 text-center">
+          <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">
+            Add Questions to: {quiz.title}
+          </h1>
+        </div>
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {questions.map((q, idx) => (

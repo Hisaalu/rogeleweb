@@ -33,11 +33,8 @@ function formatDate(iso: string | null | undefined) {
   })
 }
 
-// FIXED: Better handling of time formatting (assumes backend returns seconds)
 function formatDuration(seconds: number | null | undefined) {
   if (seconds == null || seconds <= 0) return '—'
-  // If the API sends milliseconds (e.g., 90000 instead of 90), adjust:
-  // const s = seconds > 10000 ? Math.floor(seconds / 1000) : seconds
   const m = Math.floor(seconds / 60)
   const s = seconds % 60
   return `${m}m ${s.toString().padStart(2, '0')}s`
@@ -124,45 +121,50 @@ export function ResultsView({ quiz, initialAttempts }: { quiz: Quiz, initialAtte
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-8 sm:px-6 sm:py-10">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
+      <div className="flex flex-col gap-4 sm:relative sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+        <div className="flex items-center justify-between gap-3 sm:contents">
           <Link
             href="/teacher/quizzes"
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
+            aria-label="Back to quizzes"
+            className="inline-flex shrink-0 items-center gap-1.5 text-2xl font-bold text-foreground transition hover:opacity-80 sm:text-3xl"
           >
-            <ArrowLeft size={14} /> Quizzes
+            <ArrowLeft size={26} className="shrink-0" />
+            <span className="sr-only">Quizzes</span>
           </Link>
-          <h1 className="mt-2 text-2xl font-bold text-foreground">
+
+          <div className="flex flex-wrap gap-2 sm:relative sm:z-10">
+            {completed.length > 0 && (
+              <Button variant="outline" onClick={handleExport}>
+                <Download size={15} className="mr-2" />
+              </Button>
+            )}
+            <Link href={`/teacher/quizzes/${quiz.id}/preview`}>
+              <Button variant="outline">
+                <BarChart2 size={15} className="mr-2" />
+              </Button>
+            </Link>
+            {attempts.length > 0 && (
+              <Button
+                type="button"
+                variant="danger"
+                onClick={() => setShowClearConfirm(true)}
+                disabled={clearing}
+              >
+                <Trash2 size={15} className="mr-2" />
+              </Button>
+            )}
+          </div>
+        </div>
+
+        <div className="text-center sm:pointer-events-none sm:absolute sm:left-1/2 sm:w-full sm:max-w-[50%] sm:-translate-x-1/2">
+          <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">
             {quiz.title} — Results
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="truncate text-sm text-muted-foreground">
             {total === 0
               ? 'No attempts yet'
               : `${total} attempt${total === 1 ? '' : 's'} · ${passRate}% pass rate`}
           </p>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          {completed.length > 0 && (
-            <Button variant="outline" onClick={handleExport}>
-              <Download size={15} className="mr-2" /> Export CSV
-            </Button>
-          )}
-          <Link href={`/teacher/quizzes/${quiz.id}/preview`}>
-            <Button variant="outline">
-              <BarChart2 size={15} className="mr-2" /> Preview Quiz
-            </Button>
-          </Link>
-          {attempts.length > 0 && (
-            <Button
-              type="button"
-              variant="danger"
-              onClick={() => setShowClearConfirm(true)}
-              disabled={clearing}
-            >
-              <Trash2 size={15} className="mr-2" /> Clear All
-            </Button>
-          )}
         </div>
       </div>
 

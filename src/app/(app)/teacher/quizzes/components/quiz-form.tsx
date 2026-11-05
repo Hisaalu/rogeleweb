@@ -89,15 +89,21 @@ export function QuizForm({
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-3 py-5 sm:px-4 sm:py-8">
-      <Link href="/teacher/quizzes" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft size={14} /> Quizzes
-      </Link>
-      
-      <div>
-        <h1 className="flex items-center gap-2 text-xl font-bold sm:text-2xl">
-          <Globe size={22} style={{ color: 'var(--brand-primary)' }} className="shrink-0" />
-          <span style={{ color: 'var(--brand-primary)' }}>{mode === 'create' ? 'Create New Quiz' : 'Edit Quiz'}</span>
-        </h1>
+      <div className="relative flex items-center justify-between gap-3">
+        <Link
+          href="/teacher/quizzes"
+          aria-label="Back to quizzes"
+          className="inline-flex items-center gap-1.5 text-2xl font-bold text-foreground transition hover:opacity-80 sm:text-3xl"
+        >
+          <ArrowLeft size={26} className="shrink-0" />
+          <span className="sr-only">Quizzes</span>
+        </Link>
+
+        <div className="pointer-events-none absolute left-1/2 w-full max-w-[70%] -translate-x-1/2 text-center">
+          <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">
+            {mode === 'create' ? 'Create New Quiz' : 'Edit Quiz'}
+          </h1>
+        </div>
       </div>
 
       <Card className="p-5 sm:p-8">

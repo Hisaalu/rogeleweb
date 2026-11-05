@@ -18,18 +18,34 @@ export default async function ManageQuestionsPage({ params }: { params: { id: st
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <Link href="/teacher/quizzes" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft size={14} /> Quizzes
-        </Link>
-        <Link href={`/teacher/quizzes/${quiz.id}/questions/add`} className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90" style={{ backgroundColor: 'var(--brand-primary)' }}>
-          <PlusCircle size={16} /> Add Questions
-        </Link>
-      </div>
+      <div className="flex flex-col gap-4 sm:relative sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+        <div className="flex items-center justify-between gap-3 sm:contents">
+          <Link
+            href="/teacher/quizzes"
+            aria-label="Back to quizzes"
+            className="inline-flex shrink-0 items-center gap-1.5 text-2xl font-bold text-foreground transition hover:opacity-80 sm:text-3xl"
+          >
+            <ArrowLeft size={26} className="shrink-0" />
+            <span className="sr-only">Quizzes</span>
+          </Link>
 
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Questions for: {quiz.title}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{questions.length} questions currently added.</p>
+          <Link
+            href={`/teacher/quizzes/${quiz.id}/questions/add`}
+            className="inline-flex shrink-0 items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 sm:relative sm:z-10"
+            style={{ backgroundColor: 'var(--brand-primary)' }}
+          >
+            <PlusCircle size={16} /> Add Questions
+          </Link>
+        </div>
+
+        <div className="text-center sm:pointer-events-none sm:absolute sm:left-1/2 sm:w-full sm:max-w-[60%] sm:-translate-x-1/2">
+          <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">
+            Questions for: {quiz.title}
+          </h1>
+          <p className="mt-1 truncate text-sm text-muted-foreground">
+            {questions.length} questions currently added.
+          </p>
+        </div>
       </div>
 
       {questions.length === 0 ? (

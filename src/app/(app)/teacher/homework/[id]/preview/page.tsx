@@ -30,30 +30,39 @@ export default async function PreviewHomeworkPage({ params }: { params: { id: st
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <Link href="/teacher/homework" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft size={14} /> Homework
+      <div className="flex flex-col gap-4 sm:relative sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+        <div className="flex items-center justify-between gap-3 sm:contents">
+          <Link
+            href="/teacher/homework"
+            aria-label="Back to homework"
+            className="inline-flex shrink-0 items-center gap-1.5 text-2xl font-bold text-foreground transition hover:opacity-80 sm:text-3xl"
+          >
+            <ArrowLeft size={26} className="shrink-0" />
+            <span className="sr-only">Homework</span>
           </Link>
-          <h1 className="mt-2 flex items-center gap-2 text-2xl font-bold text-foreground">
-            <Eye size={24} style={{ color: 'var(--brand-primary)' }} /> Preview Homework
-          </h1>
+
+          <div className="flex flex-wrap items-center gap-2 sm:relative sm:z-10">
+            <Link 
+              href={`/teacher/homework/${hw.id}/edit`} 
+              className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition hover:opacity-80"
+              style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }}
+            >
+              <Edit size={15} /> Edit
+            </Link>
+            <Link 
+              href={`/teacher/homework/${hw.id}/submissions`} 
+              className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90" 
+              style={{ backgroundColor: 'var(--brand-primary)' }}
+            >
+              <Users size={15} /> Submissions
+            </Link>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Link 
-            href={`/teacher/homework/${hw.id}/edit`} 
-            className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition hover:opacity-80"
-            style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }}
-          >
-            <Edit size={15} /> Edit
-          </Link>
-          <Link 
-            href={`/teacher/homework/${hw.id}/submissions`} 
-            className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90" 
-            style={{ backgroundColor: 'var(--brand-primary)' }}
-          >
-            <Users size={15} /> Submissions
-          </Link>
+
+        <div className="text-center sm:pointer-events-none sm:absolute sm:left-1/2 sm:w-full sm:max-w-[50%] sm:-translate-x-1/2">
+          <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">
+            Preview Homework
+          </h1>
         </div>
       </div>
 

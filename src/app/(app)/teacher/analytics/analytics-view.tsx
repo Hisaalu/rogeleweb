@@ -240,10 +240,9 @@ export function AnalyticsView({
   return (
     <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-        <div className="min-w-0">
-          <h1 className="flex items-center gap-2 text-2xl font-bold text-brand-primary sm:text-3xl">
-            <BarChart2 size={26} className="shrink-0 sm:h-7 sm:w-7" />
-            <span className="truncate">Analytics</span>
+        <div className="min-w-0 text-center sm:text-left">
+          <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">
+            Analytics
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Track Performance and Engagement
