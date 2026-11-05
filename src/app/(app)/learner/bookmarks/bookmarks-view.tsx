@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Bookmark, ArrowLeft } from 'lucide-react'
+import { Bookmark } from 'lucide-react'
 import type { Lesson } from '@/types/lesson'
 import { LearnerLessonCard } from '../lessons/components/learner-lesson-card'
 import { toggleLessonBookmarkClient } from '@/lib/lessons.client'
@@ -20,24 +20,11 @@ export function BookmarksView({ lessons: initial }: { lessons: Lesson[] }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold">
-            <Bookmark size={22} style={{ color: 'var(--brand-accent)' }} />
-            <span style={{ color: 'var(--brand-primary)' }}>Bookmarks</span>
+      <div className="text-center">
+          <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
+            Bookmarks
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Lessons you&apos;ve saved.
-          </p>
-        </div>
-
-        <Link
-          href="/learner/lessons"
-          className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm font-semibold text-muted-foreground transition hover:bg-muted"
-        >
-          <ArrowLeft size={14} />
-          Lessons
-        </Link>
+          <p className="mt-1 text-sm text-muted-foreground">Lessons you&apos;ve saved.</p>
       </div>
 
       {lessons.length === 0 ? (

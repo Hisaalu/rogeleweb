@@ -26,11 +26,8 @@ export function LearnerQuizzesView({
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-8">
       <div className="text-center">
-        <h1 className="flex items-center justify-center gap-2 text-2xl font-bold text-foreground sm:text-3xl">
-          <HelpCircle size={28} style={{ color: 'var(--brand-primary)' }} />
-          <span style={{ color: 'var(--brand-primary)' }}>
-            Practice Quizzes
-          </span>
+        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">
+          Practice Quizzes
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Test your knowledge with timed quizzes

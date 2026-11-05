@@ -46,22 +46,12 @@ export function SubscriptionView({
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-3 py-6 sm:px-4 sm:py-10">
+
       <div className="text-center">
-        <span
-          className="inline-block rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-white"
-          style={{ backgroundColor: 'var(--brand-primary)' }}
-        >
-          Subscription
-        </span>
-        <h1
-          className="mt-4 text-2xl font-bold sm:text-3xl lg:text-4xl"
-          style={{ color: 'var(--brand-primary)' }}
-        >
-          Choose Your Learning Path
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground sm:text-base">
-          Select the perfect learning plan
-        </p>
+          <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
+            One subscription. Access to everything
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">Select the perfect learning plan</p>
       </div>
 
       {hasActiveSubscription && subscription && (

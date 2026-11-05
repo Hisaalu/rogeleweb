@@ -130,19 +130,19 @@ export function LearnerAnalyticsView({
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold sm:text-3xl">
+          Analytics
+        </h1>
+        <p className="mt-1.5 text-sm text-muted-foreground">
+          Your performance in summary
+        </p>
+      </div>
+
       <section className="relative overflow-hidden rounded-xl border border-border bg-card transition-shadow hover:shadow-md">
         <div className="relative flex flex-col gap-5 p-5 sm:p-7 lg:flex-row lg:items-start lg:justify-between lg:gap-8">
           <div className="min-w-0 flex-1">
-            <h1 className="mt-3 flex items-center gap-2 text-2xl font-bold text-brand-primary sm:text-3xl">
-              <BarChart3 size={26} className="shrink-0 sm:h-7 sm:w-7" />
-              <span>Analytics</span>
-            </h1>
-
-            <p className="mt-1.5 max-w-xl text-sm text-muted-foreground">
-              Your performance in summary
-            </p>
-
-            <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1">
                 <Calendar size={12} />
                 {safeData.from}

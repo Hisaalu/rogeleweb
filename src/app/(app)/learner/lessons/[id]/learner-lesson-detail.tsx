@@ -86,14 +86,18 @@ export function LearnerLessonDetail({
 
   return (
     <div className="mx-auto max-w-4xl space-y-5 px-3 py-5 sm:space-y-6 sm:px-4 sm:py-8">
-      <div className="flex items-center justify-between gap-3">
+      <div className="relative flex items-center justify-between gap-3">
         <Link
           href="/learner/lessons"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition hover:text-foreground"
+          className="inline-flex items-center gap-1.5 text-2xl font-bold text-foreground transition hover:opacity-80 sm:text-3xl"
         >
-          <ArrowLeft size={14} />
-          Lessons
+          <ArrowLeft size={26} className="shrink-0" />
+          <span className="sr-only">Lessons</span>
         </Link>
+
+        <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 text-2xl font-bold text-foreground sm:text-3xl">
+          Lesson
+        </span>
 
         <Button
           type="button"

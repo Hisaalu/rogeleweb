@@ -133,10 +133,9 @@ export function LearnerProfileView({
     <>
       <div className="mx-auto max-w-6xl space-y-6 px-3 py-6 sm:space-y-8 sm:px-4 sm:py-8">
         
-        <div>
-          <h1 className="flex items-center gap-2 text-xl font-bold sm:text-2xl lg:text-3xl" style={{ color: 'var(--brand-primary)' }}>
-            <UserCircle size={26} className="shrink-0 sm:h-7 sm:w-7" />
-            <span>Profile</span>
+        <div className="text-center">
+          <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
+            Profile
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">Manage your Personal Information</p>
         </div>

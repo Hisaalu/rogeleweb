@@ -57,10 +57,9 @@ export function LearnerHomeworkView({ homeworks }: { homeworks: Homework[] }) {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:py-8">
-      <div>
-        <h1 className="flex items-center gap-2 text-2xl font-bold text-brand-primary sm:text-3xl">
-          <ClipboardList size={26} className="shrink-0" />
-          <span>Homework</span>
+      <div className="text-center">
+        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">
+          Homework
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           View and submit your assignments

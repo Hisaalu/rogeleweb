@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { CheckCircle2, XCircle, Trophy, BookOpen } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, XCircle, Trophy, BookOpen } from 'lucide-react'
 import type { QuizResultDetails } from '@/types/quiz'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -19,6 +19,15 @@ export function ResultView({ attempt }: { attempt: QuizResultDetails }) {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">
+      <Link
+        href="/learner/quizzes"
+        aria-label="Back to quizzes"
+        className="inline-flex items-center gap-1.5 text-2xl font-bold text-foreground transition hover:opacity-80 sm:text-3xl"
+      >
+        <ArrowLeft size={26} className="shrink-0" />
+        <span className="sr-only">Quizzes</span>
+      </Link>
+
       <Card className="p-8 text-center sm:p-12">
         <div 
           className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full"
