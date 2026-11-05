@@ -4,13 +4,12 @@ The web client for ROGELE, a learning management platform for schools.
 
 The application is the browser interface for three audiences:
 
-- Administrators, who manage users, classes, subjects, plans, and settings.
-- Teachers, who create lessons, assign homework, build quizzes, and grade
-  submissions.
-- Learners and external users, who browse lessons, submit homework, take
-  quizzes, and manage subscriptions.
+- Administrators, who manage users, classes among others.
+- Teachers, who create lessons, quizzes and homeworks.
+- Learners and external users, who browse lessons, homework and
+  quizzes.
 
-The web client communicates exclusively with the ROGELE API and the ROGELE
+The web client communicates exclusively with the API and the python
 Analytics service. It never connects directly to a database.
 
 ## Table of Contents
@@ -43,10 +42,10 @@ four distinct experiences:
   Privacy Policy, Terms of Service)
 - `/(app)` — the learner and teacher experience
 - `/admin` — the administration panel
-- `/login` and related pages — public authentication flows
+- `/login` and related pages
 
 The layout is responsive, supports light and dark themes, and pulls its
-branding — school name, tagline, logo, and colors — from the API at runtime.
+branding school name, tagline, logo, and colors from the API at runtime.
 
 ## Tech Stack
 
@@ -128,7 +127,7 @@ The `(marketing)` route group contains all public-facing pages. They are fully
 server-rendered, data-driven, and theme-aware:
 
 - `/` — Home page with dynamic hero, pricing plans, and live stats
-- `/contact` — Contact form (Formspree integration)
+- `/contact` — Contact form using Formspree
 - `/privacy-policy` — Legal page with internal and external links
 - `/terms-of-service` — Legal page with internal and external links
 
@@ -205,16 +204,26 @@ Notifications link directly to the correct pages (e.g., `/learner/lessons/1`,
 
 ## Analytics
 
-The teacher analytics page (`/teacher/analytics`) is powered by the Python
+The teacher and learner analytics pages (`/teacher/analytics`) and (`/learner/analytics`) respectively is powered by the Python
 analytics service (`ANALYTICS_API_URL`). It fetches:
 
+### Teacher
 - Enrollment trend
 - At-risk learners (with risk scoring)
 - Score distribution
 - Activity heatmap
 
-The frontend renders these with Recharts and includes dynamic recommendations
-based on the at-risk data.
+### Learner
+- Personal performance metrics (homework/quiz averages)
+- Activity patterns (heatmaps)
+- AI-powered study recommendations based on their own data
+
+### Admin
+- Platform-wide revenue forecasts
+- Retention cohorts
+- Deep engagement metrics
+
+The frontend renders these with Recharts.
 
 ## API Communication
 
@@ -227,23 +236,9 @@ Client components use the `*.client.ts` helpers, which call `/api/proxy/...`.
 The proxy reads the same cookie, forwards to the Go API, and returns the
 response body.
 
-## Roles and Routes
-
-Two layout guards enforce access:
-
-- The `(app)` group requires a session and redirects admins to `/admin`. It
-  wraps `/dashboard`, `/lessons`, `/homework`, `/quizzes`, `/subscription`,
-  `/profile`, and `/notifications`.
-- The `(admin)` group requires `role === 'admin'` and redirects non-admins to
-  `/dashboard`. It wraps every page under `/admin`.
-
-`/login`, `/register`, `/forgot-password`, `/reset-password`, `/`,
-`/contact`, `/privacy-policy`, and `/terms-of-service` are public.
-Middleware redirects signed-in users away from the auth pages.
-
 ## Development Workflow
 
-    pnpm dev            # Dev server
+    pnpm dev            # Dev server/ run locally
     pnpm type-check     # Type-check the project
     pnpm lint           # Lint
     pnpm format         # Prettier
@@ -256,23 +251,12 @@ Before committing, make sure `pnpm type-check` and `pnpm build` both pass.
 
     pnpm build
 
-The build produces `.next/`. Serve it with `pnpm start`, or place it behind a
-reverse proxy (nginx, Caddy, Cloudflare) that terminates TLS and forwards to
+The build produces `.next/`. Serve it with `pnpm start` and forwards to
 `localhost:3000`.
 
 ## Deployment
 
-The app runs as a Node.js process. Recommended targets:
-
-- **Vercel** — zero-config for Next.js. `ROGELEDB_API_URL` must be reachable
-  from Vercel's servers.
-- **Docker + a VPS** — build an image that runs `pnpm start` and expose port
-  3000. Place Cloudflare or Caddy in front for TLS.
-- **Railway, Render, Fly.io** — all support Node.js processes and environment
-  variables.
-
-Cookies use `secure: true` when `NODE_ENV=production`, so the app must be
-served over HTTPS in production.
+Currently the app runs as a Node.js process on render usig docker as it's run time:
 
 ## License
 
