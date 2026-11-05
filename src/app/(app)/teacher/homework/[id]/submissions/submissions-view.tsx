@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Download, Users, CheckCircle2, AlertTriangle, Star, Edit2, Save, type LucideIcon } from 'lucide-react'
+import { ArrowLeft, Download, Users, CheckCircle2, AlertTriangle, Star, Edit2, Save, Eye, EyeOff, Loader2, type LucideIcon } from 'lucide-react'
 import type { Homework, HomeworkSubmission } from '@/types/homework'
 import { gradeSubmissionClient } from '@/lib/homework.client'
 import { materialDownloadUrl, formatFileSize } from '@/lib/materials'
@@ -10,14 +10,20 @@ import { useToast } from '@/components/ui/toast-provider'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { useRouter } from 'nextjs-toploader/app'
 
 export function SubmissionsView({ homework, submissions: initial }: { homework: Homework, submissions: HomeworkSubmission[] }) {
   const { showToast } = useToast()
+  const router = useRouter()
+  
   const [submissions, setSubmissions] = useState(initial)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [grades, setGrades] = useState<Record<number, string>>({})
   const [feedbacks, setFeedbacks] = useState<Record<number, string>>({})
   const [busyId, setBusyId] = useState<number | null>(null)
+  
+  const [isActive, setIsActive] = useState(homework.is_active)
+  const [toggling, setToggling] = useState(false)
 
   const total = submissions.length
   const gradedCount = submissions.filter(s => s.status === 'graded').length
@@ -48,13 +54,29 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
     }
   }
 
+  async function handleToggleVisibility() {
+    setToggling(true)
+    try {
+      const { updateHomeworkClient } = await import('@/lib/homework.client')
+      await updateHomeworkClient(homework.id, { is_active: !isActive })
+      
+      setIsActive(!isActive)
+      showToast(isActive ? 'Homework hidden from learners' : 'Homework is now visible to learners', 'success')
+      router.refresh() 
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to toggle visibility'
+      showToast(message, 'error')
+    } finally {
+      setToggling(false)
+    }
+  }
+
   function downloadCSV() {
     if (submissions.length === 0) return
     
     const headers = ['Student', 'Email', 'Status', 'Grade (%)', 'Submitted At', 'Feedback']
     const rows = submissions.map(s => {
       const studentName = `${s.student_first_name || ''} ${s.student_last_name || ''}`.trim() || 'Student'
-      
       return [
         `"${studentName}"`,
         `"${s.student_email || ''}"`,
@@ -85,9 +107,28 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
           <h1 className="mt-2 text-2xl font-bold text-foreground truncate max-w-full">Homework Submissions</h1>
           <p className="text-sm text-muted-foreground truncate max-w-full">{homework.title}</p>
         </div>
-        <Button onClick={downloadCSV} variant="secondary" className="shrink-0 whitespace-nowrap">
-          <Download size={15} className="mr-2" /> Export Grades (CSV)
-        </Button>
+        
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <Button 
+            variant={isActive ? 'outline' : 'danger'} 
+            onClick={handleToggleVisibility}
+            disabled={toggling}
+            className="whitespace-nowrap"
+          >
+            {toggling ? (
+              <Loader2 size={15} className="mr-2 animate-spin" />
+            ) : isActive ? (
+              <EyeOff size={15} className="mr-2" />
+            ) : (
+              <Eye size={15} className="mr-2" />
+            )}
+            {isActive ? 'Hide' : 'Show'}
+          </Button>
+
+          <Button onClick={downloadCSV} variant="secondary" className="whitespace-nowrap">
+            <Download size={15} className="mr-2" /> Export
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
