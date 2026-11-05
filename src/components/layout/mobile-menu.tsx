@@ -162,8 +162,8 @@ export function MobileMenu({
             <Avatar
               src={user.profile_photo}
               fallback={getInitials(fullName)}
-              size={56}
-              className="h-14 w-14 ring-2 ring-white/40 ring-offset-2 ring-offset-transparent"
+              size={48}
+              className="h-12 w-12"
             />
             <div className="min-w-0 flex-1">
               <p className="truncate text-base font-semibold text-white">
