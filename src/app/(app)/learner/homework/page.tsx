@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { getSessionUser } from '@/lib/auth'
-import { listHomeworksServer } from '@/lib/homework.server'
+import { listLearnerHomeworksServer } from '@/lib/homework.server'
 import { PremiumGate } from '@/components/premium-gate'
 import { ErrorToaster } from '@/components/error-toaster'
 import { LearnerHomeworkView } from './learner-homework-view'
@@ -24,8 +24,8 @@ export default async function LearnerHomeworkPage({
       ? searchParams.locked
       : null
 
-  const { homeworks } = await listHomeworksServer({
-    class_id: session.class_id ?? undefined,
+  const homeworks = await listLearnerHomeworksServer({
+    class_id: session.class_id ?? 0,
   })
 
   return (

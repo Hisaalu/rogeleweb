@@ -27,7 +27,6 @@ function parseList<T>(res: unknown, requestedPage = 1, requestedPerPage = 10): {
   
   let last_page = typeof rawMeta.last_page === 'number' ? rawMeta.last_page : 1
 
-  // Fallback inference if meta is missing
   if (!rawMeta.total && !rawMeta.last_page) {
     if (items.length === requestedPerPage) {
       last_page = page + 1
@@ -90,7 +89,8 @@ export async function listLearnerHomeworksServer(params: {
     }
 
     return merged
-  } catch {
+  } catch (err) {
+    console.error('[homework.server] error fetching learner homeworks:', err)
     return []
   }
 }

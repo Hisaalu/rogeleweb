@@ -10,6 +10,7 @@ import {
   Book,
   Calendar,
   ArrowRight,
+  CheckCircle2,
 } from 'lucide-react'
 import type { Homework } from '@/types/homework'
 import { Card } from '@/components/ui/card'
@@ -18,7 +19,7 @@ import { cn } from '@/lib/utils'
 
 function submissionStatus(hw: Homework): 'pending' | 'submitted' | 'graded' {
   if (hw.submission?.status === 'graded') return 'graded'
-  if (hw.submission?.status === 'submitted') return 'submitted'
+  if (hw.submission?.status === 'submitted' || hw.submission?.status === 'late') return 'submitted'
   return 'pending'
 }
 
@@ -157,12 +158,13 @@ export function LearnerHomeworkView({ homeworks }: { homeworks: Homework[] }) {
             const dueDate = new Date(hw.due_date)
             const submission = hw.submission
             const isLate = status === 'pending' && dueDate.getTime() < Date.now()
+            const isGraded = status === 'graded'
 
             return (
               <Card
                 key={hw.id}
                 className={cn(
-                  'flex flex-col border-l-4 p-4 sm:p-5 transition hover:-translate-y-1 hover:shadow-md',
+                  'relative flex flex-col border-l-4 p-4 sm:p-5 transition hover:-translate-y-1 hover:shadow-md',
                   statusBorderClass(status, isLate),
                 )}
               >
@@ -172,8 +174,9 @@ export function LearnerHomeworkView({ homeworks }: { homeworks: Homework[] }) {
                     <span className="truncate">{hw.title}</span>
                   </h3>
                   <div className="shrink-0">
-                    {status === 'graded' ? (
-                      <span className="rounded-full bg-success-bg px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-success-fg sm:px-2.5 sm:py-1 sm:text-[10px]">
+                    {isGraded ? (
+                      <span className="flex items-center gap-1 rounded-full bg-success-border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
+                        <CheckCircle2 size={12} />
                         Graded
                       </span>
                     ) : status === 'submitted' ? (
@@ -213,13 +216,16 @@ export function LearnerHomeworkView({ homeworks }: { homeworks: Homework[] }) {
                   {hw.description || 'No description provided.'}
                 </p>
 
-                {status === 'graded' && submission?.grade !== undefined && (
-                  <div className="mb-4 rounded-md bg-success-bg p-2.5 text-center sm:p-3">
-                    <span className="text-[11px] font-semibold text-success-fg sm:text-xs">
-                      Grade:{' '}
-                    </span>
-                    <span className="text-base font-bold text-success-fg sm:text-lg">
-                      {submission.grade}%
+                {isGraded && submission?.grade !== undefined && (
+                  <div className="mb-4 flex items-center justify-between rounded-md border border-success-border/30 bg-success-bg px-3 py-2">
+                    <div className="flex items-center gap-2">
+                      <Star size={16} className="text-success-fg" />
+                      <span className="text-sm font-bold text-success-fg">
+                        {submission.grade}%
+                      </span>
+                    </div>
+                    <span className="text-xs font-medium text-success-fg/80">
+                      Final Score
                     </span>
                   </div>
                 )}
@@ -227,7 +233,7 @@ export function LearnerHomeworkView({ homeworks }: { homeworks: Homework[] }) {
                 <Link href={`/learner/homework/${hw.id}`} className="mt-auto w-full">
                   <Button className="w-full h-9 text-xs sm:h-10 sm:text-sm">
                     <span className="truncate">
-                      {status === 'graded'
+                      {isGraded
                         ? 'View Feedback'
                         : status === 'submitted'
                           ? 'View Submission'
