@@ -16,14 +16,17 @@ export const KpiCard = React.memo(function KpiCard({
   value,
   hint,
   tone = 'default',
+  hintTone,
 }: {
   icon?: React.ElementType
   label: string
   value: string
   hint?: string
   tone?: keyof typeof TONE_MAP
+  hintTone?: keyof typeof TONE_MAP
 }) {
   const t = TONE_MAP[tone]
+  const ht = TONE_MAP[hintTone ?? tone]
   return (
     <Card className="p-4 shadow-sm sm:p-5">
       {Icon && (
@@ -34,7 +37,7 @@ export const KpiCard = React.memo(function KpiCard({
       )}
       <p className={`text-xs text-muted-foreground sm:text-sm ${Icon ? 'mt-3 sm:mt-4' : ''}`}>{label}</p>
       <p className="mt-1 text-xl font-bold sm:text-2xl">{value}</p>
-      {hint && <p className={`mt-1 text-[11px] sm:text-xs ${t.fg}`}>{hint}</p>}
+      {hint && <p className={`mt-1 text-[11px] sm:text-xs ${ht.fg}`}>{hint}</p>}
     </Card>
   )
 })

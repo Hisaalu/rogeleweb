@@ -192,7 +192,7 @@ export function LearnerAnalyticsView({
                 ? `${safeData.homework.graded} graded`
                 : 'Not graded yet'
             }
-            tone="info"
+            tone="default"
           />
         </Link>
         <Link href="/learner/homework" className="block transition hover:-translate-y-0.5">
@@ -256,6 +256,7 @@ export function LearnerAnalyticsView({
                 : undefined
             }
             tone="success"
+            hintTone="danger"
           />
         </Link>
         <Link href="/learner/quizzes" className="block transition hover:-translate-y-0.5">
@@ -272,6 +273,7 @@ export function LearnerAnalyticsView({
                 : undefined
             }
             tone="info"
+            hintTone="danger"
           />
         </Link>
         <KpiCard
@@ -285,6 +287,7 @@ export function LearnerAnalyticsView({
           value={String(totalActivities)}
           hint="Homework + quizzes"
           tone="info"
+          hintTone="default"
         />
       </div>
 
