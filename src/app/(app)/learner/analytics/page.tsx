@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
+import { Loader2 } from 'lucide-react'
 import { getSessionUser } from '@/lib/auth'
 import {
   getLearnerAnalyticsServer,
@@ -49,8 +50,8 @@ export default async function LearnerAnalyticsPage({
     <Suspense
       key={`${from}:${to}`}
       fallback={
-        <div className="flex h-64 items-center justify-center text-sm text-muted-foreground">
-          Loading your analytics…
+        <div className="flex h-64 items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       }
     >
