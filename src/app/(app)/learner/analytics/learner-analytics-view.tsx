@@ -1,8 +1,9 @@
 'use client'
 
 import React, { useState } from 'react'
+import Link from 'next/link'
 import {
-  BarChart3, Download, BookOpen, HelpCircle, Award, Activity,
+  Download, BookOpen, HelpCircle, Award, Activity,
   Calendar,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -182,100 +183,104 @@ export function LearnerAnalyticsView({
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        <KpiCard
-          icon={BookOpen}
-          label="Homework submitted"
-          value={String(safeData.homework.submitted)}
-          hint={
-            safeData.homework.graded > 0
-              ? `${safeData.homework.graded} graded`
-              : 'Not graded yet'
-          }
-          tone="info"
-        />
-        <KpiCard
-          icon={Award}
-          label="Homework average"
-          value={
-            safeData.homework.average != null
-              ? `${safeData.homework.average.toFixed(1)}%`
-              : '—'
-          }
-          hint={
-            safeData.homework.highest != null
-              ? `Best ${safeData.homework.highest.toFixed(0)}%`
-              : undefined
-          }
-          tone="success"
-        />
-        <KpiCard
-          icon={HelpCircle}
-          label="Quizzes attempted"
-          value={String(safeData.quizzes.attempted)}
-          hint={
-            safeData.quizzes.average != null
-              ? `Avg ${safeData.quizzes.average.toFixed(1)}%`
-              : 'No attempts yet'
-          }
-          tone="default"
-        />
-        <KpiCard
-          icon={Award}
-          label="Quiz average"
-          value={
-            safeData.quizzes.average != null
-              ? `${safeData.quizzes.average.toFixed(1)}%`
-              : '—'
-          }
-          hint={
-            safeData.quizzes.highest != null
-              ? `Best ${safeData.quizzes.highest.toFixed(0)}%`
-              : undefined
-          }
-          tone="success"
-        />
+        <Link href="/learner/homework" className="block transition hover:-translate-y-0.5">
+          <KpiCard
+            label="Homework done"
+            value={String(safeData.homework.submitted)}
+            hint={
+              safeData.homework.graded > 0
+                ? `${safeData.homework.graded} graded`
+                : 'Not graded yet'
+            }
+            tone="info"
+          />
+        </Link>
+        <Link href="/learner/homework" className="block transition hover:-translate-y-0.5">
+          <KpiCard
+            label="Homework average"
+            value={
+              safeData.homework.average != null
+                ? `${safeData.homework.average.toFixed(1)}%`
+                : '—'
+            }
+            hint={
+              safeData.homework.highest != null
+                ? `Best ${safeData.homework.highest.toFixed(0)}%`
+                : undefined
+            }
+            tone="success"
+          />
+        </Link>
+        <Link href="/learner/quizzes" className="block transition hover:-translate-y-0.5">
+          <KpiCard
+            label="Quiz attempts"
+            value={String(safeData.quizzes.attempted)}
+            hint={
+              safeData.quizzes.average != null
+                ? `Avg ${safeData.quizzes.average.toFixed(1)}%`
+                : 'No attempts yet'
+            }
+            tone="default"
+          />
+        </Link>
+        <Link href="/learner/quizzes" className="block transition hover:-translate-y-0.5">
+          <KpiCard
+            label="Quiz average"
+            value={
+              safeData.quizzes.average != null
+                ? `${safeData.quizzes.average.toFixed(1)}%`
+                : '—'
+            }
+            hint={
+              safeData.quizzes.highest != null
+                ? `Best ${safeData.quizzes.highest.toFixed(0)}%`
+                : undefined
+            }
+            tone="success"
+          />
+        </Link>
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <Link href="/learner/homework" className="block transition hover:-translate-y-0.5">
+          <KpiCard
+            label="Homework best"
+            value={
+              safeData.homework.highest != null
+                ? `${safeData.homework.highest.toFixed(0)}%`
+                : '—'
+            }
+            hint={
+              safeData.homework.lowest != null
+                ? `Lowest ${safeData.homework.lowest.toFixed(0)}%`
+                : undefined
+            }
+            tone="success"
+          />
+        </Link>
+        <Link href="/learner/quizzes" className="block transition hover:-translate-y-0.5">
+          <KpiCard
+            label="Quiz best"
+            value={
+              safeData.quizzes.highest != null
+                ? `${safeData.quizzes.highest.toFixed(0)}%`
+                : '—'
+            }
+            hint={
+              safeData.quizzes.lowest != null
+                ? `Lowest ${safeData.quizzes.lowest.toFixed(0)}%`
+                : undefined
+            }
+            tone="info"
+          />
+        </Link>
         <KpiCard
-          icon={Award}
-          label="Homework best"
-          value={
-            safeData.homework.highest != null
-              ? `${safeData.homework.highest.toFixed(0)}%`
-              : '—'
-          }
-          hint={
-            safeData.homework.lowest != null
-              ? `Lowest ${safeData.homework.lowest.toFixed(0)}%`
-              : undefined
-          }
-          tone="success"
-        />
-        <KpiCard
-          icon={Award}
-          label="Quiz best"
-          value={
-            safeData.quizzes.highest != null
-              ? `${safeData.quizzes.highest.toFixed(0)}%`
-              : '—'
-          }
-          hint={
-            safeData.quizzes.lowest != null
-              ? `Lowest ${safeData.quizzes.lowest.toFixed(0)}%`
-              : undefined
-          }
-          tone="info"
-        />
-        <KpiCard
-          icon={Activity}
           label="Active days"
           value={String(safeData.activity.active_days)}
           hint={`from ${safeData.from}`}
           tone="default"
         />
         <KpiCard
-          icon={BarChart3}
           label="Total activities"
           value={String(totalActivities)}
           hint="Homework + quizzes"
