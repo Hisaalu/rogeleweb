@@ -18,12 +18,13 @@ export interface SubscriptionSummary {
 }
 
 export interface CalendarEvent {
-  id: string | number
-  date: string
-  time: string
-  title: string
-  subject?: string
-  url: string
+  id: string;
+  date: string;
+  time: string;
+  title: string;
+  subject?: string;
+  url: string;
+  type?: 'quiz' | 'homework';
 }
 
 export interface DashboardData {

@@ -9,6 +9,7 @@ import {
   BarChart2,
   CheckCircle2,
   RefreshCw,
+  Calendar,
 } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -22,34 +23,35 @@ export function LearnerQuizzesView({
   attempts: QuizAttempt[]
 }) {
   const visibleQuizzes = quizzes.filter((q) => (q.question_count ?? 0) > 0)
+  const now = new Date()
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 px-4 py-8">
+    <div className="mx-auto max-w-6xl space-y-5 px-4 py-6 sm:space-y-6 sm:px-6 sm:py-8">
       <div className="text-center">
-        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">
+        <h1 className="text-xl font-bold text-foreground sm:text-2xl lg:text-3xl">
           Practice Quizzes
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
           Test your knowledge with timed quizzes
         </p>
       </div>
 
       {visibleQuizzes.length === 0 ? (
-        <Card className="px-6 py-16 text-center">
+        <Card className="px-4 py-12 text-center sm:px-6 sm:py-16">
           <HelpCircle
-            size={48}
-            className="mx-auto mb-4 opacity-30"
+            size={40}
+            className="mx-auto mb-3 opacity-30 sm:mb-4 sm:size-12"
             style={{ color: 'var(--brand-accent)' }}
           />
-          <h3 className="text-lg font-bold text-foreground">
+          <h3 className="text-base font-bold text-foreground sm:text-lg">
             No Quizzes Available
           </h3>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-1.5 text-xs text-muted-foreground sm:mt-2 sm:text-sm">
             Check back later for new quizzes!
           </p>
         </Card>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
           {visibleQuizzes.map((quiz) => {
             const quizAttempts = attempts.filter((a) => a.quiz_id === quiz.id)
             const completedAttempts = quizAttempts.filter(
@@ -80,72 +82,106 @@ export function LearnerQuizzesView({
                   )[0].id
                 : null
 
+            const deadlineDate = quiz.end_date ? new Date(quiz.end_date) : null
+            const isPastDeadline = deadlineDate ? deadlineDate < now : false
+            
+            let deadlineText = null
+            if (deadlineDate) {
+              const formattedDate = deadlineDate.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+              })
+              deadlineText = isPastDeadline 
+                ? `Ended ${formattedDate}` 
+                : `Due ${formattedDate}`
+            }
+
             return (
               <Card
                 key={quiz.id}
-                className={`relative flex flex-col p-5 transition hover:-translate-y-1 hover:shadow-md ${
+                className={`relative flex flex-col p-4 transition hover:-translate-y-1 hover:shadow-md sm:p-5 ${
                   inProgressAttempt || noAttemptsLeft
                     ? 'border-warning-border bg-warning-bg/30'
                     : 'border-border'
                 }`}
               >
-                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                  <span
-                    className="rounded-md px-2.5 py-1 text-xs font-semibold"
-                    style={{
-                      backgroundColor:
-                        'color-mix(in srgb, var(--brand-primary) 10%, transparent)',
-                      color: 'var(--brand-primary)',
-                    }}
-                  >
-                    {quiz.subject_name ?? 'General'}
-                  </span>
-                  <span
-                    className="rounded-md px-2.5 py-1 text-xs font-semibold"
-                    style={{
-                      backgroundColor:
-                        'color-mix(in srgb, var(--brand-accent) 10%, transparent)',
-                      color: 'var(--brand-accent)',
-                    }}
-                  >
-                    {quiz.class_name ?? 'All Levels'}
-                  </span>
+                <div className="mb-2 flex flex-wrap items-center justify-between gap-2 sm:mb-3">
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                    <span
+                      className="rounded-md px-2 py-0.5 text-[10px] font-semibold sm:px-2.5 sm:py-1 sm:text-xs"
+                      style={{
+                        backgroundColor:
+                          'color-mix(in srgb, var(--brand-primary) 10%, transparent)',
+                        color: 'var(--brand-primary)',
+                      }}
+                    >
+                      {quiz.subject_name ?? 'General'}
+                    </span>
+                    <span
+                      className="rounded-md px-2 py-0.5 text-[10px] font-semibold sm:px-2.5 sm:py-1 sm:text-xs"
+                      style={{
+                        backgroundColor:
+                          'color-mix(in srgb, var(--brand-accent) 10%, transparent)',
+                        color: 'var(--brand-accent)',
+                      }}
+                    >
+                      {quiz.class_name ?? 'All Levels'}
+                    </span>
+                  </div>
+                  
+                  {deadlineText && (
+                    <span className={`flex items-center gap-1 text-[10px] font-medium sm:text-[11px] ${
+                      isPastDeadline ? 'text-muted-foreground' : 'text-foreground'
+                    }`}>
+                      <Calendar 
+                        size={12} 
+                        className="shrink-0"
+                        style={{ color: isPastDeadline ? 'var(--muted-foreground)' : 'var(--brand-accent)' }} 
+                      />
+                      {deadlineText}
+                    </span>
+                  )}
                 </div>
 
-                <h3 className="mb-2 text-lg font-bold text-foreground">
+                <h3 className="mb-1.5 text-base font-bold text-foreground sm:mb-2 sm:text-lg">
                   {quiz.title}
                 </h3>
                 {quiz.description && (
-                  <p className="mb-4 line-clamp-2 flex-grow text-sm text-muted-foreground">
+                  <p className="mb-3 line-clamp-2 flex-grow text-xs text-muted-foreground sm:mb-4 sm:text-sm">
                     {quiz.description}
                   </p>
                 )}
 
-                <div className="mb-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground">
+                <div className="mb-3 flex flex-wrap gap-x-3 gap-y-1.5 text-[10px] text-muted-foreground sm:mb-4 sm:gap-x-4 sm:gap-y-2 sm:text-xs">
                   <span className="flex items-center gap-1">
                     <HelpCircle
-                      size={13}
+                      size={12}
+                      className="shrink-0 sm:size-3.5"
                       style={{ color: 'var(--brand-accent)' }}
                     />
                     {quiz.question_count ?? 0} qns
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock
-                      size={13}
+                      size={12}
+                      className="shrink-0 sm:size-3.5"
                       style={{ color: 'var(--brand-accent)' }}
                     />
                     {quiz.time_limit ?? 30}m
                   </span>
                   <span className="flex items-center gap-1">
                     <Trophy
-                      size={13}
+                      size={12}
+                      className="shrink-0 sm:size-3.5"
                       style={{ color: 'var(--brand-accent)' }}
                     />
                     {passingScore}% pass
                   </span>
                   <span className="flex items-center gap-1">
                     <RefreshCw
-                      size={13}
+                      size={12}
+                      className="shrink-0 sm:size-3.5"
                       style={{ color: 'var(--brand-accent)' }}
                     />
                     {attemptCount}/{maxAttempts} attempts
@@ -153,8 +189,8 @@ export function LearnerQuizzesView({
                 </div>
 
                 {completedAttempts.length > 0 && (
-                  <div className="mb-4 border-y border-border py-3">
-                    <div className="mb-1.5 flex items-center justify-between text-xs">
+                  <div className="mb-3 border-y border-border py-2.5 sm:mb-4 sm:py-3">
+                    <div className="mb-1.5 flex items-center justify-between text-[10px] sm:text-xs">
                       <span className="text-foreground">
                         Best: <strong>{bestScore}%</strong>
                       </span>
@@ -177,7 +213,7 @@ export function LearnerQuizzesView({
                     </div>
                     {passed && (
                       <div
-                        className="mt-1.5 flex items-center gap-1 text-[11px] font-bold"
+                        className="mt-1.5 flex items-center gap-1 text-[10px] font-bold sm:text-[11px]"
                         style={{ color: 'var(--success-fg)' }}
                       >
                         <CheckCircle2 size={12} /> Passed
@@ -192,13 +228,13 @@ export function LearnerQuizzesView({
                       href={`/learner/quizzes/${quiz.id}`}
                       className="w-full"
                     >
-                      <Button className="w-full" variant="secondary">
+                      <Button className="w-full text-xs sm:text-sm" variant="secondary">
                         <Play size={15} /> Resume Quiz
                       </Button>
                     </Link>
                     ) : noAttemptsLeft ? (
                       <>
-                        <Button disabled className="flex-1" variant="outline">
+                        <Button disabled className="flex-1 text-xs sm:text-sm" variant="outline">
                           No Attempts
                         </Button>
                         {latestCompletedId && quiz.show_results_to_students !== false && (
@@ -214,7 +250,7 @@ export function LearnerQuizzesView({
                       href={`/learner/quizzes/${quiz.id}`}
                       className="w-full"
                     >
-                      <Button className="w-full">
+                      <Button className="w-full text-xs sm:text-sm">
                         {attemptCount > 0
                           ? 'Try Another Attempt'
                           : 'Start Quiz'}

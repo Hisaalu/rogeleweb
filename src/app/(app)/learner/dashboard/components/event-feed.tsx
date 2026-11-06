@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Clock, X } from 'lucide-react'
+import { Clock, X, HelpCircle, ClipboardList } from 'lucide-react'
 import type { CalendarEvent } from '@/types/dashboard'
 
 function monthShort(iso: string): string {
@@ -43,7 +43,7 @@ export function EventFeed({
 
   return (
     <div id="dashboard-event-feed" className="flex w-full flex-col scroll-mt-24">
-      <div className="mb-3 flex items-center justify-between gap-2 sm:mb-4">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2 sm:mb-4">
         <h4 className="truncate text-sm font-semibold text-foreground sm:text-base">
           {headerLabel}
         </h4>
@@ -71,40 +71,59 @@ export function EventFeed({
       ) : (
         <div className="h-[320px] overflow-y-auto pr-2 sm:h-auto sm:flex-1">
           <div className="flex flex-col gap-2.5 sm:gap-3">
-            {sorted.map((e) => (
-              <Link
-                key={e.id}
-                href={e.url || '#'}
-                className="group flex w-full gap-3 rounded-xl border border-border bg-card p-3 transition-all hover:border-brand-accent hover:shadow-md"
-                style={{ borderLeft: '4px solid var(--brand-accent)' }}
-              >
-                <div
-                  className="flex min-w-[50px] shrink-0 flex-col items-center justify-center rounded-lg px-1.5 py-1 sm:min-w-[54px] sm:px-2 sm:py-1.5"
-                  style={{
-                    backgroundColor: 'color-mix(in srgb, var(--brand-accent) 10%, transparent)',
-                  }}
+            {sorted.map((e) => {
+              const isQuiz = e.type === 'quiz'
+              return (
+                <Link
+                  key={e.id}
+                  href={e.url || '#'}
+                  className="group flex w-full gap-3 rounded-xl border border-border bg-card p-3 transition-all hover:border-brand-accent hover:shadow-md"
+                  style={{ borderLeft: '4px solid var(--brand-accent)' }}
                 >
-                  <span className="text-[9px] font-bold uppercase sm:text-[10px]" style={{ color: 'var(--brand-accent)' }}>
-                    {monthShort(e.date)}
-                  </span>
-                  <span className="text-base font-extrabold leading-none sm:text-lg" style={{ color: 'var(--brand-primary)' }}>
-                    {dayNum(e.date)}
-                  </span>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h5 className="mb-0.5 truncate text-sm font-semibold text-foreground transition group-hover:text-brand-accent sm:mb-1">
-                    {e.title}
-                  </h5>
-                  <span className="mb-1 flex items-center gap-1 text-[11px] text-muted-foreground sm:mb-1.5 sm:text-xs">
-                    <Clock size={11} className="shrink-0 sm:size-3" />
-                    {e.time}
-                  </span>
-                  <span className="inline-block rounded bg-muted px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-muted-foreground sm:px-2 sm:text-[10px]">
-                    {e.subject ?? 'General'}
-                  </span>
-                </div>
-              </Link>
-            ))}
+                  <div
+                    className="flex min-w-[50px] shrink-0 flex-col items-center justify-center rounded-lg px-1.5 py-1 sm:min-w-[54px] sm:px-2 sm:py-1.5"
+                    style={{
+                      backgroundColor: 'color-mix(in srgb, var(--brand-accent) 10%, transparent)',
+                    }}
+                  >
+                    <span className="text-[9px] font-bold uppercase sm:text-[10px]" style={{ color: 'var(--brand-accent)' }}>
+                      {monthShort(e.date)}
+                    </span>
+                    <span className="text-base font-extrabold leading-none sm:text-lg" style={{ color: 'var(--brand-primary)' }}>
+                      {dayNum(e.date)}
+                    </span>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h5 className="mb-0.5 truncate text-sm font-semibold text-foreground transition group-hover:text-brand-accent sm:mb-1">
+                      {e.title}
+                    </h5>
+                    <span className="mb-1 flex items-center gap-1 text-[11px] text-muted-foreground sm:mb-1.5 sm:text-xs">
+                      <Clock size={11} className="shrink-0 sm:size-3" />
+                      {e.time}
+                    </span>
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                      <span className="inline-block rounded bg-muted px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-muted-foreground sm:px-2 sm:text-[10px]">
+                        {e.subject ?? 'General'}
+                      </span>
+                      
+                      {e.type && (
+                        <span 
+                          className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide sm:px-2 sm:text-[10px]"
+                          style={
+                            isQuiz 
+                              ? { backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }
+                              : { backgroundColor: 'var(--muted)', color: 'var(--muted-foreground)' }
+                          }
+                        >
+                          {isQuiz ? <HelpCircle size={10} /> : <ClipboardList size={10} />}
+                          {isQuiz ? 'Quiz' : 'Homework'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              )
+            })}
           </div>
         </div>
       )}

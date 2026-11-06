@@ -24,11 +24,13 @@ export function LearnerDashboardView({
   subscription,
   trial,
   events,
+  quizzes,
 }: {
   profile: User | null
   subscription: SubscriptionSummary | null
   trial: TrialStatus | null
   events: CalendarEvent[]
+  quizzes: any[]
 }) {
   const router = useRouter()
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
@@ -61,6 +63,25 @@ export function LearnerDashboardView({
     showButton = true
   } else if (hasActiveSubscription && !isYearly) {
     showButton = false
+  }
+
+  const now = new Date();
+  const nextQuiz = quizzes
+    ?.filter(q => {
+      const deadline = q.end_date || q.start_date;
+      return deadline && new Date(deadline) > now;
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.end_date || a.start_date).getTime();
+      const dateB = new Date(b.end_date || b.start_date).getTime();
+      return dateA - dateB;
+    })[0];
+
+  let quizDeadlineText = 'Test your knowledge';
+  if (hasAccess && nextQuiz) {
+    const deadlineDate = new Date(nextQuiz.end_date || nextQuiz.start_date);
+    const daysLeft = Math.ceil((deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    quizDeadlineText = daysLeft === 1 ? `Due tomorrow` : `Due in ${daysLeft} days`;
   }
 
   return (
@@ -171,7 +192,11 @@ export function LearnerDashboardView({
             icon={<HelpCircle size={26} />}
             title="Practice Quizzes"
             description={
-              hasAccess ? 'Test your knowledge' : 'Subscribe to access quizzes'
+              !hasAccess
+                ? 'Subscribe to access quizzes'
+                : nextQuiz 
+                  ? quizDeadlineText
+                  : 'Test your knowledge'
             }
             locked={!hasAccess}
           />

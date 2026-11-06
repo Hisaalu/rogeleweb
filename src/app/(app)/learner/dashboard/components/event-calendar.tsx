@@ -155,6 +155,14 @@ export function EventCalendar({
               style={style}
             >
               {cell.day}
+              
+              {hasEvents && dayEvents.some(e => e.type === 'quiz') && (
+                <span 
+                  className="absolute bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full sm:bottom-1.5" 
+                  style={{ backgroundColor: 'var(--brand-primary)' }} 
+                />
+              )}
+              
               {hasEvents && dayEvents.length > 1 && (
                 <span
                   className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full text-[8px] font-bold text-white shadow-sm sm:-right-1 sm:-top-1 sm:h-5 sm:w-5 sm:text-[10px]"

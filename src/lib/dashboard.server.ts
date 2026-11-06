@@ -39,11 +39,9 @@ async function safeRequest<T>(path: string): Promise<T | null> {
     return await retry(() => serverApiRequest<T>(path))
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
-    
     if (!msg.includes('resource not found')) {
       console.error('[dashboard.server] request failed', { path, err })
     }
-    
     return null
   }
 }
@@ -91,7 +89,7 @@ export async function getTrialStatusServer(): Promise<TrialStatus | null> {
   const daysRemaining = Number.isFinite(rawRemaining)
     ? Math.max(0, rawRemaining)
     : 0
-  
+
   const isInTrial = Boolean(r.is_in_trial ?? false)
 
   return {
@@ -167,7 +165,7 @@ export async function getCalendarEventsServer(): Promise<CalendarEvent[]> {
 
   for (const q of quizzes) {
     if (q.is_published === false) continue
-    const when = normalizeUTC(q.start_date ?? q.created_at ?? null)
+    const when = normalizeUTC(q.end_date ?? q.start_date ?? q.created_at ?? null)
     if (!when) continue
     const d = new Date(when)
     if (Number.isNaN(d.getTime())) continue
@@ -177,9 +175,10 @@ export async function getCalendarEventsServer(): Promise<CalendarEvent[]> {
       id: `quiz-${q.id}`,
       date: d.toISOString(),
       time: formatTime(when),
-      title: q.title ?? 'Quiz',
+      title: q.title ? `Quiz: ${q.title}` : 'Quiz',
       subject: q.subject_name ?? undefined,
       url: `/learner/quizzes/${q.id}`,
+      type: 'quiz',
     })
   }
 
@@ -198,6 +197,7 @@ export async function getCalendarEventsServer(): Promise<CalendarEvent[]> {
       title: h.title ?? 'Homework',
       subject: h.subject_name ?? undefined,
       url: `/learner/homework/${h.id}`,
+      type: 'homework',
     })
   }
 
@@ -205,6 +205,11 @@ export async function getCalendarEventsServer(): Promise<CalendarEvent[]> {
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   )
   return events
+}
+
+export async function getLearnerQuizzesServer(): Promise<RawQuiz[]> {
+  const res = await safeRequest<unknown>('/api/v1/quizzes?per_page=100')
+  return unwrapList<RawQuiz>(res)
 }
 
 export async function getLearnerDashboardDataServer(): Promise<DashboardData> {
