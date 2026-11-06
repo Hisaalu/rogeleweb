@@ -114,7 +114,7 @@ export function ForgotPasswordForm() {
               </Button>
 
               <div className="pt-4 text-center text-sm text-muted-foreground">
-                <Link href="/login" className="font-medium hover:underline" style={{ color: 'var(--brand-primary)' }}>
+                <Link href="/login" className="font-medium hover:underline">
                   Remember password? Login
                 </Link>
               </div>

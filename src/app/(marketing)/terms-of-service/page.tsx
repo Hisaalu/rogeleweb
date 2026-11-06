@@ -26,10 +26,7 @@ export default async function TermsOfServicePage() {
     <div className="mx-auto max-w-4xl space-y-8 px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
       
       <div className="border-b border-border pb-8 text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-sm" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-accent) 10%, transparent)' }}>
-          <FileText size={32} style={{ color: 'var(--brand-accent)' }} />
-        </div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl" style={{ color: 'var(--brand-primary)' }}>
+        <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
           Terms of Service
         </h1>
         <p className="mt-3 text-sm text-muted-foreground">

@@ -252,11 +252,11 @@ export function RegisterForm({ classes }: { classes: Class[] }) {
           
           <div className="pt-2 text-center text-xs text-muted-foreground">
             By continuing, you agree to our{' '}
-            <Link href="/terms-of-service" target="_blank" className="font-medium hover:underline" style={{ color: 'var(--brand-primary)' }}>
+            <Link href="/terms-of-service" target="_blank" className="font-medium underline">
               Terms
             </Link>{' '}
             &{' '}
-            <Link href="/privacy-policy" target="_blank" className="font-medium hover:underline" style={{ color: 'var(--brand-primary)' }}>
+            <Link href="/privacy-policy" target="_blank" className="font-medium underline">
               Policy
             </Link>.
           </div>
@@ -272,7 +272,7 @@ export function RegisterForm({ classes }: { classes: Class[] }) {
 
           <div className="border-t border-border pt-6 text-center text-sm text-muted-foreground">
             Already have an account?{' '}
-            <Link href="/login" className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>
+            <Link href="/login" className="font-semibold underline">
               Log in
             </Link>
           </div>

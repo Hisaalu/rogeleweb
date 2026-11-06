@@ -130,14 +130,12 @@ export function LoginForm() {
             <a
               href="/forgot-password"
               className="font-medium hover:underline"
-              style={{ color: 'var(--brand-primary)' }}
             >
               Forgot password?
             </a>
             <a
               href="/register"
               className="font-medium hover:underline"
-              style={{ color: 'var(--brand-primary)' }}
             >
               Create account
             </a>

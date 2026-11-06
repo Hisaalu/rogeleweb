@@ -34,7 +34,7 @@ export default async function ContactPage() {
       <div className="mx-auto w-full max-w-7xl flex-1 px-4 py-12 sm:px-6 sm:py-20 lg:px-8">
         
         <div className="mb-16 text-center">
-          <h1 className="text-3xl font-extrabold text-foreground sm:text-4xl" style={{ color: 'var(--brand-primary)' }}>
+          <h1 className="text-3xl font-extrabold text-foreground sm:text-4xl">
             Contact Us
           </h1>
           <p className="mt-3 text-lg text-muted-foreground">
