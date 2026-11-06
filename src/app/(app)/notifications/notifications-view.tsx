@@ -66,10 +66,9 @@ export function NotificationsView({
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold sm:text-3xl" style={{ color: 'var(--brand-primary)' }}>
-            <Bell size={26} className="shrink-0" />
-            <span>Notifications</span>
+        <div className="text-center sm:text-left">
+          <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">
+            Notifications
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {unreadCount > 0
