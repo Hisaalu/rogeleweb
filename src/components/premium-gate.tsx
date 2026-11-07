@@ -32,7 +32,7 @@ const GATE_COPY: Record<GateContext, Record<GateReason, GateCopy>> = {
       dismissLabel: 'Maybe later',
     },
     no_plan: {
-      title: 'Unlock detailed lesson view with Premium',
+      title: 'Unlock file downloads with Premium',
       description:
         'Only Premium subscribers can download files. Upgrade to continue.',
       upgradeLabel: 'Upgrade',
@@ -57,14 +57,14 @@ const GATE_COPY: Record<GateContext, Record<GateReason, GateCopy>> = {
   },
   homework: {
     trial_expired: {
-      title: 'Unlock homework with Premium',
+      title: 'Unlock files with Premium',
       description:
         'Only Premium subscribers can download files and submit homework. Upgrade to continue.',
       upgradeLabel: 'Upgrade',
       dismissLabel: 'Maybe later',
     },
     no_plan: {
-      title: 'Unlock homework with Premium',
+      title: 'Unlock files with Premium',
       description:
         'Only Premium subscribers can download files and submit homework. Upgrade to continue.',
       upgradeLabel: 'Upgrade',
