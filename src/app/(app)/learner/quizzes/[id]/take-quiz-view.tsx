@@ -278,8 +278,7 @@ export function TakeQuizView({
           <Link
             href="/learner/quizzes"
             aria-label="Back to quizzes"
-            className="inline-flex items-center text-white transition hover:opacity-80"
-          >
+            className="inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"          >
             <ArrowLeft size={20} className="shrink-0 sm:h-5 sm:w-5" />
           </Link>
           <Clock size={18} className="shrink-0 sm:h-5 sm:w-5" />

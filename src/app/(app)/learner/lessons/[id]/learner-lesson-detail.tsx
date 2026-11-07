@@ -101,7 +101,7 @@ export function LearnerLessonDetail({
       <div className="relative flex items-center justify-between gap-3">
         <Link
           href="/learner/lessons"
-          className="inline-flex items-center gap-1.5 text-2xl font-bold text-foreground transition hover:opacity-80 sm:text-3xl"
+          className="inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"
         >
           <ArrowLeft size={26} className="shrink-0" />
           <span className="sr-only">Lessons</span>
