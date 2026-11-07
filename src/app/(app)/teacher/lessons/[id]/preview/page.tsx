@@ -38,8 +38,7 @@ export default async function LessonPreviewPage({
         <Link
           href="/teacher/lessons"
           aria-label="Back to lessons"
-          className="inline-flex items-center gap-1.5 text-2xl font-bold text-foreground transition hover:opacity-80 sm:text-3xl"
-        >
+          className="inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"        >
           <ArrowLeft size={26} className="shrink-0" />
           <span className="sr-only">Lessons</span>
         </Link>

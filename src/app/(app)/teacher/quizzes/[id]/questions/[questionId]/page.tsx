@@ -26,8 +26,7 @@ export default async function EditQuestionPage({ params }: { params: { id: strin
         <Link
           href={`/teacher/quizzes/${quiz.id}/questions`}
           aria-label="Back to questions"
-          className="inline-flex shrink-0 items-center gap-1.5 text-2xl font-bold text-foreground transition hover:opacity-80 sm:text-3xl"
-        >
+          className="inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"        >
           <ArrowLeft size={26} className="shrink-0" />
           <span className="sr-only">Questions</span>
         </Link>
