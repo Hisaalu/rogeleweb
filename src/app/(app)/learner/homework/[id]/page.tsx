@@ -7,7 +7,6 @@ import {
   getTrialStatusServer,
   getActiveSubscriptionServer,
 } from '@/lib/dashboard.server'
-import { getAccessReason } from '@/lib/access'
 import type { HomeworkSubmission } from '@/types/homework'
 import { LearnerHomeworkDetail } from './learner-homework-detail'
 
@@ -34,11 +33,6 @@ export default async function LearnerHomeworkDetailPage({
     getActiveSubscriptionServer(),
   ])
 
-  const reason = getAccessReason(subscription, trial)
-  if (reason !== 'ok') {
-    redirect(`/learner/homework?locked=${reason}`)
-  }
-
   const [hw, attachments] = await Promise.all([
     getHomeworkServer(id),
     listAttachmentsServer(id),
@@ -61,11 +55,22 @@ export default async function LearnerHomeworkDetailPage({
     submission = null
   }
 
+  const hasActiveSubscription = subscription?.status === 'active'
+  const inActiveTrial = !!trial?.is_in_trial
+  const canSubmit = hasActiveSubscription || inActiveTrial
+
+  const gateReason: 'trial_expired' | 'no_plan' | null = canSubmit
+    ? null
+    : trial?.end_date && (trial.days_remaining ?? 0) <= 0
+      ? 'trial_expired'
+      : 'no_plan'
+
   return (
     <LearnerHomeworkDetail
       homework={hw}
       attachments={attachments}
       submission={submission}
+      gateReason={gateReason}
     />
   )
 }

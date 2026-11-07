@@ -11,6 +11,7 @@ import type { Homework, HomeworkAttachment, HomeworkSubmission } from '@/types/h
 import { submitHomeworkClient, deleteSubmissionClient } from '@/lib/homework.client'
 import { materialDownloadUrl, formatFileSize } from '@/lib/materials'
 import { useToast } from '@/components/ui/toast-provider'
+import { PremiumGate } from '@/components/premium-gate'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -19,10 +20,12 @@ export function LearnerHomeworkDetail({
   homework,
   attachments,
   submission: initialSubmission,
+  gateReason,
 }: {
   homework: Homework
   attachments: HomeworkAttachment[]
   submission: HomeworkSubmission | null
+  gateReason: 'trial_expired' | 'no_plan' | null
 }) {
   const router = useRouter()
   const { showToast } = useToast()
@@ -31,6 +34,7 @@ export function LearnerHomeworkDetail({
   const [files, setFiles] = useState<File[]>([])
   const [busy, setBusy] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [gateOpen, setGateOpen] = useState(false)
 
   const dueDate = new Date(homework.due_date)
   const isExpired = dueDate.getTime() < new Date().getTime()
@@ -39,7 +43,17 @@ export function LearnerHomeworkDetail({
   const canResubmit = (!initialSubmission || !isGraded)
   const canDelete = !!initialSubmission && !isGraded
 
+  const canUseFiles = gateReason === null
+
+  function promptUpgrade() {
+    setGateOpen(true)
+  }
+
   function handleFileAdd(list: FileList | null) {
+    if (!canUseFiles) {
+      promptUpgrade()
+      return
+    }
     if (!list) return
     const newFiles = Array.from(list)
     for (const f of newFiles) {
@@ -50,6 +64,10 @@ export function LearnerHomeworkDetail({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (!canUseFiles) {
+      promptUpgrade()
+      return
+    }
     if (!textAnswer.trim() && files.length === 0) {
       return showToast('Please provide a text answer or attach a file.', 'error')
     }
@@ -88,6 +106,13 @@ export function LearnerHomeworkDetail({
       showToast(message, 'error')
       setShowDeleteModal(false)
       setBusy(false)
+    }
+  }
+
+  function handleAttachmentClick(e: React.MouseEvent) {
+    if (!canUseFiles) {
+      e.preventDefault()
+      promptUpgrade()
     }
   }
 
@@ -137,7 +162,14 @@ export function LearnerHomeworkDetail({
             <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-foreground"><Paperclip size={18} style={{ color: 'var(--brand-accent)' }} /> Homework Files</h2>
             <div className="grid gap-3 sm:grid-cols-2">
               {attachments.map(a => (
-                <a key={a.id} href={materialDownloadUrl(a.file_path)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 rounded-md border border-border bg-background p-3 transition hover:border-brand-accent">
+                <a
+                  key={a.id}
+                  href={canUseFiles ? materialDownloadUrl(a.file_path) : undefined}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={handleAttachmentClick}
+                  className="flex items-center gap-3 rounded-md border border-border bg-background p-3 transition hover:border-brand-accent"
+                >
                   <Download size={18} style={{ color: 'var(--brand-accent)' }} />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-foreground">{a.file_name}</p>
@@ -187,7 +219,14 @@ export function LearnerHomeworkDetail({
                 <p className="mb-2 text-sm font-semibold text-foreground">Attached Files</p>
                 <div className="grid gap-2 sm:grid-cols-2">
                   {initialSubmission.files.map(f => (
-                    <a key={f.id} href={materialDownloadUrl(f.file_path)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 rounded-md border border-border bg-card p-3 text-sm transition hover:border-brand-accent">
+                    <a
+                      key={f.id}
+                      href={canUseFiles ? materialDownloadUrl(f.file_path) : undefined}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={handleAttachmentClick}
+                      className="flex items-center gap-2 rounded-md border border-border bg-card p-3 text-sm transition hover:border-brand-accent"
+                    >
                       <FileText size={16} style={{ color: 'var(--brand-accent)' }} />
                       <span className="flex-1 truncate font-medium">{f.file_name}</span>
                     </a>
@@ -208,7 +247,15 @@ export function LearnerHomeworkDetail({
               </div>
               <div>
                 <label className="mb-1.5 block text-sm font-semibold text-foreground">Attach Files (Max 5MB)</label>
-                <label className="relative flex cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed border-border bg-background p-6 text-center transition hover:border-brand-accent">
+                <label
+                  className="relative flex cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed border-border bg-background p-6 text-center transition hover:border-brand-accent"
+                  onClick={(e) => {
+                    if (!canUseFiles) {
+                      e.preventDefault()
+                      promptUpgrade()
+                    }
+                  }}
+                >
                   <UploadCloud size={28} className="mb-2" style={{ color: 'var(--brand-accent)' }} />
                   <span className="text-sm font-medium text-foreground">Click or drag files here</span>
                   <span className="mt-1 text-xs text-muted-foreground">Max 5MB per file</span>
@@ -249,6 +296,15 @@ export function LearnerHomeworkDetail({
         loading={busy}
         onConfirm={handleDelete}
       />
+
+      {gateReason && (
+        <PremiumGate
+          open={gateOpen}
+          context="homework"
+          reason={gateReason}
+          onDismiss={() => setGateOpen(false)}
+        />
+      )}
     </div>
   )
 }
