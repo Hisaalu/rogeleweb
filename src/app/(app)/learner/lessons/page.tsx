@@ -5,7 +5,6 @@ import {
   listLessonsServer,
   listSubjectsServer,
 } from '@/lib/lessons.server'
-import { PremiumGate } from '@/components/premium-gate'
 import { ErrorToaster } from '@/components/error-toaster'
 import { LearnerLessonsView } from './learner-lessons-view'
 
@@ -39,12 +38,6 @@ export default async function LearnerLessonsPage({
   const subjectId = parsePositiveInt(searchParams.subject_id)
   const page = parsePositiveInt(searchParams.page) ?? 1
 
-  const lockedReason =
-    searchParams.locked === 'trial_expired' ||
-    searchParams.locked === 'no_plan'
-      ? searchParams.locked
-      : null
-
   const [result, subjects, bookmarks] = await Promise.all([
     listLessonsServer({
       q: q || undefined,
@@ -65,9 +58,6 @@ export default async function LearnerLessonsPage({
         subjects={subjects}
         bookmarkCount={bookmarks.length}
       />
-      {lockedReason && (
-        <PremiumGate open context="lesson" reason={lockedReason} />
-      )}
     </>
   )
 }
