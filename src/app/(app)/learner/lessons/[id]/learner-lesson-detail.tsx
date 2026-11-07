@@ -20,6 +20,7 @@ import { getYoutubeId, formatNumber, formatDate } from '@/lib/utils'
 import { toggleLessonBookmarkClient } from '@/lib/lessons.client'
 import { formatFileSize, materialDownloadUrl } from '@/lib/materials'
 import { useToast } from '@/components/ui/toast-provider'
+import { PremiumGate } from '@/components/premium-gate'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import type { Lesson, LessonMaterial } from '@/types/lesson'
@@ -50,13 +51,16 @@ function isRealEdit(createdAt: string, updatedAt?: string | null): boolean {
 export function LearnerLessonDetail({
   lesson,
   materials,
+  gateReason,
 }: {
   lesson: Lesson
   materials: LessonMaterial[]
+  gateReason: 'trial_expired' | 'no_plan' | null
 }) {
   const { showToast } = useToast()
   const [bookmarked, setBookmarked] = useState(lesson.is_bookmarked)
   const [busy, setBusy] = useState(false)
+  const [gateOpen, setGateOpen] = useState(false)
 
   useEffect(() => {
     setBookmarked(lesson.is_bookmarked)
@@ -64,6 +68,7 @@ export function LearnerLessonDetail({
 
   const youtubeId = getYoutubeId(lesson.video_url)
   const edited = isRealEdit(lesson.created_at, lesson.updated_at)
+  const canDownload = gateReason === null
 
   async function handleBookmark() {
     if (busy) return
@@ -81,6 +86,13 @@ export function LearnerLessonDetail({
       showToast(message, 'error', { title: 'Action failed' })
     } finally {
       setBusy(false)
+    }
+  }
+
+  function handleDownloadClick(e: React.MouseEvent) {
+    if (!canDownload) {
+      e.preventDefault()
+      setGateOpen(true)
     }
   }
 
@@ -205,10 +217,11 @@ export function LearnerLessonDetail({
               return (
                 <li key={m.id}>
                   <a
-                    href={href}
+                    href={canDownload ? href : undefined}
                     target="_blank"
                     rel="noopener noreferrer"
                     download
+                    onClick={handleDownloadClick}
                     className="group flex flex-col gap-2 rounded-md border border-border bg-muted/40 p-3 text-sm transition hover:border-brand-accent hover:bg-muted sm:flex-row sm:items-center sm:gap-3 sm:p-3.5"
                   >
                     <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -240,6 +253,15 @@ export function LearnerLessonDetail({
           </ul>
         </Card>
       ) : null}
+
+      {gateReason && (
+        <PremiumGate
+          open={gateOpen}
+          context="lesson"
+          reason={gateReason}
+          onDismiss={() => setGateOpen(false)}
+        />
+      )}
     </div>
   )
 }

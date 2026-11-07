@@ -25,16 +25,16 @@ type GateReason = Exclude<AccessReason, 'ok'>
 const GATE_COPY: Record<GateContext, Record<GateReason, GateCopy>> = {
   lesson: {
     trial_expired: {
-      title: 'Unlock detailed lesson view with Premium',
+      title: 'Unlock file downloads with Premium',
       description:
-        'Only Premium subscribers have access to detailed lesson view and downloadable files. Upgrade to continue.',
+        'Only Premium subscribers can download files. Upgrade to continue.',
       upgradeLabel: 'Upgrade',
       dismissLabel: 'Maybe later',
     },
     no_plan: {
       title: 'Unlock detailed lesson view with Premium',
       description:
-        'Only Premium subscribers have access to detailed lesson view and downloadable files. Upgrade to continue.',
+        'Only Premium subscribers can download files. Upgrade to continue.',
       upgradeLabel: 'Upgrade',
       dismissLabel: 'Maybe later',
     },

@@ -5,15 +5,12 @@ import {
   getTrialStatusServer,
   getActiveSubscriptionServer,
 } from '@/lib/dashboard.server'
-import { getAccessReason } from '@/lib/access'
 import { LearnerLessonDetail } from './learner-lesson-detail'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-export const metadata: Metadata = {
-  title: 'Lesson',
-}
+export const metadata: Metadata = { title: 'Lesson' }
 
 const RETURN_TARGETS: Record<string, string> = {
   bookmarks: '/learner/bookmarks',
@@ -37,13 +34,6 @@ export default async function LearnerLessonPage({
     getActiveSubscriptionServer(),
   ])
 
-  const reason = getAccessReason(subscription, trial)
-  if (reason !== 'ok') {
-    const target =
-      RETURN_TARGETS[searchParams.from ?? 'lessons'] ?? '/learner/lessons'
-    redirect(`${target}?locked=${reason}`)
-  }
-
   const [lesson, materials] = await Promise.all([
     getLessonServer(id),
     listMaterialsServer(id),
@@ -55,5 +45,21 @@ export default async function LearnerLessonPage({
     redirect(`${target}?error=not_found`)
   }
 
-  return <LearnerLessonDetail lesson={lesson} materials={materials} />
+  const hasActiveSubscription = subscription?.status === 'active'
+  const inActiveTrial = !!trial?.is_in_trial
+  const canDownload = hasActiveSubscription || inActiveTrial
+
+  const gateReason: 'trial_expired' | 'no_plan' | null = canDownload
+    ? null
+    : trial?.end_date && (trial.days_remaining ?? 0) <= 0
+      ? 'trial_expired'
+      : 'no_plan'
+
+  return (
+    <LearnerLessonDetail
+      lesson={lesson}
+      materials={materials}
+      gateReason={gateReason}
+    />
+  )
 }
