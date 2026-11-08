@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Check, Bell, CheckCircle2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -26,6 +27,7 @@ export function NotificationsView({
 }: {
   initialNotifications: Notification[]
 }) {
+  const router = useRouter()
   const [notifications, setNotifications] = useState<Notification[]>(
     initialNotifications,
   )
@@ -53,13 +55,18 @@ export function NotificationsView({
   }
 
   async function handleMarkOne(n: Notification) {
-    if (n.is_read) return
-    try {
-      await markNotificationReadClient(n.id)
-      setNotifications((list) =>
-        list.map((x) => (x.id === n.id ? { ...x, is_read: true } : x)),
-      )
-    } catch {
+    if (!n.is_read) {
+      try {
+        await markNotificationReadClient(n.id)
+        setNotifications((list) =>
+          list.map((x) => (x.id === n.id ? { ...x, is_read: true } : x)),
+        )
+      } catch {
+      }
+    }
+    
+    if (n.link) {
+      router.push(n.link)
     }
   }
 
