@@ -24,9 +24,8 @@ export default async function EditQuestionPage({ params }: { params: { id: strin
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
       <div className="relative flex items-center justify-between gap-3">
         
-        {/* Changed href to ".." to act as a back button */}
         <Link
-          href=".."
+          href={`/teacher/quizzes/${quiz.id}/questions`}
           aria-label="Go back"
           className="inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"
         >
