@@ -59,7 +59,7 @@ export function LearnerDashboardView({
     buttonLabel = "Subscribe Now"
     showButton = true
   } else if (hasActiveSubscription && isYearly) {
-    buttonLabel = "Pro"
+    buttonLabel = "Completed"
     showButton = true
   } else if (hasActiveSubscription && !isYearly) {
     showButton = false
@@ -81,7 +81,7 @@ export function LearnerDashboardView({
   if (hasAccess && nextQuiz) {
     const deadlineDate = new Date(nextQuiz.end_date || nextQuiz.start_date);
     const daysLeft = Math.ceil((deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    quizDeadlineText = daysLeft === 1 ? `Due tomorrow` : `Due in ${daysLeft} days`;
+    quizDeadlineText = daysLeft === 1 ? `Due tomorrow` : `Latest quiz is due in ${daysLeft} days`;
   }
 
   return (

@@ -10,13 +10,11 @@ import type { SessionUser } from '@/lib/auth'
 export function Header({
   user,
   onMenuClick,
-  isPro,
   isInTrial,
   hasActiveSubscription,
 }: {
   user: SessionUser
   onMenuClick: () => void
-  isPro?: boolean
   isInTrial?: boolean
   hasActiveSubscription?: boolean
 }) {
@@ -58,18 +56,6 @@ export function Header({
       </div>
 
       <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
-        
-        {user.role !== 'teacher' && isPro && (
-          <div
-            className="flex items-center gap-1.5 rounded-sm px-2.5 py-1.5 text-[11px] text-white shadow-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-xs"
-            style={{
-              backgroundColor: 'color-mix(in srgb, var(--success-border) 70%, transparent)',
-            }}
-          >
-            <Crown size={12} className="shrink-0" />
-            <span>Pro</span>
-          </div>
-        )}
 
         {showUpgrade && (
           <Link
