@@ -33,12 +33,15 @@ export default async function PreviewQuizPage({ params }: { params: { id: string
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">
       <div className="flex flex-col gap-4 sm:relative sm:flex-row sm:items-center sm:justify-between sm:gap-3">
         <div className="flex items-center justify-between gap-3 sm:contents">
+          
+          {/* Changed href to ".." to act as a back button */}
           <Link
-            href="/teacher/quizzes"
-            aria-label="Back to quizzes"
-            className="inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"          >
+            href=".."
+            aria-label="Go back"
+            className="inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"
+          >
             <ArrowLeft size={26} className="shrink-0" />
-            <span className="sr-only">Quizzes</span>
+            <span className="sr-only">Go back</span>
           </Link>
 
           <Link

@@ -1,7 +1,7 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import React, { useMemo, useCallback } from 'react'
-import Link from 'next/link'
 import {
   ArrowLeft, Mail, GraduationCap, LineChart as ChartIcon,
   Trophy, TrendingUp, Download, CheckCircle2, XCircle,
@@ -116,7 +116,8 @@ export function StudentProgressView({
       : studentRisk?.risk_band === 'watch'
         ? 'Slipping'
         : 'Stable'
-
+  
+  const router = useRouter()
   const trendTone: keyof typeof TONE_MAP =
     improvementTrend === 'Needs Attention' ? 'danger' : improvementTrend === 'Slipping' ? 'warning' : 'success'
 
@@ -141,13 +142,15 @@ export function StudentProgressView({
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-6 sm:px-6 sm:py-10">
       <div className="relative flex items-center justify-between gap-3">
-        <Link
-          href="/teacher/students"
-          aria-label="Back to students"
-          className="inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"        >
+        <button
+          type="button"
+          onClick={() => router.back()}
+          aria-label="Go back"
+          className="inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"
+        >
           <ArrowLeft size={26} className="shrink-0" />
-          <span className="sr-only">Students</span>
-        </Link>
+          <span className="sr-only">Go back</span>
+        </button>
 
         <div className="pointer-events-none absolute left-1/2 w-full max-w-[70%] -translate-x-1/2 text-center">
           <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">

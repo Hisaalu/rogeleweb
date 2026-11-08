@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
   ArrowLeft,
@@ -12,7 +13,6 @@ import {
   Loader2,
   AlertTriangle,
   Trash2,
-  BarChart2,
   Download,
 } from 'lucide-react'
 import type { Quiz, QuizAttempt } from '@/types/quiz'
@@ -52,6 +52,7 @@ async function deleteAllAttempts(quizId: number): Promise<boolean> {
 }
 
 export function ResultsView({ quiz, initialAttempts }: { quiz: Quiz, initialAttempts: QuizAttempt[] }) {
+  const router = useRouter()
   const { showToast } = useToast()
   const [attempts, setAttempts] = useState<QuizAttempt[]>(initialAttempts)
   const [clearing, setClearing] = useState(false)
@@ -123,13 +124,17 @@ export function ResultsView({ quiz, initialAttempts }: { quiz: Quiz, initialAtte
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-8 sm:px-6 sm:py-10">
       <div className="flex flex-col gap-4 sm:relative sm:flex-row sm:items-center sm:justify-between sm:gap-3">
         <div className="flex items-center justify-between gap-3 sm:contents">
-          <Link
-            href="/teacher/quizzes"
-            aria-label="Back to quizzes"
-            className="inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"          >
+          
+          {/* Changed Link to button using router.back() */}
+          <button
+            type="button"
+            onClick={() => router.back()}
+            aria-label="Go back"
+            className="inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"
+          >
             <ArrowLeft size={26} className="shrink-0" />
-            <span className="sr-only">Quizzes</span>
-          </Link>
+            <span className="sr-only">Go back</span>
+          </button>
 
           <div className="flex flex-wrap gap-2 sm:relative sm:z-10">
             {completed.length > 0 && (
@@ -137,11 +142,6 @@ export function ResultsView({ quiz, initialAttempts }: { quiz: Quiz, initialAtte
                 <Download size={15} className="mr-2" />
               </Button>
             )}
-            <Link href={`/teacher/quizzes/${quiz.id}/preview`}>
-              <Button variant="outline">
-                <BarChart2 size={15} className="mr-2" />
-              </Button>
-            </Link>
             {attempts.length > 0 && (
               <Button
                 type="button"

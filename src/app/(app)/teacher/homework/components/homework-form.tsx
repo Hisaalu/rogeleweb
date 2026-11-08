@@ -122,13 +122,16 @@ export function HomeworkForm({
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-3 py-5 sm:px-4 sm:py-8">
       <div className="relative flex items-center justify-between gap-3">
-        <Link
-          href="/teacher/homework"
-          aria-label="Back to homework"
-          className="inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"        >
+        
+        <button
+          type="button"
+          onClick={() => router.back()}
+          aria-label="Go back"
+          className="inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"
+        >
           <ArrowLeft size={26} className="shrink-0" />
-          <span className="sr-only">Homework</span>
-        </Link>
+          <span className="sr-only">Go back</span>
+        </button>
 
         <div className="pointer-events-none absolute left-1/2 w-full max-w-[70%] -translate-x-1/2 text-center">
           <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">

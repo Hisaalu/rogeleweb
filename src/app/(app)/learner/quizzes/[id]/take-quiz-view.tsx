@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'nextjs-toploader/app'
-import Link from 'next/link'
 import { ArrowLeft, Clock, CheckCircle2, AlertTriangle, Loader2 } from 'lucide-react'
 import type { Quiz, QuizQuestion, QuizAttempt } from '@/types/quiz'
 import {
@@ -275,12 +274,15 @@ export function TakeQuizView({
         style={{ backgroundColor: 'var(--brand-primary)' }}
       >
         <div className="flex min-w-0 items-center gap-2 font-semibold">
-          <Link
-            href="/learner/quizzes"
-            aria-label="Back to quizzes"
-            className="inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"          >
-            <ArrowLeft size={20} className="shrink-0 sm:h-5 sm:w-5" />
-          </Link>
+          <button
+            type="button"
+            onClick={() => router.back()}
+            aria-label="Go back"
+            className="inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"
+          >
+            <ArrowLeft size={26} className="shrink-0" />
+            <span className="sr-only">Go back</span>
+          </button>
           <Clock size={18} className="shrink-0 sm:h-5 sm:w-5" />
           <span
             className={`font-mono text-lg tabular-nums sm:text-xl ${
