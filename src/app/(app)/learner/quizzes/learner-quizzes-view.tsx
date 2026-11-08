@@ -87,14 +87,15 @@ export function LearnerQuizzesView({
             
             let deadlineText = null
             if (deadlineDate) {
-              const formattedDate = deadlineDate.toLocaleDateString('en-US', {
+              const formattedDateTime = deadlineDate.toLocaleString('en-US', {
                 month: 'short',
                 day: 'numeric',
-                year: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
               })
               deadlineText = isPastDeadline 
-                ? `Ended ${formattedDate}` 
-                : `Due ${formattedDate}`
+                ? `${formattedDateTime}` 
+                : `${formattedDateTime}`
             }
 
             return (
