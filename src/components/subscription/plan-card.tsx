@@ -67,26 +67,28 @@ function buildBenefits(
   const benefits: string[] = []
 
   if (tier === 'monthly') {
-    benefits.push('Full access to all lessons')
-    benefits.push('Practice quizzes & assessments')
-    benefits.push('Homework support')
-    benefits.push('Progress tracking dashboard')
-    benefits.push('Change from one class to the next')
+    benefits.push('Full access to lessons')
+    benefits.push('Full access to homework')
+    benefits.push('Attempt quizzes')
+    benefits.push('Parent analytics')
+    benefits.push('Change class at any time')
+    benefits.push('Change profile picture')
   }
 
   if (tier === 'termly') {
     benefits.push('Everything in Monthly')
-    if (savings) benefits.push(`Save ${fmtMoney(savings.amount)} UGX (${savings.percent}%)`)
-    benefits.push('Priority email support')
-    benefits.push('Downloadable lesson materials')
-    benefits.push('Bookmark Lessons for later')
+    if (savings) benefits.push(`Save up to UGX ${fmtMoney(savings.amount)} (${savings.percent}%)`)
+    benefits.push('Review quiz results after an attempt')
+    benefits.push('Submit homework')
+    benefits.push('Advanced analytics')
+    benefits.push('Customised AI recommendations')
   }
 
   if (tier === 'yearly') {
     benefits.push('Everything in Termly')
-    if (savings) benefits.push(`Save ${fmtMoney(savings.amount)} UGX (${savings.percent}%)`)
-    benefits.push('AI Study Assistant')
+    if (savings) benefits.push(`Save up to UGX ${fmtMoney(savings.amount)} (${savings.percent}%)`)
     benefits.push('24/7 Dedicated Support')
+    benefits.push('AI Study Assistant')
   }
 
   return benefits
@@ -129,10 +131,10 @@ export function PlanCard({
     >
       {recommended && (
         <div
-          className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-sm px-4 py-1 text-[11px] font-bold uppercase tracking-wider text-white"
+          className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-sm px-4 py-1 text-[13px] font-medium tracking-wider text-white"
           style={{ backgroundColor: 'var(--brand-primary)' }}
         >
-          Recommended
+          Most popular
         </div>
       )}
 

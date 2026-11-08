@@ -51,7 +51,7 @@ export function SubscriptionView({
           <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
             One subscription. Access to everything
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">Select the perfect learning plan</p>
+          <p className="mt-1 text-sm text-muted-foreground">Select your learning path</p>
       </div>
 
       {hasActiveSubscription && subscription && (
