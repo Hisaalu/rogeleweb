@@ -8,7 +8,6 @@ import type { SessionUser } from '@/lib/auth'
 
 export function AppShell({
   user,
-  isPro,
   isInTrial,
   hasActiveSubscription,
   children,

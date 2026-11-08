@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Menu, Crown, Rocket } from 'lucide-react'
+import { Menu, Rocket } from 'lucide-react'
 import { useBranding } from '@/components/brand/brand-provider'
 import { UserMenu } from './user-menu'
 import { NotificationBell } from '@/components/notifications/notification-bell'
