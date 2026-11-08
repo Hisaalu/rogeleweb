@@ -32,6 +32,7 @@ interface NavItem {
   href: string
   icon: LucideIcon
   isNew?: boolean
+  isDiscount?: boolean
 }
 
 const TEACHER_NAV: NavItem[] = [
@@ -48,7 +49,7 @@ const TEACHER_NAV: NavItem[] = [
 const LEARNER_NAV: NavItem[] = [
   { label: 'Dashboard', href: '/learner/dashboard', icon: LayoutDashboard },
   { label: 'Analytics', href: '/learner/analytics', icon: BarChart3, isNew: true },
-  { label: 'Premium', href: '/learner/subscription', icon: Rocket, isNew: true },
+  { label: 'Premium', href: '/learner/subscription', icon: Rocket, isDiscount: true },
   { label: 'Lessons', href: '/learner/lessons', icon: BookOpen },
   { label: 'Quizzes', href: '/learner/quizzes', icon: HelpCircle },
   { label: 'Homework', href: '/learner/homework', icon: ClipboardList },
@@ -199,6 +200,11 @@ export function MobileMenu({
                       className={active ? 'text-brand-accent' : 'text-brand-accent/70'}
                     />
                     <span className="truncate">{item.label}</span>
+                    {item.isDiscount && (
+                      <span className="shrink-0 rounded-sm bg-brand-accent px-2 py-0.5 text-[15px] leading-none tracking-wider text-white shadow-sm">
+                        50% off
+                      </span>
+                    )}
                     {item.isNew && !hideBadge && (
                       <span className="ml-auto shrink-0 rounded-sm bg-brand-accent px-2 py-0.5 text-[15px] leading-none tracking-wider text-white shadow-sm">
                         New
@@ -214,8 +220,7 @@ export function MobileMenu({
                 onClick={handleLogout}
                 className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-[20px] font-semibold text-danger-fg transition hover:bg-danger-bg sm:py-3"
               >
-                <LogOut size={25} />
-                Logout
+                <LogOut size={25} /> Logout
               </button>
             </li>
           </ul>
