@@ -10,7 +10,6 @@ import type { SessionUser } from '@/lib/auth'
 export function Header({
   user,
   onMenuClick,
-  isInTrial,
   hasActiveSubscription,
 }: {
   user: SessionUser

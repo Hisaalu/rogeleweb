@@ -10,7 +10,7 @@ import {
   BookmarkCheck,
   ClipboardList,
   HelpCircle,
-  CreditCard,
+  Rocket,
   User,
   LogOut,
   Users,
@@ -48,7 +48,7 @@ const TEACHER_NAV: NavItem[] = [
 const LEARNER_NAV: NavItem[] = [
   { label: 'Dashboard', href: '/learner/dashboard', icon: LayoutDashboard },
   { label: 'Analytics', href: '/learner/analytics', icon: BarChart3, isNew: true },
-  { label: 'Subscription', href: '/learner/subscription', icon: CreditCard },
+  { label: 'Premium', href: '/learner/subscription', icon: Rocket, isNew: true },
   { label: 'Lessons', href: '/learner/lessons', icon: BookOpen },
   { label: 'Quizzes', href: '/learner/quizzes', icon: HelpCircle },
   { label: 'Homework', href: '/learner/homework', icon: ClipboardList },
@@ -163,7 +163,7 @@ export function MobileMenu({
               className="h-12 w-12 ring-1 ring-white/30"
             />
             <div className="min-w-0 flex-1">
-              <p className="truncate text-base font-semibold text-white">
+              <p className="truncate text-base font-bold text-white">
                 {fullName}
               </p>
               <p className="truncate text-xs capitalize text-white/80">
@@ -188,9 +188,9 @@ export function MobileMenu({
                     onClick={onClose}
                     aria-current={active ? 'page' : undefined}
                     className={cn(
-                      'flex items-center gap-3 rounded-lg px-4 py-2.5 text-[20px] font-bold transition sm:py-3',
+                      'flex items-center gap-3 rounded-lg px-4 py-2.5 text-[20px] font-semibold transition sm:py-3',
                       active
-                        ? 'nav-active font-semibold'
+                        ? 'nav-active font-bold'
                         : 'text-foreground hover:bg-muted',
                     )}
                   >
@@ -200,7 +200,7 @@ export function MobileMenu({
                     />
                     <span className="truncate">{item.label}</span>
                     {item.isNew && !hideBadge && (
-                      <span className="ml-auto shrink-0 rounded-full bg-brand-accent px-2 py-0.5 text-[15px] leading-none tracking-wider text-white shadow-sm">
+                      <span className="ml-auto shrink-0 rounded-sm bg-brand-accent px-2 py-0.5 text-[15px] leading-none tracking-wider text-white shadow-sm">
                         New
                       </span>
                     )}
@@ -212,7 +212,7 @@ export function MobileMenu({
               <button
                 type="button"
                 onClick={handleLogout}
-                className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-[20px] font-bold text-danger-fg transition hover:bg-danger-bg sm:py-3"
+                className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-[20px] font-semibold text-danger-fg transition hover:bg-danger-bg sm:py-3"
               >
                 <LogOut size={25} />
                 Logout
