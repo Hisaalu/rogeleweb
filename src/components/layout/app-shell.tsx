@@ -26,7 +26,6 @@ export function AppShell({
       <Header 
         user={user} 
         onMenuClick={() => setSidebarOpen(true)} 
-        isPro={isPro} 
         isInTrial={isInTrial}
         hasActiveSubscription={hasActiveSubscription}
       />
