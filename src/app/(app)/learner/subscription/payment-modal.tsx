@@ -242,11 +242,11 @@ export function PaymentModal({
             </Button>
             <Button
               type="submit"
-              disabled={submitting || loadingPreview}
-              className="flex-1"
+              disabled={true}
+              className="flex-1 cursor-not-allowed opacity-50"
             >
               {submitting && <Loader2 size={14} className="animate-spin mr-2" />}
-              {submitting ? 'Processing...' : 'Pay Now'}
+              Pay Now
             </Button>
           </div>
         </form>
