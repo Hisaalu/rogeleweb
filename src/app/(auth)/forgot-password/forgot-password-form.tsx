@@ -81,7 +81,7 @@ export function ForgotPasswordForm() {
               We&apos;ve sent a password reset link to <strong>{submittedEmail}</strong>.
               Follow the instructions to reset your password.
             </p>
-            <Link href="/login" className="mt-8 font-medium hover:underline" style={{ color: 'var(--brand-primary)' }}>
+            <Link href="/login" className="mt-8 font-medium hover:underline">
               Back to login
             </Link>
           </div>
