@@ -152,7 +152,7 @@ const NavLink = memo(function NavLink({
           'flex items-center gap-3 rounded-md px-4 py-2.5 text-[20px] font-semibold transition',
           active
             ? 'nav-active font-bold'
-            : 'text-foreground hover:bg-muted hover:text-brand-accent',
+            : 'text-foreground hover:bg-muted',
         )}
       >
         <Icon
