@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'nextjs-toploader/app'
 import { 
   Camera, Calendar, Clock, Edit, Save, User, Mail, Phone, 
-  GraduationCap, Loader2, Star, BookOpen, Users, AlignLeft, type LucideIcon
+  GraduationCap, Loader2, Star, BookOpen, Users, AlignLeft, ArrowLeft, type LucideIcon
 } from 'lucide-react'
 import type { User as ProfileUser } from '@/types/api'
 import { updateProfileClient, uploadAvatarClient } from '@/lib/profile.client'
@@ -115,11 +115,23 @@ export function TeacherProfileView({
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-3 py-6 sm:space-y-8 sm:px-4 sm:py-8">
       
-      <div className="text-center">
-        <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
-          Profile
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">Manage your personal information</p>
+      <div className="relative flex items-center justify-center py-2 min-h-[60px]">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          aria-label="Go back"
+          className="absolute left-0 top-1/2 -translate-y-1/2 inline-flex shrink-0 items-center justify-center rounded-full p-1 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"
+        >
+          <ArrowLeft size={26} className="shrink-0" />
+          <span className="sr-only">Go back</span>
+        </button>
+
+        <div className="text-center w-full px-12 sm:px-0">
+          <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
+            Profile
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">Manage your personal information</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[350px_1fr] lg:gap-8">

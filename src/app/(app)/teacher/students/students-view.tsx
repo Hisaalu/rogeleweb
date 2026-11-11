@@ -112,7 +112,7 @@ export function StudentsView({
     <div className="relative mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 sm:py-10">
       {isPending && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/50 backdrop-blur-sm">
-          <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
+          <Loader2 className="h-8 w-8 animate-spin" />
         </div>
       )}
 
@@ -218,7 +218,6 @@ export function StudentsView({
                 <div className="relative h-[100px] bg-brand-accent">
                   <div className="absolute -bottom-10 left-1/2 flex h-20 w-20 -translate-x-1/2 items-center justify-center overflow-hidden rounded-full border-4 border-card bg-card text-2xl font-bold text-brand-primary shadow-md">
                     {student.profile_photo ? (
-                      // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={student.profile_photo}
                         alt={name}
