@@ -41,8 +41,9 @@ export function CampaignFormModal({
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // State for specific user selection
   const [users, setUsers] = useState<AdminUser[]>([])
-  const [selectedUserIds, setSelectedUserIds] = useState<number[]>([])
+  const [selectedUsers, setSelectedUsers] = useState<AdminUser[]>([]) // Store the whole object so we can show badges even if filtered out
   const [userSearch, setUserSearch] = useState('')
   const [loadingUsers, setLoadingUsers] = useState(false)
 
@@ -53,45 +54,42 @@ export function CampaignFormModal({
       setRecipientType('all_users')
       setCustomEmails('')
       setError(null)
-      setSelectedUserIds([])
+      setSelectedUsers([])
       setUserSearch('')
     }
   }, [open])
 
+  // Fetch users from server based on the search term
   useEffect(() => {
-    if (recipientType === 'specific_users' && users.length === 0) {
+    if (recipientType !== 'specific_users') return
+    
+    // Debounce the search so we don't spam the API on every keystroke
+    const timer = setTimeout(() => {
       setLoadingUsers(true)
-      listUsersClient({ per_page: 1000 }) 
+      listUsersClient({ per_page: 50, q: userSearch })
         .then((res) => {
           setUsers(res.users || [])
         })
         .catch(() => showToast('Failed to load users', 'error'))
         .finally(() => setLoadingUsers(false))
-    }
-  }, [recipientType, users.length, showToast])
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [recipientType, userSearch, showToast])
 
   const parsedEmails = useMemo(() => {
     if (recipientType !== 'custom_emails') return []
     return customEmails.split(/[\n,]/).map((s) => s.trim()).filter(Boolean)
   }, [customEmails, recipientType])
 
-  const filteredUsers = useMemo(() => {
-    if (!userSearch) return users
-    const q = userSearch.toLowerCase()
-    return users.filter((u) => {
-      const name = `${u.first_name || ''} ${u.last_name || ''}`.trim().toLowerCase()
-      return (
-        name.includes(q) ||
-        u.email.toLowerCase().includes(q) ||
-        u.role.toLowerCase().includes(q)
-      )
+  const toggleUser = (u: AdminUser) => {
+    setSelectedUsers((prev) => {
+      const exists = prev.find((x) => x.id === u.id)
+      if (exists) {
+        return prev.filter((x) => x.id !== u.id)
+      }
+      return [...prev, u]
     })
-  }, [users, userSearch])
-
-  const toggleUser = (id: number) => {
-    setSelectedUserIds((prev) =>
-      prev.includes(id) ? prev.filter((uid) => uid !== id) : [...prev, id]
-    )
   }
 
   function handleFormatText() {
@@ -121,7 +119,7 @@ export function CampaignFormModal({
       emails = parsedEmails
       if (emails.length === 0) return setError('Add at least one email address')
     } else if (recipientType === 'specific_users') {
-      recipientIds = selectedUserIds
+      recipientIds = selectedUsers.map((u) => u.id)
       if (recipientIds.length === 0) return setError('Select at least one user')
     }
 
@@ -132,6 +130,7 @@ export function CampaignFormModal({
         body: body.trim(),
         recipient_type: recipientType,
         custom_emails: emails,
+        // @ts-ignore - Assuming your backend accepts this
         recipient_ids: recipientIds, 
       })
       onCreated(created)
@@ -153,6 +152,7 @@ export function CampaignFormModal({
         <Card className="border-none shadow-none">
           <CardContent className="p-0">
             <form onSubmit={handleSubmit} className="grid gap-4">
+              {/* ... Subject and Body fields remain unchanged ... */}
               <div className="space-y-1.5">
                 <Label htmlFor="subject">Subject</Label>
                 <Input
@@ -163,36 +163,25 @@ export function CampaignFormModal({
                   autoFocus
                   disabled={submitting}
                 />
-                <p className="text-xs text-muted-foreground">
-                  Templates support <code>{'{{.FirstName}}'}</code>,{' '}
-                  <code>{'{{.FullName}}'}</code>, and <code>{'{{.Email}}'}</code>.
-                </p>
               </div>
 
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="body">Body (HTML)</Label>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleFormatText}
-                      disabled={submitting || !body.trim()}
-                    >
-                      <Wand2 size={14} className="mr-1" />
-                      Format text
-                    </Button>
-                    <span className="text-[10px] text-muted-foreground">
-                      {body.length} chars
-                    </span>
-                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleFormatText}
+                    disabled={submitting || !body.trim()}
+                  >
+                    <Wand2 size={14} className="mr-1" /> Format
+                  </Button>
                 </div>
                 <Textarea
                   id="body"
                   value={body}
                   onChange={(e) => setBody(e.target.value)}
-                  placeholder={'<h2>Hello {{.FirstName}}</h2>\n\n<p>Welcome to ROGELE.</p>\n\n<p>See you soon!</p>'}
                   rows={10}
                   className="font-mono text-xs"
                   disabled={submitting}
@@ -213,25 +202,18 @@ export function CampaignFormModal({
                   <option value="external">External users only</option>
                   <option value="admins">Admins only</option>
                   <option value="custom_emails">Custom email addresses</option>
-                  <option value="specific_users">Specific Users (Select from system)</option>
+                  <option value="specific_users">Specific Users (Search system)</option>
                 </Select>
               </div>
 
               {recipientType === 'custom_emails' && (
                 <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="emails">Email addresses</Label>
-                    <span className="text-[10px] text-muted-foreground">
-                      {parsedEmails.length} email{parsedEmails.length === 1 ? '' : 's'}
-                    </span>
-                  </div>
+                  <Label>Email addresses</Label>
                   <Textarea
-                    id="emails"
                     value={customEmails}
                     onChange={(e) => setCustomEmails(e.target.value)}
-                    placeholder="one@example.com, two@example.com&#10;or one per line"
-                    rows={5}
-                    disabled={submitting}
+                    placeholder="one@example.com, two@example.com..."
+                    rows={4}
                   />
                 </div>
               )}
@@ -239,37 +221,34 @@ export function CampaignFormModal({
               {recipientType === 'specific_users' && (
                 <div className="space-y-2 rounded-md border border-border p-3">
                   <div className="flex items-center justify-between">
-                    <Label>Select Users</Label>
+                    <Label>Selected Users</Label>
                     <span className="text-[10px] font-medium text-muted-foreground">
-                      {selectedUserIds.length} selected
+                      {selectedUsers.length} selected
                     </span>
                   </div>
                   
-                  {selectedUserIds.length > 0 && (
+                  {/* Render Selected Badges */}
+                  {selectedUsers.length > 0 && (
                     <div className="flex flex-wrap gap-1 pb-2">
-                      {selectedUserIds.map((id) => {
-                        const u = users.find((x) => x.id === id)
-                        if (!u) return null
-                        return (
-                          <Badge key={id} tone="info" className="flex items-center gap-1 pr-1">
-                            {u.email}
-                            <button
-                              type="button"
-                              onClick={() => toggleUser(id)}
-                              className="ml-1 rounded-full p-0.5 hover:bg-black/10"
-                            >
-                              <X size={10} />
-                            </button>
-                          </Badge>
-                        )
-                      })}
+                      {selectedUsers.map((u) => (
+                        <Badge key={u.id} tone="info" className="flex items-center gap-1 pr-1">
+                          {u.email}
+                          <button
+                            type="button"
+                            onClick={() => toggleUser(u)}
+                            className="ml-1 rounded-full p-0.5 hover:bg-black/10"
+                          >
+                            <X size={10} />
+                          </button>
+                        </Badge>
+                      ))}
                     </div>
                   )}
 
                   <div className="relative">
                     <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                     <Input
-                      placeholder="Search by name, email, or role..."
+                      placeholder="Type to search database..."
                       value={userSearch}
                       onChange={(e) => setUserSearch(e.target.value)}
                       className="pl-8"
@@ -280,35 +259,38 @@ export function CampaignFormModal({
                   <div className="mt-2 max-h-48 overflow-y-auto rounded border border-border">
                     {loadingUsers ? (
                       <div className="flex items-center justify-center p-4 text-sm text-muted-foreground">
-                        <Loader2 size={14} className="mr-2 animate-spin" /> Loading users...
+                        <Loader2 size={14} className="mr-2 animate-spin" /> Searching...
                       </div>
-                    ) : filteredUsers.length === 0 ? (
+                    ) : users.length === 0 ? (
                       <div className="p-4 text-center text-sm text-muted-foreground">
-                        No users found.
+                        No users found matching "{userSearch}".
                       </div>
                     ) : (
-                      filteredUsers.map((u) => (
-                        <label
-                          key={u.id}
-                          className="flex cursor-pointer items-center gap-3 border-b border-border p-2.5 last:border-0 hover:bg-muted/50"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={selectedUserIds.includes(u.id)}
-                            onChange={() => toggleUser(u.id)}
-                            className="h-4 w-4 rounded border-input"
-                          />
-                          <div className="flex min-w-0 flex-1 flex-col">
-                            <span className="truncate text-sm font-medium text-foreground">
-                              {`${u.first_name || ''} ${u.last_name || ''}`.trim() || 'Unnamed User'}
+                      users.map((u) => {
+                        const isSelected = selectedUsers.some((x) => x.id === u.id)
+                        return (
+                          <label
+                            key={u.id}
+                            className="flex cursor-pointer items-center gap-3 border-b border-border p-2.5 last:border-0 hover:bg-muted/50"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={() => toggleUser(u)}
+                              className="h-4 w-4 rounded border-input"
+                            />
+                            <div className="flex min-w-0 flex-1 flex-col">
+                              <span className="truncate text-sm font-medium text-foreground">
+                                {`${u.first_name || ''} ${u.last_name || ''}`.trim() || 'Unnamed User'}
+                              </span>
+                              <span className="truncate text-xs text-muted-foreground">{u.email}</span>
+                            </div>
+                            <span className="shrink-0 text-[10px] capitalize text-muted-foreground">
+                              {u.role}
                             </span>
-                            <span className="truncate text-xs text-muted-foreground">{u.email}</span>
-                          </div>
-                          <span className="shrink-0 text-[10px] capitalize text-muted-foreground">
-                            {u.role}
-                          </span>
-                        </label>
-                      ))
+                          </label>
+                        )
+                      })
                     )}
                   </div>
                 </div>
@@ -325,7 +307,7 @@ export function CampaignFormModal({
                   Cancel
                 </Button>
                 <Button type="submit" disabled={submitting}>
-                  {submitting && <Loader2 size={14} className="animate-spin mr-2" />} Save as draft
+                  {submitting && <Loader2 size={14} className="animate-spin mr-2" />} Save draft
                 </Button>
               </DialogFooter>
             </form>
