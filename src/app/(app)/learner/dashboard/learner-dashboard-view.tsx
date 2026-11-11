@@ -96,10 +96,10 @@ export function LearnerDashboardView({
       
       <Card className="p-5 sm:p-6 bg-card/50">
         <h1 className="text-xl sm:text-2xl lg:text-3xl">
-          Welcome back, <span className="font-bold">{firstName}</span>
+          Welcome back, <span className="inline-block rounded-md bg-muted px-1.5 py-0.5 font-bold shadow-sm">{firstName}</span>
         </h1>
         <p className="mt-1 text-sm sm:text-base">
-          This is the <span className="font-bold text-foreground">{className} Class</span>. Please you can{' '}
+          This is the <span className="inline-block rounded-md bg-muted px-1.5 py-0.5 font-bold text-foreground shadow-sm">{className} Class</span>. Please you can{' '}
           <Link href="/learner/profile" className="hover:underline" style={{ color: 'var(--brand-accent)' }}>
             click here to change to another class
           </Link>
