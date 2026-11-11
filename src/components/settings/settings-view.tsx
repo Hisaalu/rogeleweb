@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { ShieldCheck, Lock, Loader2, Eye, EyeOff, Trash2, AlertTriangle, Settings } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { ShieldCheck, Lock, Loader2, Eye, EyeOff, Trash2, AlertTriangle, ArrowLeft } from 'lucide-react'
 import { changePasswordClient } from '@/lib/settings.client'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -9,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { useToast } from '@/components/ui/toast-provider'
 
 export function SettingsView({ role: _role }: { role: string }) {
+  const router = useRouter()
   const { showToast } = useToast()
   
   const [currentPassword, setCurrentPassword] = useState('')
@@ -54,11 +56,24 @@ export function SettingsView({ role: _role }: { role: string }) {
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-3 py-6 sm:space-y-8 sm:px-4 sm:py-8">
       
-      <div className="text-center">
-        <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
-          Settings
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">Manage your account security</p>
+      {/* Updated Header Block with Back Arrow */}
+      <div className="relative flex items-center justify-center py-2">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          aria-label="Go back"
+          className="absolute left-0 inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"
+        >
+          <ArrowLeft size={26} className="shrink-0" />
+          <span className="sr-only">Go back</span>
+        </button>
+
+        <div className="text-center">
+          <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
+            Settings
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">Manage your account security</p>
+        </div>
       </div>
 
       <div className="space-y-6">

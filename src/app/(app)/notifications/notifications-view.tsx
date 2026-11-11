@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Check, Bell, CheckCircle2 } from 'lucide-react'
+import { Check, Bell, CheckCircle2, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -72,8 +72,20 @@ export function NotificationsView({
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="text-center sm:text-left">
+      
+      <div className="relative flex items-center justify-center py-2 min-h-[60px]">
+        
+        <button
+          type="button"
+          onClick={() => router.back()}
+          aria-label="Go back"
+          className="absolute left-0 top-1/2 -translate-y-1/2 inline-flex shrink-0 items-center justify-center rounded-full p-1 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"
+        >
+          <ArrowLeft size={26} className="shrink-0" />
+          <span className="sr-only">Go back</span>
+        </button>
+
+        <div className="text-center w-full px-12 sm:px-0">
           <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">
             Notifications
           </h1>
@@ -85,17 +97,33 @@ export function NotificationsView({
         </div>
 
         {unreadCount > 0 && (
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden sm:block">
+            <Button
+              variant="outline"
+              onClick={handleMarkAll}
+              disabled={marking}
+              className="shrink-0"
+            >
+              <Check size={14} className="mr-2" />
+              {marking ? 'Marking...' : 'Mark all as read'}
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {unreadCount > 0 && (
+        <div className="mt-4 sm:hidden">
           <Button
             variant="outline"
             onClick={handleMarkAll}
             disabled={marking}
-            className="w-full shrink-0 sm:w-auto"
+            className="w-full"
           >
             <Check size={14} className="mr-2" />
             {marking ? 'Marking...' : 'Mark all as read'}
           </Button>
-        )}
-      </div>
+        </div>
+      )}
 
       <Card className="p-4 sm:p-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
