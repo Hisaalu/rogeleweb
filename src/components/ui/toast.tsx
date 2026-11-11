@@ -143,9 +143,11 @@ export function Toast({
 
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         {toast.title && (
-          <p className="truncate text-sm font-semibold text-foreground">
-            {toast.title}
-          </p>
+          <div className="text-center w-full mb-1">
+            <p className="truncate text-sm font-semibold text-foreground">
+              {toast.title}
+            </p>
+          </div>
         )}
         <p className="text-sm leading-snug text-foreground/90">
           {toast.message}
