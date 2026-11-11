@@ -248,7 +248,6 @@ export function TakeQuizView({
         <Loader2
           className="animate-spin"
           size={32}
-          style={{ color: 'var(--brand-accent)' }}
         />
       </div>
     )
