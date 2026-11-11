@@ -2,7 +2,7 @@ import 'server-only'
 import { serverApiRequest } from './server-api'
 import type { SubscriptionPlan } from '@/types/subscription'
 
-const STAT_FLOORS = { students: 0, teachers: 0, lessons: 0 } as const
+const STAT_FLOORS = { students: 350, teachers: 20, lessons: 100 } as const
 const CLASS_RANGE_FLOOR = {
   first: 'Primary One',
   last: 'Primary Seven',
