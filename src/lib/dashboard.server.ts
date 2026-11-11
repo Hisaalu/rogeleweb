@@ -1,5 +1,6 @@
 import 'server-only'
 import { serverApiRequest } from './server-api'
+import { getProfileServer, getClassesServer } from './profile.server'
 import type {
   CalendarEvent,
   DashboardData,
@@ -212,11 +213,30 @@ export async function getLearnerQuizzesServer(): Promise<RawQuiz[]> {
   return unwrapList<RawQuiz>(res)
 }
 
-export async function getLearnerDashboardDataServer(): Promise<DashboardData> {
-  const [trial, subscription, events] = await Promise.all([
+export async function getLearnerDashboardDataServer(): Promise<DashboardData & { class_name?: string }> {
+  const [trial, subscription, events, profile, classes] = await Promise.all([
     getTrialStatusServer(),
     getActiveSubscriptionServer(),
     getCalendarEventsServer(),
+    getProfileServer(),
+    getClassesServer(),
   ])
-  return { trial, subscription, events }
+
+  let resolvedClassName: string | undefined = undefined
+
+  if (profile?.class_name) {
+    resolvedClassName = profile.class_name
+  } else if (profile?.class_id && classes.length > 0) {
+    const matchedClass = classes.find((c) => c.id === profile.class_id)
+    if (matchedClass) {
+      resolvedClassName = matchedClass.name
+    }
+  }
+
+  return { 
+    trial, 
+    subscription, 
+    events, 
+    class_name: resolvedClassName 
+  }
 }

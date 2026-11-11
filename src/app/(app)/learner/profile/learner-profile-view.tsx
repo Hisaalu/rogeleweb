@@ -5,7 +5,7 @@ import { useRouter } from 'nextjs-toploader/app'
 import Link from 'next/link'
 import { 
   UserCircle, Camera, Calendar, Clock, Gift, Edit, Save, User, Mail, Phone, 
-  GraduationCap, Loader2, Lock
+  GraduationCap, Loader2, Lock, ArrowLeft
 } from 'lucide-react'
 import type { User as ProfileUser } from '@/types/api'
 import type { Class } from '@/types/admin'
@@ -133,11 +133,24 @@ export function LearnerProfileView({
     <>
       <div className="mx-auto max-w-6xl space-y-6 px-3 py-6 sm:space-y-8 sm:px-4 sm:py-8">
         
-        <div className="text-center">
-          <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
-            Profile
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">Manage your Personal Information</p>
+        {/* Updated Header Block with Back Arrow */}
+        <div className="relative flex items-center justify-center py-2">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            aria-label="Go back"
+            className="absolute left-0 inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"
+          >
+            <ArrowLeft size={26} className="shrink-0" />
+            <span className="sr-only">Go back</span>
+          </button>
+
+          <div className="text-center">
+            <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
+              Profile
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">Manage your Personal Information</p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[350px_1fr] lg:gap-8">

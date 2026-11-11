@@ -7,6 +7,7 @@ export interface User {
   last_name?: string | null
   role: string
   class_id?: number | null
+  class_name?: string | null
   phone?: string | null
   bio?: string | null
   qualification?: string | null

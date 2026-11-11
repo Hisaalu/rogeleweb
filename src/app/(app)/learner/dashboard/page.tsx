@@ -18,14 +18,15 @@ export default async function LearnerDashboardPage() {
     getLearnerDashboardDataServer().catch(() => ({
       trial: null,
       subscription: null,
-      events: []
+      events: [],
+      class_name: 'No Class Assigned'
     })),
     getLearnerQuizzesServer().catch(() => []),
   ])
 
   return (
     <LearnerDashboardView 
-      profile={profile} 
+      profile={{ ...profile, class_name: dashboard.class_name } as User} 
       trial={dashboard.trial} 
       subscription={dashboard.subscription} 
       events={dashboard.events} 

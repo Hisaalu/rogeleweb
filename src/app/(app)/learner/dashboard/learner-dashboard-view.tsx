@@ -40,6 +40,8 @@ export function LearnerDashboardView({
   }, [router])
 
   const firstName = profile?.first_name ?? 'there'
+  const className = profile?.class_name ?? 'No Class Assigned'
+  
   const hasActiveSubscription = subscription?.status === 'active'
   const isInTrial =
     !hasActiveSubscription && !!trial && trial.is_in_trial && trial.days_remaining > 0
@@ -81,15 +83,28 @@ export function LearnerDashboardView({
   if (hasAccess && nextQuiz) {
     const deadlineDate = new Date(nextQuiz.end_date || nextQuiz.start_date);
     const daysLeft = Math.ceil((deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    quizDeadlineText = daysLeft === 1 ? `Due tomorrow` : `Latest quiz is due in ${daysLeft} days`;
+    
+    const quizClassName = nextQuiz.class_name || className;
+    
+    quizDeadlineText = daysLeft === 1 
+      ? `Latest ${quizClassName} quiz is due tomorrow` 
+      : `Latest ${quizClassName} quiz is due in ${daysLeft} days`;
   }
 
   return (
     <div className="mx-auto max-w-6xl space-y-5 px-4 py-6 sm:space-y-6 sm:px-6 sm:py-8">
-      <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
-        Welcome back,{' '}
-        <span style={{ color: 'var(--brand-primary)' }}>{firstName}</span>!
-      </h1>
+      
+      <Card className="p-5 sm:p-6 bg-card/50">
+        <h1 className="text-xl sm:text-2xl lg:text-3xl">
+          Welcome back, <span className="font-bold">{firstName}</span>
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground sm:text-base">
+          This is <span className="font-semibold text-foreground">{className}</span>. You can{' '}
+          <Link href="/learner/profile" className="hover:underline" style={{ color: 'var(--brand-accent)' }}>
+            click here to change class
+          </Link>
+        </p>
+      </Card>
 
       <Card className="p-4 sm:p-6">
         <h2 className="mb-4 text-base font-semibold sm:mb-5 sm:text-lg">Overview</h2>
