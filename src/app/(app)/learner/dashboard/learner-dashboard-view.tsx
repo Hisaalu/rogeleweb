@@ -99,7 +99,7 @@ export function LearnerDashboardView({
           Welcome back, <span className="font-bold">{firstName}</span>
         </h1>
         <p className="mt-1 text-sm sm:text-base">
-          This is <span className="font-bold text-foreground">{className}</span> Class. Please you can{' '}
+          This is the <span className="font-bold text-foreground">{className}</span> Class. Please you can{' '}
           <Link href="/learner/profile" className="hover:underline" style={{ color: 'var(--brand-accent)' }}>
             click here to change to another class
           </Link>
