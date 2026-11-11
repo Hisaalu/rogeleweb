@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'nextjs-toploader/app'
-import { Eye, EyeOff, Loader2, Mail, Phone, User, Lock, ChevronDown } from 'lucide-react'
+import { Eye, EyeOff, Loader2, Mail, Phone, User, Lock } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
+import { ThemeToggle } from '@/components/theme-toggle'
 import type { Class } from '@/types/admin'
 
 const schema = z.object({
@@ -116,168 +117,174 @@ export function RegisterForm({ classes }: { classes: Class[] }) {
   })
 
   return (
-    <div className="mx-auto w-full max-w-xl space-y-6 px-4">
-      <div className="flex flex-col items-center text-center">
-        <BrandLogo size={120} showText={false} className="mb-2" />
-        <h1 className="text-2xl font-bold text-foreground">
-          Welcome to {pageTitle}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Let&apos;s get you started with an account.
-        </p>
+    <>
+      <div className="mx-auto w-full max-w-xl space-y-6 px-4 pb-20">
+        <div className="flex flex-col items-center text-center">
+          <BrandLogo size={120} showText={false} className="mb-2" />
+          <h1 className="text-2xl font-bold text-foreground">
+            Welcome to {pageTitle}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Let&apos;s get you started with an account.
+          </p>
+        </div>
+
+        <Card className="p-6 shadow-sm sm:p-8">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <div className="relative">
+                  <User size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    type="text"
+                    placeholder="First name"
+                    className="pl-8"
+                    {...register('first_name')}
+                  />
+                </div>
+                {errors.first_name && <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>{errors.first_name.message}</p>}
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="relative">
+                  <User size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    type="text"
+                    placeholder="Last name"
+                    className="pl-8"
+                    {...register('last_name')}
+                  />
+                </div>
+                {errors.last_name && <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>{errors.last_name.message}</p>}
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="relative">
+                <Mail size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  type="email"
+                  placeholder="Email address"
+                  autoComplete="email"
+                  className="pl-8"
+                  {...register('email')}
+                />
+              </div>
+              {errors.email && <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>{errors.email.message}</p>}
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="flex gap-2">
+                <span className="flex h-8 w-[60px] shrink-0 items-center justify-center rounded-sm border border-input bg-muted text-sm font-medium text-muted-foreground">
+                  +256
+                </span>
+                <div className="relative flex-1">
+                  <Phone size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    type="tel"
+                    placeholder="700000000"
+                    maxLength={9}
+                    className="pl-8"
+                    {...phoneRegister}
+                  />
+                </div>
+              </div>
+              {errors.phone && <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>{errors.phone.message}</p>}
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="relative">
+                <Select
+                  {...register('class_id')}
+                >
+                  <option value="">Pick Class/Club</option>
+                  {classes.length === 0 ? (
+                    <option value="" disabled>No classes available</option>
+                  ) : (
+                    classes.map(c => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))
+                  )}
+                </Select>
+              </div>
+              {errors.class_id && <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>{errors.class_id.message}</p>}
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="relative">
+                <Lock size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Set Password"
+                  autoComplete="new-password"
+                  className="pl-8 pr-10"
+                  {...register('password')}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(s => !s)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-muted-foreground transition hover:text-foreground"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+              {errors.password && <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>{errors.password.message}</p>}
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="relative">
+                <Lock size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  type={showConfirm ? 'text' : 'password'}
+                  placeholder="Confirm Password"
+                  autoComplete="new-password"
+                  className="pl-8 pr-10"
+                  {...register('confirm_password')}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm(s => !s)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-muted-foreground transition hover:text-foreground"
+                >
+                  {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+              {errors.confirm_password && <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>{errors.confirm_password.message}</p>}
+            </div>
+            
+            <div className="pt-2 text-center text-xs text-muted-foreground">
+              By continuing, you agree to our{' '}
+              <Link href="/terms-of-service" target="_blank" className="font-medium underline">
+                Terms
+              </Link>{' '}
+              &{' '}
+              <Link href="/privacy-policy" target="_blank" className="font-medium underline">
+                Policy
+              </Link>.
+            </div>
+
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full"
+            >
+              {isSubmitting && <Loader2 size={16} className="animate-spin mr-2" />}
+              {isSubmitting ? 'Creating account...' : 'Create account'}
+            </Button>
+
+            <div className="border-t border-border pt-6 text-center text-sm text-muted-foreground">
+              Already have an account?{' '}
+              <Link href="/login" className="font-semibold underline">
+                Log in
+              </Link>
+            </div>
+          </form>
+        </Card>
       </div>
 
-      <Card className="p-6 shadow-sm sm:p-8">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <div className="relative">
-                <User size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="First name"
-                  className="pl-8"
-                  {...register('first_name')}
-                />
-              </div>
-              {errors.first_name && <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>{errors.first_name.message}</p>}
-            </div>
-
-            <div className="space-y-1.5">
-              <div className="relative">
-                <User size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Last name"
-                  className="pl-8"
-                  {...register('last_name')}
-                />
-              </div>
-              {errors.last_name && <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>{errors.last_name.message}</p>}
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <div className="relative">
-              <Mail size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="email"
-                placeholder="Email address"
-                autoComplete="email"
-                className="pl-8"
-                {...register('email')}
-              />
-            </div>
-            {errors.email && <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>{errors.email.message}</p>}
-          </div>
-
-          <div className="space-y-1.5">
-            <div className="flex gap-2">
-              <span className="flex h-8 w-[60px] shrink-0 items-center justify-center rounded-sm border border-input bg-muted text-sm font-medium text-muted-foreground">
-                +256
-              </span>
-              <div className="relative flex-1">
-                <Phone size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  type="tel"
-                  placeholder="700000000"
-                  maxLength={9}
-                  className="pl-8"
-                  {...phoneRegister}
-                />
-              </div>
-            </div>
-            {errors.phone && <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>{errors.phone.message}</p>}
-          </div>
-
-          <div className="space-y-1.5">
-            <div className="relative">
-              <Select
-                {...register('class_id')}
-              >
-                <option value="">Pick Class/Club</option>
-                {classes.length === 0 ? (
-                  <option value="" disabled>No classes available</option>
-                ) : (
-                  classes.map(c => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))
-                )}
-              </Select>
-            </div>
-            {errors.class_id && <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>{errors.class_id.message}</p>}
-          </div>
-
-          <div className="space-y-1.5">
-            <div className="relative">
-              <Lock size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Set Password"
-                autoComplete="new-password"
-                className="pl-8 pr-10"
-                {...register('password')}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(s => !s)}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-muted-foreground transition hover:text-foreground"
-              >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-            {errors.password && <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>{errors.password.message}</p>}
-          </div>
-
-          <div className="space-y-1.5">
-            <div className="relative">
-              <Lock size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type={showConfirm ? 'text' : 'password'}
-                placeholder="Confirm Password"
-                autoComplete="new-password"
-                className="pl-8 pr-10"
-                {...register('confirm_password')}
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirm(s => !s)}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-muted-foreground transition hover:text-foreground"
-              >
-                {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-            {errors.confirm_password && <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>{errors.confirm_password.message}</p>}
-          </div>
-          
-          <div className="pt-2 text-center text-xs text-muted-foreground">
-            By continuing, you agree to our{' '}
-            <Link href="/terms-of-service" target="_blank" className="font-medium underline">
-              Terms
-            </Link>{' '}
-            &{' '}
-            <Link href="/privacy-policy" target="_blank" className="font-medium underline">
-              Policy
-            </Link>.
-          </div>
-
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full"
-          >
-            {isSubmitting && <Loader2 size={16} className="animate-spin mr-2" />}
-            {isSubmitting ? 'Creating account...' : 'Create account'}
-          </Button>
-
-          <div className="border-t border-border pt-6 text-center text-sm text-muted-foreground">
-            Already have an account?{' '}
-            <Link href="/login" className="font-semibold underline">
-              Log in
-            </Link>
-          </div>
-        </form>
-      </Card>
-    </div>
+      <div className="fixed bottom-6 right-6 z-50">
+        <ThemeToggle />
+      </div>
+    </>
   )
 }

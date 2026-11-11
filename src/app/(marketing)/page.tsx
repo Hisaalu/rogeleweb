@@ -125,7 +125,7 @@ export default async function HomePage() {
                   </Button>
                 </Link>
                 <a
-                  href="https://youtu.be/8DrZ80nR2o0"
+                  href="https://youtu.be/8DrZ80nR2o0?si=vx9QK7cux7TJ_gME"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full sm:w-auto"
