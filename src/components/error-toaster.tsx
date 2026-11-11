@@ -19,7 +19,7 @@ export function ErrorToaster() {
 
     let message = 'An error occurred.'
     if (error === 'not_found') {
-      message = 'This item has been removed or no longer exists in this class, try changing your class.'
+      message = 'This item has been removed or no longer exists in this class, change to another class and try again!'
     }
 
     showToast(message, 'error', { title: 'Not Found' })
