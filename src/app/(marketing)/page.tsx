@@ -253,8 +253,8 @@ export default async function HomePage() {
             Pricing Plans
           </span>
           <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
-            Choose Your{' '}
-            <span style={{ color: 'var(--brand-primary)' }}>Learning Path</span>
+            One Subscription.{' '}
+            <span style={{ color: 'var(--brand-primary)' }}>Access to everything</span>
           </h2>
 
           {plans.length === 0 ? (
@@ -264,7 +264,7 @@ export default async function HomePage() {
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
                 Pricing will be available shortly. Create a free account to get
-                started in the meantime.
+                started in the meantime or login to view plans.
               </p>
               <Link href="/register" className="mt-6 inline-block">
                 <Button>
@@ -280,7 +280,7 @@ export default async function HomePage() {
                   plan={plan}
                   allPlans={plans}
                   recommended={plan.id === recommendedId}
-                  href="/register"
+                  href="/login"
                   buttonLabel="Get Started"
                 />
               ))}
