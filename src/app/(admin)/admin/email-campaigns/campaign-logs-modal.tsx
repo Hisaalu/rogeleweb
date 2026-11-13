@@ -63,7 +63,7 @@ export function CampaignLogsModal({
             description="Once the campaign is sent, per-recipient status will appear here."
           />
         ) : (
-          <div className="max-h-[420px] overflow-y-auto rounded-sm border border-border">
+          <div className="max-h-[420px] overflow-auto rounded-sm border border-border">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -99,8 +99,8 @@ export function CampaignLogsModal({
           </div>
         )}
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Close</Button>
+        <DialogFooter className="flex-col-reverse sm:flex-row">
+          <Button variant="outline" onClick={onClose} className="w-full sm:w-auto">Close</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

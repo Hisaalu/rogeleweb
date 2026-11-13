@@ -12,8 +12,6 @@ import { previewCampaignClient } from '@/lib/email-campaigns.client'
 import type { EmailCampaign, PreviewResponse } from '@/types/email-campaign'
 
 function rewriteLinks(html: string): string {
-  // Force every <a> tag to open in a new tab. Only rewrite if no
-  // target= attribute is already present.
   return html.replace(
     /<a\s+(?![^>]*\btarget=)([^>]*)>/gi,
     '<a $1 target="_blank" rel="noopener noreferrer">',
@@ -32,8 +30,6 @@ export function CampaignPreviewModal({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Re-fetch preview when the campaign opens or when the sample changes
-  // (debounced to avoid hammering the API while typing).
   useEffect(() => {
     if (!campaign) return
     const timer = setTimeout(() => {
@@ -47,8 +43,6 @@ export function CampaignPreviewModal({
     return () => clearTimeout(timer)
   }, [campaign, email, name])
 
-  // Build a fully self-contained HTML document so links and styles
-  // don't leak into the admin panel.
   const iframeSrcDoc = useMemo(() => {
     if (!preview) return ''
     return `<!DOCTYPE html>
@@ -136,19 +130,18 @@ export function CampaignPreviewModal({
                 title="Email preview"
                 srcDoc={iframeSrcDoc}
                 sandbox="allow-popups allow-popups-to-escape-sandbox"
-                className="h-[420px] w-full border-0"
+                className="h-[320px] w-full border-0 sm:h-[420px]"
               />
             </div>
 
             <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <ExternalLink size={12} />
-              Links in the preview open in a new tab.
+              <ExternalLink size={12} /> Links in the preview open in a new tab.
             </p>
           </div>
         ) : null}
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Close</Button>
+        <DialogFooter className="flex-col-reverse sm:flex-row">
+          <Button variant="outline" onClick={onClose} className="w-full sm:w-auto">Close</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

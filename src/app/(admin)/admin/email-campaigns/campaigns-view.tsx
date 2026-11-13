@@ -121,30 +121,30 @@ const MobileCampaignCard = React.memo(function MobileCampaignCard({
 
   return (
     <div className="flex flex-col gap-3 border-b border-border p-4 last:border-0 hover:bg-muted/30">
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex min-w-0 items-start justify-between gap-2">
         <div className="flex min-w-0 flex-col">
-          <span className="font-medium text-foreground">{campaign.subject}</span>
-          <span className="text-xs capitalize text-muted-foreground">
+          <span className="truncate font-medium text-foreground">{campaign.subject}</span>
+          <span className="truncate text-xs capitalize text-muted-foreground">
             {recipientLabel(campaign.recipient_type)}
           </span>
         </div>
         <Badge tone={statusTone(campaign.status)}>{campaign.status}</Badge>
       </div>
       <div className="grid grid-cols-3 gap-2 text-sm">
-        <div>
+        <div className="min-w-0">
           <p className="text-xs text-muted-foreground">Total</p>
-          <p className="font-medium">{campaign.total_recipients}</p>
+          <p className="break-words font-medium">{campaign.total_recipients}</p>
         </div>
-        <div>
+        <div className="min-w-0">
           <p className="text-xs text-muted-foreground">Sent</p>
-          <p className="font-medium text-success-fg">{campaign.sent_count}</p>
+          <p className="break-words font-medium text-success-fg">{campaign.sent_count}</p>
         </div>
-        <div>
+        <div className="min-w-0">
           <p className="text-xs text-muted-foreground">Failed</p>
-          <p className="font-medium text-danger-fg">{campaign.failed_count}</p>
+          <p className="break-words font-medium text-danger-fg">{campaign.failed_count}</p>
         </div>
       </div>
-      <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
+      <div className="mt-1 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <span className="text-xs text-muted-foreground">
           {dateFormatter.format(new Date(campaign.sent_at ?? campaign.created_at))}
         </span>
@@ -216,15 +216,15 @@ export function CampaignsView({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-center sm:text-left">
           <h1 className="text-2xl font-bold sm:text-3xl">Send Emails</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Send emails to your users.
           </p>
         </div>
 
-        <Button onClick={() => setFormOpen(true)}>
+        <Button onClick={() => setFormOpen(true)} className="w-full sm:w-auto">
           <Plus size={16} /> New email
         </Button>
       </div>

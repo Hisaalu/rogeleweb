@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { Loader2, Wand2, Search, X } from 'lucide-react'
+import { Loader2, Wand2, Search, X, Copy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -18,12 +18,45 @@ import { listUsersClient } from '@/lib/users.client'
 import type { EmailCampaign, RecipientType } from '@/types/email-campaign'
 import type { AdminUser } from '@/types/admin'
 
+const TEMPLATE_VARS = [
+  { token: '{{.FirstName}}', hint: 'Recipient first name' },
+  { token: '{{.LastName}}', hint: 'Recipient last name' },
+  { token: '{{.Email}}', hint: 'Recipient email' },
+  { token: '{{.SchoolName}}', hint: 'Your school name' },
+] as const
+
 function plainTextToHtml(text: string): string {
   const paragraphs = text.split(/\n{2,}/)
   return paragraphs
     .map((p) => p.replace(/\n/g, '<br>\n'))
     .map((p) => `<p>${p}</p>`)
     .join('\n')
+}
+
+function VarChips({
+  onInsert,
+  disabled,
+}: {
+  onInsert: (token: string) => void
+  disabled?: boolean
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-1.5 pt-1">
+      {TEMPLATE_VARS.map((v) => (
+        <button
+          key={v.token}
+          type="button"
+          onClick={() => onInsert(v.token)}
+          disabled={disabled}
+          title={v.hint}
+          className="inline-flex items-center gap-1 rounded-sm border border-border bg-muted/40 px-1.5 py-0.5 font-mono text-[10px] text-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <Copy size={9} className="shrink-0 opacity-60" aria-hidden />
+          {v.token}
+        </button>
+      ))}
+    </div>
+  )
 }
 
 export function CampaignFormModal({
@@ -41,9 +74,8 @@ export function CampaignFormModal({
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // State for specific user selection
   const [users, setUsers] = useState<AdminUser[]>([])
-  const [selectedUsers, setSelectedUsers] = useState<AdminUser[]>([]) // Store the whole object so we can show badges even if filtered out
+  const [selectedUsers, setSelectedUsers] = useState<AdminUser[]>([])
   const [userSearch, setUserSearch] = useState('')
   const [loadingUsers, setLoadingUsers] = useState(false)
 
@@ -59,21 +91,15 @@ export function CampaignFormModal({
     }
   }, [open])
 
-  // Fetch users from server based on the search term
   useEffect(() => {
     if (recipientType !== 'specific_users') return
-    
-    // Debounce the search so we don't spam the API on every keystroke
     const timer = setTimeout(() => {
       setLoadingUsers(true)
       listUsersClient({ per_page: 50, q: userSearch })
-        .then((res) => {
-          setUsers(res.users || [])
-        })
+        .then((res) => setUsers(res.users || []))
         .catch(() => showToast('Failed to load users', 'error'))
         .finally(() => setLoadingUsers(false))
     }, 300)
-
     return () => clearTimeout(timer)
   }, [recipientType, userSearch, showToast])
 
@@ -85,11 +111,18 @@ export function CampaignFormModal({
   const toggleUser = (u: AdminUser) => {
     setSelectedUsers((prev) => {
       const exists = prev.find((x) => x.id === u.id)
-      if (exists) {
-        return prev.filter((x) => x.id !== u.id)
-      }
+      if (exists) return prev.filter((x) => x.id !== u.id)
       return [...prev, u]
     })
+  }
+
+  async function copyToken(token: string) {
+    try {
+      await navigator.clipboard.writeText(token)
+      showToast(`Copied ${token}`, 'success')
+    } catch {
+      showToast('Copy failed — copy manually', 'error')
+    }
   }
 
   function handleFormatText() {
@@ -131,7 +164,7 @@ export function CampaignFormModal({
         recipient_type: recipientType,
         custom_emails: emails,
         // @ts-ignore - Assuming your backend accepts this
-        recipient_ids: recipientIds, 
+        recipient_ids: recipientIds,
       })
       onCreated(created)
       onOpenChange(false)
@@ -152,7 +185,6 @@ export function CampaignFormModal({
         <Card className="border-none shadow-none">
           <CardContent className="p-0">
             <form onSubmit={handleSubmit} className="grid gap-4">
-              {/* ... Subject and Body fields remain unchanged ... */}
               <div className="space-y-1.5">
                 <Label htmlFor="subject">Subject</Label>
                 <Input
@@ -163,10 +195,11 @@ export function CampaignFormModal({
                   autoFocus
                   disabled={submitting}
                 />
+                <VarChips onInsert={copyToken} disabled={submitting} />
               </div>
 
               <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <Label htmlFor="body">Body (HTML)</Label>
                   <Button
                     type="button"
@@ -220,23 +253,22 @@ export function CampaignFormModal({
 
               {recipientType === 'specific_users' && (
                 <div className="space-y-2 rounded-md border border-border p-3">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <Label>Selected Users</Label>
                     <span className="text-[10px] font-medium text-muted-foreground">
                       {selectedUsers.length} selected
                     </span>
                   </div>
-                  
-                  {/* Render Selected Badges */}
+
                   {selectedUsers.length > 0 && (
                     <div className="flex flex-wrap gap-1 pb-2">
                       {selectedUsers.map((u) => (
-                        <Badge key={u.id} tone="info" className="flex items-center gap-1 pr-1">
-                          {u.email}
+                        <Badge key={u.id} tone="info" className="flex max-w-full items-center gap-1 pr-1">
+                          <span className="truncate">{u.email}</span>
                           <button
                             type="button"
                             onClick={() => toggleUser(u)}
-                            className="ml-1 rounded-full p-0.5 hover:bg-black/10"
+                            className="ml-1 shrink-0 rounded-full p-0.5 hover:bg-black/10"
                           >
                             <X size={10} />
                           </button>
@@ -277,7 +309,7 @@ export function CampaignFormModal({
                               type="checkbox"
                               checked={isSelected}
                               onChange={() => toggleUser(u)}
-                              className="h-4 w-4 rounded border-input"
+                              className="h-4 w-4 shrink-0 rounded border-input"
                             />
                             <div className="flex min-w-0 flex-1 flex-col">
                               <span className="truncate text-sm font-medium text-foreground">
@@ -302,11 +334,11 @@ export function CampaignFormModal({
                 </div>
               )}
 
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
+              <DialogFooter className="flex-col-reverse sm:flex-row">
+                <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={submitting} className="w-full sm:w-auto">
                   Cancel
                 </Button>
-                <Button type="submit" disabled={submitting}>
+                <Button type="submit" disabled={submitting} className="w-full sm:w-auto">
                   {submitting && <Loader2 size={14} className="animate-spin mr-2" />} Save draft
                 </Button>
               </DialogFooter>
