@@ -43,7 +43,7 @@ export function KpiCards({ data }: { data: AnalyticsData }) {
         label="Total learners"
         value={String(totalUsers)}
         hint={`${activeUsers} healthy`}
-        tone="primary"
+        hintTone={activeUsers > 0 ? 'success' : 'danger'}
       />
       <Kpi
         icon={DollarSign}
@@ -54,7 +54,6 @@ export function KpiCards({ data }: { data: AnalyticsData }) {
             ? `${currencyFormatter.format(monthlyAvg)} avg / period`
             : 'No revenue yet'
         }
-        tone="accent"
         hintIcon={revenue > 0 ? TrendingUp : TrendingDown}
         hintTone={revenue > 0 ? 'success' : 'danger'}
       />
@@ -63,14 +62,14 @@ export function KpiCards({ data }: { data: AnalyticsData }) {
         label="Average score"
         value={`${avgScore.toFixed(1)}%`}
         hint={`${data.scores?.passing_pct.toFixed(0) ?? 0}% passing rate`}
-        tone="info"
+        hintTone={avgScore > 50 ? 'success' : 'danger'}
       />
       <Kpi
         icon={UserPlus}
         label="Risk flags"
         value={String(atRisk + watch)}
         hint={`${atRisk} at risk · ${watch} to watch`}
-        tone={atRisk > 0 ? 'danger' : 'success'}
+        hintTone={atRisk === 0 ? 'success' : 'danger'}
       />
     </div>
   )
