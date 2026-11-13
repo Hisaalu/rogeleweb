@@ -202,7 +202,8 @@ export function AdminDashboardView({
           label="Total users"
           value={String(overview.total_users)}
           hint={`${overview.new_users_last_30_days} new in last 30 days`}
-          tone="primary"
+          hintTone={overview.new_users_last_30_days >= 5 ? 'success' : 'danger'}
+          tone="accent"
           href="/admin/users"
         />
         <StatCard
@@ -214,8 +215,8 @@ export function AdminDashboardView({
               ? `+${revenueDelta.toFixed(1)}% vs last month`
               : `${revenueDelta.toFixed(1)}% vs last month`
           }
-          hintIcon={revenueDelta >= 0 ? TrendingUp : TrendingDown}
-          hintTone={revenueDelta >= 0 ? 'success' : 'danger'}
+          hintIcon={revenueDelta > 0 ? TrendingUp : TrendingDown}
+          hintTone={revenueDelta > 0 ? 'success' : 'danger'}
           tone="accent"
           href="/admin/payments"
         />
@@ -224,7 +225,8 @@ export function AdminDashboardView({
           label="Active subscriptions"
           value={String(overview.active_subscriptions)}
           hint={`${overview.active_trials} trials in progress`}
-          tone="success"
+          hintTone={overview.active_trials >= 5 ? 'success' : 'danger'}
+          tone="accent"
           href="/admin/subscriptions"
         />
         <StatCard
@@ -236,7 +238,8 @@ export function AdminDashboardView({
               ? `${overview.payments_by_status.completed} completed`
               : 'No completed payments'
           }
-          tone="info"
+          hintTone={overview.payments_by_status.completed >= 0 ? 'success' : 'danger'}
+          tone="accent"
           href="/admin/payments"
         />
       </div>
