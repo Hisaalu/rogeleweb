@@ -225,7 +225,7 @@ export function AdminDashboardView({
           label="Active subscriptions"
           value={String(overview.active_subscriptions)}
           hint={`${overview.active_trials} trials in progress`}
-          hintTone={overview.active_trials >= 5 ? 'success' : 'danger'}
+          hintTone={overview.active_subscriptions >= 5 ? 'success' : 'danger'}
           tone="accent"
           href="/admin/subscriptions"
         />
