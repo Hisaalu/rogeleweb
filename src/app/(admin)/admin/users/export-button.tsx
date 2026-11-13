@@ -53,7 +53,7 @@ export function ExportButton({
   users,
   classes,
   filename,
-  label = 'Export CSV',
+  label = 'Export',
   variant = 'outline',
 }: {
   users: AdminUser[]

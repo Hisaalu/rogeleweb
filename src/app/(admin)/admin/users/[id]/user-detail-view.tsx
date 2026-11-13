@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
+import { useRouter } from 'nextjs-toploader/app'
 import { ArrowLeft } from 'lucide-react'
 import type {
   AdminUser,
@@ -28,18 +28,30 @@ export function UserDetailView({
   attempts: QuizAttempt[]
   submissions: HomeworkSubmission[]
 }) {
+  const router = useRouter()
   const [user, setUser] = useState<AdminUser>(initialUser)
 
   return (
     <div className="space-y-6">
-      <div>
-        <Link
-          href="/admin/users"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-brand-primary"
+      <div className="relative flex items-center justify-center py-2">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          aria-label="Go back"
+          className="absolute left-0 inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"
         >
-          <ArrowLeft size={14} />
-          Users
-        </Link>
+          <ArrowLeft size={26} className="shrink-0" />
+          <span className="sr-only">Go back</span>
+        </button>
+
+        <div className="text-center">
+          <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
+            User Profile
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Manage this user&apos;s account.
+          </p>
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">

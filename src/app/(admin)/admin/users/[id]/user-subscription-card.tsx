@@ -37,7 +37,8 @@ export function UserSubscriptionCard({ userId }: { userId: number }) {
           </div>
         ) : !subscription ? (
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <CreditCard size={16} /> No subscription on record.
+            <CreditCard size={16} className="shrink-0" />
+            <span className="min-w-0">No subscription on record.</span>
           </div>
         ) : (
           <dl className="grid gap-3 sm:grid-cols-2">
@@ -64,9 +65,9 @@ export function UserSubscriptionCard({ userId }: { userId: number }) {
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex flex-col gap-0.5">
+    <div className="flex min-w-0 flex-col gap-0.5">
       <dt className="text-xs uppercase tracking-wide text-muted-foreground">{label}</dt>
-      <dd className="text-sm font-medium">{children}</dd>
+      <dd className="min-w-0 break-words text-sm font-medium">{children}</dd>
     </div>
   )
 }

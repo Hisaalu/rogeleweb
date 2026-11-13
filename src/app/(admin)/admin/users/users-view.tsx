@@ -146,13 +146,13 @@ export function UsersView({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-center sm:text-left">
           <h1 className="text-2xl font-bold sm:text-3xl">Users</h1>
           <p className="mt-1 text-sm text-muted-foreground">Manage your accounts.</p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-end">
           <ExportButton users={users} classes={classes} />
           <Button onClick={() => setCreateOpen(true)}>
             <Plus size={16} /> Add user
@@ -178,7 +178,7 @@ export function UsersView({
         <div className="relative space-y-4">
           {loading && (
             <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-background/50 backdrop-blur-sm">
-              <Loader2 className="h-6 w-6 animate-spin text-brand-primary" />
+              <Loader2 className="h-6 w-6 animate-spin text-brand-accent" />
             </div>
           )}
           <div className={cn('transition-opacity duration-200', loading ? 'opacity-50 pointer-events-none' : 'opacity-100')}>
@@ -193,14 +193,14 @@ export function UsersView({
             />
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
+          <div className="flex flex-col items-center justify-between gap-3 text-xs text-muted-foreground sm:flex-row">
             <span>Showing {users.length} of {meta.total} users</span>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1 || loading}
-                className="rounded-sm border border-border bg-card px-3 py-1.5 font-medium transition hover:border-brand-accent disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-sm border border-border bg-card px-3 py-1.5 font-medium transition hover:border-brand-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Previous
               </button>
@@ -209,7 +209,7 @@ export function UsersView({
                 type="button"
                 onClick={() => setPage((p) => p + 1)}
                 disabled={page >= meta.last_page || loading}
-                className="rounded-sm border border-border bg-card px-3 py-1.5 font-medium transition hover:border-brand-accent disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-sm border border-border bg-card px-3 py-1.5 font-medium transition hover:border-brand-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Next
               </button>

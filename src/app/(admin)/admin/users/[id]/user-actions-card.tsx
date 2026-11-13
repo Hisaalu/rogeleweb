@@ -112,34 +112,34 @@ export function UserActionsCard({
           <CardTitle>Actions</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 p-4">
-          <Button variant="outline" className="w-full justify-start" onClick={() => setSetPasswordOpen(true)} disabled={busy}>
-            <KeyRound size={14} /> Set new password
+          <Button variant="outline" className="w-full min-w-0 justify-start" onClick={() => setSetPasswordOpen(true)} disabled={busy}>
+            <KeyRound size={14} className="shrink-0" /> <span className="truncate">Set new password</span>
           </Button>
-          <Button variant="outline" className="w-full justify-start" onClick={() => setPending('reset')} disabled={busy}>
-            <KeyRound size={14} /> Send password reset email
+          <Button variant="outline" className="w-full min-w-0 justify-start" onClick={() => setPending('reset')} disabled={busy}>
+            <KeyRound size={14} className="shrink-0" /> <span className="truncate">Send password reset email</span>
           </Button>
-          <Button variant="outline" className="w-full justify-start" onClick={() => setRoleModalOpen(true)} disabled={busy}>
-            <Shield size={14} /> Change role
+          <Button variant="outline" className="w-full min-w-0 justify-start" onClick={() => setRoleModalOpen(true)} disabled={busy}>
+            <Shield size={14} className="shrink-0" /> <span className="truncate">Change role</span>
           </Button>
 
           {currentStatus === 'active' && (
-            <Button variant="outline" className="w-full justify-start text-warning-fg hover:bg-warning-bg" onClick={() => setPending('suspend')} disabled={busy}>
-              <Ban size={14} /> Suspend account
+            <Button variant="outline" className="w-full min-w-0 justify-start text-warning-fg hover:bg-warning-bg" onClick={() => setPending('suspend')} disabled={busy}>
+              <Ban size={14} className="shrink-0" /> <span className="truncate">Suspend account</span>
             </Button>
           )}
           {currentStatus === 'suspended' && (
-            <Button variant="outline" className="w-full justify-start text-success-fg hover:bg-success-bg" onClick={() => setPending('reactivate')} disabled={busy}>
-              <CheckCircle2 size={14} /> Reactivate account
+            <Button variant="outline" className="w-full min-w-0 justify-start text-success-fg hover:bg-success-bg" onClick={() => setPending('reactivate')} disabled={busy}>
+              <CheckCircle2 size={14} className="shrink-0" /> <span className="truncate">Reactivate account</span>
             </Button>
           )}
           {currentStatus === 'active' && (
-            <Button variant="outline" className="w-full justify-start text-danger-fg hover:bg-danger-bg" onClick={() => setPending('deactivate')} disabled={busy}>
-              <UserX size={14} /> Deactivate account
+            <Button variant="outline" className="w-full min-w-0 justify-start text-danger-fg hover:bg-danger-bg" onClick={() => setPending('deactivate')} disabled={busy}>
+              <UserX size={14} className="shrink-0" /> <span className="truncate">Deactivate account</span>
             </Button>
           )}
           {currentStatus === 'deactivated' && (
-            <Button variant="outline" className="w-full justify-start text-success-fg hover:bg-success-bg" onClick={() => setPending('activate')} disabled={busy}>
-              <CheckCircle2 size={14} /> Activate account
+            <Button variant="outline" className="w-full min-w-0 justify-start text-success-fg hover:bg-success-bg" onClick={() => setPending('activate')} disabled={busy}>
+              <CheckCircle2 size={14} className="shrink-0" /> <span className="truncate">Activate account</span>
             </Button>
           )}
 
@@ -160,18 +160,18 @@ export function UserActionsCard({
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4">
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 min-w-0">
               <Label htmlFor="new_password">New password</Label>
-              <div className="relative">
+              <div className="relative min-w-0">
                 <Input id="new_password" type={showPassword ? 'text' : 'password'} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="At least 8 characters" disabled={busy} autoFocus className="pr-10" />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" tabIndex={-1}>
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 min-w-0">
               <Label htmlFor="confirm_password">Confirm password</Label>
-              <div className="relative">
+              <div className="relative min-w-0">
                 <Input id="confirm_password" type={showPassword ? 'text' : 'password'} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Repeat the password" disabled={busy} className="pr-10" />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" tabIndex={-1}>
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -179,9 +179,9 @@ export function UserActionsCard({
               </div>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSetPasswordOpen(false)} disabled={busy}>Cancel</Button>
-            <Button onClick={handleSetPassword} disabled={busy || !newPassword || !confirmPassword}>
+          <DialogFooter className="flex-col-reverse sm:flex-row">
+            <Button variant="outline" className="w-full sm:w-auto" onClick={() => setSetPasswordOpen(false)} disabled={busy}>Cancel</Button>
+            <Button className="w-full sm:w-auto" onClick={handleSetPassword} disabled={busy || !newPassword || !confirmPassword}>
               {busy && <Loader2 size={14} className="animate-spin" />} Set password
             </Button>
           </DialogFooter>
@@ -202,14 +202,14 @@ export function UserActionsCard({
           </DialogHeader>
           <div className="grid gap-2">
             {(['learner', 'teacher', 'external', 'admin'] as UserRole[]).map((r) => (
-              <button key={r} type="button" onClick={() => handleRoleChange(r)} disabled={busy || r === user.role} className={`flex items-center justify-between rounded-lg border px-4 py-3 text-left text-sm font-medium transition ${r === user.role ? 'border-brand-primary bg-brand-primary/10 text-brand-primary' : 'border-border hover:border-brand-accent'} disabled:cursor-not-allowed`}>
-                <span className="capitalize">{r}</span>
-                {r === user.role && <CheckCircle2 size={16} />}
+              <button key={r} type="button" onClick={() => handleRoleChange(r)} disabled={busy || r === user.role} className={`flex min-w-0 items-center justify-between gap-2 rounded-lg border px-4 py-3 text-left text-sm font-medium transition ${r === user.role ? 'border-brand-primary bg-brand-primary/10 text-brand-primary' : 'border-border hover:border-brand-accent'} disabled:cursor-not-allowed`}>
+                <span className="min-w-0 truncate capitalize">{r}</span>
+                {r === user.role && <CheckCircle2 size={16} className="shrink-0" />}
               </button>
             ))}
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setRoleModalOpen(false)} disabled={busy}>Cancel</Button>
+          <DialogFooter className="flex-col-reverse sm:flex-row">
+            <Button variant="outline" className="w-full sm:w-auto" onClick={() => setRoleModalOpen(false)} disabled={busy}>Cancel</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

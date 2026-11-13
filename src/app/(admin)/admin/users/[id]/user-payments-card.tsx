@@ -37,26 +37,27 @@ export function UserPaymentsCard({ userId }: { userId: number }) {
           </div>
         ) : payments.length === 0 ? (
           <div className="flex items-center gap-3 px-3 py-4 text-sm text-muted-foreground">
-            <DollarSign size={16} /> No payments on record.
+            <DollarSign size={16} className="shrink-0" />
+            <span className="min-w-0">No payments on record.</span>
           </div>
         ) : (
           <ul className="divide-y divide-border">
             {payments.map((p) => (
-              <li key={p.id} className="flex items-center justify-between gap-3 px-3 py-2.5">
+              <li key={p.id} className="flex flex-col gap-1.5 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{p.plan_type ?? 'subscription'}</p>
                   <p className="truncate text-xs text-muted-foreground">
                     {p.payment_method ?? 'unknown'} · {p.transaction_id?.slice(0, 12) ?? 'no txn'}
                   </p>
                 </div>
-                <div className="flex shrink-0 items-center gap-3">
-                  <span className="text-sm font-semibold">
+                <div className="flex shrink-0 flex-wrap items-center gap-2 sm:gap-3">
+                  <span className="text-sm font-semibold whitespace-nowrap">
                     {p.amount != null ? currencyFormatter.format(p.amount) : '—'}
                   </span>
                   <Badge tone={p.status === 'completed' ? 'success' : p.status === 'failed' ? 'danger' : 'warning'}>
                     {p.status}
                   </Badge>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">
                     {formatDate(p.payment_date ?? p.created_at)}
                   </span>
                 </div>

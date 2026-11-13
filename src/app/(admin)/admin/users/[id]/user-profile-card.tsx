@@ -43,8 +43,8 @@ export function UserProfileCard({
             {getInitials(name)}
           </div>
         )}
-        <h2 className="mt-3 text-lg font-semibold">{name}</h2>
-        <p className="text-sm text-muted-foreground">{user.email}</p>
+        <h2 className="mt-3 max-w-full truncate text-lg font-semibold">{name}</h2>
+        <p className="max-w-full truncate text-sm text-muted-foreground">{user.email}</p>
         <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
           <Badge tone={roleTone(user.role)}>{user.role}</Badge>
           {user.is_suspended ? (
@@ -77,9 +77,9 @@ export function UserProfileCard({
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-4 px-5 py-2.5 text-sm">
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className="truncate font-medium">{value}</dd>
+    <div className="flex min-w-0 items-center justify-between gap-4 px-5 py-2.5 text-sm">
+      <dt className="shrink-0 text-muted-foreground">{label}</dt>
+      <dd className="min-w-0 truncate text-right font-medium">{value}</dd>
     </div>
   )
 }

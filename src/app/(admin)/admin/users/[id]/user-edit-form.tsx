@@ -121,7 +121,7 @@ export function UserEditForm({
           </div>
 
           <div className="flex justify-end">
-            <Button type="submit" disabled={submitting}>
+            <Button type="submit" disabled={submitting} className="w-full sm:w-auto">
               {submitting && <Loader2 size={14} className="animate-spin" />} Save changes
             </Button>
           </div>

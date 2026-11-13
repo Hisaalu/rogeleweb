@@ -15,7 +15,7 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
 
 const SubmissionRow = React.memo(function SubmissionRow({ submission }: { submission: HomeworkSubmission }) {
   return (
-    <li className="flex items-center justify-between gap-3 px-3 py-3 transition-colors hover:bg-muted/30">
+    <li className="flex flex-col gap-2 px-3 py-3 transition-colors hover:bg-muted/30 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
       <div className="min-w-0">
         <p className="truncate text-sm font-medium text-foreground">
           Homework #{submission.homework_id}
@@ -57,8 +57,8 @@ export function UserSubmissionsCard({
       <CardContent className="p-2">
         {submissions.length === 0 ? (
           <div className="flex items-center gap-3 px-3 py-6 text-sm text-muted-foreground">
-            <ClipboardList size={16} />
-            No homework submissions yet.
+            <ClipboardList size={16} className="shrink-0" />
+            <span className="min-w-0">No homework submissions yet.</span>
           </div>
         ) : (
           <ul className="divide-y divide-border">
