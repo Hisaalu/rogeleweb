@@ -61,7 +61,7 @@ export function LearnerLessonsView({
             className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5"
             style={{ backgroundColor: 'var(--brand-primary)' }}
           >
-            <Bookmark size={15} /> View Bookmarks
+            <Bookmark size={15} /> View Library
           </Link>
         </div>
       ) : (

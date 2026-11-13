@@ -22,7 +22,7 @@ export function BookmarksView({ lessons: initial }: { lessons: Lesson[] }) {
     <div className="space-y-6">
       <div className="text-center">
           <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
-            Bookmarks
+            Library
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">Lessons you&apos;ve saved.</p>
       </div>

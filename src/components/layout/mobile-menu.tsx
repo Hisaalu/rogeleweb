@@ -53,7 +53,7 @@ const LEARNER_NAV: NavItem[] = [
   { label: 'Lessons', href: '/learner/lessons', icon: BookOpen },
   { label: 'Quizzes', href: '/learner/quizzes', icon: HelpCircle },
   { label: 'Homework', href: '/learner/homework', icon: ClipboardList },
-  { label: 'Bookmarks', href: '/learner/bookmarks', icon: BookmarkCheck },
+  { label: 'Library', href: '/learner/bookmarks', icon: BookmarkCheck },
   { label: 'Profile', href: '/learner/profile', icon: User },
   { label: 'Settings', href: '/learner/settings', icon: Settings },
 ]

@@ -27,7 +27,7 @@ export function LearnerHeader({ bookmarkCount }: { bookmarkCount: number }) {
         }}
       >
         <Bookmark size={15} />
-        <span>Bookmarks</span>
+        <span>Library</span>
         <span
           className="rounded-full px-2 py-0.5 text-xs font-bold text-white"
           style={{ backgroundColor: 'var(--brand-accent)' }}
