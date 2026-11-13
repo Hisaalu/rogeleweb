@@ -5,7 +5,6 @@ import { ErrorToaster } from '@/components/error-toaster'
 import { LearnerHomeworkView } from './learner-homework-view'
 
 export const dynamic = 'force-dynamic'
-export const revalidate = 0
 
 export const metadata: Metadata = { title: 'Homework' }
 
