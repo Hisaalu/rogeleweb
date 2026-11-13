@@ -110,6 +110,32 @@ export interface RevenueForecast {
   note?: string
 }
 
+export type AnalyticsInterval = 'day' | 'week' | 'month'
+
+export interface AnalyticsRange {
+  from: string
+  to: string
+  interval?: AnalyticsInterval
+}
+
+export function deriveInterval(from: string, to: string): AnalyticsInterval {
+  const f = new Date(from).getTime()
+  const t = new Date(to).getTime()
+  if (!Number.isFinite(f) || !Number.isFinite(t) || t <= f) return 'day'
+  const days = Math.round((t - f) / 86_400_000)
+  if (days <= 31) return 'day'
+  if (days <= 180) return 'week'
+  return 'month'
+}
+
+function buildRangeParams(range?: AnalyticsRange): URLSearchParams {
+  const params = new URLSearchParams()
+  if (range?.from) params.set('from', range.from)
+  if (range?.to) params.set('to', range.to)
+  if (range?.interval) params.set('interval', range.interval)
+  return params
+}
+
 async function analyticsFetch<T>(path: string, signal?: AbortSignal): Promise<T> {
   const isServer = typeof window === 'undefined'
 
@@ -135,19 +161,29 @@ async function analyticsFetch<T>(path: string, signal?: AbortSignal): Promise<T>
   return data as T
 }
 
+function toRange(input: number | AnalyticsRange): AnalyticsRange {
+  if (typeof input === 'number') {
+    const toDate = new Date()
+    const fromDate = new Date(toDate.getTime() - input * 86_400_000)
+    return {
+      from: fromDate.toISOString().slice(0, 10),
+      to: toDate.toISOString().slice(0, 10),
+      interval: 'day',
+    }
+  }
+  return {
+    from: input.from,
+    to: input.to,
+    interval: input.interval ?? deriveInterval(input.from, input.to),
+  }
+}
+
 export async function getEnrollmentTrendClient(
-  rangeDays: number,
+  range: number | AnalyticsRange,
   signal?: AbortSignal,
 ): Promise<EnrollmentTrend> {
-  const toDate = new Date()
-  const fromDate = new Date(toDate.getTime() - rangeDays * 24 * 60 * 60 * 1000)
-
-  const params = new URLSearchParams({
-    from: fromDate.toISOString().split('T')[0],
-    to: toDate.toISOString().split('T')[0],
-    interval: 'day',
-  })
-
+  const r = toRange(range)
+  const params = buildRangeParams(r)
   return analyticsFetch<EnrollmentTrend>(
     `/enrollment-trend?${params.toString()}`,
     signal,
@@ -155,18 +191,11 @@ export async function getEnrollmentTrendClient(
 }
 
 export async function getRevenueSeriesClient(
-  rangeDays: number,
+  range: number | AnalyticsRange,
   signal?: AbortSignal,
 ): Promise<RevenueSeries> {
-  const toDate = new Date()
-  const fromDate = new Date(toDate.getTime() - rangeDays * 24 * 60 * 60 * 1000)
-
-  const params = new URLSearchParams({
-    from: fromDate.toISOString().split('T')[0],
-    to: toDate.toISOString().split('T')[0],
-    interval: 'day',
-  })
-
+  const r = toRange(range)
+  const params = buildRangeParams(r)
   return analyticsFetch<RevenueSeries>(
     `/revenue-over-time?${params.toString()}`,
     signal,
@@ -179,12 +208,24 @@ export async function getScoreDistributionClient(
   return analyticsFetch<ScoreDistribution>('/score-distribution', signal)
 }
 
-export async function getHeatmapClient(): Promise<HeatmapData> {
-  return analyticsFetch<HeatmapData>('/activity-heatmap')
+export async function getHeatmapClient(
+  range?: AnalyticsRange,
+): Promise<HeatmapData> {
+  const params = buildRangeParams(range)
+  const suffix = params.toString()
+  return analyticsFetch<HeatmapData>(
+    `/activity-heatmap${suffix ? `?${suffix}` : ''}`,
+  )
 }
 
-export async function getRetentionClient(): Promise<RetentionData> {
-  return analyticsFetch<RetentionData>('/retention')
+export async function getRetentionClient(
+  range?: AnalyticsRange,
+): Promise<RetentionData> {
+  const params = buildRangeParams(range)
+  const suffix = params.toString()
+  return analyticsFetch<RetentionData>(
+    `/retention${suffix ? `?${suffix}` : ''}`,
+  )
 }
 
 export async function getAtRiskClient(signal?: AbortSignal): Promise<AtRiskData> {

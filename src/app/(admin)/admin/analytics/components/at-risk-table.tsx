@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Link from 'next/link'
 import { AlertTriangle, ShieldAlert, ShieldCheck } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -48,12 +49,16 @@ function activityLabel(days: number | null): string {
 
 const AtRiskRow = React.memo(function AtRiskRow({ learner }: { learner: AtRiskLearner }) {
   const Icon = bandIcon(learner.risk_band)
-  
   return (
     <tr className="transition-colors hover:bg-muted/30">
       <td className="max-w-[200px] px-3 py-3">
-        <p className="truncate font-medium">{learnerName(learner)}</p>
-        <p className="truncate text-xs text-muted-foreground">{learner.email}</p>
+        <Link
+          href={`/admin/users/${learner.user_id}`}
+          className="block rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
+        >
+          <p className="truncate font-medium hover:underline">{learnerName(learner)}</p>
+          <p className="truncate text-xs text-muted-foreground">{learner.email}</p>
+        </Link>
       </td>
       <td className="px-3 py-3 text-muted-foreground">
         {learner.class_name ?? '—'}
@@ -109,20 +114,26 @@ const AtRiskRow = React.memo(function AtRiskRow({ learner }: { learner: AtRiskLe
 
 const MobileAtRiskCard = React.memo(function MobileAtRiskCard({ learner }: { learner: AtRiskLearner }) {
   const Icon = bandIcon(learner.risk_band)
-  
   return (
     <div className="flex flex-col gap-3 border-b border-border p-4 last:border-0 hover:bg-muted/30">
       <div className="flex items-start justify-between gap-2">
-        <div className="flex flex-col min-w-0">
-          <span className="truncate font-medium text-foreground">{learnerName(learner)}</span>
-          <span className="truncate text-xs text-muted-foreground">{learner.email}</span>
-        </div>
+        <Link
+          href={`/admin/users/${learner.user_id}`}
+          className="block min-w-0 flex-1 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
+        >
+          <span className="block truncate font-medium text-foreground hover:underline">
+            {learnerName(learner)}
+          </span>
+          <span className="block truncate text-xs text-muted-foreground">
+            {learner.email}
+          </span>
+        </Link>
         <Badge tone={bandTone(learner.risk_band)} className="shrink-0">
           <Icon size={12} className="mr-1" />
           {bandLabel(learner.risk_band)}
         </Badge>
       </div>
-      
+
       <div className="grid grid-cols-2 gap-2 text-sm">
         <div>
           <p className="text-xs text-muted-foreground">Class</p>
@@ -228,7 +239,7 @@ export function AtRiskTable({ data }: { data: AtRiskData | null }) {
                 </tbody>
               </table>
             </div>
-            
+
             <div className="flex flex-col sm:hidden">
               {learners.map((l) => (
                 <MobileAtRiskCard key={l.user_id} learner={l} />
