@@ -115,15 +115,15 @@ export function SubjectsView({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-center sm:text-left">
           <h1 className="text-2xl font-bold sm:text-3xl">Subjects</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Manage your subjects.
           </p>
         </div>
 
-        <Button onClick={handleNew}>
+        <Button onClick={handleNew} className="w-full sm:w-auto">
           <Plus size={16} /> New subject
         </Button>
       </div>
@@ -141,7 +141,7 @@ export function SubjectsView({
         />
       ) : (
         <>
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <Input
               placeholder="Search subjects..."
               value={search}
@@ -179,7 +179,7 @@ export function SubjectsView({
             onDelete={setDeleteTarget}
           />
 
-          <p className="text-xs text-muted-foreground">
+          <p className="text-center text-xs text-muted-foreground sm:text-left">
             Showing {filtered.length} of {subjects.length}
           </p>
         </>

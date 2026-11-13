@@ -131,30 +131,29 @@ export function PlansView({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-center sm:text-left">
           <h1 className="text-2xl font-bold sm:text-3xl">Plans</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Define Subscription Plans.
           </p>
         </div>
 
-        <Button onClick={handleNew}>
+        <Button onClick={handleNew} className="w-full sm:w-auto">
           <Plus size={16} /> New plan
         </Button>
       </div>
 
       <Card className="p-5 sm:p-6 border-brand-accent/20 bg-brand-accent/5">
-        <div className="flex items-center gap-2 mb-4">
-          <Clock size={20} className="text-brand-accent" />
-          <h2 className="text-lg font-semibold">Free Trial Settings</h2>
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <h2 className="min-w-0 text-lg font-semibold">Free Trial Settings</h2>
         </div>
-        <p className="text-sm text-muted-foreground mb-4 max-w-2xl">
-          Set the default duration for all users who are currently on free trials or whose subscription ended. 
+        <p className="mb-4 max-w-2xl text-sm text-muted-foreground">
+          Set the default duration for all users. 
         </p>
-        <div className="flex flex-wrap items-end gap-4">
-          <div className="space-y-1.5 w-full sm:w-48">
-            <label className="block text-sm font-medium">Trial Duration (Days)</label>
+        <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
+          <div className="w-full space-y-1.5 sm:w-48">
+            <label className="block text-sm font-medium">Trial Days</label>
             <Input
               type="number"
               min={1}
@@ -164,7 +163,7 @@ export function PlansView({
               disabled={savingTrial}
             />
           </div>
-          <Button onClick={handleSaveTrial} disabled={savingTrial}>
+          <Button onClick={handleSaveTrial} disabled={savingTrial} className="w-full sm:w-auto">
             {savingTrial ? <Loader2 size={16} className="animate-spin mr-2" /> : <Save size={16} className="mr-2" />}
             Save Trial Settings
           </Button>
@@ -211,7 +210,7 @@ export function PlansView({
             onToggleActive={handleToggleActive}
           />
 
-          <p className="text-xs text-muted-foreground">
+          <p className="text-center text-xs text-muted-foreground sm:text-left">
             Showing {filtered.length} of {plans.length}
           </p>
         </>

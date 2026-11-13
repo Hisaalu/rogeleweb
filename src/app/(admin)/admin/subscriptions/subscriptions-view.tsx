@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useMemo, useState, useEffect, useCallback } from 'react'
-import { CreditCard, Download, Loader2 } from 'lucide-react'
+import { CreditCard, Download, Loader2, CheckCircle2, XCircle, Clock } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -86,18 +86,21 @@ function exportCsv(subs: AdminSubscription[]) {
 }
 
 const Stat = React.memo(function Stat({
+  icon: Icon,
   label,
   value,
   tone = 'default',
 }: {
+  icon?: React.ElementType
   label: string
   value: string
   tone?: StatTone
 }) {
   return (
     <Card className="p-3 shadow-sm transition-shadow hover:shadow-md sm:p-4">
-      <p className="truncate text-[11px] uppercase tracking-wide text-muted-foreground sm:text-xs">
-        {label}
+      <p className="flex items-center gap-1.5 truncate text-[11px] uppercase tracking-wide text-muted-foreground sm:text-xs">
+        {Icon && <Icon size={13} className="shrink-0" aria-hidden />}
+        <span className="truncate">{label}</span>
       </p>
       <p className={`mt-1 truncate text-lg font-semibold tabular-nums sm:text-xl ${STAT_TONES[tone]}`}>
         {value}
@@ -154,9 +157,9 @@ const MobileSubscriptionCard = React.memo(function MobileSubscriptionCard({ sub 
 
   return (
     <div className="flex flex-col gap-3 border-b border-border p-4 last:border-0 hover:bg-muted/30">
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex min-w-0 items-start justify-between gap-2">
         <div className="flex min-w-0 flex-col">
-          <span className="font-medium text-foreground">{name}</span>
+          <span className="truncate font-medium text-foreground">{name}</span>
           {showEmail && <span className="truncate text-xs text-muted-foreground">{sub.user_email}</span>}
         </div>
         <Badge
@@ -174,23 +177,23 @@ const MobileSubscriptionCard = React.memo(function MobileSubscriptionCard({ sub 
         </Badge>
       </div>
       <div className="grid grid-cols-2 gap-2 text-sm">
-        <div>
+        <div className="min-w-0">
           <p className="text-xs text-muted-foreground">Plan</p>
-          <p className="font-medium capitalize">{sub.plan_type}</p>
+          <p className="break-words font-medium capitalize">{sub.plan_type}</p>
         </div>
-        <div>
+        <div className="min-w-0">
           <p className="text-xs text-muted-foreground">Amount</p>
-          <p className="font-semibold tabular-nums">
+          <p className="break-words font-semibold tabular-nums">
             {sub.amount != null ? currencyFormatter.format(sub.amount) : '—'}
           </p>
         </div>
-        <div>
+        <div className="min-w-0">
           <p className="text-xs text-muted-foreground">Start</p>
-          <p className="font-medium">{dateFormatter.format(new Date(sub.start_date))}</p>
+          <p className="break-words font-medium">{dateFormatter.format(new Date(sub.start_date))}</p>
         </div>
-        <div>
+        <div className="min-w-0">
           <p className="text-xs text-muted-foreground">End</p>
-          <p className="font-medium">{dateFormatter.format(new Date(sub.end_date))}</p>
+          <p className="break-words font-medium">{dateFormatter.format(new Date(sub.end_date))}</p>
         </div>
       </div>
       <p className="text-xs text-muted-foreground">
@@ -275,9 +278,9 @@ export function SubscriptionsView({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-brand-primary sm:text-3xl">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-center sm:text-left">
+          <h1 className="text-2xl font-bold sm:text-3xl">
             Subscriptions
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -288,17 +291,17 @@ export function SubscriptionsView({
           variant="outline"
           onClick={handleExport}
           disabled={filtered.length === 0}
-          className="whitespace-nowrap"
+          className="w-full whitespace-nowrap sm:w-auto"
         >
-          <Download size={14} /> Export CSV
+          <Download size={14} /> Export
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        <Stat label="Total" value={String(filtered.length)} />
-        <Stat label="Active" value={String(stats.active)} tone="success" />
-        <Stat label="Expired" value={String(stats.expired)} tone="danger" />
-        <Stat label="Pending" value={String(stats.pending)} tone="warning" />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+        <Stat icon={CreditCard} label="Total" value={String(filtered.length)} />
+        <Stat icon={CheckCircle2} label="Active" value={String(stats.active)} tone="success" />
+        <Stat icon={XCircle} label="Expired" value={String(stats.expired)} tone="danger" />
+        <Stat icon={Clock} label="Pending" value={String(stats.pending)} tone="warning" />
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
@@ -346,8 +349,8 @@ export function SubscriptionsView({
             </div>
           </Card>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
-            <span>
+          <div className="flex flex-col items-center justify-between gap-3 text-xs text-muted-foreground sm:flex-row">
+            <span className="text-center sm:text-left">
               Showing {filtered.length} of {meta.total} subscriptions
               {meta.last_page > 1 && ` · page ${meta.page} of ${meta.last_page}`}
             </span>
@@ -357,7 +360,7 @@ export function SubscriptionsView({
                   type="button"
                   onClick={() => goToPage(meta.page - 1)}
                   disabled={meta.page <= 1 || fetching}
-                  className="rounded-sm border border-border bg-card px-3 py-1.5 font-medium transition hover:border-brand-accent disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-sm border border-border bg-card px-3 py-1.5 font-medium transition hover:border-brand-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {fetching ? <Loader2 size={12} className="animate-spin" /> : 'Previous'}
                 </button>
@@ -366,7 +369,7 @@ export function SubscriptionsView({
                   type="button"
                   onClick={() => goToPage(meta.page + 1)}
                   disabled={meta.page >= meta.last_page || fetching}
-                  className="rounded-sm border border-border bg-card px-3 py-1.5 font-medium transition hover:border-brand-accent disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-sm border border-border bg-card px-3 py-1.5 font-medium transition hover:border-brand-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {fetching ? <Loader2 size={12} className="animate-spin" /> : 'Next'}
                 </button>
