@@ -34,20 +34,21 @@ const AdvancedSettingRow = React.memo(function AdvancedSettingRow({
 }) {
   return (
     <div className="grid gap-3 px-5 py-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-center hover:bg-muted/20 transition-colors">
-      <code className="truncate text-sm font-medium text-foreground">{setting.setting_key}</code>
+      <code className="break-all text-sm font-medium text-foreground">{setting.setting_key}</code>
       {isEditing ? (
         <Input
           value={editingValue}
           onChange={(e) => onEditValue(e.target.value)}
           disabled={isSaving}
           autoFocus
+          className="min-w-0"
         />
       ) : (
-        <span className="truncate text-sm text-muted-foreground">
+        <span className="break-words text-sm text-muted-foreground">
           {setting.setting_value ?? '—'}
         </span>
       )}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {isEditing ? (
           <>
             <Button size="sm" onClick={onSave} disabled={isSaving}>
@@ -166,14 +167,14 @@ export function AdvancedSettings({
   return (
     <>
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between gap-3">
-          <div>
+        <CardHeader className="flex flex-wrap items-center justify-between gap-2">
+          <div className="min-w-0">
             <CardTitle>Advanced</CardTitle>
             <p className="text-xs text-muted-foreground">
               Raw key-value settings. Anything not under <code>branding.*</code>
             </p>
           </div>
-          <Button variant="outline" onClick={() => setAdding((a) => !a)}>
+          <Button variant="outline" onClick={() => setAdding((a) => !a)} className="w-full sm:w-auto">
             <Plus size={14} /> Add setting
           </Button>
         </CardHeader>
@@ -182,11 +183,11 @@ export function AdvancedSettings({
           <form onSubmit={handleAdd} className="grid gap-3 border-b border-border bg-muted/20 p-5 sm:grid-cols-[1fr_1fr_auto]">
             <Input placeholder="site.browser_title" value={newKey} onChange={(e) => setNewKey(e.target.value)} disabled={busy} autoFocus />
             <Input placeholder="NexaT" value={newValue} onChange={(e) => setNewValue(e.target.value)} disabled={busy} />
-            <div className="flex gap-2">
-              <Button type="submit" disabled={busy || !newKey.trim()}>
+            <div className="flex flex-col-reverse gap-2 sm:flex-row">
+              <Button type="submit" disabled={busy || !newKey.trim()} className="w-full sm:w-auto">
                 {busy && <Loader2 size={14} className="animate-spin" />} Add
               </Button>
-              <Button type="button" variant="outline" onClick={() => setAdding(false)} disabled={busy}>
+              <Button type="button" variant="outline" onClick={() => setAdding(false)} disabled={busy} className="w-full sm:w-auto">
                 Cancel
               </Button>
             </div>

@@ -163,7 +163,6 @@ export function CampaignFormModal({
         body: body.trim(),
         recipient_type: recipientType,
         custom_emails: emails,
-        // @ts-ignore - Assuming your backend accepts this
         recipient_ids: recipientIds,
       })
       onCreated(created)

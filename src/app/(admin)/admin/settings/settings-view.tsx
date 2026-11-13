@@ -44,19 +44,20 @@ const BrandingField = React.memo(function BrandingField({
     <div className="space-y-1.5">
       <Label htmlFor={field.key}>{field.label}</Label>
       {field.type === 'color' ? (
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <input
             type="color"
             id={field.key}
             value={value || '#000000'}
             onChange={(e) => onChange(e.target.value)}
-            className="h-10 w-14 cursor-pointer rounded-sm border border-input bg-background"
+            className="h-10 w-14 shrink-0 cursor-pointer rounded-sm border border-input bg-background"
           />
           <Input
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder="#7f2677"
             disabled={disabled}
+            className="min-w-0 flex-1"
           />
         </div>
       ) : (
@@ -128,17 +129,17 @@ export function SettingsView({ initialSettings }: { initialSettings: Setting[] }
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="flex flex-col items-center text-center">
         <h1 className="text-2xl font-bold sm:text-3xl">Settings</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1.5 max-w-xl text-sm text-muted-foreground">
           Branding, colors, contact details, and other platform settings.
         </p>
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between gap-3">
+        <CardHeader className="flex flex-wrap items-center justify-between gap-2">
           <CardTitle>Branding</CardTitle>
-          <Button onClick={saveBranding} disabled={saving}>
+          <Button onClick={saveBranding} disabled={saving} className="w-full sm:w-auto">
             {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
             {saving ? 'Saving...' : 'Save'}
           </Button>
@@ -162,9 +163,11 @@ export function SettingsView({ initialSettings }: { initialSettings: Setting[] }
         onDelete={deleteSettingClient}
       />
 
-      <div className="flex items-center gap-2 rounded-sm border border-border bg-muted/40 px-4 py-3 text-xs text-muted-foreground">
-        <SettingsIcon size={14} />
-        The public config endpoint caches settings for 60 seconds. Changes appear everywhere after a short delay or a hard refresh.
+      <div className="flex items-start gap-2 rounded-sm border border-border bg-muted/40 px-4 py-3 text-xs text-muted-foreground">
+        <SettingsIcon size={14} className="mt-0.5 shrink-0" />
+        <span className="min-w-0">
+          The public config endpoint caches settings for 60 seconds. Changes appear everywhere after a short delay or a hard refresh.
+        </span>
       </div>
     </div>
   )
