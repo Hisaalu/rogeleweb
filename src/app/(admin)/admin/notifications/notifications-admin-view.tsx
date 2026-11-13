@@ -32,10 +32,10 @@ export function NotificationsAdminView({
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="flex flex-col items-center text-center">
         <h1 className="text-2xl font-bold sm:text-3xl">Notifications</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Broadcast messages to everyone or a specific audience.
+        <p className="mt-1.5 max-w-xl text-sm text-muted-foreground">
+          Broadcast messages to your users.
         </p>
       </div>
 
