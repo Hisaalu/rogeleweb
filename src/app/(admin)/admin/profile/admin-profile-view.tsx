@@ -140,9 +140,9 @@ export function AdminProfileView({ profile: initialProfile }: { profile: Profile
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <div>
+      <div className="flex flex-col items-center text-center">
         <h1 className="text-2xl font-bold sm:text-3xl">Profile</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1.5 max-w-xl text-sm text-muted-foreground">
           Manage your personal information
         </p>
       </div>
@@ -215,14 +215,14 @@ export function AdminProfileView({ profile: initialProfile }: { profile: Profile
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between gap-3">
+          <CardHeader className="flex flex-wrap items-center justify-between gap-2">
             <CardTitle className="flex items-center gap-2">
               <Edit size={18} className="text-brand-accent" />
               Edit Personal Information
             </CardTitle>
             <Link
               href={`/admin/users/${profile.id}`}
-              className="inline-flex items-center gap-1.5 rounded-sm border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
+              className="inline-flex w-full items-center justify-center gap-1.5 rounded-sm border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent sm:w-auto"
             >
               <Edit size={12} /> Full editor
             </Link>
