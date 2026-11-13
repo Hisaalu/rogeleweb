@@ -51,12 +51,12 @@ export function AnalyticsView({ data }: { data: AnalyticsData }) {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
-      <div>
-        <h1 className="text-2xl font-bold text-brand-primary sm:text-3xl">
+      <div className="flex flex-col items-center text-center">
+        <h1 className="text-2xl font-bold sm:text-3xl">
           Analytics
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Decision-making insights across users, content, revenue, and engagement.
+        <p className="mt-1.5 max-w-xl text-sm text-muted-foreground">
+          Decision-making insights across the platform.
         </p>
       </div>
 
