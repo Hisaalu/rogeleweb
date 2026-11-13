@@ -70,7 +70,7 @@ export const AdminSidebarNav = React.memo(function AdminSidebarNav({
                           : 'gap-3 px-3 py-2.5',
                         active
                           ? 'nav-active'
-                          : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                          : 'text-foreground hover:bg-muted',
                       )}
                     >
                       <Icon
@@ -79,7 +79,7 @@ export const AdminSidebarNav = React.memo(function AdminSidebarNav({
                           'shrink-0 transition-colors',
                           active
                             ? 'text-brand-accent'
-                            : 'text-muted-foreground group-hover:text-foreground',
+                            : 'text-brand-accent/70 group-hover:text-brand-accent',
                         )}
                       />
                       {!collapsed && <span className="truncate">{item.label}</span>}

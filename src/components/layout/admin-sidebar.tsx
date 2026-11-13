@@ -32,9 +32,11 @@ function buildSurface(
   if (!/^#[0-9a-fA-F]{6}$/.test(brandColor)) {
     return undefined
   }
-  const alphaByte = isDark ? '26' : '14'
+
+  const mixPct = isDark ? 18 : 10
+
   return {
-    background: `linear-gradient(to bottom, hsl(var(--card)) 0%, hsl(var(--card)) 55%, ${brandColor}${alphaByte} 100%)`,
+    backgroundColor: `color-mix(in srgb, ${brandColor} ${mixPct}%, hsl(var(--card)))`,
   }
 }
 
@@ -59,7 +61,7 @@ function SidebarBody({
           <button
             type="button"
             onClick={onToggleCollapsed}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             <Menu size={20} />
