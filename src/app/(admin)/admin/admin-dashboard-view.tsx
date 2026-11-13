@@ -270,22 +270,27 @@ export function AdminDashboardView({
           </CardHeader>
           <CardContent className="p-0 sm:px-5">
             {signups.length === 0 ? (
-              <EmptyState
-                icon={UserPlus}
-                title="No signups yet"
-                description="New registrations will appear here."
-              />
+              <div className="px-4 py-2 sm:px-0">
+                <EmptyState
+                  icon={UserPlus}
+                  title="No signups yet"
+                  description="New registrations will appear here."
+                />
+              </div>
             ) : (
-              <ul className="divide-y divide-border">
+              <ul className="divide-y divide-border px-4 sm:px-0">
                 {signups.map((u) => {
                   const name = [u.first_name, u.last_name].filter(Boolean).join(' ') || u.email
                   return (
-                    <li key={u.id} className="flex items-center justify-between gap-3 py-3">
+                    <li
+                      key={u.id}
+                      className="flex min-w-0 items-center justify-between gap-2 py-3 sm:gap-3"
+                    >
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium">{name}</p>
                         <p className="truncate text-xs text-muted-foreground">{u.email}</p>
                       </div>
-                      <div className="flex shrink-0 items-center gap-2">
+                      <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5 sm:gap-2">
                         <Badge
                           tone={
                             u.role === 'admin' ? 'info' : u.role === 'teacher' ? 'warning' : 'default'
@@ -293,7 +298,7 @@ export function AdminDashboardView({
                         >
                           {u.role}
                         </Badge>
-                        <span className="hidden text-xs text-muted-foreground sm:inline">
+                        <span className="hidden whitespace-nowrap text-xs text-muted-foreground sm:inline">
                           {formatDate(u.created_at)}
                         </span>
                       </div>
@@ -312,15 +317,20 @@ export function AdminDashboardView({
           </CardHeader>
           <CardContent className="p-0 sm:px-5">
             {payments.length === 0 ? (
-              <EmptyState
-                icon={DollarSign}
-                title="No payments yet"
-                description="Payment activity will appear here."
-              />
+              <div className="px-4 py-2 sm:px-0">
+                <EmptyState
+                  icon={DollarSign}
+                  title="No payments yet"
+                  description="Payment activity will appear here."
+                />
+              </div>
             ) : (
-              <ul className="divide-y divide-border">
+              <ul className="divide-y divide-border px-4 sm:px-0">
                 {payments.map((p) => (
-                  <li key={p.id} className="flex items-center justify-between gap-3 py-3">
+                  <li
+                    key={p.id}
+                    className="flex min-w-0 items-center justify-between gap-2 py-3 sm:gap-3"
+                  >
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium">
                         {p.user_email ?? `User #${p.user_id}`}
@@ -329,8 +339,8 @@ export function AdminDashboardView({
                         {p.payment_method ?? 'unknown'} · {p.transaction_id?.slice(0, 12) ?? 'no txn id'}
                       </p>
                     </div>
-                    <div className="flex shrink-0 items-center gap-2">
-                      <span className="text-sm font-semibold tabular-nums">
+                    <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5 sm:gap-2">
+                      <span className="whitespace-nowrap text-sm font-semibold tabular-nums">
                         {currencyFormatter.format(p.amount ?? 0)}
                       </span>
                       <Badge
