@@ -42,17 +42,17 @@ function userName(a: AdminActivityItem): string {
 
 const ActivityRow = React.memo(function ActivityRow({ item }: { item: AdminActivityItem }) {
   return (
-    <tr className="transition-colors hover:bg-muted/30">
-      <td className="whitespace-nowrap px-4 py-3 text-xs text-muted-foreground">{formatDate(item.created_at)}</td>
-      <td className="px-4 py-3"><Badge tone={actionTone(item.action)}>{item.action}</Badge></td>
-      <td className="max-w-[280px] truncate px-4 py-3 text-muted-foreground">{item.description ?? '—'}</td>
-      <td className="px-4 py-3">
+    <tr className="transition-colors hover:bg-muted/20">
+      <td className="whitespace-nowrap px-4 py-3.5 text-xs text-muted-foreground">{formatDate(item.created_at)}</td>
+      <td className="px-4 py-3.5"><Badge tone={actionTone(item.action)}>{item.action}</Badge></td>
+      <td className="max-w-[280px] truncate px-4 py-3.5 text-muted-foreground">{item.description ?? '—'}</td>
+      <td className="px-4 py-3.5">
         <div className="min-w-0">
           <p className="truncate font-medium">{userName(item)}</p>
           {item.user_email && <p className="truncate text-xs text-muted-foreground">{item.user_email}</p>}
         </div>
       </td>
-      <td className="px-4 py-3">
+      <td className="px-4 py-3.5">
         {item.user_role ? (
           <Badge tone={item.user_role === 'admin' ? 'info' : item.user_role === 'teacher' ? 'warning' : 'default'}>
             {item.user_role}
@@ -65,16 +65,16 @@ const ActivityRow = React.memo(function ActivityRow({ item }: { item: AdminActiv
 
 const MobileActivityCard = React.memo(function MobileActivityCard({ item }: { item: AdminActivityItem }) {
   return (
-    <div className="flex flex-col gap-2 border-b border-border p-4 last:border-0 hover:bg-muted/30">
+    <div className="flex flex-col gap-2.5 border-b border-border/60 p-4 last:border-0 transition-colors hover:bg-muted/20">
       <div className="flex items-start justify-between gap-2">
-        <div className="flex flex-col">
-          <span className="font-medium text-foreground">{userName(item)}</span>
-          {item.user_email && <span className="text-xs text-muted-foreground">{item.user_email}</span>}
+        <div className="min-w-0 flex flex-col">
+          <span className="truncate font-medium text-foreground">{userName(item)}</span>
+          {item.user_email && <span className="truncate text-xs text-muted-foreground">{item.user_email}</span>}
         </div>
         <Badge tone={actionTone(item.action)}>{item.action}</Badge>
       </div>
-      <p className="text-sm text-muted-foreground">{item.description ?? 'No description'}</p>
-      <div className="mt-1 flex items-center justify-between">
+      <p className="text-sm leading-relaxed text-muted-foreground">{item.description ?? 'No description'}</p>
+      <div className="mt-0.5 flex items-center justify-between gap-2">
         <span className="text-xs text-muted-foreground">{formatDate(item.created_at)}</span>
         {item.user_role && (
           <Badge tone={item.user_role === 'admin' ? 'info' : item.user_role === 'teacher' ? 'warning' : 'default'}>
@@ -158,9 +158,9 @@ export function ActivityView({
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="flex flex-col items-center text-center">
         <h1 className="text-2xl font-bold sm:text-3xl">Activity</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1.5 max-w-md text-sm text-muted-foreground">
           Showing {items.length} events across the platform.
         </p>
       </div>
@@ -182,7 +182,7 @@ export function ActivityView({
       </div>
 
       <Card className="overflow-hidden">
-        <CardHeader className="border-b border-border bg-muted/10">
+        <CardHeader className="border-b border-border/60 bg-muted/20">
           <CardTitle>{filtered.length} matching events</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
@@ -194,14 +194,14 @@ export function ActivityView({
             <>
               <div className="hidden max-h-[640px] overflow-y-auto sm:block">
                 <table className="w-full text-sm">
-                  <thead className="sticky top-0 z-10 bg-muted/80 shadow-sm backdrop-blur">
+                  <thead className="sticky top-0 z-10 bg-muted/70 shadow-sm backdrop-blur">
                     <tr>
                       {['When', 'Action', 'Description', 'User', 'Role'].map((h) => (
                         <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">{h}</th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border">
+                  <tbody className="divide-y divide-border/60">
                     {filtered.map((a) => <ActivityRow key={a.id} item={a} />)}
                   </tbody>
                 </table>
@@ -210,7 +210,7 @@ export function ActivityView({
                 {filtered.map((a) => <MobileActivityCard key={a.id} item={a} />)}
               </div>
 
-              <div className="flex flex-col items-center justify-center gap-2 border-t border-border px-4 py-4">
+              <div className="flex flex-col items-center justify-center gap-2 border-t border-border/60 px-4 py-4">
                 {hasMore ? (
                   <button
                     type="button"
