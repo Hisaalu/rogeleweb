@@ -291,7 +291,7 @@ export function PaymentsView({
         <Stat icon={DollarSign} label="Total" value={String(filtered.length)} />
         <Stat icon={CheckCircle2} label="Completed" value={String(stats.completed)} tone="success" />
         <Stat icon={XCircle} label="Failed" value={String(stats.failed)} tone="danger" />
-        <Stat icon={Wallet} label="Collected" value={currencyFormatter.format(stats.total)} tone="primary" />
+        <Stat icon={Wallet} label="Collected" value={currencyFormatter.format(stats.total)} tone="success" />
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
