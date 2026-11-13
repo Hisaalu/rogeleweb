@@ -90,15 +90,15 @@ const MobileClassCard = React.memo(function MobileClassCard({
 }) {
   return (
     <div className="flex flex-col gap-3 border-b border-border p-4 last:border-0 hover:bg-muted/30">
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex flex-col">
-          <span className="font-medium text-foreground">{classItem.name}</span>
-          <span className="text-xs text-muted-foreground">{classItem.level}</span>
+      <div className="flex min-w-0 items-start justify-between gap-2">
+        <div className="flex min-w-0 flex-col">
+          <span className="truncate font-medium text-foreground">{classItem.name}</span>
+          <span className="truncate text-xs text-muted-foreground">{classItem.level}</span>
         </div>
         <RowActions classItem={classItem} onEdit={onEdit} onDelete={onDelete} />
       </div>
-      <p className="text-sm text-muted-foreground">{classItem.description ?? 'No description'}</p>
-      <div className="flex items-center justify-between mt-1">
+      <p className="break-words text-sm text-muted-foreground">{classItem.description ?? 'No description'}</p>
+      <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
         <span className="text-xs text-muted-foreground">{dateFormatter.format(new Date(classItem.created_at))}</span>
         {classItem.is_active ? <Badge tone="success">Active</Badge> : <Badge>Inactive</Badge>}
       </div>

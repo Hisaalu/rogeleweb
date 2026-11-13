@@ -88,9 +88,9 @@ export function ClassFormModal({
             <Textarea id="description" value={values.description} onChange={(e) => set('description', e.target.value)} placeholder="Optional description..." rows={3} disabled={submitting} />
           </div>
 
-          <div className="flex items-center gap-2">
-            <input id="is_active" type="checkbox" checked={values.is_active} onChange={(e) => set('is_active', e.target.checked)} className="h-4 w-4 rounded-sm border-input" disabled={submitting} />
-            <Label htmlFor="is_active" className="cursor-pointer font-normal">
+          <div className="flex items-start gap-2">
+            <input id="is_active" type="checkbox" checked={values.is_active} onChange={(e) => set('is_active', e.target.checked)} className="mt-0.5 h-4 w-4 shrink-0 rounded-sm border-input" disabled={submitting} />
+            <Label htmlFor="is_active" className="min-w-0 cursor-pointer font-normal leading-snug">
               Active (visible to teachers and admins when assigning content)
             </Label>
           </div>
@@ -101,11 +101,11 @@ export function ClassFormModal({
             </div>
           )}
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
+          <DialogFooter className="flex-col-reverse sm:flex-row">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={submitting} className="w-full sm:w-auto">
               Cancel
             </Button>
-            <Button type="submit" disabled={submitting}>
+            <Button type="submit" disabled={submitting} className="w-full sm:w-auto">
               {submitting && <Loader2 size={14} className="animate-spin" />}
               {classItem ? 'Save changes' : 'Create class'}
             </Button>
