@@ -2,6 +2,7 @@ import 'server-only'
 import { serverApiRequest } from './server-api'
 import type { Lesson, LessonListMeta, LessonMaterial } from '@/types/lesson'
 import type { Class, Subject } from '@/types/admin'
+import { unstable_cache } from 'next/cache'
 
 function parseList(res: unknown, requestedPage: number, requestedPerPage: number): { lessons: Lesson[]; meta: LessonListMeta } {
   let lessons: Lesson[] = []
@@ -82,6 +83,64 @@ export async function listBookmarksServer(): Promise<Lesson[]> {
   }
 }
 
+export interface BookmarksPage {
+  lessons: Lesson[]
+  meta: { page: number; per_page: number; total: number; last_page: number }
+}
+
+export async function listBookmarksPagedServer(params: {
+  page?: number
+  per_page?: number
+} = {}): Promise<BookmarksPage> {
+  const page = params.page ?? 1
+  const per_page = params.per_page ?? 12
+  const sp = new URLSearchParams()
+  sp.set('page', String(page))
+  sp.set('per_page', String(per_page))
+
+  try {
+    const res = await serverApiRequest<unknown>(
+      `/api/v1/lessons/bookmarks?${sp.toString()}`,
+    )
+    const r = (res ?? {}) as {
+      data?: Lesson[]
+      meta?: {
+        page?: number
+        per_page?: number
+        total?: number
+        last_page?: number
+      }
+    }
+    const lessons = Array.isArray(r.data) ? r.data : []
+    return {
+      lessons,
+      meta: {
+        page: r.meta?.page ?? page,
+        per_page: r.meta?.per_page ?? per_page,
+        total: r.meta?.total ?? lessons.length,
+        last_page: r.meta?.last_page ?? 1,
+      },
+    }
+  } catch {
+    return {
+      lessons: [],
+      meta: { page, per_page, total: 0, last_page: 1 },
+    }
+  }
+}
+
+export async function getBookmarkCountServer(): Promise<number> {
+  try {
+    const res = await serverApiRequest<{ count?: number } | number>(
+      '/api/v1/lessons/bookmarks/count',
+    )
+    if (typeof res === 'number') return res
+    return res?.count ?? 0
+  } catch {
+    return 0
+  }
+}
+
 export async function listMaterialsServer(
   lessonId: number,
 ): Promise<LessonMaterial[]> {
@@ -103,20 +162,27 @@ export async function listMaterialsServer(
 }
 
 export async function listSubjectsServer(classId?: number): Promise<Subject[]> {
-  try {
-    const sp = new URLSearchParams()
-    sp.set('per_page', '100')
-    if (classId) sp.set('class_id', String(classId))
+  const tag = classId ? `subjects:class:${classId}` : 'subjects:all'
+  return unstable_cache(
+    async () => {
+      try {
+        const sp = new URLSearchParams()
+        sp.set('per_page', '100')
+        if (classId) sp.set('class_id', String(classId))
 
-    const res = await serverApiRequest<unknown>(`/api/v1/subjects?${sp.toString()}`)
-    if (Array.isArray(res)) return res as Subject[]
-    const r = (res ?? {}) as { data?: Subject[]; value?: Subject[] }
-    if (Array.isArray(r.data)) return r.data
-    if (Array.isArray(r.value)) return r.value
-    return []
-  } catch {
-    return []
-  }
+        const res = await serverApiRequest<unknown>(`/api/v1/subjects?${sp.toString()}`)
+        if (Array.isArray(res)) return res as Subject[]
+        const r = (res ?? {}) as { data?: Subject[]; value?: Subject[] }
+        if (Array.isArray(r.data)) return r.data
+        if (Array.isArray(r.value)) return r.value
+        return []
+      } catch {
+        return []
+      }
+    },
+    [tag],
+    { revalidate: 300, tags: [tag] },
+  )()
 }
 
 export async function listClassesServer(): Promise<Class[]> {

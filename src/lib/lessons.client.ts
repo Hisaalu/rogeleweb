@@ -45,12 +45,11 @@ export async function toggleLessonBookmarkClient(
 
 export async function getBookmarkCountClient(): Promise<number> {
   try {
-    const res = await proxyFetch<unknown>('/lessons/bookmarks')
-    if (Array.isArray(res)) return res.length
-    const r = (res ?? {}) as { data?: unknown[]; value?: unknown[] }
-    if (Array.isArray(r.data)) return r.data.length
-    if (Array.isArray(r.value)) return r.value.length
-    return 0
+    const res = await proxyFetch<{ count?: number } | number>(
+      '/lessons/bookmarks/count',
+    )
+    if (typeof res === 'number') return res
+    return res?.count ?? 0
   } catch {
     return 0
   }

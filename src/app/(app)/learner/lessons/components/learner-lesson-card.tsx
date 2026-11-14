@@ -47,7 +47,7 @@ export function LearnerLessonCard({
       const result = await onToggleBookmark(lesson.id)
       setBookmarked(result)
       if (result) {
-        showToast('Lesson bookmarked', 'success', { title: 'Saved for later' })
+        showToast('Lesson bookmarked for you to look through!', 'success', { title: 'Saved for later' })
       } else {
         showToast('Removed from bookmarks', 'info')
       }

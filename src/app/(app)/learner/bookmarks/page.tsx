@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { listBookmarksServer } from '@/lib/lessons.server'
+import { listBookmarksPagedServer } from '@/lib/lessons.server'
 import { PremiumGate } from '@/components/premium-gate'
 import { BookmarksView } from './bookmarks-view'
 
@@ -9,12 +9,20 @@ export const metadata: Metadata = {
   title: 'Bookmarks',
 }
 
+function parsePositiveInt(value: string | undefined): number | undefined {
+  if (!value) return undefined
+  const n = Number(value)
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : undefined
+}
+
 export default async function BookmarksPage({
   searchParams,
 }: {
-  searchParams: { locked?: string }
+  searchParams: { locked?: string; page?: string }
 }) {
-  const bookmarks = await listBookmarksServer()
+  const page = parsePositiveInt(searchParams.page) ?? 1
+
+  const result = await listBookmarksPagedServer({ page, per_page: 12 })
 
   const lockedReason =
     searchParams.locked === 'trial_expired' ||
@@ -24,7 +32,11 @@ export default async function BookmarksPage({
 
   return (
     <>
-      <BookmarksView lessons={bookmarks} />
+      <BookmarksView
+        lessons={result.lessons}
+        meta={result.meta}
+        currentPage={page}
+      />
       {lockedReason && (
         <PremiumGate open context="lesson" reason={lockedReason} />
       )}

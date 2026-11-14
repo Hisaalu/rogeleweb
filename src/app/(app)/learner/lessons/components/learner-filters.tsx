@@ -1,5 +1,6 @@
 'use client'
 
+import { useTransition } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { Search, X } from 'lucide-react'
@@ -21,6 +22,8 @@ export function LearnerFilters({ subjects }: { subjects: Subject[] }) {
     setSubjectId(params.get('subject_id') ?? '')
   }, [params])
 
+  const [pending, startTransition] = useTransition()
+
   function push(next: { q?: string; subject_id?: string }) {
     const sp = new URLSearchParams(params.toString())
     const applyQ = next.q !== undefined ? next.q : q
@@ -33,7 +36,9 @@ export function LearnerFilters({ subjects }: { subjects: Subject[] }) {
     else sp.delete('subject_id')
 
     sp.delete('page')
-    router.push(`${pathname}?${sp.toString()}`)
+    startTransition(() => {
+      router.push(`${pathname}?${sp.toString()}`)
+    })
   }
 
   const hasFilters = q || subjectId
@@ -82,6 +87,7 @@ export function LearnerFilters({ subjects }: { subjects: Subject[] }) {
             <Button
               type="submit"
               className="flex-1 sm:flex-none"
+              disabled={pending}
             >
               <Search size={15} />
               Search

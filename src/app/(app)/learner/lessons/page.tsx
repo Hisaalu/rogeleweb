@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { getSessionUser } from '@/lib/auth'
 import {
-  listBookmarksServer,
+  getBookmarkCountServer,
   listLessonsServer,
   listSubjectsServer,
 } from '@/lib/lessons.server'
@@ -37,7 +37,7 @@ export default async function LearnerLessonsPage({
   const subjectId = parsePositiveInt(searchParams.subject_id)
   const page = parsePositiveInt(searchParams.page) ?? 1
 
-  const [result, subjects, bookmarks] = await Promise.all([
+    const [result, subjects, bookmarkCount] = await Promise.all([
     listLessonsServer({
       q: q || undefined,
       subject_id: subjectId,
@@ -46,16 +46,19 @@ export default async function LearnerLessonsPage({
       per_page: 12,
     }),
     listSubjectsServer(session.class_id ?? undefined),
-    listBookmarksServer(),
+    getBookmarkCountServer(),
   ])
 
-  return (
+    return (
     <>
       <ErrorToaster />
       <LearnerLessonsView
+        key={`${q}:${subjectId ?? ''}:${page}`}
         lessons={result.lessons}
         subjects={subjects}
-        bookmarkCount={bookmarks.length}
+        bookmarkCount={bookmarkCount}
+        meta={result.meta}
+        currentPage={page}
       />
     </>
   )
