@@ -5,7 +5,8 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useMemo, useState, useTransition } from 'react'
 import { 
   PlusCircle, Search, FileText, Calendar, GraduationCap, Book, 
-  List, Clock, CalendarX, Eye, Edit, Trash2, Users, Loader2
+  List, Clock, CalendarX, Eye, Edit, Trash2, Users, Loader2,
+  ChevronLeft, ChevronRight
 } from 'lucide-react'
 import type { Homework, HomeworkListMeta } from '@/types/homework'
 import type { Class } from '@/types/admin'
@@ -81,7 +82,17 @@ export function HomeworkListView({
     }
   }
 
-  const totalPages = Math.max(1, meta.last_page)
+  function pageHref(targetPage: number): string {
+    const sp = new URLSearchParams(params.toString())
+    if (targetPage > 1) sp.set('page', String(targetPage))
+    else sp.delete('page')
+    const qs = sp.toString()
+    return qs ? `${pathname}?${qs}` : pathname
+  }
+
+  const currentPage = meta.page
+  const hasPrev = currentPage > 1
+  const hasNext = currentPage < meta.last_page
 
   return (
     <div className="relative mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 sm:py-10">
@@ -135,80 +146,96 @@ export function HomeworkListView({
           <p className="mt-1 text-sm text-muted-foreground">Try refining your search terms or filters.</p>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredHomeworks.map(hw => {
-            const isExpired = new Date(hw.due_date).getTime() < new Date().getTime()
-            return (
-              <Card key={hw.id} className={`relative flex flex-col p-4 sm:p-5 transition hover:-translate-y-1 hover:shadow-md ${isExpired ? 'bg-muted/30 opacity-80' : ''}`}>
-                
-                <div className="mb-3 flex flex-col gap-2 min-[400px]:flex-row min-[400px]:items-start min-[400px]:justify-between">
-                  <h3 className="flex items-start gap-2 line-clamp-2 text-base sm:text-lg font-bold text-foreground">
-                    <FileText size={18} style={{ color: 'var(--brand-accent)' }} className="shrink-0 mt-0.5" /> 
-                    <span>{hw.title}</span>
-                  </h3>
-                  <span className="w-fit shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold" style={{ backgroundColor: isExpired ? 'var(--danger-bg)' : 'var(--success-bg)', color: isExpired ? 'var(--danger-fg)' : 'var(--success-fg)' }}>
-                    {isExpired ? 'Expired' : 'Active'}
-                  </span>
-                </div>
-
-                <div className="mb-3 flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1"><GraduationCap size={13} style={{ color: 'var(--brand-accent)' }} /> {hw.class_name ?? 'All'}</span>
-                  <span className="flex items-center gap-1"><Book size={13} style={{ color: 'var(--brand-accent)' }} /> {hw.subject_name ?? 'General'}</span>
-                  <span className="flex items-center gap-1"><Calendar size={13} style={{ color: 'var(--brand-accent)' }} /> Due: {new Date(hw.due_date).toLocaleDateString()}</span>
-                </div>
-
-                <p className="mb-4 line-clamp-2 text-sm text-muted-foreground">{hw.description ?? 'No description provided.'}</p>
-
-                <div className="mb-4 flex items-center gap-4 border-t border-border pt-4 text-sm mt-auto">
-                  <div className="text-center">
-                    <span className="block text-lg font-bold text-foreground">{hw.submissions_count ?? 0}</span>
-                    <span className="text-[10px] uppercase text-muted-foreground">Submissions</span>
+        <>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredHomeworks.map(hw => {
+              const isExpired = new Date(hw.due_date).getTime() < new Date().getTime()
+              return (
+                <Card key={hw.id} className={`relative flex flex-col p-4 sm:p-5 transition hover:-translate-y-1 hover:shadow-md ${isExpired ? 'bg-muted/30 opacity-80' : ''}`}>
+                  
+                  <div className="mb-3 flex flex-col gap-2 min-[400px]:flex-row min-[400px]:items-start min-[400px]:justify-between">
+                    <h3 className="flex items-start gap-2 line-clamp-2 text-base sm:text-lg font-bold text-foreground">
+                      <FileText size={18} style={{ color: 'var(--brand-accent)' }} className="shrink-0 mt-0.5" /> 
+                      <span>{hw.title}</span>
+                    </h3>
+                    <span className="w-fit shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold" style={{ backgroundColor: isExpired ? 'var(--danger-bg)' : 'var(--success-bg)', color: isExpired ? 'var(--danger-fg)' : 'var(--success-fg)' }}>
+                      {isExpired ? 'Expired' : 'Active'}
+                    </span>
                   </div>
-                </div>
 
-                <div className="flex flex-wrap items-center gap-2">
-                  <Link href={`/teacher/homework/${hw.id}/submissions`} className="flex-1 min-w-[120px]">
-                    <Button variant="secondary" className="w-full">
-                      <Users size={15} className="mr-2" /> Submissions
-                    </Button>
-                  </Link>
-                  <div className="flex shrink-0 items-center gap-2">
-                    <Link href={`/teacher/homework/${hw.id}/preview`} title="Preview">
-                      <Button variant="outline" size="icon" className="h-9 w-9">
-                        <Eye size={16} />
+                  <div className="mb-3 flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1"><GraduationCap size={13} style={{ color: 'var(--brand-accent)' }} /> {hw.class_name ?? 'All'}</span>
+                    <span className="flex items-center gap-1"><Book size={13} style={{ color: 'var(--brand-accent)' }} /> {hw.subject_name ?? 'General'}</span>
+                    <span className="flex items-center gap-1"><Calendar size={13} style={{ color: 'var(--brand-accent)' }} /> Due: {new Date(hw.due_date).toLocaleDateString()}</span>
+                  </div>
+
+                  <p className="mb-4 line-clamp-2 text-sm text-muted-foreground">{hw.description ?? 'No description provided.'}</p>
+
+                  <div className="mb-4 flex items-center gap-4 border-t border-border pt-4 text-sm mt-auto">
+                    <div className="text-center">
+                      <span className="block text-lg font-bold text-foreground">{hw.submissions_count ?? 0}</span>
+                      <span className="text-[10px] uppercase text-muted-foreground">Submissions</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Link href={`/teacher/homework/${hw.id}/submissions`} className="flex-1 min-w-[120px]">
+                      <Button variant="secondary" className="w-full">
+                        <Users size={15} className="mr-2" /> Submissions
                       </Button>
                     </Link>
-                    <Link href={`/teacher/homework/${hw.id}/edit`} title="Edit">
-                      <Button variant="outline" size="icon" className="h-9 w-9">
-                        <Edit size={16} />
+                    <div className="flex shrink-0 items-center gap-2">
+                      <Link href={`/teacher/homework/${hw.id}/preview`} title="Preview">
+                        <Button variant="outline" size="icon" className="h-9 w-9">
+                          <Eye size={16} />
+                        </Button>
+                      </Link>
+                      <Link href={`/teacher/homework/${hw.id}/edit`} title="Edit">
+                        <Button variant="outline" size="icon" className="h-9 w-9">
+                          <Edit size={16} />
+                        </Button>
+                      </Link>
+                      <Button variant="danger" size="icon" className="h-9 w-9" onClick={() => setDeleteTarget(hw.id)} title="Delete">
+                        <Trash2 size={16} />
                       </Button>
-                    </Link>
-                    <Button variant="danger" size="icon" className="h-9 w-9" onClick={() => setDeleteTarget(hw.id)} title="Delete">
-                      <Trash2 size={16} />
-                    </Button>
+                    </div>
                   </div>
-                </div>
 
-              </Card>
-            )
-          })}
-        </div>
-      )}
+                </Card>
+              )
+            })}
+          </div>
 
-      {totalPages > 1 && (
-        <div className="flex flex-wrap items-center justify-center gap-2 pt-4">
-          {meta.page > 1 && (
-            <Link href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(meta.page - 1) }).toString()}`}>
-              <Button variant="outline">Prev</Button>
-            </Link>
+          {meta.last_page > 1 && (
+            <div className="flex items-center justify-center gap-3 pt-6">
+              <Link
+                href={pageHref(Math.max(1, currentPage - 1))}
+                aria-disabled={!hasPrev}
+                className={
+                  !hasPrev
+                    ? 'pointer-events-none inline-flex items-center gap-1 rounded-full border border-border px-4 py-2 text-sm text-muted-foreground opacity-50'
+                    : 'inline-flex items-center gap-1 rounded-full border border-border px-4 py-2 text-sm transition hover:bg-muted'
+                }
+              >
+                <ChevronLeft size={14} /> Previous
+              </Link>
+              <span className="text-xs text-muted-foreground">
+                Page {currentPage} of {meta.last_page}
+              </span>
+              <Link
+                href={pageHref(Math.min(meta.last_page, currentPage + 1))}
+                aria-disabled={!hasNext}
+                className={
+                  !hasNext
+                    ? 'pointer-events-none inline-flex items-center gap-1 rounded-full border border-border px-4 py-2 text-sm text-muted-foreground opacity-50'
+                    : 'inline-flex items-center gap-1 rounded-full border border-border px-4 py-2 text-sm transition hover:bg-muted'
+                }
+              >
+                Next <ChevronRight size={14} />
+              </Link>
+            </div>
           )}
-          <span className="px-4 text-sm font-medium text-muted-foreground">Page {meta.page} of {totalPages}</span>
-          {meta.page < totalPages && (
-            <Link href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(meta.page + 1) }).toString()}`}>
-              <Button variant="outline">Next</Button>
-            </Link>
-          )}
-        </div>
+        </>
       )}
 
       <ConfirmDialog

@@ -1,6 +1,6 @@
 import 'server-only'
 import { serverApiRequest } from './server-api'
-import type { Homework, HomeworkAttachment, HomeworkSubmission, HomeworkListMeta } from '@/types/homework'
+import type { Homework, HomeworkListMeta, HomeworkSubmission, HomeworkAttachment } from '@/types/homework'
 
 function parseList<T>(res: unknown, requestedPage = 1, requestedPerPage = 10): { items: T[]; meta: HomeworkListMeta } {
   if (!res) {
@@ -45,7 +45,7 @@ export async function listHomeworksServer(params: {
   page?: number
 }): Promise<{ homeworks: Homework[]; meta: HomeworkListMeta }> {
   const page = params.page ?? 1
-  const per_page = 10
+  const per_page = 12
   
   const sp = new URLSearchParams()
   sp.set('page', String(page))
@@ -58,20 +58,25 @@ export async function listHomeworksServer(params: {
     const { items, meta } = parseList<Homework>(res, page, per_page)
     return { homeworks: items, meta }
   } catch {
-    return {
-      homeworks: [],
-      meta: { page, per_page, total: 0, last_page: 1 }
-    }
+    return { homeworks: [], meta: { page, per_page, total: 0, last_page: 1 } }
   }
 }
 
 export async function listLearnerHomeworksServer(params: {
   class_id: number
   status?: string
-}): Promise<Homework[]> {
+  page?: number
+}): Promise<{ homeworks: Homework[]; meta: HomeworkListMeta }> {
+  const page = params.page ?? 1
+  const per_page = 12
+
+  const sp = new URLSearchParams()
+  sp.set('page', String(page))
+  sp.set('per_page', String(per_page))
+  
   try {
-    const res = await serverApiRequest<unknown>(`/api/v1/homework?class_id=${params.class_id}&per_page=50`)
-    const { items } = parseList<Homework>(res)
+    const res = await serverApiRequest<unknown>(`/api/v1/homework?class_id=${params.class_id}&${sp.toString()}`)
+    const { items, meta } = parseList<Homework>(res, page, per_page)
     
     const submissionsRes = await serverApiRequest<unknown>('/api/v1/homework/my-submissions')
     const { items: submissions } = parseList<HomeworkSubmission>(submissionsRes)
@@ -82,16 +87,16 @@ export async function listLearnerHomeworksServer(params: {
     })
 
     if (params.status === 'pending') {
-      return merged.filter(h => !h.submission || (h.submission.status !== 'graded' && h.submission.status !== 'submitted'))
+      return { homeworks: merged.filter(h => !h.submission || (h.submission.status !== 'graded' && h.submission.status !== 'submitted')), meta }
     }
     if (params.status === 'graded') {
-      return merged.filter(h => h.submission?.status === 'graded')
+      return { homeworks: merged.filter(h => h.submission?.status === 'graded'), meta }
     }
 
-    return merged
+    return { homeworks: merged, meta }
   } catch (err) {
     console.error('[homework.server] error fetching learner homeworks:', err)
-    return []
+    return { homeworks: [], meta: { page, per_page, total: 0, last_page: 1 } }
   }
 }
 

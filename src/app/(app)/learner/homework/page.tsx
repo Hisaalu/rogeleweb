@@ -5,21 +5,39 @@ import { ErrorToaster } from '@/components/error-toaster'
 import { LearnerHomeworkView } from './learner-homework-view'
 
 export const dynamic = 'force-dynamic'
-
 export const metadata: Metadata = { title: 'Homework' }
 
-export default async function LearnerHomeworkPage() {
+function parsePositiveInt(value: string | undefined): number | undefined {
+  if (!value) return undefined
+  const n = Number(value)
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : undefined
+}
+
+export default async function LearnerHomeworkPage({
+  searchParams,
+}: {
+  searchParams: { status?: string; page?: string }
+}) {
   const session = await getSessionUser()
   if (!session) return null
 
-  const homeworks = await listLearnerHomeworksServer({
+  const page = parsePositiveInt(searchParams.page) ?? 1
+  const status = searchParams.status
+
+  const result = await listLearnerHomeworksServer({
     class_id: session.class_id ?? 0,
+    status,
+    page,
   })
 
   return (
     <>
       <ErrorToaster />
-      <LearnerHomeworkView homeworks={homeworks} />
+      <LearnerHomeworkView 
+        homeworks={result.homeworks} 
+        meta={result.meta}
+        currentPage={page}
+      />
     </>
   )
 }
