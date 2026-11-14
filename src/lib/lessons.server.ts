@@ -2,7 +2,6 @@ import 'server-only'
 import { serverApiRequest } from './server-api'
 import type { Lesson, LessonListMeta, LessonMaterial } from '@/types/lesson'
 import type { Class, Subject } from '@/types/admin'
-import { unstable_cache } from 'next/cache'
 
 function parseList(res: unknown, requestedPage: number, requestedPerPage: number): { lessons: Lesson[]; meta: LessonListMeta } {
   let lessons: Lesson[] = []
@@ -162,27 +161,22 @@ export async function listMaterialsServer(
 }
 
 export async function listSubjectsServer(classId?: number): Promise<Subject[]> {
-  const tag = classId ? `subjects:class:${classId}` : 'subjects:all'
-  return unstable_cache(
-    async () => {
-      try {
-        const sp = new URLSearchParams()
-        sp.set('per_page', '100')
-        if (classId) sp.set('class_id', String(classId))
+  try {
+    const sp = new URLSearchParams()
+    sp.set('per_page', '100')
+    if (classId) sp.set('class_id', String(classId))
 
-        const res = await serverApiRequest<unknown>(`/api/v1/subjects?${sp.toString()}`)
-        if (Array.isArray(res)) return res as Subject[]
-        const r = (res ?? {}) as { data?: Subject[]; value?: Subject[] }
-        if (Array.isArray(r.data)) return r.data
-        if (Array.isArray(r.value)) return r.value
-        return []
-      } catch {
-        return []
-      }
-    },
-    [tag],
-    { revalidate: 300, tags: [tag] },
-  )()
+    const res = await serverApiRequest<unknown>(`/api/v1/subjects?${sp.toString()}`)
+    
+    if (Array.isArray(res)) return res as Subject[]
+    const r = (res ?? {}) as { data?: Subject[]; value?: Subject[] }
+    if (Array.isArray(r.data)) return r.data
+    if (Array.isArray(r.value)) return r.value
+    return []
+  } catch (err) {
+    console.error(`Failed to fetch subjects for class ${classId}:`, err)
+    return []
+  }
 }
 
 export async function listClassesServer(): Promise<Class[]> {
