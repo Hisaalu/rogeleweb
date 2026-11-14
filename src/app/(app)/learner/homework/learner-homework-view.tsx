@@ -32,11 +32,11 @@ function statusBorderClass(status: 'pending' | 'submitted' | 'graded', isLate: b
   return 'border-l-warning-border'
 }
 
-export function LearnerHomeworkView({ 
+export function LearnerHomeworkView({
   homeworks,
   meta,
-  currentPage
-}: { 
+  currentPage,
+}: {
   homeworks: Homework[]
   meta: { page: number; per_page: number; total: number; last_page: number }
   currentPage: number
@@ -71,16 +71,14 @@ export function LearnerHomeworkView({
   return (
     <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:py-8">
       <div className="text-center">
-        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">
-          Homework
-        </h1>
+        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Homework</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           View and submit your assignments
         </p>
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
-        <Card className="flex items-center gap-3 p-4 sm:gap-4 sm:p-5">
+        <Card className="flex min-w-0 items-center gap-3 p-4 sm:gap-4 sm:p-5">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-brand-primary/10 text-brand-primary sm:h-12 sm:w-12">
             <ClipboardList size={20} className="sm:hidden" />
             <ClipboardList size={22} className="hidden sm:block" />
@@ -95,7 +93,7 @@ export function LearnerHomeworkView({
           </div>
         </Card>
 
-        <Card className="flex items-center gap-3 p-4 sm:gap-4 sm:p-5">
+        <Card className="flex min-w-0 items-center gap-3 p-4 sm:gap-4 sm:p-5">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-warning-bg text-warning-fg sm:h-12 sm:w-12">
             <Clock size={20} className="sm:hidden" />
             <Clock size={22} className="hidden sm:block" />
@@ -110,7 +108,7 @@ export function LearnerHomeworkView({
           </div>
         </Card>
 
-        <Card className="col-span-2 flex items-center gap-3 p-4 sm:gap-4 sm:p-5 lg:col-span-1">
+        <Card className="col-span-2 flex min-w-0 items-center gap-3 p-4 sm:gap-4 sm:p-5 lg:col-span-1">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-success-bg text-success-fg sm:h-12 sm:w-12">
             <Star size={20} className="sm:hidden" />
             <Star size={22} className="hidden sm:block" />
@@ -126,7 +124,7 @@ export function LearnerHomeworkView({
         </Card>
       </div>
 
-      <div className="flex w-fit flex-wrap items-center gap-1 rounded-md border border-border bg-card p-1">
+      <div className="flex w-full max-w-full flex-wrap items-center gap-1 overflow-x-auto rounded-md border border-border bg-card p-1 sm:w-fit">
         <Link href={setStatus('')}>
           <Button variant={!currentStatus ? 'primary' : 'ghost'} size="sm">
             <ClipboardList size={15} /> All
@@ -150,16 +148,14 @@ export function LearnerHomeworkView({
             size={40}
             className="mx-auto mb-4 text-brand-accent opacity-30"
           />
-          <h3 className="text-xl font-bold text-foreground">
-            No Homework Assigned
-          </h3>
+          <h3 className="text-xl font-bold text-foreground">No Homework Assigned</h3>
           <p className="mt-1 text-sm text-muted-foreground">
             You don&apos;t have any homework at the moment. Check back later!
           </p>
         </Card>
       ) : (
         <>
-          <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+          <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
             {homeworks.map((hw) => {
               const status = submissionStatus(hw)
               const dueDate = new Date(hw.due_date)
@@ -171,20 +167,23 @@ export function LearnerHomeworkView({
                 <Card
                   key={hw.id}
                   className={cn(
-                    'relative flex flex-col border-l-4 p-4 sm:p-5 transition hover:-translate-y-1 hover:shadow-md',
+                    'flex min-w-0 flex-col border-l-4 p-4 transition hover:-translate-y-1 hover:shadow-md sm:p-5',
+                    'h-full', 
                     statusBorderClass(status, isLate),
                   )}
                 >
                   <div className="mb-3 flex items-start justify-between gap-2">
                     <h3 className="flex min-w-0 flex-1 items-center gap-2 text-base font-bold text-foreground sm:text-lg">
-                      <FileText size={16} className="shrink-0 text-brand-accent sm:size-[18px]" />
+                      <FileText
+                        size={16}
+                        className="shrink-0 text-brand-accent sm:size-[18px]"
+                      />
                       <span className="truncate">{hw.title}</span>
                     </h3>
                     <div className="shrink-0">
                       {isGraded ? (
                         <span className="flex items-center gap-1 rounded-full bg-success-border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
-                          <CheckCircle2 size={12} />
-                          Graded
+                          <CheckCircle2 size={12} /> Graded
                         </span>
                       ) : status === 'submitted' ? (
                         <span className="rounded-full bg-brand-accent/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-brand-accent sm:px-2.5 sm:py-1 sm:text-[10px]">
@@ -203,13 +202,19 @@ export function LearnerHomeworkView({
                   </div>
 
                   <div className="mb-3 flex flex-wrap gap-x-3 gap-y-1.5 text-[11px] text-muted-foreground sm:text-xs">
-                    <span className="flex items-center gap-1">
-                      <Book size={12} className="shrink-0 text-brand-accent sm:size-[13px]" />
+                    <span className="flex min-w-0 items-center gap-1">
+                      <Book
+                        size={12}
+                        className="shrink-0 text-brand-accent sm:size-[13px]"
+                      />
                       <span className="truncate">{hw.subject_name}</span>
                     </span>
                     <span className="flex items-center gap-1">
-                      <Calendar size={12} className="shrink-0 text-brand-accent sm:size-[13px]" />
-                      <span>
+                      <Calendar
+                        size={12}
+                        className="shrink-0 text-brand-accent sm:size-[13px]"
+                      />
+                      <span className="whitespace-nowrap">
                         Due: {dueDate.toLocaleDateString()}{' '}
                         {dueDate.toLocaleTimeString([], {
                           hour: '2-digit',
@@ -237,16 +242,22 @@ export function LearnerHomeworkView({
                     </div>
                   )}
 
-                  <Link href={`/learner/homework/${hw.id}`} className="mt-auto w-full">
-                    <Button className="w-full h-9 text-xs sm:h-10 sm:text-sm">
+                  <Link
+                    href={`/learner/homework/${hw.id}`}
+                    className="mt-auto block w-full"
+                  >
+                    <Button className="h-9 w-full text-xs sm:h-10 sm:text-sm">
                       <span className="truncate">
                         {isGraded
                           ? 'View Feedback'
                           : status === 'submitted'
-                            ? 'View Submission'
-                            : 'Submit Homework'}
+                          ? 'View Submission'
+                          : 'Submit Homework'}
                       </span>
-                      <ArrowRight size={14} className="ml-1 shrink-0 hidden sm:block" />
+                      <ArrowRight
+                        size={14}
+                        className="ml-1 hidden shrink-0 sm:block"
+                      />
                     </Button>
                   </Link>
                 </Card>
