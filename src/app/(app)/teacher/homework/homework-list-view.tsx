@@ -98,7 +98,7 @@ export function HomeworkListView({
     <div className="relative mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 sm:py-10">
       {isPending && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/50 backdrop-blur-sm">
-          <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
+          <Loader2 className="h-8 w-8 animate-spin" />
         </div>
       )}
 
