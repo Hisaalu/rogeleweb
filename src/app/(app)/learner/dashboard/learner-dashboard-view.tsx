@@ -40,7 +40,7 @@ export function LearnerDashboardView({
   }, [router])
 
   const firstName = profile?.first_name ?? 'there'
-  const className = profile?.class_name ?? 'No Class Assigned'
+  const className = profile?.class_name ?? '____'
   
   const hasActiveSubscription = subscription?.status === 'active'
   const isInTrial =

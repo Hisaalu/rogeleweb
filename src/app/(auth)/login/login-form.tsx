@@ -67,8 +67,7 @@ export function LoginForm() {
             ? '/teacher/dashboard'
             : '/learner/dashboard'
 
-      router.replace(nextPath || dest)
-      router.refresh()
+            router.replace(nextPath || dest)
     } catch {
       showToast('Something went wrong. Please try again.', 'error')
     }
