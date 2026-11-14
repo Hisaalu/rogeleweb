@@ -3,7 +3,7 @@
 import { useCallback, useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'nextjs-toploader/app'
-import { BookOpen, PlusCircle, Loader2 } from 'lucide-react'
+import { BookOpen, PlusCircle, Loader2, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { Class, Subject } from '@/types/admin'
 import type { Lesson, LessonListMeta } from '@/types/lesson'
 import { deleteLesson, publishLesson } from '@/lib/lessons.mutations'
@@ -12,9 +12,9 @@ import { useToast } from '@/components/ui/toast-provider'
 import { TeacherHeader } from './components/teacher-header'
 import { TeacherFilters } from './components/teacher-filters'
 import { TeacherLessonCard } from './components/teacher-lesson-card'
-import { Pagination } from './components/pagination'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { usePathname, useSearchParams } from 'next/navigation'
 
 export function TeacherLessonsView({
   lessons = [],
@@ -28,6 +28,8 @@ export function TeacherLessonsView({
   subjects: Subject[]
 }) {
   const router = useRouter()
+  const pathname = usePathname()
+  const params = useSearchParams()
   const { showToast } = useToast()
   const [isPending, startTransition] = useTransition()
   
@@ -122,7 +124,35 @@ export function TeacherLessonsView({
         </div>
       )}
 
-      {lessons.length > 0 && <Pagination meta={meta} />}
+      {lessons.length > 0 && meta.last_page > 1 && (
+        <div className="flex items-center justify-center gap-3 pt-6">
+          <Link
+            href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(Math.max(1, meta.page - 1)) }).toString()}`}
+            aria-disabled={meta.page <= 1}
+            className={
+              meta.page <= 1
+                ? 'pointer-events-none inline-flex items-center gap-1 rounded-full border border-border px-4 py-2 text-sm text-muted-foreground opacity-50'
+                : 'inline-flex items-center gap-1 rounded-full border border-border px-4 py-2 text-sm transition hover:bg-muted'
+            }
+          >
+            <ChevronLeft size={14} /> Previous
+          </Link>
+          <span className="text-xs text-muted-foreground">
+            Page {meta.page} of {meta.last_page}
+          </span>
+          <Link
+            href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(Math.min(meta.last_page, meta.page + 1)) }).toString()}`}
+            aria-disabled={meta.page >= meta.last_page}
+            className={
+              meta.page >= meta.last_page
+                ? 'pointer-events-none inline-flex items-center gap-1 rounded-full border border-border px-4 py-2 text-sm text-muted-foreground opacity-50'
+                : 'inline-flex items-center gap-1 rounded-full border border-border px-4 py-2 text-sm transition hover:bg-muted'
+            }
+          >
+            Next <ChevronRight size={14} />
+          </Link>
+        </div>
+      )}
       
       <ConfirmDialog
         open={deleteTarget !== null}

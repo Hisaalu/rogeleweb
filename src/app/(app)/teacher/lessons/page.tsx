@@ -25,7 +25,7 @@ export default async function TeacherLessonsPage({
   const session = await getSessionUser()
   if (!session) return null
 
-  const q = searchParams.q ?? ''
+  const q = searchParams.q?.trim() ?? ''
   const page = searchParams.page ? Number(searchParams.page) : 1
   const classId = searchParams.class_id ? Number(searchParams.class_id) : undefined
   const subjectId = searchParams.subject_id ? Number(searchParams.subject_id) : undefined
@@ -39,7 +39,7 @@ export default async function TeacherLessonsPage({
       per_page: 12,
     }),
     listClassesServer(),
-    listSubjectsServer(),
+    listSubjectsServer(session.class_id ?? undefined),
   ])
 
   return (
