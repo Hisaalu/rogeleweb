@@ -26,7 +26,7 @@ export default async function LearnerQuizzesPage({
   const page = Number(searchParams.page)
   const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1
 
-  const [{ quizzes }, attempts] = await Promise.all([
+  const [result, attempts] = await Promise.all([
     listQuizzesServer({
       class_id: session.class_id ?? undefined,
       page: safePage,
@@ -38,7 +38,12 @@ export default async function LearnerQuizzesPage({
   return (
     <>
       <ErrorToaster />
-      <LearnerQuizzesView quizzes={quizzes} attempts={attempts} />
+      <LearnerQuizzesView 
+        quizzes={result.quizzes} 
+        attempts={attempts} 
+        meta={result.meta}
+        currentPage={safePage}
+      />
       {lockedReason && (
         <PremiumGate open context="quiz" reason={lockedReason} />
       )}

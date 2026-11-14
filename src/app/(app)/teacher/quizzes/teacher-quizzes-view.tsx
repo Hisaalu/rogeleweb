@@ -13,6 +13,7 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
+import {ChevronLeft, ChevronRight} from 'lucide-react'
 
 export function TeacherQuizzesView({ 
   quizzes, 
@@ -65,8 +66,6 @@ export function TeacherQuizzesView({
       setIsDeleting(false)
     }
   }
-
-  const totalPages = Math.max(1, meta.last_page)
 
   return (
     <div className="relative mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 sm:py-10">
@@ -192,19 +191,33 @@ export function TeacherQuizzesView({
         </div>
       )}
 
-      {totalPages > 1 && (
-        <div className="flex flex-wrap items-center justify-center gap-2 pt-4">
-          {meta.page > 1 && (
-            <Link href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(meta.page - 1) }).toString()}`}>
-              <Button variant="outline">Prev</Button>
-            </Link>
-          )}
-          <span className="px-4 text-sm font-medium text-muted-foreground">Page {meta.page} of {totalPages}</span>
-          {meta.page < totalPages && (
-            <Link href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(meta.page + 1) }).toString()}`}>
-              <Button variant="outline">Next</Button>
-            </Link>
-          )}
+      {meta.last_page > 1 && (
+        <div className="flex items-center justify-center gap-3 pt-6">
+          <Link
+            href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(Math.max(1, meta.page - 1)) }).toString()}`}
+            aria-disabled={meta.page <= 1}
+            className={
+              meta.page <= 1
+                ? 'pointer-events-none inline-flex items-center gap-1 rounded-full border border-border px-4 py-2 text-sm text-muted-foreground opacity-50'
+                : 'inline-flex items-center gap-1 rounded-full border border-border px-4 py-2 text-sm transition hover:bg-muted'
+            }
+          >
+            <ChevronLeft size={14} /> Previous
+          </Link>
+          <span className="text-xs text-muted-foreground">
+            Page {meta.page} of {meta.last_page}
+          </span>
+          <Link
+            href={`${pathname}?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(Math.min(meta.last_page, meta.page + 1)) }).toString()}`}
+            aria-disabled={meta.page >= meta.last_page}
+            className={
+              meta.page >= meta.last_page
+                ? 'pointer-events-none inline-flex items-center gap-1 rounded-full border border-border px-4 py-2 text-sm text-muted-foreground opacity-50'
+                : 'inline-flex items-center gap-1 rounded-full border border-border px-4 py-2 text-sm transition hover:bg-muted'
+            }
+          >
+            Next <ChevronRight size={14} />
+          </Link>
         </div>
       )}
       
