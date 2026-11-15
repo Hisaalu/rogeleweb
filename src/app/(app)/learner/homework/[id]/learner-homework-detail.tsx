@@ -218,12 +218,24 @@ export function LearnerHomeworkDetail({
               <Award size={18} /> Grade & Feedback
             </h2>
             <div className="rounded-md border-2 bg-card p-4 sm:p-5" style={{ borderColor: 'var(--success-border)' }}>
-              <p className="text-sm font-semibold uppercase text-muted-foreground">Your Score</p>
-              <p className="mb-4 text-4xl font-extrabold" style={{ color: 'var(--success-fg)' }}>{initialSubmission.grade}%</p>
-              {initialSubmission.feedback && (
+              <div className="flex items-start justify-between gap-4">
                 <div>
+                  <p className="text-sm font-semibold uppercase text-muted-foreground">Your Score</p>
+                  <p className="text-4xl font-extrabold" style={{ color: 'var(--success-fg)' }}>{initialSubmission.grade}%</p>
+                </div>
+                <Avatar 
+                  size={48} 
+                  src={learnerPhoto} 
+                  fallback={getInitials(learnerName.split(' ')[0], learnerName.split(' ')[1])} 
+                />
+              </div>
+              
+              {initialSubmission.feedback && (
+                <div className="mt-4 border-t border-border pt-4">
                   <p className="mb-1 text-sm font-semibold text-foreground">Teacher&apos;s Comment</p>
-                  <p className="whitespace-pre-wrap break-words rounded-md bg-muted p-3 text-sm text-muted-foreground">{initialSubmission.feedback}</p>
+                  <p className="whitespace-pre-wrap break-words rounded-md bg-muted p-3 text-sm text-muted-foreground">
+                    {initialSubmission.feedback}
+                  </p>
                 </div>
               )}
             </div>
