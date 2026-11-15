@@ -171,7 +171,7 @@ export function LearnerHomeworkDetail({
                   src={homework.teacher_profile_photo} 
                   fallback={getInitials(homework.teacher_name?.split(' ')[0], homework.teacher_name?.split(' ')[1])} 
                 />
-                <span className="truncate font-medium text-foreground">{homework.teacher_name ?? 'Teacher'}</span>
+                <span className="truncate font-medium text-foreground">Tr. {homework.teacher_name ?? 'Teacher'}</span>
               </div>
             </div>
           </div>
