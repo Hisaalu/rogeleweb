@@ -10,7 +10,12 @@ import { useToast } from '@/components/ui/toast-provider'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Avatar } from '@/components/ui/avatar'
 import { useRouter } from 'nextjs-toploader/app'
+
+function getInitials(first?: string | null, last?: string | null) {
+  return `${first?.[0] ?? ''}${last?.[0] ?? ''}`.toUpperCase() || '?'
+}
 
 export function SubmissionsView({ homework, submissions: initial }: { homework: Homework, submissions: HomeworkSubmission[] }) {
   const { showToast } = useToast()
@@ -102,7 +107,6 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
       <div className="flex flex-col gap-4 sm:relative sm:flex-row sm:items-center sm:justify-between sm:gap-3">
         <div className="flex items-center justify-between gap-3 sm:contents">
           
-          {/* Changed Link to button using router.back() */}
           <button
             type="button"
             onClick={() => router.back()}
@@ -166,9 +170,16 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
             return (
               <Card key={sub.id} className="p-5 transition hover:border-brand-accent">
                 <div className="mb-4 flex flex-wrap items-start justify-between gap-4 border-b border-border pb-4">
-                  <div>
-                    <h3 className="font-bold text-foreground">{sub.student_first_name || 'Student'} {sub.student_last_name || ''}</h3>
-                    <p className="text-sm text-muted-foreground">{sub.student_email || 'No email'}</p>
+                  <div className="flex items-center gap-3">
+                    <Avatar 
+                      size={40} 
+                      src={sub.student_profile_photo} 
+                      fallback={getInitials(sub.student_first_name, sub.student_last_name)} 
+                    />
+                    <div>
+                      <h3 className="font-bold text-foreground">{sub.student_first_name || 'Student'} {sub.student_last_name || ''}</h3>
+                      <p className="text-sm text-muted-foreground">{sub.student_email || 'No email'}</p>
+                    </div>
                   </div>
                   <div>
                     <span 

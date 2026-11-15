@@ -14,17 +14,26 @@ import { PremiumGate } from '@/components/premium-gate'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Avatar } from '@/components/ui/avatar'
+
+function getInitials(first?: string | null, last?: string | null) {
+  return `${first?.[0] ?? ''}${last?.[0] ?? ''}`.toUpperCase() || '?'
+}
 
 export function LearnerHomeworkDetail({
   homework,
   attachments,
   submission: initialSubmission,
   gateReason,
+  learnerName,
+  learnerPhoto,
 }: {
   homework: Homework
   attachments: HomeworkAttachment[]
   submission: HomeworkSubmission | null
   gateReason: 'trial_expired' | 'no_plan' | null
+  learnerName: string
+  learnerPhoto: string | null
 }) {
   const router = useRouter()
   const { showToast } = useToast()
@@ -140,14 +149,31 @@ export function LearnerHomeworkDetail({
             <Info size={18} style={{ color: 'var(--brand-accent)' }} /> Assignment Details
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">
-            <div><p className="text-xs font-semibold uppercase text-muted-foreground">Subject</p><p className="font-medium text-foreground">{homework.subject_name ?? 'General'}</p></div>
-            <div><p className="text-xs font-semibold uppercase text-muted-foreground">Class</p><p className="font-medium text-foreground">{homework.class_name ?? 'All'}</p></div>
+            <div>
+              <p className="text-xs font-semibold uppercase text-muted-foreground">Subject</p>
+              <p className="font-medium text-foreground">{homework.subject_name ?? 'General'}</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase text-muted-foreground">Class</p>
+              <p className="font-medium text-foreground">{homework.class_name ?? 'All'}</p>
+            </div>
             <div>
               <p className="text-xs font-semibold uppercase text-muted-foreground">Due Date</p>
               <p className="flex items-center gap-2 font-medium" style={{ color: isExpired ? 'var(--danger-fg)' : 'hsl(var(--foreground))' }}>
                 {dueDate.toLocaleString()}
                 {isExpired && <span className="rounded-md px-2 py-0.5 text-[10px] font-bold uppercase" style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-fg)' }}>Overdue</span>}
               </p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase text-muted-foreground">Teacher</p>
+              <div className="mt-1 flex items-center gap-2">
+                <Avatar 
+                  size={28}
+                  src={homework.teacher_profile_photo} 
+                  fallback={getInitials(homework.teacher_name?.split(' ')[0], homework.teacher_name?.split(' ')[1])} 
+                />
+                <span className="font-medium text-foreground">{homework.teacher_name ?? 'Teacher'}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -200,7 +226,12 @@ export function LearnerHomeworkDetail({
         {initialSubmission && !isGraded && (
           <div className="border-b border-border p-6 sm:p-8" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 5%, transparent)' }}>
             <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-              <h2 className="flex items-center gap-2 text-lg font-bold" style={{ color: 'var(--brand-primary)' }}><CheckCircle2 size={18} /> Your Submission</h2>
+              <div className="flex items-center gap-3">
+                <Avatar size={36} src={learnerPhoto} fallback={getInitials(learnerName.split(' ')[0], learnerName.split(' ')[1])} />
+                <h2 className="flex items-center gap-2 text-lg font-bold" style={{ color: 'var(--brand-primary)' }}>
+                  Your Submission
+                </h2>
+              </div>
               {canDelete && (
                 <Button variant="danger" size="sm" onClick={() => setShowDeleteModal(true)}>
                   <Trash2 size={13} /> Delete
@@ -239,7 +270,12 @@ export function LearnerHomeworkDetail({
 
         {canResubmit && (
           <div className="bg-muted p-6 sm:p-8">
-            <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-foreground"><UploadCloud size={18} style={{ color: 'var(--brand-accent)' }} />{initialSubmission ? 'Resubmit Your Work' : 'Submit Your Work'}</h2>
+            <div className="mb-4 flex items-center gap-3">
+              <Avatar size={36} src={learnerPhoto} fallback={getInitials(learnerName.split(' ')[0], learnerName.split(' ')[1])} />
+              <h2 className="flex items-center gap-2 text-lg font-bold text-foreground">
+                {initialSubmission ? 'Resubmit Your Work' : 'Submit Your Work'}
+              </h2>
+            </div>
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className="mb-1.5 block text-sm font-semibold text-foreground">Your Answer</label>

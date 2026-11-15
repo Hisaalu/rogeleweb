@@ -71,6 +71,8 @@ export default async function LearnerHomeworkDetailPage({
       attachments={attachments}
       submission={submission}
       gateReason={gateReason}
+      learnerName={`${session.first_name ?? ''} ${session.last_name ?? ''}`.trim()}
+      learnerPhoto={session.profile_photo ?? null}
     />
   )
 }

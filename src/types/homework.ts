@@ -7,6 +7,8 @@ export interface Homework {
   subject_id: number
   subject_name?: string | null
   teacher_id: number
+  teacher_name?: string | null
+  teacher_profile_photo?: string | null
   due_date: string
   is_active: boolean
   submissions_count?: number
@@ -39,6 +41,7 @@ export interface HomeworkSubmission {
   student_first_name?: string
   student_last_name?: string
   student_email?: string
+  student_profile_photo?: string | null
   text_answer?: string | null
   grade?: number | null
   feedback?: string | null

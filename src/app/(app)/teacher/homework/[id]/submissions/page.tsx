@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
   try {
     const settings = await fetchPublicSettings()
     const siteTitle = settings['site.browser_title']?.trim() || 'NexaT'
-    return { title: `Submissions | ${siteTitle}` }
+    return { title: `Submissions` }
   } catch {
     return { title: 'Submissions' }
   }
