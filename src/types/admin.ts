@@ -148,13 +148,14 @@ export interface AdminUser {
   is_active: boolean
   is_suspended: boolean
   email_verified: boolean
-  last_login?: string
+  last_login?: string | null
   created_at: string
   updated_at: string
   trial_start_date: string
 }
 
 export interface UpdateUserPayload {
+  email?: string
   first_name?: string
   last_name?: string
   phone?: string

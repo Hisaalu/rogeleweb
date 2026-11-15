@@ -21,6 +21,7 @@ export function UserEditForm({
 }) {
   const { showToast } = useToast()
   const [values, setValues] = useState({
+    email: user.email ?? '',
     first_name: user.first_name ?? '',
     last_name: user.last_name ?? '',
     phone: user.phone ?? '',
@@ -33,6 +34,7 @@ export function UserEditForm({
 
   useEffect(() => {
     setValues({
+      email: user.email ?? '',
       first_name: user.first_name ?? '',
       last_name: user.last_name ?? '',
       phone: user.phone ?? '',
@@ -49,9 +51,21 @@ export function UserEditForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+
+    const email = values.email.trim().toLowerCase()
+    if (!email) {
+      showToast('Email is required', 'error')
+      return
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showToast('Please enter a valid email address', 'error')
+      return
+    }
+
     setSubmitting(true)
     try {
       const updated = await updateUserClient(user.id, {
+        email,
         first_name: values.first_name.trim() || undefined,
         last_name: values.last_name.trim() || undefined,
         phone: values.phone.trim() || undefined,
@@ -79,25 +93,72 @@ export function UserEditForm({
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="email">Email Address</Label>
+            <Input
+              id="email"
+              type="email"
+              autoComplete="email"
+              value={values.email}
+              onChange={(e) => set('email', e.target.value)}
+              disabled={submitting}
+            />
+            {user.email_verified ? (
+              <p className="text-[11px] text-muted-foreground">
+                This email is verified.
+              </p>
+            ) : (
+              <p className="text-[11px] text-muted-foreground">
+                Changing this email may affect the user&apos;s login and notifications.
+              </p>
+            )}
+          </div>
+
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor="first_name">First name</Label>
-              <Input id="first_name" value={values.first_name} onChange={(e) => set('first_name', e.target.value)} disabled={submitting} />
+              <Input
+                id="first_name"
+                value={values.first_name}
+                onChange={(e) => set('first_name', e.target.value)}
+                disabled={submitting}
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="last_name">Last name</Label>
-              <Input id="last_name" value={values.last_name} onChange={(e) => set('last_name', e.target.value)} disabled={submitting} />
+              <Input
+                id="last_name"
+                value={values.last_name}
+                onChange={(e) => set('last_name', e.target.value)}
+                disabled={submitting}
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="phone">Phone</Label>
-              <Input id="phone" value={values.phone} onChange={(e) => set('phone', e.target.value)} disabled={submitting} />
+              <Input
+                id="phone"
+                value={values.phone}
+                onChange={(e) => set('phone', e.target.value)}
+                disabled={submitting}
+              />
             </div>
             {isLearner && (
               <div className="space-y-1.5">
                 <Label htmlFor="class_id">Class</Label>
-                <Select id="class_id" value={values.class_id ?? ''} onChange={(e) => set('class_id', e.target.value ? Number(e.target.value) : null)} disabled={submitting}>
+                <Select
+                  id="class_id"
+                  value={values.class_id ?? ''}
+                  onChange={(e) =>
+                    set('class_id', e.target.value ? Number(e.target.value) : null)
+                  }
+                  disabled={submitting}
+                >
                   <option value="">Unassigned</option>
-                  {classes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  {classes.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
                 </Select>
               </div>
             )}
@@ -105,11 +166,21 @@ export function UserEditForm({
               <>
                 <div className="space-y-1.5">
                   <Label htmlFor="qualification">Qualification</Label>
-                  <Input id="qualification" value={values.qualification} onChange={(e) => set('qualification', e.target.value)} disabled={submitting} />
+                  <Input
+                    id="qualification"
+                    value={values.qualification}
+                    onChange={(e) => set('qualification', e.target.value)}
+                    disabled={submitting}
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="specialization">Specialization</Label>
-                  <Input id="specialization" value={values.specialization} onChange={(e) => set('specialization', e.target.value)} disabled={submitting} />
+                  <Input
+                    id="specialization"
+                    value={values.specialization}
+                    onChange={(e) => set('specialization', e.target.value)}
+                    disabled={submitting}
+                  />
                 </div>
               </>
             )}
@@ -117,7 +188,13 @@ export function UserEditForm({
 
           <div className="space-y-1.5">
             <Label htmlFor="bio">Bio</Label>
-            <Textarea id="bio" value={values.bio} onChange={(e) => set('bio', e.target.value)} rows={3} disabled={submitting} />
+            <Textarea
+              id="bio"
+              value={values.bio}
+              onChange={(e) => set('bio', e.target.value)}
+              rows={3}
+              disabled={submitting}
+            />
           </div>
 
           <div className="flex justify-end">

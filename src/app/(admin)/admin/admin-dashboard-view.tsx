@@ -267,9 +267,18 @@ export function AdminDashboardView({
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
-          <CardHeader>
-            <CardTitle>Recent signups</CardTitle>
-            <CardDescription>Newest accounts</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between gap-3">
+            <div>
+              <CardTitle>Recent signups</CardTitle>
+              <CardDescription>Newest accounts</CardDescription>
+            </div>
+            <Link
+              href="/admin/users"
+              className="inline-flex items-center gap-1 rounded-sm border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-brand-accent hover:text-foreground"
+            >
+              View all
+              <ArrowRight size={12} />
+            </Link>
           </CardHeader>
           <CardContent className="p-0 sm:px-5">
             {signups.length === 0 ? (
@@ -314,9 +323,18 @@ export function AdminDashboardView({
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Recent payments</CardTitle>
-            <CardDescription>Newest transactions</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between gap-3">
+            <div>
+              <CardTitle>Recent payments</CardTitle>
+              <CardDescription>Newest transactions</CardDescription>
+            </div>
+            <Link
+              href="/admin/payments"
+              className="inline-flex items-center gap-1 rounded-sm border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-brand-accent hover:text-foreground"
+            >
+              View all
+              <ArrowRight size={12} />
+            </Link>
           </CardHeader>
           <CardContent className="p-0 sm:px-5">
             {payments.length === 0 ? (
