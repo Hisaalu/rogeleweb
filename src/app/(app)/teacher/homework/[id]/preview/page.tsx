@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   try {
     const settings = await fetchPublicSettings()
     const siteTitle = settings['site.browser_title']?.trim() || 'NexaT'
-    return { title: `Preview Homework | ${siteTitle}` }
+    return { title: `Preview Homework` }
   } catch {
     return { title: 'Preview Homework' }
   }
