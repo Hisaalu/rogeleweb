@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import {
-  Download, BookOpen, HelpCircle, Award, Activity,
+  Download, BookOpen, HelpCircle,
   Calendar,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -21,6 +21,9 @@ import type {
   LearnerAccessState,
   LearnerAnalyticsData,
 } from '@/lib/learner-analytics.server'
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 function exportCsv(data: LearnerAnalyticsData) {
   const lines: string[][] = [
