@@ -44,7 +44,7 @@ export function ResultView({ attempt }: { attempt: QuizResultDetails }) {
             className="inline-flex items-center gap-1.5 rounded-full px-4 py-1 text-sm font-bold tracking-wide text-white"
             style={{ backgroundColor: passed ? 'var(--success-border)' : 'var(--danger-border)' }}
           >
-            {passed ? 'PASSED' : 'FAILED'}
+            {passed ? 'Passed' : 'Failed'}
           </span>
           <span className="text-sm font-medium text-muted-foreground">Pass Mark: {attempt.passing_score ?? 70}%</span>
         </div>
