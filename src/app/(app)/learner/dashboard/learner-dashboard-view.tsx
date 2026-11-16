@@ -236,17 +236,19 @@ export function LearnerDashboardView({
         </h3>
 
         <Card className="mt-4 flex flex-col gap-6 bg-muted/30 p-4 sm:grid sm:p-5 lg:grid-cols-2">
-          <EventCalendar
-            events={events}
-            selectedDate={selectedDate}
-            onDaySelect={setSelectedDate}
-          />
-          <EventFeed
-            events={events}
-            selectedDate={selectedDate}
-            onClearFilter={() => setSelectedDate(null)}
-          />
-        </Card>
+  <EventCalendar
+    events={events}
+    selectedDate={selectedDate}
+    onDaySelect={setSelectedDate}
+  />
+  <div className="lg:max-h-[520px] lg:overflow-y-auto lg:pr-1">
+    <EventFeed
+      events={events}
+      selectedDate={selectedDate}
+      onClearFilter={() => setSelectedDate(null)}
+    />
+  </div>
+</Card>
 
         {!hasAccess && (
           <Card
