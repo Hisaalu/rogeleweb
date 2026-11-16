@@ -58,7 +58,7 @@ export const ActivityHeatmap = React.memo(function ActivityHeatmap({
                       <div
                         key={h}
                         title={`${DAYS[d]} ${h}:00 — ${count} ${count === 1 ? 'activity' : 'activities'}`}
-                        className="h-5 flex-1 rounded-sm sm:h-6"
+                        className="h-5 flex-1 rounded-[2px] sm:h-6"
                         style={{
                           backgroundColor:
                             count === 0
