@@ -28,7 +28,7 @@ export const ActivityHeatmap = React.memo(function ActivityHeatmap({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
           <BarChart3 size={18} className="shrink-0 text-brand-accent" />
-          When you learn most
+          When you learnt mostly
         </CardTitle>
       </CardHeader>
       <CardContent>
