@@ -133,7 +133,7 @@ export function StudentsView({
                 <GraduationCap size={20} />
               </div>
               <div className="min-w-0">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                <p className="text-[10px] font-bold tracking-wider text-muted-foreground">
                   Students
                 </p>
                 <p className="text-lg font-bold tabular-nums text-foreground">
@@ -146,7 +146,7 @@ export function StudentsView({
                 <BarChart2 size={20} />
               </div>
               <div className="min-w-0">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                <p className="text-[10px] font-bold tracking-wider text-muted-foreground">
                   Avg. Score
                 </p>
                 <p className="text-lg font-bold tabular-nums text-foreground">
@@ -280,17 +280,17 @@ export function StudentsView({
 
                   <div className="mb-6 grid grid-cols-3 gap-2 border-y border-border py-4 text-xs">
                     <div>
-                      <p className="mb-1 text-[10px] uppercase text-muted-foreground">Quizzes</p>
+                      <p className="mb-1 text-[10px] text-muted-foreground">Quizzes</p>
                       <p className="font-bold tabular-nums text-foreground">{quizzesTaken}</p>
                     </div>
                     <div>
-                      <p className="mb-1 text-[10px] uppercase text-muted-foreground">Avg Score</p>
+                      <p className="mb-1 text-[10px] text-muted-foreground">Avg Score</p>
                       <p className={`font-bold tabular-nums ${passed ? 'text-success-fg' : 'text-danger-fg'}`}>
                         {avgScore}%
                       </p>
                     </div>
                     <div>
-                      <p className="mb-1 text-[10px] uppercase text-muted-foreground">Lessons</p>
+                      <p className="mb-1 text-[10px] text-muted-foreground">Lessons</p>
                       <p className="font-bold text-foreground">NA</p>
                     </div>
                   </div>

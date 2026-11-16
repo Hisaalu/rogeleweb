@@ -46,7 +46,7 @@ export const AdminSidebarNav = React.memo(function AdminSidebarNav({
             className={cn(sectionIndex > 0 && (collapsed ? 'mt-4' : 'mt-6'))}
           >
             {!collapsed && (
-              <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+              <p className="mb-2 px-3 text-[11px] font-semibold tracking-wider text-muted-foreground/70">
                 {section.label}
               </p>
             )}

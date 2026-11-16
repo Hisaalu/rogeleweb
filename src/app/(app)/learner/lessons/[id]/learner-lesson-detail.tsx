@@ -197,7 +197,7 @@ export function LearnerLessonDetail({
 
       {lesson.content ? (
         <Card className="p-4 sm:p-6">
-          <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground sm:text-sm">
+          <h2 className="mb-3 text-xs font-semibold tracking-wide text-muted-foreground sm:text-sm">
             Lesson content
           </h2>
           <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground">

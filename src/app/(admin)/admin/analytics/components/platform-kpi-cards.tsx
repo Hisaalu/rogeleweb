@@ -62,7 +62,7 @@ function KpiCard({
           <div className={`flex h-8 w-8 items-center justify-center rounded-md ${t.bg}`}>
             <Icon size={16} className={t.fg} aria-hidden />
           </div>
-          <p className="truncate text-[11px] uppercase tracking-wide text-muted-foreground sm:text-xs">
+          <p className="truncate text-[11px] tracking-wide text-muted-foreground sm:text-xs">
             {label}
           </p>
         </div>

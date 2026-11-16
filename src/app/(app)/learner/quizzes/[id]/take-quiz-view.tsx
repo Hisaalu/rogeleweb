@@ -326,7 +326,7 @@ export function TakeQuizView({
         <div className="space-y-4">
           {questions.map((q, idx) => (
             <Card key={q.id} className="p-6">
-              <div className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              <div className="mb-2 text-xs font-bold tracking-wider text-muted-foreground">
                 Question {idx + 1} of {questions.length}
               </div>
               <div className="mb-5 text-base font-semibold text-foreground">

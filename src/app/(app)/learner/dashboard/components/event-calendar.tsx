@@ -95,7 +95,7 @@ export function EventCalendar({
         </div>
       </div>
 
-      <div className="mb-1 grid grid-cols-7 text-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground sm:mb-2 sm:text-xs">
+      <div className="mb-1 grid grid-cols-7 text-center text-[10px] font-bold tracking-wider text-muted-foreground sm:mb-2 sm:text-xs">
         {WEEKDAYS.map((d) => (
           <div key={d} className="py-0.5 sm:py-1">{d}</div>
         ))}

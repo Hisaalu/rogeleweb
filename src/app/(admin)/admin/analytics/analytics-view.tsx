@@ -62,7 +62,7 @@ function ContentTile({
       className="rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
     >
       <div className="rounded-sm border border-border bg-card p-4 transition-shadow hover:shadow-md">
-        <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
+        <p className="text-xs tracking-wide text-muted-foreground">{label}</p>
         <p className="mt-1 text-2xl font-bold tabular-nums">{value}</p>
       </div>
     </Link>

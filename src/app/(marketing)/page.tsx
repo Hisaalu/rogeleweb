@@ -168,7 +168,7 @@ export default async function HomePage() {
       <section id="about" className="scroll-mt-20 bg-background py-20">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
           <span
-            className="mb-4 inline-block rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider"
+            className="mb-4 inline-block rounded-full px-4 py-1.5 text-xs font-bold tracking-wider"
             style={eyebrowStyle}
           >
             Getting Started
@@ -205,7 +205,7 @@ export default async function HomePage() {
       <section className="bg-muted/30 py-20">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
           <span
-            className="mb-4 inline-block rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider"
+            className="mb-4 inline-block rounded-full px-4 py-1.5 text-xs font-bold tracking-wider"
             style={eyebrowStyle}
           >
             Why {siteTitle}?
@@ -247,7 +247,7 @@ export default async function HomePage() {
       <section id="pricing" className="scroll-mt-20 bg-background py-20">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
           <span
-            className="mb-4 inline-block rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider"
+            className="mb-4 inline-block rounded-full px-4 py-1.5 text-xs font-bold tracking-wider"
             style={eyebrowStyle}
           >
             Pricing Plans
@@ -292,7 +292,7 @@ export default async function HomePage() {
       <section className="bg-muted/30 py-20">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
           <span
-            className="mb-4 inline-block rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider"
+            className="mb-4 inline-block rounded-full px-4 py-1.5 text-xs font-bold tracking-wider"
             style={eyebrowStyle}
           >
             Got Questions?
@@ -372,7 +372,7 @@ function Stat({ label, value }: { label: string; value: number }) {
       <span className="text-3xl font-extrabold text-white tabular-nums">
         {value.toLocaleString('en-US')}+
       </span>
-      <span className="text-xs font-medium uppercase tracking-wider text-white/80">
+      <span className="text-xs font-medium tracking-wider text-white/80">
         {label}
       </span>
     </div>

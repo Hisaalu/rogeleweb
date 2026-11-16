@@ -75,7 +75,7 @@ export function PublicFooter() {
           </div>
 
           <div>
-            <h4 className="mb-6 text-sm font-bold uppercase tracking-wider text-foreground">Quick Links</h4>
+            <h4 className="mb-6 text-sm font-bold tracking-wider text-foreground">Quick Links</h4>
             <ul className="space-y-3">
               {[
                 { label: 'Home', href: '/' },
@@ -94,7 +94,7 @@ export function PublicFooter() {
           </div>
 
           <div>
-            <h4 className="mb-6 text-sm font-bold uppercase tracking-wider text-foreground">Resources</h4>
+            <h4 className="mb-6 text-sm font-bold tracking-wider text-foreground">Resources</h4>
             <ul className="space-y-3">
               {[
                 { label: 'Terms of Service', href: '/terms-of-service' },
@@ -113,7 +113,7 @@ export function PublicFooter() {
           </div>
 
           <div>
-            <h4 className="mb-6 text-sm font-bold uppercase tracking-wider text-foreground">Contact Us</h4>
+            <h4 className="mb-6 text-sm font-bold tracking-wider text-foreground">Contact Us</h4>
             <ul className="space-y-4 text-sm text-muted-foreground">
               {phone && (
                 <li className="flex items-start gap-3">

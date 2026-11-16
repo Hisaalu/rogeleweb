@@ -197,7 +197,7 @@ export function ActivityView({
                   <thead className="sticky top-0 z-10 bg-muted/70 shadow-sm backdrop-blur">
                     <tr>
                       {['When', 'Action', 'Description', 'User', 'Role'].map((h) => (
-                        <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">{h}</th>
+                        <th key={h} className="px-4 py-3 text-left text-xs font-semibold tracking-wide text-muted-foreground">{h}</th>
                       ))}
                     </tr>
                   </thead>

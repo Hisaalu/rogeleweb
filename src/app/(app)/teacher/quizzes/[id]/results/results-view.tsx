@@ -206,7 +206,7 @@ export function ResultsView({ quiz, initialAttempts }: { quiz: Quiz, initialAtte
         <Card className="overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="border-b border-border bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
+              <thead className="border-b border-border bg-muted/40 text-xs tracking-wider text-muted-foreground">
                 <tr>
                   <th className="px-4 py-3 font-semibold">Student</th>
                   <th className="px-4 py-3 font-semibold">Score</th>
@@ -359,7 +359,7 @@ function StatCard({
       </div>
       <div className="min-w-0">
         <p className="truncate text-xl font-bold text-foreground">{value}</p>
-        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+        <p className="text-[10px] tracking-wider text-muted-foreground">
           {label}
         </p>
       </div>

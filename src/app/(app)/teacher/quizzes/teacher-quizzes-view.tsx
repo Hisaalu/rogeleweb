@@ -128,7 +128,7 @@ export function TeacherQuizzesView({
               <Card key={quiz.id} className="relative flex flex-col p-4 sm:p-5 transition hover:-translate-y-1 hover:border-brand-primary hover:shadow-md">
                 <div className="mb-3 flex items-start justify-between gap-2">
                   <div 
-                    className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white"
+                    className="rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wider text-white"
                     style={{ backgroundColor: quiz.is_published && !isExpired ? 'var(--success-border)' : 'var(--brand-accent)' }}
                   >
                     {quiz.is_published && !isExpired ? 'Published' : 'Draft'}

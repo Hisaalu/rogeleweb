@@ -149,22 +149,22 @@ export function LearnerHomeworkDetail({
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase text-muted-foreground">Subject</p>
+              <p className="text-xs font-semibold text-muted-foreground">Subject</p>
               <p className="truncate font-medium text-foreground">{homework.subject_name ?? 'General'}</p>
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase text-muted-foreground">Class</p>
+              <p className="text-xs font-semibold text-muted-foreground">Class</p>
               <p className="truncate font-medium text-foreground">{homework.class_name ?? 'All'}</p>
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase text-muted-foreground">Due Date</p>
+              <p className="text-xs font-semibold text-muted-foreground">Due Date</p>
               <p className="flex flex-wrap items-center gap-2 font-medium" style={{ color: isExpired ? 'var(--danger-fg)' : 'hsl(var(--foreground))' }}>
                 <span className="truncate">{dueDate.toLocaleString()}</span>
-                {isExpired && <span className="shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase" style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-fg)' }}>Overdue</span>}
+                {isExpired && <span className="shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold" style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-fg)' }}>Overdue</span>}
               </p>
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase text-muted-foreground">Teacher</p>
+              <p className="text-xs font-semibold text-muted-foreground">Teacher</p>
               <div className="mt-1 flex min-w-0 items-center gap-2">
                 <Avatar 
                   size={28}
@@ -220,7 +220,7 @@ export function LearnerHomeworkDetail({
             <div className="rounded-md border-2 bg-card p-4 sm:p-5" style={{ borderColor: 'var(--success-border)' }}>
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-sm font-semibold uppercase text-muted-foreground">Your Score</p>
+                  <p className="text-sm font-semibold text-muted-foreground">Your Score</p>
                   <p className="text-4xl font-extrabold" style={{ color: 'var(--success-fg)' }}>{initialSubmission.grade}%</p>
                 </div>
                 <Avatar 

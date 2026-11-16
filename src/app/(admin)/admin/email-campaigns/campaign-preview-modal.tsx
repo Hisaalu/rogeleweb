@@ -113,7 +113,7 @@ export function CampaignPreviewModal({
         ) : preview ? (
           <div className="space-y-3">
             <div className="rounded-sm border border-border bg-muted/30 px-4 py-3">
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">Subject</p>
+              <p className="text-xs tracking-wide text-muted-foreground">Subject</p>
               <p className="mt-0.5 text-sm font-semibold text-foreground">{preview.subject}</p>
               <p className="mt-2 text-xs text-muted-foreground">
                 Will be sent to {preview.recipient_count} recipient{preview.recipient_count === 1 ? '' : 's'}

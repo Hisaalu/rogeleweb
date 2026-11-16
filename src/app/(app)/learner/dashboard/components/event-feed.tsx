@@ -86,7 +86,7 @@ export function EventFeed({
                       backgroundColor: 'color-mix(in srgb, var(--brand-accent) 10%, transparent)',
                     }}
                   >
-                    <span className="text-[9px] font-bold uppercase sm:text-[10px]" style={{ color: 'var(--brand-accent)' }}>
+                    <span className="text-[9px] font-bold sm:text-[10px]" style={{ color: 'var(--brand-accent)' }}>
                       {monthShort(e.date)}
                     </span>
                     <span className="text-base font-extrabold leading-none sm:text-lg" style={{ color: 'var(--brand-primary)' }}>
@@ -102,13 +102,13 @@ export function EventFeed({
                       {e.time}
                     </span>
                     <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                      <span className="inline-block rounded bg-muted px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-muted-foreground sm:px-2 sm:text-[10px]">
+                      <span className="inline-block rounded bg-muted px-1.5 py-0.5 text-[9px] font-medium tracking-wide text-muted-foreground sm:px-2 sm:text-[10px]">
                         {e.subject ?? 'General'}
                       </span>
                       
                       {e.type && (
                         <span 
-                          className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide sm:px-2 sm:text-[10px]"
+                          className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-medium tracking-wide sm:px-2 sm:text-[10px]"
                           style={
                             isQuiz 
                               ? { backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }

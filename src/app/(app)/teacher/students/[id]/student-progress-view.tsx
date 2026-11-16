@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button'
 const QuickStat = React.memo(function QuickStat({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="rounded-md bg-muted/50 px-3 py-2.5 text-center sm:px-4 sm:py-3">
-      <p className="text-[10px] font-bold uppercase text-muted-foreground">{label}</p>
+      <p className="text-[10px] font-bold text-muted-foreground">{label}</p>
       <p className="text-base font-bold tabular-nums text-foreground sm:text-lg">{value}</p>
     </div>
   )
@@ -266,7 +266,7 @@ export function StudentProgressView({
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+              <thead className="bg-muted/50 text-xs text-muted-foreground">
                 <tr>
                   <th className="px-4 py-3 font-semibold sm:px-6">#</th>
                   <th className="px-4 py-3 font-semibold sm:px-6">Quiz</th>

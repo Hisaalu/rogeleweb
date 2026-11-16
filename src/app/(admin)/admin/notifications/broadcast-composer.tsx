@@ -309,7 +309,7 @@ export function BroadcastComposer({
 
           <div className="rounded-sm border border-border bg-muted/40 p-4 text-sm">
             <div className="mb-2 flex items-center gap-2">
-              <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold tracking-wide text-muted-foreground">
                 {type}
               </span>
               <span className="rounded-full bg-brand-primary/10 px-2 py-0.5 text-[10px] font-semibold text-brand-primary">

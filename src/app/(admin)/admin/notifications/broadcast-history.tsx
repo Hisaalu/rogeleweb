@@ -42,7 +42,7 @@ const BroadcastItem = React.memo(function BroadcastItem({
           )}
         </div>
         <div className="flex shrink-0 flex-row items-center gap-2 sm:flex-col sm:items-end sm:gap-1">
-          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold tracking-wide text-muted-foreground">
             {broadcast.type}
           </span>
           <span className="text-xs text-muted-foreground">

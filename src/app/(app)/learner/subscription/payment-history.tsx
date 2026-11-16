@@ -68,7 +68,7 @@ export function PaymentHistory({
         <>
           <div className="hidden w-full overflow-hidden rounded-md border border-border md:block">
             <table className="w-full text-left text-sm">
-              <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
+              <thead className="bg-muted/50 text-xs tracking-wider text-muted-foreground">
                 <tr>
                   <th className="px-4 py-3 font-semibold">Date</th>
                   <th className="px-4 py-3 font-semibold">Plan</th>

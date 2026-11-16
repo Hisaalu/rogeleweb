@@ -83,21 +83,21 @@ export default async function PreviewHomeworkPage({ params }: { params: { id: st
           <div className="flex items-center gap-3">
             <GraduationCap size={24} style={{ color: 'var(--brand-accent)' }} />
             <div>
-              <p className="text-xs font-semibold uppercase text-muted-foreground">Class</p>
+              <p className="text-xs font-semibold text-muted-foreground">Class</p>
               <p className="font-semibold">{hw.class_name}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <Book size={24} style={{ color: 'var(--brand-accent)' }} />
             <div>
-              <p className="text-xs font-semibold uppercase text-muted-foreground">Subject</p>
+              <p className="text-xs font-semibold text-muted-foreground">Subject</p>
               <p className="font-semibold">{hw.subject_name}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <Calendar size={24} style={{ color: 'var(--brand-accent)' }} />
             <div>
-              <p className="text-xs font-semibold uppercase text-muted-foreground">Due Date</p>
+              <p className="text-xs font-semibold text-muted-foreground">Due Date</p>
               <p className="font-semibold">{new Date(hw.due_date).toLocaleString()}</p>
             </div>
           </div>

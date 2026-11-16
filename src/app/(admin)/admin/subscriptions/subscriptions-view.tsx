@@ -98,7 +98,7 @@ const Stat = React.memo(function Stat({
 }) {
   return (
     <Card className="p-3 shadow-sm transition-shadow hover:shadow-md sm:p-4">
-      <p className="flex items-center gap-1.5 truncate text-[11px] uppercase tracking-wide text-muted-foreground sm:text-xs">
+      <p className="flex items-center gap-1.5 truncate text-[11px] tracking-wide text-muted-foreground sm:text-xs">
         {Icon && <Icon size={13} className="shrink-0" aria-hidden />}
         <span className="truncate">{label}</span>
       </p>

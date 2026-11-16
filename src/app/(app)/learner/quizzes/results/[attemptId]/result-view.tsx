@@ -111,7 +111,7 @@ export function ResultView({ attempt }: { attempt: QuizResultDetails }) {
                   <div className="flex items-center gap-3">
                     <span className="font-bold text-foreground">Question {idx + 1}</span>
                     <span 
-                      className="rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                      className="rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider"
                       style={{
                         backgroundColor: isCorrect ? 'var(--success-bg)' : 'var(--danger-bg)',
                         color: isCorrect ? 'var(--success-fg)' : 'var(--danger-fg)'

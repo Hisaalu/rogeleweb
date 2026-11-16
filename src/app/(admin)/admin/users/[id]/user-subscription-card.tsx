@@ -66,7 +66,7 @@ export function UserSubscriptionCard({ userId }: { userId: number }) {
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex min-w-0 flex-col gap-0.5">
-      <dt className="text-xs uppercase tracking-wide text-muted-foreground">{label}</dt>
+      <dt className="text-xs tracking-wide text-muted-foreground">{label}</dt>
       <dd className="min-w-0 break-words text-sm font-medium">{children}</dd>
     </div>
   )

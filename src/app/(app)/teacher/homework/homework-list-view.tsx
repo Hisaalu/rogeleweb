@@ -174,7 +174,7 @@ export function HomeworkListView({
                   <div className="mb-4 flex items-center gap-4 border-t border-border pt-4 text-sm mt-auto">
                     <div className="text-center">
                       <span className="block text-lg font-bold text-foreground">{hw.submissions_count ?? 0}</span>
-                      <span className="text-[10px] uppercase text-muted-foreground">Submissions</span>
+                      <span className="text-[10px] text-muted-foreground">Submissions</span>
                     </div>
                   </div>
 

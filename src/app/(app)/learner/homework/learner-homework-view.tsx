@@ -182,19 +182,19 @@ export function LearnerHomeworkView({
                     </h3>
                     <div className="shrink-0">
                       {isGraded ? (
-                        <span className="flex items-center gap-1 rounded-full bg-success-border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
+                        <span className="flex items-center gap-1 rounded-full bg-success-border px-2.5 py-1 text-[10px] font-bold tracking-wider text-white shadow-sm">
                           <CheckCircle2 size={12} /> Graded
                         </span>
                       ) : status === 'submitted' ? (
-                        <span className="rounded-full bg-brand-accent/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-brand-accent sm:px-2.5 sm:py-1 sm:text-[10px]">
+                        <span className="rounded-full bg-brand-accent/10 px-2 py-0.5 text-[9px] font-bold tracking-wider text-brand-accent sm:px-2.5 sm:py-1 sm:text-[10px]">
                           Submitted
                         </span>
                       ) : isLate ? (
-                        <span className="rounded-full bg-danger-bg px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-danger-fg sm:px-2.5 sm:py-1 sm:text-[10px]">
+                        <span className="rounded-full bg-danger-bg px-2 py-0.5 text-[9px] font-bold tracking-wider text-danger-fg sm:px-2.5 sm:py-1 sm:text-[10px]">
                           Late
                         </span>
                       ) : (
-                        <span className="rounded-full bg-warning-bg px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-warning-fg sm:px-2.5 sm:py-1 sm:text-[10px]">
+                        <span className="rounded-full bg-warning-bg px-2 py-0.5 text-[9px] font-bold tracking-wider text-warning-fg sm:px-2.5 sm:py-1 sm:text-[10px]">
                           Pending
                         </span>
                       )}

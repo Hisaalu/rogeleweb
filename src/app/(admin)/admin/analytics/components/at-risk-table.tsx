@@ -220,7 +220,7 @@ export function AtRiskTable({ data }: { data: AtRiskData | null }) {
           <>
             <div className="hidden overflow-x-auto sm:block">
               <table className="w-full text-sm">
-                <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+                <thead className="bg-muted/50 text-xs text-muted-foreground">
                   <tr>
                     {['Learner', 'Class', 'Last active', 'Missing', 'Quiz avg', 'Risk', 'Reasons'].map((h) => (
                       <th

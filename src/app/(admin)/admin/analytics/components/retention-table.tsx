@@ -62,16 +62,16 @@ export function RetentionTable({ data }: { data: RetentionData | null }) {
           <table className="w-full text-sm">
             <thead>
               <tr>
-                <th className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <th className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold tracking-wide text-muted-foreground">
                   Cohort
                 </th>
-                <th className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <th className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold tracking-wide text-muted-foreground">
                   Size
                 </th>
                 {Array.from({ length: data.weeks }).map((_, i) => (
                   <th
                     key={i}
-                    className="px-2 py-2 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+                    className="px-2 py-2 text-center text-xs font-semibold tracking-wide text-muted-foreground"
                   >
                     W{i}
                   </th>

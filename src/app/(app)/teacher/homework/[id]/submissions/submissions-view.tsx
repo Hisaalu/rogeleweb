@@ -196,21 +196,21 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <p className="mb-1 text-xs font-semibold uppercase text-muted-foreground">Submitted At</p>
+                    <p className="mb-1 text-xs font-semibold text-muted-foreground">Submitted At</p>
                     <p className="text-sm font-medium text-foreground">{sub.submitted_at ? new Date(sub.submitted_at).toLocaleString() : 'N/A'}</p>
                   </div>
                 </div>
 
                 {sub.text_answer && (
                   <div className="mt-4">
-                    <p className="mb-1 text-xs font-semibold uppercase text-muted-foreground">Answer</p>
+                    <p className="mb-1 text-xs font-semibold text-muted-foreground">Answer</p>
                     <div className="rounded-md bg-muted/50 p-4 text-sm text-foreground whitespace-pre-wrap">{sub.text_answer}</div>
                   </div>
                 )}
 
                 {sub.files && sub.files.length > 0 && (
                   <div className="mt-4">
-                    <p className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Attachments</p>
+                    <p className="mb-2 text-xs font-semibold text-muted-foreground">Attachments</p>
                     <div className="flex flex-wrap gap-2">
                       {sub.files.map(f => (
                         <a key={f.id} href={materialDownloadUrl(f.file_path)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-1.5 text-sm transition hover:border-brand-accent hover:bg-muted">
@@ -245,7 +245,7 @@ export function SubmissionsView({ homework, submissions: initial }: { homework: 
                       </div>
                       {sub.feedback && (
                         <div className="mt-3">
-                          <p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Feedback</p>
+                          <p className="text-xs font-semibold text-muted-foreground mb-1">Feedback</p>
                           <p className="text-sm text-foreground">{sub.feedback}</p>
                         </div>
                       )}
@@ -314,7 +314,7 @@ function StatCard({ icon: Icon, label, value, tone }: { icon: LucideIcon, label:
       </div>
       <div className="min-w-0">
         <p className="truncate text-lg font-bold tabular-nums text-foreground sm:text-xl">{value}</p>
-        <p className="truncate text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
+        <p className="truncate text-[10px] tracking-wider text-muted-foreground">{label}</p>
       </div>
     </Card>
   )
