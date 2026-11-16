@@ -19,8 +19,8 @@ export const ActivityHeatmap = React.memo(function ActivityHeatmap({
   const safeMax = Math.max(1, max)
 
   function opacity(v: number) {
-    if (v === 0) return 0.04
-    return 0.15 + (v / safeMax) * 0.85
+    if (v === 0) return 1                   
+    return 0.25 + (v / safeMax) * 0.75    
   }
 
   return (
@@ -57,11 +57,14 @@ export const ActivityHeatmap = React.memo(function ActivityHeatmap({
                     {row.map((count, h) => (
                       <div
                         key={h}
-                        title={`${DAYS[d]} ${h}:00 — ${count} activities`}
+                        title={`${DAYS[d]} ${h}:00 — ${count} ${count === 1 ? 'activity' : 'activities'}`}
                         className="h-5 flex-1 rounded-sm sm:h-6"
                         style={{
-                          backgroundColor: 'hsl(var(--brand-primary))',
-                          opacity: opacity(count),
+                          backgroundColor:
+                            count === 0
+                              ? 'hsl(var(--muted))'
+                              : 'var(--brand-primary)',
+                          opacity: count === 0 ? 1 : opacity(count),
                         }}
                       />
                     ))}
