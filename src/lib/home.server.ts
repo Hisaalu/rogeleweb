@@ -8,6 +8,8 @@ const CLASS_RANGE_FLOOR = {
   last: 'Primary Seven',
 } as const
 
+let lastGoodPlans: SubscriptionPlan[] | null = null
+
 function normalizeCount(v: unknown): number {
   const n = typeof v === 'string' ? Number(v) : typeof v === 'number' ? v : NaN
   return Number.isFinite(n) && n >= 0 ? Math.floor(n) : 0
@@ -20,7 +22,7 @@ function withFloor(actual: number, floor: number): number {
 export async function getHomePageData() {
   try {
     const [plansRes, statsRes, classesRes] = await Promise.all([
-      serverApiRequest<any>('/api/v1/subscription-plans?per_page=100', { next: { revalidate: 3600 } }).catch(() => []),
+      serverApiRequest<any>('/api/v1/config/plans').catch(() => []),
       serverApiRequest<any>('/api/v1/admin/stats', { next: { revalidate: 300 } }).catch(() => null),
       serverApiRequest<any>('/api/v1/classes?per_page=100&sort=name', { next: { revalidate: 3600 } }).catch(() => []),
     ])
@@ -30,6 +32,12 @@ export async function getHomePageData() {
     const plans: SubscriptionPlan[] = rawPlans
       .filter((p: any) => p.is_active !== false && p.price > 0)
       .sort((a: any, b: any) => a.price - b.price)
+
+    if (plans.length > 0) {
+      lastGoodPlans = plans
+    }
+    
+    const effectivePlans = plans.length > 0 ? plans : (lastGoodPlans ?? [])
 
     const rawClasses = Array.isArray(classesRes) ? classesRes : (classesRes?.data || [])
     const classes = rawClasses.filter((c: any) => c.is_active !== false)
@@ -45,7 +53,7 @@ export async function getHomePageData() {
     const actualLastClass = classes[classes.length - 1]?.name?.trim() || ''
 
     return {
-      plans,
+      plans: effectivePlans,
       classes,
       classRange: {
         first: actualFirstClass || CLASS_RANGE_FLOOR.first,
@@ -60,7 +68,7 @@ export async function getHomePageData() {
   } catch (error) {
     console.error('Failed to load homepage data:', error)
     return {
-      plans: [] as SubscriptionPlan[],
+      plans: lastGoodPlans ?? ([] as SubscriptionPlan[]),
       classes: [],
       classRange: {
         first: CLASS_RANGE_FLOOR.first,
