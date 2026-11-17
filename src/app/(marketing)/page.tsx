@@ -103,9 +103,9 @@ export default async function HomePage() {
               </div>
 
               <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
-                Quality Education
+                Knowledge Changing
                 <span className="mt-2 block">
-                  For Every Child
+                  Lives Forever
                 </span>
               </h1>
 
