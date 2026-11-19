@@ -163,7 +163,7 @@ export function ResultsView({ quiz, initialAttempts }: { quiz: Quiz, initialAtte
           <p className="truncate text-sm text-muted-foreground">
             {total === 0
               ? 'No attempts yet'
-              : `${total} attempt${total === 1 ? '' : 's'} · ${passRate}% pass rate`}
+              : `${total} total student${total === 1 ? '' : 's'} · ${passRate}% pass rate`}
           </p>
         </div>
       </div>
@@ -171,10 +171,8 @@ export function ResultsView({ quiz, initialAttempts }: { quiz: Quiz, initialAtte
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard
           icon={Users}
-          label="Total Attempts"
-          value={total}
-          secondaryValue={uniqueStudents}
-          secondaryLabel={`unique student${uniqueStudents === 1 ? '' : 's'}`}
+          label="Unique Students"
+          value={uniqueStudents}
           tone="brand"
         />
         <StatCard
@@ -338,15 +336,13 @@ function StatCard({
   icon: Icon,
   label,
   value,
-  secondaryValue,
-  secondaryLabel,
+  hint,
   tone,
 }: {
   icon: typeof Users
   label: string
   value: string | number
-  secondaryValue?: string | number
-  secondaryLabel?: string
+  hint?: string
   tone: 'brand' | 'success' | 'warning' | 'neutral'
 }) {
   const tones = {
@@ -366,23 +362,18 @@ function StatCard({
         <Icon size={18} className="sm:hidden" />
         <Icon size={24} className="hidden sm:block" />
       </div>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-baseline gap-1.5 flex-wrap">
-          <p className="truncate text-lg font-bold tabular-nums text-foreground sm:text-2xl">
-            {value}
-          </p>
-          {secondaryValue !== undefined && (
-            <>
-              <span className="text-muted-foreground/50 text-xs sm:text-sm">|</span>
-              <p className="text-xs font-semibold text-muted-foreground sm:text-sm whitespace-nowrap">
-                {secondaryValue} {secondaryLabel}
-              </p>
-            </>
-          )}
-        </div>
+      <div className="min-w-0">
+        <p className="truncate text-lg font-bold tabular-nums text-foreground sm:text-2xl">
+          {value}
+        </p>
         <p className="truncate text-[11px] text-muted-foreground sm:text-sm">
           {label}
         </p>
+        {hint && (
+          <p className="truncate text-[10px] font-medium text-brand-accent/80 sm:text-xs">
+            {hint}
+          </p>
+        )}
       </div>
     </Card>
   )
