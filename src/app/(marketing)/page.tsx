@@ -119,7 +119,7 @@ export default async function HomePage() {
       a: (
         <>
           Our built-in{' '}
-          <Link href="learner/analytics" className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>
+          <Link href="/learner/analytics" className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>
             analytics dashboard
           </Link>{' '}
           automatically records quiz scores, homework completion rates, and lesson activities.
