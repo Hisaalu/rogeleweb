@@ -4,7 +4,19 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-import { Menu, X, LogIn, UserPlus, Home, Info, Tags, Mail, Sun, Moon } from 'lucide-react'
+import { 
+  Menu, 
+  X, 
+  LogIn, 
+  UserPlus, 
+  Home, 
+  Info, 
+  Tags, 
+  Mail, 
+  Sun, 
+  Moon,
+  HelpCircle // <-- Added
+} from 'lucide-react'
 import { useBranding } from '@/components/brand/brand-provider'
 import { useTheme } from '@/components/theme-provider'
 
@@ -43,6 +55,7 @@ export function PublicHeader() {
     if (href === '/') return pathname === '/' && !currentHash
     if (href === '/#about') return pathname === '/' && currentHash === '#about'
     if (href === '/#pricing') return pathname === '/' && currentHash === '#pricing'
+    if (href === '/#faqs') return pathname === '/' && currentHash === '#faqs'
     if (href === '/contact') return pathname === '/contact'
     return false
   }
@@ -51,6 +64,7 @@ export function PublicHeader() {
     { name: 'Home', href: '/', icon: Home },
     { name: 'About', href: '/#about', icon: Info },
     { name: 'Pricing', href: '/#pricing', icon: Tags },
+    { name: 'FAQs', href: '/#faqs', icon: HelpCircle },
     { name: 'Contact', href: '/contact', icon: Mail },
   ]
 

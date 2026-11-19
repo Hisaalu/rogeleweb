@@ -85,6 +85,49 @@ export default async function HomePage() {
   const recommendedId =
     plans.length >= 2 ? plans[Math.floor(plans.length / 2)].id : null
 
+  const faqs = [
+    {
+      q: 'How does the free trial work?',
+      a: (
+        <>
+          When you{' '}
+          <Link href="/register" className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>
+            sign up for a new account
+          </Link>{' '}
+          on {siteTitle}, you automatically receive complimentary full access to all features, including interactive lessons and quizzes.
+        </>
+      ),
+    },
+    {
+      q: 'Can I switch subscription plans later?',
+      a: (
+        <>
+          Yes, you can upgrade or change your plan at any time. Simply visit the{' '}
+          <Link href="/learner/subscription" className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>
+            subscriptions page
+          </Link>{' '}
+          from your dashboard and select the plan that best fits your needs.
+        </>
+      ),
+    },
+    {
+      q: `Can I access ${siteTitle} on mobile phones?`,
+      a: `${siteTitle} is fully responsive and optimized for all web browsers, smartphones, tablets, and computers.`,
+    },
+    {
+      q: 'How do parents and teachers track student progress?',
+      a: (
+        <>
+          Our built-in{' '}
+          <Link href="learner/analytics" className="font-semibold hover:underline" style={{ color: 'var(--brand-primary)' }}>
+            analytics dashboard
+          </Link>{' '}
+          automatically records quiz scores, homework completion rates, and lesson activities.
+        </>
+      ),
+    },
+  ]
+
   return (
     <div className="flex w-full flex-col overflow-hidden">
       <section
@@ -289,7 +332,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="bg-muted/30 py-20">
+      <section id="faqs" className="scroll-mt-20 bg-muted/30 py-20">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
           <span
             className="mb-4 inline-block rounded-full px-4 py-1.5 text-xs font-bold tracking-wider"
@@ -303,24 +346,7 @@ export default async function HomePage() {
           </h2>
 
           <div className="mt-12 space-y-4 text-left">
-            {[
-              {
-                q: 'How does the free trial work?',
-                a: `When you sign up for a new account on ${siteTitle}, you automatically receive complimentary full access to all features, including interactive lessons and quizzes.`,
-              },
-              {
-                q: 'Can I switch subscription plans later?',
-                a: 'Yes, you can upgrade or change your plan at any time. Simply visit the subscriptions page from your dashboard and select the plan that best fits your needs.',
-              },
-              {
-                q: `Can I access ${siteTitle} on mobile phones?`,
-                a: `${siteTitle} is fully responsive and optimized for all web browsers, smartphones, tablets, and computers.`,
-              },
-              {
-                q: 'How do parents and teachers track student progress?',
-                a: 'Our built-in analytics dashboard automatically records quiz scores, homework completion rates, and lesson activities.',
-              },
-            ].map((faq) => (
+            {faqs.map((faq) => (
               <Card
                 key={faq.q}
                 className="group p-5 transition open:border-brand-accent open:shadow-sm"
