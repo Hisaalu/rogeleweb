@@ -125,7 +125,6 @@ export function ResultsView({ quiz, initialAttempts }: { quiz: Quiz, initialAtte
       <div className="flex flex-col gap-4 sm:relative sm:flex-row sm:items-center sm:justify-between sm:gap-3">
         <div className="flex items-center justify-between gap-3 sm:contents">
           
-          {/* Changed Link to button using router.back() */}
           <button
             type="button"
             onClick={() => router.back()}
@@ -167,7 +166,7 @@ export function ResultsView({ quiz, initialAttempts }: { quiz: Quiz, initialAtte
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard
           icon={Users}
           label="Total Attempts"
@@ -349,17 +348,21 @@ function StatCard({
     neutral: { bg: 'hsl(var(--muted-foreground))', fg: 'white' },
   }
   const t = tones[tone]
+  
   return (
-    <Card className="flex items-center gap-4 p-4">
+    <Card className="flex min-w-0 items-center gap-3 p-3 transition hover:-translate-y-1 hover:shadow-lg sm:gap-5 sm:p-6">
       <div
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md sm:h-14 sm:w-14"
         style={{ backgroundColor: t.bg, color: t.fg }}
       >
-        <Icon size={18} />
+        <Icon size={18} className="sm:hidden" />
+        <Icon size={24} className="hidden sm:block" />
       </div>
       <div className="min-w-0">
-        <p className="truncate text-xl font-bold text-foreground">{value}</p>
-        <p className="text-[10px] tracking-wider text-muted-foreground">
+        <p className="truncate text-lg font-bold tabular-nums text-foreground sm:text-2xl">
+          {value}
+        </p>
+        <p className="truncate text-[11px] text-muted-foreground sm:text-sm">
           {label}
         </p>
       </div>
