@@ -39,10 +39,6 @@ export function FaqAccordion({ faqs }: { faqs: FAQItem[] }) {
               />
             </button>
             
-            {/* 
-              The grid-rows trick: animating from 0fr to 1fr smoothly expands 
-              the container to fit its content, regardless of how tall the text is.
-            */}
             <div
               className={`grid transition-all duration-300 ease-in-out ${
                 isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'

@@ -7,6 +7,8 @@ import { PlanCard } from '@/components/subscription/plan-card'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { FaqAccordion } from './components/faq-accordion'
+import { FadeIn } from './components/fade-in'
+import { AnimatedCounter } from './components/animated-counter'
 import {
   ArrowRight,
   PlayCircle,
@@ -210,35 +212,40 @@ export default async function HomePage() {
 
       <section id="about" className="scroll-mt-20 bg-background py-20">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-          <span
-            className="mb-4 inline-block rounded-full px-4 py-1.5 text-xs font-bold tracking-wider"
-            style={eyebrowStyle}
-          >
-            Getting Started
-          </span>
-          <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
-            Start Learning in{' '}
-            <span style={{ color: 'var(--brand-primary)' }}>3 Easy Steps</span>
-          </h2>
+          <FadeIn>
+            <span
+              className="mb-4 inline-block rounded-full px-4 py-1.5 text-xs font-bold tracking-wider"
+              style={eyebrowStyle}
+            >
+              Getting Started
+            </span>
+            <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
+              Start Learning in{' '}
+              <span style={{ color: 'var(--brand-primary)' }}>3 Easy Steps</span>
+            </h2>
+          </FadeIn>
 
           <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-3">
             {STEPS.map((step, i) => {
               const Icon = step.icon
               return (
-                <Card
-                  key={step.title}
-                  className="flex flex-col items-center p-8 transition hover:-translate-y-2 hover:shadow-lg"
-                >
-                  <div
-                    className="mb-6 flex h-16 w-16 items-center justify-center rounded-full text-2xl font-bold text-white shadow-lg"
-                    style={{ backgroundColor: 'var(--brand-primary)' }}
-                  >
-                    {i + 1}
-                  </div>
-                  <Icon size={32} className="mb-4" style={{ color: 'var(--brand-accent)' }} />
-                  <h3 className="mb-2 text-xl font-bold text-foreground">{step.title}</h3>
-                  <p className="text-center text-sm text-muted-foreground">{step.body}</p>
-                </Card>
+                <FadeIn key={step.title} delay={i * 150}>
+                  <Card className="group flex h-full flex-col items-center p-8 transition-all duration-300 hover:-translate-y-2 hover:shadow-lg">
+                    <div
+                      className="mb-6 flex h-16 w-16 items-center justify-center rounded-full text-2xl font-bold text-white shadow-lg transition-transform duration-300 group-hover:scale-110"
+                      style={{ backgroundColor: 'var(--brand-primary)' }}
+                    >
+                      {i + 1}
+                    </div>
+                    <Icon
+                      size={32}
+                      className="mb-4 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
+                      style={{ color: 'var(--brand-accent)' }}
+                    />
+                    <h3 className="mb-2 text-xl font-bold text-foreground">{step.title}</h3>
+                    <p className="text-center text-sm text-muted-foreground">{step.body}</p>
+                  </Card>
+                </FadeIn>
               )
             })}
           </div>
@@ -247,40 +254,41 @@ export default async function HomePage() {
 
       <section className="bg-muted/30 py-20">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-          <span
-            className="mb-4 inline-block rounded-full px-4 py-1.5 text-xs font-bold tracking-wider"
-            style={eyebrowStyle}
-          >
-            Why {siteTitle}?
-          </span>
-          <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
-            Everything You Need For{' '}
-            <span style={{ color: 'var(--brand-primary)' }}>Quality Education</span>
-          </h2>
+          <FadeIn>
+            <span
+              className="mb-4 inline-block rounded-full px-4 py-1.5 text-xs font-bold tracking-wider"
+              style={eyebrowStyle}
+            >
+              Why {siteTitle}?
+            </span>
+            <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
+              Everything You Need For{' '}
+              <span style={{ color: 'var(--brand-primary)' }}>Quality Education</span>
+            </h2>
+          </FadeIn>
 
           <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-3">
-            {FEATURES.map((feature) => {
+            {FEATURES.map((feature, i) => {
               const Icon = feature.icon
               return (
-                <Card
-                  key={feature.title}
-                  className="p-8 text-center transition hover:-translate-y-2 hover:border-brand-accent hover:shadow-lg"
-                >
-                  <div
-                    className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full"
-                    style={{
-                      backgroundColor:
-                        'color-mix(in srgb, var(--brand-accent) 10%, transparent)',
-                      color: 'var(--brand-accent)',
-                    }}
-                  >
-                    <Icon size={36} />
-                  </div>
-                  <h3 className="mb-3 text-lg font-bold text-foreground">
-                    {feature.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">{feature.body}</p>
-                </Card>
+                <FadeIn key={feature.title} delay={i * 150}>
+                  <Card className="group h-full p-8 text-center transition-all duration-300 hover:-translate-y-2 hover:border-brand-accent hover:shadow-lg">
+                    <div
+                      className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full transition-transform duration-300 group-hover:scale-110"
+                      style={{
+                        backgroundColor:
+                          'color-mix(in srgb, var(--brand-accent) 10%, transparent)',
+                        color: 'var(--brand-accent)',
+                      }}
+                    >
+                      <Icon size={36} className="transition-transform duration-300 group-hover:rotate-6" />
+                    </div>
+                    <h3 className="mb-3 text-lg font-bold text-foreground">
+                      {feature.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">{feature.body}</p>
+                  </Card>
+                </FadeIn>
               )
             })}
           </div>
@@ -289,16 +297,18 @@ export default async function HomePage() {
 
       <section id="pricing" className="scroll-mt-20 bg-background py-20">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-          <span
-            className="mb-4 inline-block rounded-full px-4 py-1.5 text-xs font-bold tracking-wider"
-            style={eyebrowStyle}
-          >
-            Pricing Plans
-          </span>
-          <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
-            One Subscription.{' '}
-            <span style={{ color: 'var(--brand-primary)' }}>Access to everything</span>
-          </h2>
+          <FadeIn>
+            <span
+              className="mb-4 inline-block rounded-full px-4 py-1.5 text-xs font-bold tracking-wider"
+              style={eyebrowStyle}
+            >
+              Pricing Plans
+            </span>
+            <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
+              One Subscription.{' '}
+              <span style={{ color: 'var(--brand-primary)' }}>Access to everything</span>
+            </h2>
+          </FadeIn>
 
           {plans.length === 0 ? (
             <Card className="mx-auto mt-16 max-w-md p-8 text-center">
@@ -317,15 +327,16 @@ export default async function HomePage() {
             </Card>
           ) : (
             <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {plans.map((plan) => (
-                <PlanCard
-                  key={plan.id}
-                  plan={plan}
-                  allPlans={plans}
-                  recommended={plan.id === recommendedId}
-                  href="/login"
-                  buttonLabel="Get Started"
-                />
+              {plans.map((plan, i) => (
+                <FadeIn key={plan.id} delay={i * 150}>
+                  <PlanCard
+                    plan={plan}
+                    allPlans={plans}
+                    recommended={plan.id === recommendedId}
+                    href="/login"
+                    buttonLabel="Get Started"
+                  />
+                </FadeIn>
               ))}
             </div>
           )}
@@ -334,16 +345,18 @@ export default async function HomePage() {
 
       <section id="faqs" className="scroll-mt-20 bg-muted/30 py-20">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-          <span
-            className="mb-4 inline-block rounded-full px-4 py-1.5 text-xs font-bold tracking-wider"
-            style={eyebrowStyle}
-          >
-            Got Questions?
-          </span>
-          <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
-            Frequently Asked{' '}
-            <span style={{ color: 'var(--brand-primary)' }}>Questions</span>
-          </h2>
+          <FadeIn>
+            <span
+              className="mb-4 inline-block rounded-full px-4 py-1.5 text-xs font-bold tracking-wider"
+              style={eyebrowStyle}
+            >
+              Got Questions?
+            </span>
+            <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
+              Frequently Asked{' '}
+              <span style={{ color: 'var(--brand-primary)' }}>Questions</span>
+            </h2>
+          </FadeIn>
 
           <FaqAccordion faqs={faqs} />
         </div>
@@ -351,21 +364,23 @@ export default async function HomePage() {
 
       <section className="py-20" style={{ backgroundColor: 'var(--brand-primary)' }}>
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
-            Ready to Start Learning?
-          </h2>
-          <p className="mt-4 text-lg text-white/90">
-            Join thousands of students already learning on {siteTitle}.
-          </p>
-          <Link href="/register" className="mt-8 inline-block">
-            <Button
-              size="lg"
-              className="bg-white hover:bg-white/90"
-              style={{ color: 'var(--brand-primary)' }}
-            >
-              Create Free Account <ArrowRight size={16} className="ml-2" />
-            </Button>
-          </Link>
+          <FadeIn>
+            <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
+              Ready to Start Learning?
+            </h2>
+            <p className="mt-4 text-lg text-white/90">
+              Join thousands of students already learning on {siteTitle}.
+            </p>
+            <Link href="/register" className="mt-8 inline-block">
+              <Button
+                size="lg"
+                className="bg-white transition-transform duration-300 hover:scale-105 hover:bg-white/90"
+                style={{ color: 'var(--brand-primary)' }}
+              >
+                Create Free Account <ArrowRight size={16} className="ml-2" />
+              </Button>
+            </Link>
+          </FadeIn>
         </div>
       </section>
     </div>
@@ -375,8 +390,8 @@ export default async function HomePage() {
 function Stat({ label, value }: { label: string; value: number }) {
   return (
     <div className="flex flex-col items-center">
-      <span className="text-3xl font-extrabold text-white tabular-nums">
-        {value.toLocaleString('en-US')}+
+      <span className="text-3xl font-extrabold text-white">
+        <AnimatedCounter value={value} />
       </span>
       <span className="text-xs font-medium tracking-wider text-white/80">
         {label}
