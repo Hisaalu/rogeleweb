@@ -6,6 +6,7 @@ import { fetchPublicSettings } from '@/lib/settings.server'
 import { PlanCard } from '@/components/subscription/plan-card'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { FaqAccordion } from './components/faq-accordion'
 import {
   ArrowRight,
   PlayCircle,
@@ -15,7 +16,6 @@ import {
   BookOpen,
   Pencil,
   CheckCircle2,
-  ChevronDown,
 } from 'lucide-react'
 
 export const revalidate = 3600
@@ -345,27 +345,7 @@ export default async function HomePage() {
             <span style={{ color: 'var(--brand-primary)' }}>Questions</span>
           </h2>
 
-          <div className="mt-12 space-y-4 text-left">
-            {faqs.map((faq) => (
-              <Card
-                key={faq.q}
-                className="group p-5 transition open:border-brand-accent open:shadow-sm"
-              >
-                <details>
-                  <summary className="flex cursor-pointer items-center justify-between font-semibold text-foreground outline-none">
-                    {faq.q}
-                    <ChevronDown
-                      size={18}
-                      className="transition-transform group-open:rotate-180"
-                    />
-                  </summary>
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                    {faq.a}
-                  </p>
-                </details>
-              </Card>
-            ))}
-          </div>
+          <FaqAccordion faqs={faqs} />
         </div>
       </section>
 
