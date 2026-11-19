@@ -103,7 +103,7 @@ export const Sidebar = memo(function Sidebar({ user }: { user: SessionUser }) {
         </Link>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 py-5">
+      <nav className="no-scrollbar flex-1 overflow-y-auto px-3 py-5">
         <ul className="space-y-1">
           {items.map((item) => (
             <NavLink

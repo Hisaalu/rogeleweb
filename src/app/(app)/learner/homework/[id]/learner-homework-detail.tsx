@@ -304,7 +304,6 @@ export function LearnerHomeworkDetail({
               <div className="flex min-w-0 items-center gap-3">
                 <Avatar size={36} src={learnerPhoto} fallback={getInitials(learnerName.split(' ')[0], learnerName.split(' ')[1])} />
                 <h2 className="flex min-w-0 items-center gap-2 text-lg font-bold" style={{ color: 'var(--brand-primary)' }}>
-                  <CheckCircle2 size={18} className="shrink-0" />
                   <span className="truncate">Your Submission</span>
                 </h2>
               </div>
