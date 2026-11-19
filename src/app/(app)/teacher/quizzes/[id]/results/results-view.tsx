@@ -163,7 +163,7 @@ export function ResultsView({ quiz, initialAttempts }: { quiz: Quiz, initialAtte
           <p className="truncate text-sm text-muted-foreground">
             {total === 0
               ? 'No attempts yet'
-              : `${total} total attempt${total === 1 ? '' : 's'} · ${passRate}% pass rate`}
+              : `${total} total attempt${total === 1 ? '' : 's'} from ${uniqueStudents} unique student${uniqueStudents === 1 ? '' : 's'}`}
           </p>
         </div>
       </div>
