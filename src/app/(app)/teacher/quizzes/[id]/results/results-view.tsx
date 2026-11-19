@@ -59,6 +59,8 @@ export function ResultsView({ quiz, initialAttempts }: { quiz: Quiz, initialAtte
   const [showClearConfirm, setShowClearConfirm] = useState(false)
 
   const total = attempts.length
+  const uniqueStudents = new Set(attempts.map((a) => a.user_id)).size
+  
   const completed = attempts.filter((a) => a.status === 'completed')
   const passed = completed.filter((a) => (a.score ?? 0) >= (quiz.passing_score ?? 70))
   const avgScore =
@@ -171,6 +173,8 @@ export function ResultsView({ quiz, initialAttempts }: { quiz: Quiz, initialAtte
           icon={Users}
           label="Total Attempts"
           value={total}
+          secondaryValue={uniqueStudents}
+          secondaryLabel={`unique student${uniqueStudents === 1 ? '' : 's'}`}
           tone="brand"
         />
         <StatCard
@@ -334,11 +338,15 @@ function StatCard({
   icon: Icon,
   label,
   value,
+  secondaryValue,
+  secondaryLabel,
   tone,
 }: {
   icon: typeof Users
   label: string
   value: string | number
+  secondaryValue?: string | number
+  secondaryLabel?: string
   tone: 'brand' | 'success' | 'warning' | 'neutral'
 }) {
   const tones = {
@@ -358,10 +366,20 @@ function StatCard({
         <Icon size={18} className="sm:hidden" />
         <Icon size={24} className="hidden sm:block" />
       </div>
-      <div className="min-w-0">
-        <p className="truncate text-lg font-bold tabular-nums text-foreground sm:text-2xl">
-          {value}
-        </p>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-baseline gap-1.5 flex-wrap">
+          <p className="truncate text-lg font-bold tabular-nums text-foreground sm:text-2xl">
+            {value}
+          </p>
+          {secondaryValue !== undefined && (
+            <>
+              <span className="text-muted-foreground/50 text-xs sm:text-sm">|</span>
+              <p className="text-xs font-semibold text-muted-foreground sm:text-sm whitespace-nowrap">
+                {secondaryValue} {secondaryLabel}
+              </p>
+            </>
+          )}
+        </div>
         <p className="truncate text-[11px] text-muted-foreground sm:text-sm">
           {label}
         </p>
