@@ -1,10 +1,23 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowLeft, CheckCircle2, XCircle, Trophy, BookOpen } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, XCircle, Trophy, BookOpen, Calendar } from 'lucide-react'
 import type { QuizResultDetails } from '@/types/quiz'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+
+function formatDate(iso: string | null | undefined) {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return '—'
+  return d.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: '2-digit',
+    hour: 'numeric',
+    minute: '2-digit',
+  })
+}
 
 export function ResultView({ attempt }: { attempt: QuizResultDetails }) {
   const passed = (attempt.score ?? 0) >= (attempt.passing_score ?? 70)
@@ -19,13 +32,28 @@ export function ResultView({ attempt }: { attempt: QuizResultDetails }) {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">
-      <Link
-        href="/learner/quizzes"
-        aria-label="Back to quizzes"
-        className="inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"      >
-        <ArrowLeft size={26} className="shrink-0" />
-        <span className="sr-only">Quizzes</span>
-      </Link>
+      <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 sm:gap-3">
+        <Link
+          href="/learner/quizzes"
+          aria-label="Back to quizzes"
+          className="inline-flex items-center justify-center rounded-full p-2 text-foreground transition hover:bg-muted"
+        >
+          <ArrowLeft size={24} className="shrink-0" />
+        </Link>
+
+        <h1 className="truncate text-center text-xl font-bold text-foreground sm:text-3xl">
+          Last Attempt
+        </h1>
+
+        {attempt.completed_at ? (
+          <div className="flex items-center gap-1 text-right text-[10px] text-muted-foreground sm:gap-1.5 sm:text-sm">
+            <Calendar size={10} className="hidden shrink-0 sm:block sm:size-3" />
+            <span className="whitespace-nowrap">{formatDate(attempt.completed_at)}</span>
+          </div>
+        ) : (
+          <div className="w-8 sm:w-10" />
+        )}
+      </div>
 
       <Card className="p-8 text-center sm:p-12">
         <div 
@@ -49,9 +77,9 @@ export function ResultView({ attempt }: { attempt: QuizResultDetails }) {
           <span className="text-sm font-medium text-muted-foreground">Pass Mark: {attempt.passing_score ?? 70}%</span>
         </div>
 
-        <h1 className="mb-2 text-3xl font-bold text-foreground">
+        <h2 className="mb-2 text-3xl font-bold text-foreground">
           {passed ? 'Congratulations!' : 'Better Luck Next Time!'}
-        </h1>
+        </h2>
         <p className="text-muted-foreground">
           You scored {correct} out of {total} questions correctly.
         </p>
