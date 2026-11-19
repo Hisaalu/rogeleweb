@@ -4,7 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'nextjs-toploader/app'
 import { 
   ArrowLeft, Info, AlignLeft, Paperclip, Award, CheckCircle2, 
-  Trash2, UploadCloud, Download, FileText, AlertTriangle
+  Trash2, UploadCloud, Download, FileText, AlertTriangle,
+  BookOpen, GraduationCap, Calendar
 } from 'lucide-react'
 import type { Homework, HomeworkAttachment, HomeworkSubmission } from '@/types/homework'
 import { submitHomeworkClient, deleteSubmissionClient } from '@/lib/homework.client'
@@ -48,6 +49,8 @@ export function LearnerHomeworkDetail({
   const isExpired = dueDate.getTime() < new Date().getTime()
   
   const isGraded = initialSubmission?.status === 'graded'
+  const isSubmitted = initialSubmission?.status === 'submitted' || initialSubmission?.status === 'late'
+  
   const canResubmit = (!initialSubmission || !isGraded)
   const canDelete = !!initialSubmission && !isGraded
 
@@ -126,54 +129,105 @@ export function LearnerHomeworkDetail({
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6 px-4 py-8 sm:px-6">
-      <div className="relative flex items-center justify-between gap-3">
+      
+      <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3">
         <button
           type="button"
           onClick={() => router.back()}
           aria-label="Go back"
-          className="inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"
+          className="inline-flex items-center justify-center rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"
         >
           <ArrowLeft size={24} className="shrink-0 sm:size-[26px]" />
-          <span className="sr-only">Go back</span>
         </button>
 
-        <span className="pointer-events-none absolute left-1/2 max-w-[60%] -translate-x-1/2 truncate text-center text-xl font-bold text-foreground sm:max-w-[50%] sm:text-2xl">
+        <span className="truncate text-center text-xl font-bold text-foreground sm:text-2xl">
           {homework.title}
         </span>
+
+        <div className="flex justify-end">
+          {isGraded ? (
+            <span className="rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wider text-white shadow-sm sm:px-3 sm:text-xs" style={{ backgroundColor: 'var(--success-border)' }}>
+              Graded
+            </span>
+          ) : isSubmitted ? (
+            <span className="rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wider text-white shadow-sm sm:px-3 sm:text-xs" style={{ backgroundColor: 'var(--brand-accent)' }}>
+              Submitted
+            </span>
+          ) : (
+            <div className="w-16 sm:w-20" /> 
+          )}
+        </div>
       </div>
 
       <Card className="overflow-hidden">
+        
         <div className="border-b border-border p-4 sm:p-6 md:p-8">
           <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-foreground">
             <Info size={18} style={{ color: 'var(--brand-accent)' }} /> Assignment Details
           </h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="min-w-0">
-              <p className="text-xs font-semibold text-muted-foreground">Subject</p>
-              <p className="truncate font-medium text-foreground">{homework.subject_name ?? 'General'}</p>
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-semibold text-muted-foreground">Class</p>
-              <p className="truncate font-medium text-foreground">{homework.class_name ?? 'All'}</p>
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-semibold text-muted-foreground">Due Date</p>
-              <p className="flex flex-wrap items-center gap-2 font-medium" style={{ color: isExpired ? 'var(--danger-fg)' : 'hsl(var(--foreground))' }}>
-                <span className="truncate">{dueDate.toLocaleString()}</span>
-                {isExpired && <span className="shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold" style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-fg)' }}>Overdue</span>}
-              </p>
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-semibold text-muted-foreground">Teacher</p>
-              <div className="mt-1 flex min-w-0 items-center gap-2">
-                <Avatar 
-                  size={28}
-                  src={homework.teacher_profile_photo} 
-                  fallback={getInitials(homework.teacher_name?.split(' ')[0], homework.teacher_name?.split(' ')[1])} 
-                />
-                <span className="truncate font-medium text-foreground">Tr. {homework.teacher_name ?? 'Teacher'}</span>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+
+            <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/30 p-3 sm:p-4">
+              <Avatar 
+                size={40}
+                src={homework.teacher_profile_photo} 
+                fallback={getInitials(homework.teacher_name?.split(' ')[0], homework.teacher_name?.split(' ')[1])} 
+              />
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold text-muted-foreground">Teacher</p>
+                <p className="truncate text-sm font-medium text-foreground">Tr. {homework.teacher_name ?? 'Teacher'}</p>
               </div>
             </div>
+            
+            <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/30 p-3 sm:p-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-primary">
+                <BookOpen size={18} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold text-muted-foreground">Subject</p>
+                <p className="truncate text-sm font-medium text-foreground">{homework.subject_name ?? 'General'}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/30 p-3 sm:p-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-primary">
+                <GraduationCap size={18} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold text-muted-foreground">Class</p>
+                <p className="truncate text-sm font-medium text-foreground">{homework.class_name ?? 'All'}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/30 p-3 sm:p-4">
+              <div className="flex min-w-0 items-center gap-3">
+                <div 
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
+                  style={{ 
+                    backgroundColor: isExpired ? 'var(--danger-bg)' : 'color-mix(in srgb, var(--brand-accent) 10%, transparent)',
+                    color: isExpired ? 'var(--danger-fg)' : 'var(--brand-accent)'
+                  }}
+                >
+                  <Calendar size={18} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-semibold text-muted-foreground">Due Date</p>
+                  <p className="truncate text-sm font-medium text-foreground">
+                    {dueDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </p>
+                </div>
+              </div>
+              {isExpired ? (
+                <span className="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold" style={{ backgroundColor: 'var(--danger-bg)', color: 'var(--danger-fg)' }}>
+                  Overdue
+                </span>
+              ) : (
+                <span className="shrink-0 rounded-full bg-muted px-2.5 py-1 text-[10px] font-bold text-muted-foreground">
+                  {dueDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              )}
+            </div>
+
           </div>
         </div>
 
@@ -181,7 +235,7 @@ export function LearnerHomeworkDetail({
           <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-foreground">
             <AlignLeft size={18} style={{ color: 'var(--brand-accent)' }} /> Description
           </h2>
-          <div className="whitespace-pre-wrap break-words rounded-md bg-muted p-4 text-sm leading-relaxed text-foreground">
+          <div className="whitespace-pre-wrap break-words rounded-xl border border-border bg-muted/30 p-4 text-sm leading-relaxed text-foreground">
             {homework.description || 'No description provided.'}
           </div>
         </div>
@@ -199,9 +253,11 @@ export function LearnerHomeworkDetail({
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={handleAttachmentClick}
-                  className="flex min-w-0 items-center gap-3 rounded-md border border-border bg-background p-3 transition hover:border-brand-accent"
+                  className="flex min-w-0 items-center gap-3 rounded-xl border border-border bg-background p-3 transition hover:border-brand-accent hover:shadow-sm"
                 >
-                  <Download size={18} className="shrink-0" style={{ color: 'var(--brand-accent)' }} />
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-primary/10">
+                    <Download size={18} style={{ color: 'var(--brand-primary)' }} />
+                  </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-foreground">{a.file_name}</p>
                     <p className="text-xs text-muted-foreground">{formatFileSize(a.file_size)}</p>
@@ -217,23 +273,23 @@ export function LearnerHomeworkDetail({
             <h2 className="mb-4 flex items-center gap-2 text-lg font-bold" style={{ color: 'var(--success-fg)' }}>
               <Award size={18} /> Grade & Feedback
             </h2>
-            <div className="rounded-md border-2 bg-card p-4 sm:p-5" style={{ borderColor: 'var(--success-border)' }}>
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-sm font-semibold text-muted-foreground">Your Score</p>
-                  <p className="text-4xl font-extrabold" style={{ color: 'var(--success-fg)' }}>{initialSubmission.grade}%</p>
-                </div>
+            <div className="rounded-xl border-2 bg-card p-4 sm:p-6" style={{ borderColor: 'var(--success-border)' }}>
+              <div className="flex flex-col items-center justify-center gap-4 sm:flex-row sm:justify-start">
                 <Avatar 
-                  size={48} 
+                  size={64} 
                   src={learnerPhoto} 
                   fallback={getInitials(learnerName.split(' ')[0], learnerName.split(' ')[1])} 
                 />
+                <div className="text-center sm:text-left">
+                  <p className="text-sm font-semibold text-muted-foreground">Your Score</p>
+                  <p className="text-5xl font-extrabold" style={{ color: 'var(--success-fg)' }}>{initialSubmission.grade}%</p>
+                </div>
               </div>
               
               {initialSubmission.feedback && (
-                <div className="mt-4 border-t border-border pt-4">
-                  <p className="mb-1 text-sm font-semibold text-foreground">Teacher&apos;s Comment</p>
-                  <p className="whitespace-pre-wrap break-words rounded-md bg-muted p-3 text-sm text-muted-foreground">
+                <div className="mt-6 border-t border-border pt-4">
+                  <p className="mb-2 text-sm font-semibold text-foreground">Teacher&apos;s Comment</p>
+                  <p className="whitespace-pre-wrap break-words rounded-lg bg-muted/50 p-4 text-sm text-muted-foreground">
                     {initialSubmission.feedback}
                   </p>
                 </div>
@@ -248,6 +304,7 @@ export function LearnerHomeworkDetail({
               <div className="flex min-w-0 items-center gap-3">
                 <Avatar size={36} src={learnerPhoto} fallback={getInitials(learnerName.split(' ')[0], learnerName.split(' ')[1])} />
                 <h2 className="flex min-w-0 items-center gap-2 text-lg font-bold" style={{ color: 'var(--brand-primary)' }}>
+                  <CheckCircle2 size={18} className="shrink-0" />
                   <span className="truncate">Your Submission</span>
                 </h2>
               </div>
@@ -262,8 +319,8 @@ export function LearnerHomeworkDetail({
             </p>
             {initialSubmission.text_answer && (
               <div className="mb-4">
-                <p className="mb-1 text-sm font-semibold text-foreground">Submitted Response</p>
-                <div className="whitespace-pre-wrap break-words rounded-md bg-card p-4 text-sm text-foreground">
+                <p className="mb-2 text-sm font-semibold text-foreground">Submitted Response</p>
+                <div className="whitespace-pre-wrap break-words rounded-xl border border-border bg-card p-4 text-sm text-foreground">
                   {initialSubmission.text_answer}
                 </div>
               </div>
@@ -279,7 +336,7 @@ export function LearnerHomeworkDetail({
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={handleAttachmentClick}
-                      className="flex min-w-0 items-center gap-2 rounded-md border border-border bg-card p-3 text-sm transition hover:border-brand-accent"
+                      className="flex min-w-0 items-center gap-3 rounded-xl border border-border bg-card p-3 text-sm transition hover:border-brand-accent"
                     >
                       <FileText size={16} className="shrink-0" style={{ color: 'var(--brand-accent)' }} />
                       <span className="flex-1 truncate font-medium">{f.file_name}</span>
@@ -293,7 +350,7 @@ export function LearnerHomeworkDetail({
 
         {canResubmit && (
           <div className="bg-muted p-4 sm:p-6 md:p-8">
-            <div className="mb-4 flex min-w-0 items-center gap-3">
+            <div className="mb-6 flex min-w-0 items-center gap-3">
               <Avatar size={36} src={learnerPhoto} fallback={getInitials(learnerName.split(' ')[0], learnerName.split(' ')[1])} />
               <h2 className="flex min-w-0 items-center gap-2 text-lg font-bold text-foreground">
                 <span className="truncate">{initialSubmission ? 'Resubmit Your Work' : 'Submit Your Work'}</span>
@@ -307,13 +364,13 @@ export function LearnerHomeworkDetail({
                   onChange={e => setTextAnswer(e.target.value)} 
                   rows={4} 
                   placeholder="Type your answer here..." 
-                  className="w-full resize-y rounded-md border border-input bg-background p-3 text-sm outline-none focus:border-brand-accent" 
+                  className="w-full resize-y rounded-xl border border-input bg-background p-3 text-sm outline-none focus:border-brand-accent" 
                 />
               </div>
               <div>
                 <label className="mb-1.5 block text-sm font-semibold text-foreground">Attach Files (Max 5MB)</label>
                 <label
-                  className="relative flex cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed border-border bg-background p-6 text-center transition hover:border-brand-accent"
+                  className="relative flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-background p-6 text-center transition hover:border-brand-accent hover:bg-brand-accent/5"
                   onClick={(e) => {
                     if (!canUseFiles) {
                       e.preventDefault()
@@ -329,7 +386,7 @@ export function LearnerHomeworkDetail({
                 {files.length > 0 && (
                   <ul className="mt-3 space-y-2">
                     {files.map((f, i) => (
-                      <li key={i} className="flex min-w-0 items-center justify-between gap-3 rounded-md border border-border bg-card px-3 py-2 text-sm">
+                      <li key={i} className="flex min-w-0 items-center justify-between gap-3 rounded-lg border border-border bg-card px-3 py-2 text-sm">
                         <span className="truncate">{f.name}</span>
                         <button type="button" onClick={() => setFiles(prev => prev.filter((_, idx) => idx !== i))} className="shrink-0 transition hover:opacity-70" style={{ color: 'var(--danger-fg)' }}>
                           <Trash2 size={14} />
@@ -340,7 +397,7 @@ export function LearnerHomeworkDetail({
                 )}
               </div>
               {isExpired && (
-                <div className="flex items-start gap-2 rounded-md p-3 text-sm" style={{ backgroundColor: 'var(--warning-bg)', color: 'var(--warning-fg)' }}>
+                <div className="flex items-start gap-2 rounded-lg p-3 text-sm" style={{ backgroundColor: 'var(--warning-bg)', color: 'var(--warning-fg)' }}>
                   <AlertTriangle size={16} className="mt-0.5 shrink-0" />
                   <p>This assignment is past its due date. Late submissions may incur penalties.</p>
                 </div>
