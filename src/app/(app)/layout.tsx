@@ -46,6 +46,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           ctaLabel={announcementCtaLabel}
           ctaLink={announcementCtaLink}
           variant="brand"
+          substitutions={{
+            FirstName: session.first_name ?? 'there',
+            LastName: session.last_name ?? '',
+            Email: session.email ?? '',
+          }}
         />
       )}
       

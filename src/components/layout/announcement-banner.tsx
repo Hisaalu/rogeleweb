@@ -4,13 +4,31 @@ import Link from 'next/link'
 import { Megaphone, ArrowRight, X } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
+interface Substitutions {
+  FirstName?: string
+  LastName?: string
+  Email?: string
+  [key: string]: string | undefined
+}
+
+function interpolate(
+  template: string,
+  values: Record<string, string | undefined>,
+): string {
+  return template.replace(/\{\{\s*\.?(\w+)\s*\}\}/g, (_, key: string) => {
+    const v = values[key]
+    return v !== undefined && v !== '' ? v : `{{.${key}}}`
+  })
+}
+
 export function AnnouncementBanner({
   title,
   message,
   ctaLabel,
   ctaLink,
   variant = 'default',
-  id, 
+  id,
+  substitutions,
 }: {
   title?: string
   message: string
@@ -18,6 +36,7 @@ export function AnnouncementBanner({
   ctaLink?: string
   variant?: 'default' | 'brand'
   id: string
+  substitutions?: Substitutions
 }) {
   const [dismissed, setDismissed] = useState(true)
   const [mounted, setMounted] = useState(false)
@@ -38,13 +57,15 @@ export function AnnouncementBanner({
   if (!mounted || dismissed) return null
 
   const isBrand = variant === 'brand'
+  const finalTitle = title ? interpolate(title, substitutions ?? {}) : undefined
+  const finalMessage = interpolate(message, substitutions ?? {})
 
   return (
     <div
       className="relative flex flex-col items-center justify-between gap-3 px-4 py-3 sm:flex-row sm:px-6"
       style={{
-        backgroundColor: isBrand 
-          ? 'color-mix(in srgb, var(--brand-primary) 10%, transparent)' 
+        backgroundColor: isBrand
+          ? 'color-mix(in srgb, var(--brand-primary) 10%, transparent)'
           : 'hsl(var(--muted))',
         borderBottom: '1px solid hsl(var(--border))',
       }}
@@ -53,17 +74,21 @@ export function AnnouncementBanner({
         <div
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
           style={{
-            backgroundColor: isBrand ? 'var(--brand-primary)' : 'hsl(var(--muted-foreground))',
+            backgroundColor: isBrand
+              ? 'var(--brand-primary)'
+              : 'hsl(var(--muted-foreground))',
             color: 'white',
           }}
         >
           <Megaphone size={14} />
         </div>
         <div className="min-w-0">
-          {title && (
-            <p className="text-sm font-semibold text-foreground">{title}</p>
+          {finalTitle && (
+            <p className="text-sm font-semibold text-foreground">{finalTitle}</p>
           )}
-          <p className="text-xs text-muted-foreground sm:text-sm">{message}</p>
+          <p className="text-xs text-muted-foreground sm:text-sm">
+            {finalMessage}
+          </p>
         </div>
       </div>
 
@@ -81,7 +106,7 @@ export function AnnouncementBanner({
             <ArrowRight size={14} />
           </Link>
         )}
-        
+
         <button
           onClick={handleDismiss}
           className="ml-2 rounded-full p-1.5 text-muted-foreground transition hover:bg-black/10"
