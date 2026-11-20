@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { memo } from 'react'
 import { CheckCircle2 } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -16,12 +16,14 @@ function formatDate(iso: string): string {
   })
 }
 
-export function ActiveBanner({
+export const ActiveBanner = memo(function ActiveBanner({
   subscription,
   plans,
+  onUpgrade,
 }: {
   subscription: Subscription
   plans: SubscriptionPlan[]
+  onUpgrade?: (plan: SubscriptionPlan) => void
 }) {
   const currentPlan = plans.find(
     (p) =>
@@ -29,7 +31,7 @@ export function ActiveBanner({
       p.name.toLowerCase() === subscription.plan_type?.toLowerCase()
   )
   const planName = currentPlan?.name ?? subscription.plan_type ?? 'Subscription'
-  
+
   const currentIndex = plans.findIndex(
     (p) =>
       String(p.id) === subscription.plan_type ||
@@ -62,13 +64,16 @@ export function ActiveBanner({
           Valid until {formatDate(subscription.end_date)}
         </p>
       </div>
-      {nextPlan && (
-        <Link href="#plans" className="shrink-0">
-          <Button variant="primary">
-            Upgrade to {nextPlan.name}
-          </Button>
-        </Link>
+      {nextPlan && onUpgrade && (
+        <Button
+          type="button"
+          variant="primary"
+          className="shrink-0"
+          onClick={() => onUpgrade(nextPlan)}
+        >
+          Upgrade to {nextPlan.name}
+        </Button>
       )}
     </Card>
   )
-}
+})

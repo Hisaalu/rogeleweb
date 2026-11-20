@@ -23,10 +23,14 @@ export function SubscriptionView({
   const { showToast } = useToast()
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null)
 
-  const recommendedId = useMemo(() => {
-    if (plans.length < 2) return null
-    return plans[Math.floor(plans.length / 2)].id
+  const orderedPlans = useMemo(() => {
+    return [...plans].sort((a, b) => a.price - b.price || a.duration_days - b.duration_days)
   }, [plans])
+
+  const recommendedId = useMemo(() => {
+    if (orderedPlans.length < 2) return null
+    return orderedPlans[Math.floor(orderedPlans.length / 2)].id
+  }, [orderedPlans])
 
   function handleSuccess() {
     setSelectedPlan(null)
@@ -38,7 +42,7 @@ export function SubscriptionView({
 
   const hasActiveSubscription = subscription?.status === 'active'
 
-  const currentPlanIndex = plans.findIndex(
+  const currentPlanIndex = orderedPlans.findIndex(
     (p) =>
       String(p.id) === subscription?.plan_type ||
       p.name.toLowerCase() === subscription?.plan_type?.toLowerCase()
@@ -46,19 +50,22 @@ export function SubscriptionView({
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-3 py-6 sm:px-4 sm:py-10">
-
       <div className="text-center">
-          <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
-            One subscription. Access to everything
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">Select your learning path</p>
+        <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
+          One subscription. Access to everything
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">Select your learning path</p>
       </div>
 
       {hasActiveSubscription && subscription && (
-        <ActiveBanner subscription={subscription} plans={plans} />
+        <ActiveBanner
+          subscription={subscription}
+          plans={orderedPlans}
+          onUpgrade={(plan) => setSelectedPlan(plan)}
+        />
       )}
 
-      {plans.length === 0 ? (
+      {orderedPlans.length === 0 ? (
         <Card className="p-8 text-center">
           <p className="text-sm text-muted-foreground">
             No subscription plans are available right now. Please check back later.
@@ -69,24 +76,25 @@ export function SubscriptionView({
           id="plans"
           className="grid grid-cols-1 gap-4 pt-2 sm:gap-6 md:grid-cols-2 lg:grid-cols-3"
         >
-          {plans.map((plan, index) => {
+          {orderedPlans.map((plan, index) => {
             const isCurrentPlan =
               hasActiveSubscription &&
               (String(plan.id) === subscription?.plan_type ||
                 plan.name.toLowerCase() === subscription?.plan_type?.toLowerCase())
 
-            const isUpgrade = hasActiveSubscription && currentPlanIndex >= 0 && index > currentPlanIndex
+            const isUpgrade =
+              hasActiveSubscription && currentPlanIndex >= 0 && index > currentPlanIndex
             const showButton = !hasActiveSubscription || isUpgrade
 
             return (
               <PlanCard
                 key={plan.id}
                 plan={plan}
-                allPlans={plans}
+                allPlans={orderedPlans}
                 recommended={plan.id === recommendedId}
                 isCurrentPlan={isCurrentPlan}
                 showButton={showButton}
-                buttonLabel={isUpgrade ? `Upgrade to ${plan.name}` : "Select Plan"}
+                buttonLabel={isUpgrade ? `Upgrade to ${plan.name}` : 'Select Plan'}
                 onSelect={() => setSelectedPlan(plan)}
               />
             )
@@ -94,7 +102,7 @@ export function SubscriptionView({
         </div>
       )}
 
-      {payments.length > 0 && <PaymentHistory payments={payments} plans={plans} />}
+      {payments.length > 0 && <PaymentHistory payments={payments} plans={orderedPlans} />}
 
       {selectedPlan && (
         <PaymentModal
