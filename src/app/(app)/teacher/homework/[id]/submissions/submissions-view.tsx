@@ -553,7 +553,7 @@ function StatCard({
     brand: { bg: 'bg-brand-accent', fg: 'text-white' },
     primary: { bg: 'bg-brand-primary', fg: 'text-white' },
     success: { bg: 'bg-success-border', fg: 'text-white' },
-    warning: { bg: 'bg-warning-border', fg: 'text-white' },
+    warning: { bg: 'bg-amber-500', fg: 'text-white' },
   }
   const c = colors[tone]
 
