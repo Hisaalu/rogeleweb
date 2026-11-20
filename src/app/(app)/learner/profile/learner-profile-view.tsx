@@ -122,7 +122,7 @@ export function LearnerProfileView({
 
   function handlePhotoClick() {
     if (!canUploadPhoto) {
-      showToast('Upgrade to change profile photo!', 'info')
+      showToast('Upgrade to change photo!', 'info')
       setGateOpen(true)
       return
     }
