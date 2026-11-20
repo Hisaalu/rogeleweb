@@ -92,7 +92,7 @@ export const Sidebar = memo(function Sidebar({ user }: { user: SessionUser }) {
   }
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-border bg-card lg:flex">
+    <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 flex-col border-r border-border bg-card lg:flex">
       
       <div className="flex h-[70px] shrink-0 items-center border-b border-border px-4">
         <Link 
