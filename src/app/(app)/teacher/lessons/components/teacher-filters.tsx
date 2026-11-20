@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
-import { Search, X } from 'lucide-react'
+import { Search} from 'lucide-react'
 import type { Class, Subject } from '@/types/admin'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -126,7 +126,6 @@ export function TeacherFilters({
 
         <div className="flex w-full gap-2 sm:w-auto">
           <Button type="submit" className="flex-1 sm:flex-none">
-            <Search size={15} className="mr-2" />
             Search
           </Button>
 
@@ -141,7 +140,6 @@ export function TeacherFilters({
                 push({ q: '', class_id: '', subject_id: '' })
               }}
             >
-              <X size={15} className="mr-2" />
               Clear
             </Button>
           )}

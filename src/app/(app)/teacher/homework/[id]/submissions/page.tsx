@@ -9,20 +9,34 @@ export const revalidate = 0
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
-    const settings = await fetchPublicSettings()
-    const siteTitle = settings['site.browser_title']?.trim() || 'NexaT'
+    await fetchPublicSettings()
     return { title: `Submissions` }
   } catch {
     return { title: 'Submissions' }
   }
 }
 
-export default async function HomeworkSubmissionsPage({ params }: { params: { id: string } }) {
+export default async function HomeworkSubmissionsPage({
+  params,
+  searchParams,
+}: {
+  params: { id: string }
+  searchParams: { q?: string }
+}) {
   const id = Number(params.id)
   if (!Number.isFinite(id)) notFound()
 
-  const [hw, submissions] = await Promise.all([getHomeworkServer(id), listSubmissionsServer(id)])
+  const [hw, submissions] = await Promise.all([
+    getHomeworkServer(id),
+    listSubmissionsServer(id),
+  ])
   if (!hw) notFound()
 
-  return <SubmissionsView homework={hw} submissions={submissions} />
+  return (
+    <SubmissionsView
+      homework={hw}
+      submissions={submissions}
+      initialQuery={searchParams.q ?? ''}
+    />
+  )
 }

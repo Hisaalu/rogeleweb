@@ -180,7 +180,7 @@ export function StudentsView({
               <option value="">All Classes</option>
               {classes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </Select>
-            <Button type="submit" className="w-full sm:w-auto">Filter</Button>
+            <Button type="submit" className="w-full sm:w-auto">Search</Button>
             {(searchTerm || selectedClass) && (
               <Button type="button" variant="secondary" onClick={handleClear} className="w-full sm:w-auto">
                 Clear
