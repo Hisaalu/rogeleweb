@@ -8,6 +8,7 @@ import { formatMoneyUGX } from '@/lib/format-money'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
+import { useToast } from '@/components/ui/toast-provider'
 
 function formatPhone(raw: string): string {
   const digits = raw.replace(/\D/g, '').slice(0, 9)
@@ -28,6 +29,7 @@ export function PaymentModal({
   onClose: () => void
   onSuccess: () => void
 }) {
+  const { showToast } = useToast()
   const [method, setMethod] = useState<PaymentMethod>('mtn')
   const [phone, setPhone] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -66,7 +68,9 @@ export function PaymentModal({
 
     const digits = phone.replace(/\D/g, '')
     if (digits.length !== 9) {
-      setError('Please enter a valid 9-digit phone number')
+      const msg = 'Please enter a valid 9-digit phone number!'
+      setError(msg)
+      showToast(msg, 'error', { title: 'Invalid number' })
       return
     }
 
@@ -78,7 +82,9 @@ export function PaymentModal({
         phone_number: `+256${digits}`,
       })
 
-      setStatusText('Enter your PIN to confirm payment!')
+      const pinMsg = 'Enter PIN to confirm payment!'
+      setStatusText(pinMsg)
+      showToast(pinMsg, 'info', { title: 'Payment prompt sent!', duration: 4000 })
 
       let attempts = 0
       const paymentId = res.payment.id
@@ -89,28 +95,34 @@ export function PaymentModal({
           if (p.status === 'completed') {
             clearInterval(interval)
             setStatusText('Payment confirmed!')
+            showToast('Payment confirmed!', 'success', { title: 'Payment successful' })
             setTimeout(() => onSuccess(), 800)
             return
           }
           if (p.status === 'failed') {
             clearInterval(interval)
-            setError('Payment failed or was cancelled. Please try again.')
+            const failMsg = 'Payment failed. Please try again.'
+            setError(failMsg)
+            showToast(failMsg, 'error', { title: 'Payment failed' })
             setSubmitting(false)
             setStatusText(null)
             return
           }
         } catch {
-          // Ignore network errors while polling
         }
         if (attempts >= MAX_POLLS) {
           clearInterval(interval)
-          setError('Payment is taking longer than expected. Check your notifications.')
+          const slowMsg = 'Payment is taking longer. Check your notifications.'
+          setError(slowMsg)
+          showToast(slowMsg, 'info', { title: 'Still processing', duration: 4500 })
           setSubmitting(false)
           setStatusText(null)
         }
       }, POLL_INTERVAL_MS)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not initiate payment')
+      const errMsg = err instanceof Error ? err.message : 'Could not initiate payment'
+      setError(errMsg)
+      showToast(errMsg, 'error', { title: 'Payment error' })
       setSubmitting(false)
       setStatusText(null)
     }
@@ -118,20 +130,17 @@ export function PaymentModal({
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={() => !submitting && onClose()}
         aria-hidden="true"
       />
-      
-      {/* Modal Container */}
+
       <div
         role="dialog"
         aria-modal="true"
         className="relative z-10 w-full max-w-md overflow-hidden rounded-md border border-border bg-card shadow-2xl"
       >
-        {/* Header */}
         <div
           className="flex items-center justify-between px-5 py-4"
           style={{ backgroundColor: 'var(--brand-primary)' }}
@@ -150,14 +159,13 @@ export function PaymentModal({
           </button>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4 p-5">
           <div className="rounded-md bg-muted/50 p-4 text-center">
             <p className="text-sm text-muted-foreground">
               You&apos;re subscribing to
             </p>
             <p className="mt-1 text-base font-bold text-foreground">{plan.name} Plan</p>
-            
+
             <div className="mt-2 text-lg font-bold" style={{ color: 'var(--brand-primary)' }}>
               {loadingPreview ? (
                 <span className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
@@ -201,7 +209,6 @@ export function PaymentModal({
             </div>
           </div>
 
-          {/* Error Message */}
           {error && (
             <div
               className="rounded-md border px-3 py-2 text-sm"
@@ -215,7 +222,6 @@ export function PaymentModal({
             </div>
           )}
 
-          {/* Status Message */}
           {statusText && (
             <div
               className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm"
@@ -225,7 +231,7 @@ export function PaymentModal({
                 color: 'var(--warning-fg)',
               }}
             >
-              <Loader2 size={14} className="animate-spin shrink-0" />
+              <Loader2 size={14} className="shrink-0 animate-spin" />
               {statusText}
             </div>
           )}
@@ -242,12 +248,12 @@ export function PaymentModal({
             </Button>
             <Button
               type="submit"
-              disabled={true}
-              className="flex-1 cursor-not-allowed opacity-50"
-              >
-              {submitting && <Loader2 size={14} className="animate-spin mr-2" />}
+              disabled={submitting || loadingPreview}
+              className="flex-1 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {submitting && <Loader2 size={14} className="mr-2 animate-spin" />}
               Pay Now
-              </Button>
+            </Button>
           </div>
         </form>
       </div>

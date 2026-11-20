@@ -77,12 +77,12 @@ export function LearnerLessonDetail({
       const res = await toggleLessonBookmarkClient(lesson.id)
       setBookmarked(res.bookmarked)
       showToast(
-        res.bookmarked ? 'Added to bookmarks' : 'Removed from bookmarks',
+        res.bookmarked ? 'Added to Library' : 'Removed from your Library',
         res.bookmarked ? 'success' : 'info',
       )
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : 'Could not update bookmark'
+        err instanceof Error ? err.message : 'Could not update Library'
       showToast(message, 'error', { title: 'Action failed' })
     } finally {
       setBusy(false)

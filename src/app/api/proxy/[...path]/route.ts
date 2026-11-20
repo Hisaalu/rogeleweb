@@ -73,7 +73,7 @@ async function proxy(req: NextRequest, { params }: { params: { path: string[] } 
   } catch (err) {
     console.error('[proxy] upstream fetch failed', { path, method: req.method, err })
     return NextResponse.json(
-      { error: { code: 'UPSTREAM_UNREACHABLE', message: 'API is unreachable' } },
+      { error: { code: 'UPSTREAM_UNREACHABLE', message: 'API is unreachable!' } },
       { status: 502 },
     )
   }
@@ -97,7 +97,7 @@ async function proxy(req: NextRequest, { params }: { params: { path: string[] } 
       } catch (err) {
         console.error('[proxy] retry after refresh failed', { path, err })
         return NextResponse.json(
-          { error: { code: 'UPSTREAM_UNREACHABLE', message: 'API is unreachable' } },
+          { error: { code: 'UPSTREAM_UNREACHABLE', message: 'API is unreachable!' } },
           { status: 502 },
         )
       }

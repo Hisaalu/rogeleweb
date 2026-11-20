@@ -25,7 +25,7 @@ const schema = z.object({
   phone: z.string().optional().refine((val) => {
     if (!val) return true;
     return val.length === 9;
-  }, 'Please enter a valid 9-digit phone number'),
+  }, 'Please enter a valid 9-digit phone number!'),
   class_id: z.string().optional(),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   confirm_password: z.string().min(1, 'Please confirm your password'),

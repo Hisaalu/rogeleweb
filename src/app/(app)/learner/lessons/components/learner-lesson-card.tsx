@@ -47,14 +47,14 @@ export function LearnerLessonCard({
       const result = await onToggleBookmark(lesson.id)
       setBookmarked(result)
       if (result) {
-        showToast('Lesson bookmarked for you to look through!', 'success', { title: 'Saved for later' })
+        showToast('Lesson added to your Library!', 'success', { title: 'Saved for later' })
       } else {
-        showToast('Removed from bookmarks', 'info')
+        showToast('Lesson removed from Library!', 'info')
       }
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : 'Could not update bookmark'
-      showToast(message, 'error', { title: 'Bookmark update failed' })
+        err instanceof Error ? err.message : 'Could not update Library!'
+      showToast(message, 'error', { title: 'Library update failed!' })
     } finally {
       setBusy(false)
     }

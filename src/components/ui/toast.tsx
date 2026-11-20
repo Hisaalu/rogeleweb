@@ -139,19 +139,27 @@ export function Toast({
         style={{ backgroundColor: tone.accent }}
       />
 
-      <Icon size={16} className="mt-0.5 shrink-0" style={{ color: tone.iconFg }} />
-
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        {toast.title && (
-          <div className="text-center w-full mb-1">
-            <p className="truncate text-sm font-semibold text-foreground">
-              {toast.title}
+      <div className="flex min-w-0 flex-1 flex-col items-center gap-0.5 text-center">
+        {toast.title ? (
+          <>
+            <div className="mb-1 flex w-full items-center justify-center gap-1.5">
+              <Icon size={16} className="shrink-0" style={{ color: tone.iconFg }} />
+              <p className="truncate text-sm font-semibold text-foreground">
+                {toast.title}
+              </p>
+            </div>
+            <p className="text-sm leading-snug text-foreground/90">
+              {toast.message}
+            </p>
+          </>
+        ) : (
+          <div className="flex w-full items-center justify-center gap-1.5">
+            <Icon size={16} className="shrink-0" style={{ color: tone.iconFg }} />
+            <p className="text-sm leading-snug text-foreground/90">
+              {toast.message}
             </p>
           </div>
         )}
-        <p className="text-sm leading-snug text-foreground/90">
-          {toast.message}
-        </p>
       </div>
 
       <button
