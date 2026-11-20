@@ -72,7 +72,7 @@ export function TeacherProfileView({
       showToast('Profile photo updated!', 'success')
       router.refresh()
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to upload photo'
+      const message = err instanceof Error ? err.message : 'Failed to upload photo!'
       showToast(message, 'error')
     } finally {
       setPhotoBusy(false)

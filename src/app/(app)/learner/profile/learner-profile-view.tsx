@@ -74,11 +74,11 @@ export function LearnerProfileView({
     if (!file) return
     
     if (!canUploadPhoto) {
-      return showToast('Subscribe to a plan to change your profile photo.', 'error')
+      return showToast('Upgrade to change your profile photo!', 'error')
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      return showToast('Image exceeds 5MB limit', 'error')
+      return showToast('Image exceeds 5MB limit!', 'error')
     }
 
     setPhotoBusy(true)
@@ -87,7 +87,7 @@ export function LearnerProfileView({
       showToast('Profile photo updated!', 'success')
       router.refresh()
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to upload photo'
+      const message = err instanceof Error ? err.message : 'Failed to upload photo!'
       showToast(message, 'error')
     } finally {
       setPhotoBusy(false)
@@ -122,7 +122,7 @@ export function LearnerProfileView({
 
   function handlePhotoClick() {
     if (!canUploadPhoto) {
-      showToast('Upgrade to Premium to change your profile photo.', 'info')
+      showToast('Upgrade to change your profile photo!', 'info')
       setGateOpen(true)
       return
     }
