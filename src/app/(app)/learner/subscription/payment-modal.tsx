@@ -78,7 +78,7 @@ export function PaymentModal({
         phone_number: `+256${digits}`,
       })
 
-      setStatusText('Waiting for payment confirmation...')
+      setStatusText('Enter your PIN to confirm payment!')
 
       let attempts = 0
       const paymentId = res.payment.id
