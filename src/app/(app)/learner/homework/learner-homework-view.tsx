@@ -1,7 +1,9 @@
 'use client'
 
+import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useSearchParams, usePathname } from 'next/navigation'
+import { useRouter } from 'nextjs-toploader/app'
 import {
   ClipboardList,
   Clock,
@@ -13,10 +15,13 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  Search,
+  X,
 } from 'lucide-react'
 import type { Homework } from '@/types/homework'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 
 function submissionStatus(hw: Homework): 'pending' | 'submitted' | 'graded' {
@@ -36,14 +41,20 @@ export function LearnerHomeworkView({
   homeworks,
   meta,
   currentPage,
+  initialQuery,
 }: {
   homeworks: Homework[]
   meta: { page: number; per_page: number; total: number; last_page: number }
   currentPage: number
+  initialQuery: string
 }) {
   const pathname = usePathname()
   const params = useSearchParams()
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
   const currentStatus = params.get('status') ?? ''
+
+  const [query, setQuery] = useState(initialQuery)
 
   const total = meta.total
   const pending = homeworks.filter((h) => submissionStatus(h) === 'pending').length
@@ -54,15 +65,38 @@ export function LearnerHomeworkView({
     if (status) sp.set('status', status)
     else sp.delete('status')
     sp.delete('page')
-    return `${pathname}?${sp.toString()}`
+    const qs = sp.toString()
+    return qs ? `${pathname}?${qs}` : pathname
   }
 
-  function pageHref(targetPage: number): string {
+  function pageHref(targetPage: number) {
     const sp = new URLSearchParams(params.toString())
     if (targetPage > 1) sp.set('page', String(targetPage))
     else sp.delete('page')
     const qs = sp.toString()
     return qs ? `${pathname}?${qs}` : pathname
+  }
+
+  function submitSearch(value: string) {
+    const sp = new URLSearchParams(params.toString())
+    if (value.trim()) sp.set('q', value.trim())
+    else sp.delete('q')
+    sp.delete('page')
+    const qs = sp.toString()
+    startTransition(() => {
+      router.replace(qs ? `${pathname}?${qs}` : pathname)
+    })
+  }
+
+  function clearSearch() {
+    setQuery('')
+    const sp = new URLSearchParams(params.toString())
+    sp.delete('q')
+    sp.delete('page')
+    const qs = sp.toString()
+    startTransition(() => {
+      router.replace(qs ? `${pathname}?${qs}` : pathname)
+    })
   }
 
   const hasPrev = currentPage > 1
@@ -103,7 +137,7 @@ export function LearnerHomeworkView({
               {pending}
             </p>
             <p className="truncate text-[11px] font-medium text-muted-foreground sm:text-xs">
-              Pending
+              Pending · this page
             </p>
           </div>
         </Card>
@@ -118,7 +152,7 @@ export function LearnerHomeworkView({
               {graded}
             </p>
             <p className="truncate text-[11px] font-medium text-muted-foreground sm:text-xs">
-              Graded
+              Graded · this page
             </p>
           </div>
         </Card>
@@ -142,16 +176,88 @@ export function LearnerHomeworkView({
         </Link>
       </div>
 
+      <Card className="p-3 sm:p-4">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            submitSearch(query)
+          }}
+          className="flex flex-col gap-2 sm:flex-row sm:items-center"
+        >
+          <div className="relative w-full flex-1">
+            <Search
+              size={16}
+              className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+            />
+            <Input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search homework by title or description..."
+              className="pl-8 pr-8"
+              aria-label="Search homework"
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={clearSearch}
+                aria-label="Clear search"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <Button type="submit" disabled={isPending} className="flex-1 sm:flex-none">
+              {isPending ? 'Searching...' : 'Search'}
+            </Button>
+            {initialQuery && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={clearSearch}
+                className="flex-1 sm:flex-none"
+              >
+                Clear
+              </Button>
+            )}
+          </div>
+        </form>
+      </Card>
+
       {homeworks.length === 0 ? (
         <Card className="border-dashed px-6 py-16 text-center">
           <ClipboardList
             size={40}
             className="mx-auto mb-4 text-brand-accent opacity-30"
           />
-          <h3 className="text-xl font-bold text-foreground">No Homework Assigned</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            You don&apos;t have any homework at the moment. Check back later!
-          </p>
+          {initialQuery || currentStatus ? (
+            <>
+              <h3 className="text-xl font-bold text-foreground">
+                No homework matches
+                {initialQuery && <> for &ldquo;{initialQuery}&rdquo;</>}
+                {currentStatus && <> with status &ldquo;{currentStatus}&rdquo;</>}
+              </h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Try a different search term or{' '}
+                <Link
+                  href={pathname}
+                  className="font-medium text-brand-accent underline-offset-2 hover:underline"
+                >
+                  clear all filters
+                </Link>
+                .
+              </p>
+            </>
+          ) : (
+            <>
+              <h3 className="text-xl font-bold text-foreground">No Homework Assigned</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                You don&apos;t have any homework at the moment. Check back later!
+              </p>
+            </>
+          )}
         </Card>
       ) : (
         <>
@@ -168,7 +274,7 @@ export function LearnerHomeworkView({
                   key={hw.id}
                   className={cn(
                     'flex min-w-0 flex-col border-l-4 p-4 transition hover:-translate-y-1 hover:shadow-md sm:p-5',
-                    'h-full', 
+                    'h-full',
                     statusBorderClass(status, isLate),
                   )}
                 >

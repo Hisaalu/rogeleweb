@@ -16,27 +16,30 @@ function parsePositiveInt(value: string | undefined): number | undefined {
 export default async function LearnerHomeworkPage({
   searchParams,
 }: {
-  searchParams: { status?: string; page?: string }
+  searchParams: { status?: string; q?: string; page?: string }
 }) {
   const session = await getSessionUser()
   if (!session) return null
 
   const page = parsePositiveInt(searchParams.page) ?? 1
   const status = searchParams.status
+  const q = searchParams.q?.trim() || undefined
 
   const result = await listLearnerHomeworksServer({
     class_id: session.class_id ?? 0,
     status,
+    q,
     page,
   })
 
   return (
     <>
       <ErrorToaster />
-      <LearnerHomeworkView 
-        homeworks={result.homeworks} 
+      <LearnerHomeworkView
+        homeworks={result.homeworks}
         meta={result.meta}
         currentPage={page}
+        initialQuery={q ?? ''}
       />
     </>
   )

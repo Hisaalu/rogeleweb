@@ -65,6 +65,7 @@ export async function listHomeworksServer(params: {
 export async function listLearnerHomeworksServer(params: {
   class_id: number
   status?: string
+  q?: string
   page?: number
 }): Promise<{ homeworks: Homework[]; meta: HomeworkListMeta }> {
   const page = params.page ?? 1
@@ -73,25 +74,24 @@ export async function listLearnerHomeworksServer(params: {
   const sp = new URLSearchParams()
   sp.set('page', String(page))
   sp.set('per_page', String(per_page))
-  
+  if (params.status && params.status !== 'all') sp.set('status', params.status)
+  if (params.q) sp.set('q', params.q)
+
   try {
-    const res = await serverApiRequest<unknown>(`/api/v1/homework?class_id=${params.class_id}&${sp.toString()}`)
+    const res = await serverApiRequest<unknown>(
+      `/api/v1/homework?class_id=${params.class_id}&${sp.toString()}`,
+    )
     const { items, meta } = parseList<Homework>(res, page, per_page)
-    
-    const submissionsRes = await serverApiRequest<unknown>('/api/v1/homework/my-submissions')
+
+    const submissionsRes = await serverApiRequest<unknown>(
+      '/api/v1/homework/my-submissions',
+    )
     const { items: submissions } = parseList<HomeworkSubmission>(submissionsRes)
 
-    const merged = items.map(hw => {
-      const sub = submissions.find(s => s.homework_id === hw.id)
-      return { ...hw, submission: sub || null }
-    })
-
-    if (params.status === 'pending') {
-      return { homeworks: merged.filter(h => !h.submission || (h.submission.status !== 'graded' && h.submission.status !== 'submitted')), meta }
-    }
-    if (params.status === 'graded') {
-      return { homeworks: merged.filter(h => h.submission?.status === 'graded'), meta }
-    }
+    const merged = items.map((hw) => ({
+      ...hw,
+      submission: submissions.find((s) => s.homework_id === hw.id) || null,
+    }))
 
     return { homeworks: merged, meta }
   } catch (err) {
