@@ -10,13 +10,12 @@ import {
   XCircle,
   Clock,
   Trophy,
-  Loader2,
-  AlertTriangle,
   Trash2,
   Download,
 } from 'lucide-react'
 import type { Quiz, QuizAttempt } from '@/types/quiz'
 import { useToast } from '@/components/ui/toast-provider'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
@@ -282,52 +281,16 @@ export function ResultsView({ quiz, initialAttempts }: { quiz: Quiz, initialAtte
         </Card>
       )}
 
-      {showClearConfirm && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4"
-          onClick={() => setShowClearConfirm(false)}
-        >
-          <Card
-            className="w-full max-w-md p-6 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="mb-4 flex items-center gap-3">
-              <div
-                className="flex h-10 w-10 items-center justify-center rounded-full"
-                style={{ backgroundColor: 'var(--danger-bg)' }}
-              >
-                <AlertTriangle size={18} style={{ color: 'var(--danger-fg)' }} />
-              </div>
-              <h3 className="text-lg font-bold text-foreground">Clear all attempts?</h3>
-            </div>
-            <p className="mb-6 text-sm text-muted-foreground">
-              This will permanently delete every student attempt for this quiz.
-              Students will be able to retake it. This action cannot be undone.
-            </p>
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setShowClearConfirm(false)}
-                disabled={clearing}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="danger"
-                onClick={handleClearAll}
-                disabled={clearing}
-              >
-                {clearing ? (
-                  <Loader2 size={14} className="animate-spin mr-2" />
-                ) : (
-                  <Trash2 size={14} className="mr-2" />
-                )}
-                {clearing ? 'Clearing...' : 'Clear All'}
-              </Button>
-            </div>
-          </Card>
-        </div>
-      )}
+      <ConfirmDialog
+        open={showClearConfirm}
+        onOpenChange={(open) => !open && setShowClearConfirm(false)}
+        title="Clear all attempts?"
+        description="This will permanently delete every student attempt for this quiz. Students will be able to retake it. This action cannot be undone."
+        confirmLabel="Clear All"
+        destructive
+        loading={clearing}
+        onConfirm={handleClearAll}
+      />
     </div>
   )
 }

@@ -1,7 +1,8 @@
 'use client'
 
 import { X } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
@@ -26,6 +27,12 @@ export function ConfirmDialog({
   onConfirm: () => void
   loading?: boolean
 }) {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape' && !loading) onOpenChange(false)
@@ -34,12 +41,21 @@ export function ConfirmDialog({
     return () => document.removeEventListener('keydown', onKey)
   }, [open, onOpenChange, loading])
 
-  if (!open) return null
+  useEffect(() => {
+    if (!open) return
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prevOverflow
+    }
+  }, [open])
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+  if (!open || !mounted) return null
+
+  return createPortal(
+    <div className="fixed inset-0 z-[9990] flex items-center justify-center overflow-y-auto p-4 sm:p-6">
       <div
-        className="absolute inset-0 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 backdrop-blur-sm transition-opacity"
         style={{ backgroundColor: 'color-mix(in srgb, hsl(var(--background)) 80%, transparent)' }}
         onClick={() => !loading && onOpenChange(false)}
         aria-hidden="true"
@@ -84,6 +100,7 @@ export function ConfirmDialog({
           </Button>
         </div>
       </Card>
-    </div>
+    </div>,
+    document.body,
   )
 }
