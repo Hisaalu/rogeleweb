@@ -40,6 +40,14 @@ export function PaymentModal({
   const [loadingPreview, setLoadingPreview] = useState(true)
 
   useEffect(() => {
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prevOverflow
+    }
+  }, [])
+
+  useEffect(() => {
     async function fetchPreview() {
       try {
         const res = await previewPaymentClient(plan.id)
@@ -129,9 +137,9 @@ export function PaymentModal({
   }
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[9990] flex items-center justify-center overflow-y-auto p-4">
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm"
         onClick={() => !submitting && onClose()}
         aria-hidden="true"
       />
@@ -250,7 +258,7 @@ export function PaymentModal({
               type="submit"
               disabled={true}
               className="flex-1 cursor-not-allowed opacity-50"
-              >
+            >
               {submitting && <Loader2 size={14} className="animate-spin mr-2" />}
               Pay Now
             </Button>
