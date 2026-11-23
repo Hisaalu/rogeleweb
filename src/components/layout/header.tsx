@@ -27,12 +27,17 @@ export function Header({
   const showUpgrade = user.role !== 'teacher' && !hasActiveSubscription
 
   return (
-    <header className="sticky top-0 z-30 flex h-[60px] items-center justify-between gap-2 border-b border-border bg-background/95 px-3 backdrop-blur sm:h-[70px] sm:gap-4 sm:px-5 lg:px-8">
-      <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+    <header className="sticky top-0 z-30 flex h-[60px] items-center justify-between gap-2 border-b border-border/60 bg-background/70 px-3 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.12)] backdrop-blur-xl backdrop-saturate-150 dark:bg-background/60 sm:h-[70px] sm:gap-4 sm:px-5 lg:px-8">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent dark:via-white/20"
+      />
+
+      <div className="relative flex min-w-0 items-center gap-2 sm:gap-3">
         <button
           type="button"
           onClick={onMenuClick}
-          className="flex h-10 w-10 shrink-0 items-center justify-center text-foreground transition hover:bg-muted lg:hidden"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-background/40 text-foreground ring-1 ring-inset ring-white/20 transition hover:bg-muted/80 lg:hidden"
           aria-label="Open menu"
         >
           <Menu size={24} />
@@ -54,13 +59,13 @@ export function Header({
         </Link>
       </div>
 
-      <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
+      <div className="relative flex shrink-0 items-center gap-1.5 sm:gap-3">
         {showUpgrade && (
           <Link
             href="/learner/subscription"
-            className="flex items-center gap-1.5 rounded-sm px-2.5 py-1.5 text-[11px] font-semibold shadow-sm transition hover:opacity-80 sm:gap-2 sm:px-4 sm:py-2 sm:text-xs"
+            className="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-semibold shadow-sm ring-1 ring-inset ring-white/30 backdrop-blur-md transition hover:opacity-90 sm:gap-2 sm:px-4 sm:py-2 sm:text-xs"
             style={{
-              backgroundColor: 'color-mix(in srgb, var(--brand-accent) 15%, transparent)',
+              backgroundColor: 'color-mix(in srgb, var(--brand-accent) 18%, transparent)',
               color: 'var(--brand-accent)',
             }}
           >
