@@ -144,9 +144,9 @@ export function LearnerAnalyticsView({
       </div>
 
       <section className="relative overflow-hidden rounded-xl border border-border bg-card transition-shadow hover:shadow-md">
-        <div className="relative flex flex-col gap-5 p-5 sm:p-7 lg:flex-row lg:items-start lg:justify-between lg:gap-8">
+        <div className="relative flex flex-col items-center gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-7 lg:gap-8">
           <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground sm:justify-start">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1">
                 <Calendar size={12} />
                 {safeData.from}
@@ -196,7 +196,6 @@ export function LearnerAnalyticsView({
                 : 'Not graded yet'
             }
             tone="default"
-            className="text-center sm:text-left"
           />
         </Link>
         <Link href="/learner/homework" className="block transition hover:-translate-y-0.5">
@@ -213,7 +212,6 @@ export function LearnerAnalyticsView({
                 : undefined
             }
             tone="success"
-            className="text-center sm:text-left"
           />
         </Link>
         <Link href="/learner/quizzes" className="block transition hover:-translate-y-0.5">
