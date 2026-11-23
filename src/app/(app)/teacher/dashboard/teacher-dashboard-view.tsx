@@ -39,7 +39,7 @@ export function TeacherDashboardView({
     data.averageScore != null ? `${Math.round(data.averageScore)}%` : 'N/A'
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 pb-10 sm:space-y-8">
+    <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 pb-10 sm:space-y-8 sm:px-6 sm:py-8">
       <div className="flex flex-col gap-4 rounded-md bg-brand-primary p-5 text-white shadow-lg sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-6 sm:p-8">
         <div className="min-w-0">
           <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
@@ -209,7 +209,7 @@ export function TeacherDashboardView({
                     key={quiz.id}
                     className="flex flex-col gap-2 rounded-md p-2.5 transition hover:bg-muted sm:flex-row sm:items-center sm:gap-4 sm:p-3"
                   >
-                    <Link 
+                    <Link
                       href={`/teacher/quizzes/${quiz.id}/results`}
                       className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4"
                     >
@@ -265,7 +265,7 @@ function StatCard({
   const display = typeof value === 'number' ? value.toLocaleString('en-US') : value
 
   const content = (
-    <Card className="flex items-center gap-3 p-3 transition hover:-translate-y-1 hover:shadow-lg sm:gap-5 sm:p-6 h-full">
+    <Card className="flex h-full items-center gap-3 p-3 transition hover:-translate-y-1 hover:shadow-lg sm:gap-5 sm:p-6">
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-brand-accent text-white sm:h-14 sm:w-14">
         <Icon size={18} className="sm:hidden" />
         <Icon size={24} className="hidden sm:block" />
@@ -281,7 +281,7 @@ function StatCard({
 
   if (href) {
     return (
-      <Link href={href} className="block h-full outline-none focus-visible:ring-2 focus-visible:ring-brand-accent rounded-md">
+      <Link href={href} className="block h-full rounded-md outline-none focus-visible:ring-2 focus-visible:ring-brand-accent">
         {content}
       </Link>
     )

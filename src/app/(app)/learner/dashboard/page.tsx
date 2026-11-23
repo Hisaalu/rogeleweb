@@ -1,12 +1,12 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
-import { Loader2 } from 'lucide-react'
 import { getSessionUser } from '@/lib/auth'
 import {
   getLearnerDashboardDataServer,
   getLearnerQuizzesServer,
 } from '@/lib/dashboard.server'
 import type { User } from '@/types/api'
+import { PageSkeleton } from '@/components/ui/page-skeleton'
 import { LearnerDashboardView } from './learner-dashboard-view'
 
 export const metadata: Metadata = { title: 'Dashboard' }
@@ -48,13 +48,7 @@ export default async function LearnerDashboardPage() {
   } as User
 
   return (
-    <Suspense
-      fallback={
-        <div className="flex h-64 items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      }
-    >
+    <Suspense fallback={<PageSkeleton variant="dashboard" />}>
       <DashboardContent cookieProfile={cookieProfile} />
     </Suspense>
   )
