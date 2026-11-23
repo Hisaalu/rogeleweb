@@ -5,7 +5,9 @@ import { Bookmark, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import type { Lesson } from '@/types/lesson'
+import type { Subject } from '@/types/admin'
 import { LearnerLessonCard } from '../lessons/components/learner-lesson-card'
+import { LearnerFilters } from '../lessons/components/learner-filters'
 import { toggleLessonBookmarkClient } from '@/lib/lessons.client'
 
 interface BookmarksMeta {
@@ -17,10 +19,12 @@ interface BookmarksMeta {
 
 export function BookmarksView({
   lessons,
+  subjects,
   meta,
   currentPage,
 }: {
   lessons: Lesson[]
+  subjects: Subject[]
   meta: BookmarksMeta
   currentPage: number
 }) {
@@ -56,12 +60,12 @@ export function BookmarksView({
     <div className="space-y-6">
       <div className="text-center">
         <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">Library</h1>
-        {meta.total > 0 && (
-          <p className="mt-1 text-sm text-muted-foreground">
-            Your {meta.total} saved lesson{meta.total === 1 ? '' : 's'}
-          </p>
-        )}
+        <p className="mt-1 text-sm text-muted-foreground">
+          Your {meta.total} saved lesson{meta.total === 1 ? '' : 's'}
+        </p>
       </div>
+
+      <LearnerFilters subjects={subjects} />
 
       {visible.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
@@ -75,18 +79,30 @@ export function BookmarksView({
             <Bookmark size={40} style={{ color: 'var(--brand-accent)' }} />
           </div>
           <h3 className="mb-2 text-xl font-semibold text-foreground">
-            No lessons yet
+            No lessons found
           </h3>
           <p className="mx-auto mb-6 max-w-md text-sm text-muted-foreground">
-            Tap the Library icon on any lesson to add it to your library.
+            {params.get('q') || params.get('subject_id')
+              ? 'We couldn\'t find any saved lessons matching your filters.'
+              : 'Tap the Library icon on any lesson to add it to your library.'}
           </p>
-          <Link
-            href="/learner/lessons"
-            className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white"
-            style={{ backgroundColor: 'var(--brand-primary)' }}
-          >
-            Browse lessons
-          </Link>
+          {params.get('q') || params.get('subject_id') ? (
+             <Link
+               href={pathname}
+               className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white"
+               style={{ backgroundColor: 'var(--brand-primary)' }}
+             >
+               Clear filters
+             </Link>
+          ) : (
+            <Link
+              href="/learner/lessons"
+              className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white"
+              style={{ backgroundColor: 'var(--brand-primary)' }}
+            >
+              Browse lessons
+            </Link>
+          )}
         </div>
       ) : (
         <>

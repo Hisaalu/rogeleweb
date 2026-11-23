@@ -42,6 +42,10 @@ export function LearnerFilters({ subjects }: { subjects: Subject[] }) {
   }
 
   const hasFilters = q || subjectId
+  const isLibrary = pathname.includes('/bookmarks')
+  const placeholder = isLibrary 
+    ? "Search your library..." 
+    : "Search lessons by title..."
 
   return (
     <div className="rounded-md border border-border bg-card p-4 sm:p-5">
@@ -61,7 +65,7 @@ export function LearnerFilters({ subjects }: { subjects: Subject[] }) {
             type="text"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search lessons by title..."
+            placeholder={placeholder}
             className="pl-8"
           />
         </div>
