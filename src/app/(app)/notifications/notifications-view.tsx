@@ -35,6 +35,7 @@ export function NotificationsView({
   const [filter, setFilter] = useState<NotificationType | 'all'>('all')
   const [showUnreadOnly, setShowUnreadOnly] = useState(false)
   const [marking, setMarking] = useState(false)
+  const [expandedIds, setExpandedIds] = useState<Record<number, boolean>>({})
 
   const filtered = useMemo(() => {
     let list = notifications
@@ -44,6 +45,11 @@ export function NotificationsView({
   }, [notifications, filter, showUnreadOnly])
 
   const unreadCount = notifications.filter((n) => !n.is_read).length
+
+  function toggleExpand(id: number, e?: React.MouseEvent) {
+    e?.stopPropagation()
+    setExpandedIds((prev) => ({ ...prev, [id]: !prev[id] }))
+  }
 
   async function handleMarkAll() {
     setMarking(true)
@@ -142,7 +148,7 @@ export function NotificationsView({
           <Card className="border-dashed">
             <EmptyState
               icon={showUnreadOnly || filter !== 'all' ? CheckCircle2 : Bell}
-              title={showUnreadOnly || filter !== 'all' ? "No matching notifications" : "No notifications yet"}
+              title={showUnreadOnly || filter !== 'all' ? 'No matching notifications' : 'No notifications yet'}
               description={
                 showUnreadOnly
                   ? 'You have no unread notifications.'
@@ -157,6 +163,8 @@ export function NotificationsView({
             <NotificationList
               notifications={filtered}
               onItemClick={handleMarkOne}
+              expandedIds={expandedIds}
+              onToggleExpand={toggleExpand}
             />
           </Card>
         )}

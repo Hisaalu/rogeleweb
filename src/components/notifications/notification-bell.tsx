@@ -1,8 +1,5 @@
-'use client'
-
-import { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Bell, Check, X } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -26,6 +23,7 @@ export function NotificationBell({
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [expandedIds, setExpandedIds] = useState<Record<number, boolean>>({})
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -59,6 +57,11 @@ export function NotificationBell({
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
     },
   })
+
+  function toggleExpand(id: number, e?: React.MouseEvent) {
+    e?.stopPropagation()
+    setExpandedIds((prev) => ({ ...prev, [id]: !prev[id] }))
+  }
 
   useEffect(() => {
     if (open) {
@@ -109,21 +112,19 @@ export function NotificationBell({
   }
 
   const popup = open ? (
-    <div className="fixed inset-0 z-[100] flex flex-col justify-end sm:justify-start sm:items-end sm:pt-[72px] sm:pr-4 pointer-events-none">
-      {/* Mobile backdrop */}
-      <div 
-        className="absolute inset-0 sm:hidden pointer-events-auto"
+    <div className="pointer-events-none fixed inset-0 z-[100] flex flex-col justify-end sm:items-end sm:justify-start sm:pr-4 sm:pt-[72px]">
+      <div
+        className="pointer-events-auto absolute inset-0 sm:hidden"
         style={{ backgroundColor: 'color-mix(in srgb, hsl(var(--background)) 80%, transparent)' }}
-        onClick={() => setOpen(false)} 
+        onClick={() => setOpen(false)}
       />
 
       <div
         id="notification-popup"
         role="menu"
         className={cn(
-          'relative pointer-events-auto flex flex-col bg-card shadow-2xl border border-border overflow-hidden',
-          'w-full max-h-[85vh] rounded-t-md rounded-b-none',
-          'sm:w-[380px] sm:max-h-[calc(100vh-90px)] sm:rounded-md sm:border-border'
+          'pointer-events-auto relative flex max-h-[85vh] w-full flex-col overflow-hidden rounded-b-none rounded-t-md border border-border bg-card shadow-2xl',
+          'sm:max-h-[calc(100vh-90px)] sm:w-[380px] sm:rounded-md sm:border-border'
         )}
       >
         <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3 sm:px-5 sm:py-4">
@@ -167,6 +168,8 @@ export function NotificationBell({
               notifications={notifications}
               onItemClick={handleNotificationClick}
               compact
+              expandedIds={expandedIds}
+              onToggleExpand={toggleExpand}
             />
           )}
         </div>
@@ -198,11 +201,11 @@ export function NotificationBell({
       >
         <Bell size={compact ? 18 : 20} />
         {unreadCount > 0 && (
-          <span 
+          <span
             className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white shadow-sm"
-            style={{ 
+            style={{
               backgroundColor: 'var(--brand-accent)',
-              border: '2px solid hsl(var(--background))' 
+              border: '2px solid hsl(var(--background))'
             }}
           >
             {unreadCount > 99 ? '99+' : unreadCount}
