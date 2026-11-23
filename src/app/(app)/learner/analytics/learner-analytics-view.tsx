@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import {
   Download, BookOpen, HelpCircle,
-  Calendar,
+  Calendar, Rocket,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -107,6 +107,7 @@ export function LearnerAnalyticsView({
 
   const safeData: LearnerAnalyticsData = data
   const badge = badgeFor(access)
+  const isSubscribed = access.reason === 'ok'
 
   const totalActivities = safeData.activity.daily_counts.reduce(
     (sum, d) => sum + d.count,
@@ -153,7 +154,12 @@ export function LearnerAnalyticsView({
                 <span className="text-muted-foreground/60">→</span>
                 {safeData.to}
               </span>
-              <Badge tone={badge.tone}>{badge.label}</Badge>
+              <Badge tone={badge.tone}>
+                <span className="inline-flex items-center gap-1">
+                  {isSubscribed && <Rocket size={12} />}
+                  <span>{badge.label}</span>
+                </span>
+              </Badge>
               <Button
                 variant="outline"
                 onClick={handleExport}
