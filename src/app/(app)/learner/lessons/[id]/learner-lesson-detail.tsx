@@ -1,5 +1,4 @@
 'use client'
-import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import {
   BookOpen,
@@ -21,7 +20,6 @@ import { PageHeader } from '@/components/layout/page-header'
 import { useToast } from '@/components/ui/toast-provider'
 import { PremiumGate } from '@/components/premium-gate'
 import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import type { Lesson, LessonMaterial } from '@/types/lesson'
 
 const accentIcon = { color: 'var(--brand-accent)' } as const
@@ -56,7 +54,6 @@ export function LearnerLessonDetail({
   materials: LessonMaterial[]
   gateReason: 'trial_expired' | 'no_plan' | null
 }) {
-  const router = useRouter()
   const { showToast } = useToast()
   const [bookmarked, setBookmarked] = useState(lesson.is_bookmarked)
   const [busy, setBusy] = useState(false)
@@ -96,31 +93,29 @@ export function LearnerLessonDetail({
     }
   }
 
+  const bookmarkLabel = bookmarked ? 'Remove from bookmarks' : 'Add to bookmarks'
+
   return (
     <>
       <PageHeader
         title="Lesson"
         fallbackHref="/learner/lessons"
         action={
-          <Button
+          <button
             type="button"
-            variant="outline"
-            size="sm"
             onClick={handleBookmark}
             disabled={busy}
-            className="rounded-full"
+            aria-label={bookmarkLabel}
+            title={bookmarkLabel}
             style={bookmarked ? bookmarkOn : bookmarkOff}
-            title={bookmarked ? 'Remove from bookmarks' : 'Add to bookmarks'}
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border shadow-sm transition hover:scale-105 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
           >
             {busy ? (
               <Loader2 size={15} className="animate-spin" />
             ) : (
               <Bookmark size={15} fill={bookmarked ? 'currentColor' : 'none'} />
             )}
-            <span className="hidden sm:inline">
-              {bookmarked ? 'Bookmarked' : 'Bookmark'}
-            </span>
-          </Button>
+          </button>
         }
       />
 
