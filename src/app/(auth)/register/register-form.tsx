@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useRouter } from 'nextjs-toploader/app'
 import { Eye, EyeOff, Loader2, Mail, Phone, User, Lock } from 'lucide-react'
 import { useForm } from 'react-hook-form'
@@ -18,23 +19,59 @@ import { Select } from '@/components/ui/select'
 import { ThemeToggle } from '@/components/theme-toggle'
 import type { Class } from '@/types/admin'
 
-const schema = z.object({
-  first_name: z.string().min(1, 'First name is required'),
-  last_name: z.string().min(1, 'Last name is required'),
-  email: z.string().email('Please enter a valid email address'),
-  phone: z.string().optional().refine((val) => {
-    if (!val) return true;
-    return val.length === 9;
-  }, 'Please enter a valid 9-digit phone number!'),
-  class_id: z.string().optional(),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  confirm_password: z.string().min(1, 'Please confirm your password'),
-}).refine(data => data.password === data.confirm_password, {
-  message: 'Passwords do not match',
-  path: ['confirm_password'],
-})
+const schema = z
+  .object({
+    first_name: z.string().min(1, 'First name is required'),
+    last_name: z.string().min(1, 'Last name is required'),
+    email: z.string().email('Please enter a valid email address'),
+    phone: z
+      .string()
+      .optional()
+      .refine((val) => {
+        if (!val) return true
+        return val.length === 9
+      }, 'Please enter a valid 9-digit phone number!'),
+    class_id: z.string().optional(),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
+    confirm_password: z.string().min(1, 'Please confirm your password'),
+  })
+  .refine((data) => data.password === data.confirm_password, {
+    message: 'Passwords do not match',
+    path: ['confirm_password'],
+  })
 
 type FormValues = z.infer<typeof schema>
+
+function RegisterSplashOverlay() {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [])
+
+  if (!mounted) return null
+
+  return createPortal(
+    <div
+      role="status"
+      aria-live="polite"
+      aria-label="Loading your dashboard"
+      className="fixed inset-0 z-[9990] flex items-center justify-center bg-background/95 backdrop-blur-sm transition-opacity duration-200"
+    >
+      <img
+        src="/images/logo.png"
+        alt="Logo"
+        className="h-32 w-32 animate-pulse object-contain sm:h-40 sm:w-40"
+      />
+    </div>,
+    document.body,
+  )
+}
 
 export function RegisterForm({ classes }: { classes: Class[] }) {
   const router = useRouter()
@@ -43,8 +80,16 @@ export function RegisterForm({ classes }: { classes: Class[] }) {
 
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [navigating, setNavigating] = useState(false)
+  const redirectTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const pageTitle = getSetting('site.browser_title') || 'NexaT'
+
+  useEffect(() => {
+    return () => {
+      if (redirectTimer.current) clearTimeout(redirectTimer.current)
+    }
+  }, [])
 
   const {
     register,
@@ -87,7 +132,7 @@ export function RegisterForm({ classes }: { classes: Class[] }) {
         showToast(regData?.error?.message ?? 'Registration failed', 'error')
         return
       }
-      
+
       const loginRes = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -96,28 +141,34 @@ export function RegisterForm({ classes }: { classes: Class[] }) {
 
       if (!loginRes.ok) {
         showToast('Account created. Please log in.', 'success')
-        setTimeout(() => router.push('/login'), 1200)
+        redirectTimer.current = setTimeout(() => router.push('/login'), 1200)
         return
       }
 
       showToast('Account created successfully', 'success')
-      setTimeout(() => {
+      setNavigating(true)
+      redirectTimer.current = setTimeout(() => {
         router.replace('/learner/dashboard')
         router.refresh()
       }, 800)
     } catch {
+      setNavigating(false)
       showToast('Something went wrong. Please try again.', 'error')
     }
   }
 
+  const busy = isSubmitting || navigating
+
   const phoneRegister = register('phone', {
     onChange: (e) => {
       e.target.value = e.target.value.replace(/\D/g, '').slice(0, 9)
-    }
+    },
   })
 
   return (
     <>
+      {navigating && <RegisterSplashOverlay />}
+
       <div className="mx-auto w-full max-w-xl space-y-6 px-4 pb-20">
         <div className="flex flex-col items-center text-center">
           <BrandLogo size={120} showText={false} className="mb-2" />
@@ -134,43 +185,67 @@ export function RegisterForm({ classes }: { classes: Class[] }) {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <div className="relative">
-                  <User size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <User
+                    size={16}
+                    className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  />
                   <Input
                     type="text"
                     placeholder="First name"
+                    disabled={busy}
                     className="pl-8"
                     {...register('first_name')}
                   />
                 </div>
-                {errors.first_name && <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>{errors.first_name.message}</p>}
+                {errors.first_name && (
+                  <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>
+                    {errors.first_name.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-1.5">
                 <div className="relative">
-                  <User size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <User
+                    size={16}
+                    className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  />
                   <Input
                     type="text"
                     placeholder="Last name"
+                    disabled={busy}
                     className="pl-8"
                     {...register('last_name')}
                   />
                 </div>
-                {errors.last_name && <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>{errors.last_name.message}</p>}
+                {errors.last_name && (
+                  <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>
+                    {errors.last_name.message}
+                  </p>
+                )}
               </div>
             </div>
 
             <div className="space-y-1.5">
               <div className="relative">
-                <Mail size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Mail
+                  size={16}
+                  className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+                />
                 <Input
                   type="email"
                   placeholder="Email address"
                   autoComplete="email"
+                  disabled={busy}
                   className="pl-8"
                   {...register('email')}
                 />
               </div>
-              {errors.email && <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>{errors.email.message}</p>}
+              {errors.email && (
+                <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>
+                  {errors.email.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-1.5">
@@ -179,97 +254,138 @@ export function RegisterForm({ classes }: { classes: Class[] }) {
                   +256
                 </span>
                 <div className="relative flex-1">
-                  <Phone size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <Phone
+                    size={16}
+                    className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  />
                   <Input
                     type="tel"
                     placeholder="700000000"
                     maxLength={9}
+                    disabled={busy}
                     className="pl-8"
                     {...phoneRegister}
                   />
                 </div>
               </div>
-              {errors.phone && <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>{errors.phone.message}</p>}
+              {errors.phone && (
+                <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>
+                  {errors.phone.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-1.5">
               <div className="relative">
-                <Select
-                  {...register('class_id')}
-                >
+                <Select disabled={busy} {...register('class_id')}>
                   <option value="">Pick Class/Club</option>
                   {classes.length === 0 ? (
-                    <option value="" disabled>No classes available</option>
+                    <option value="" disabled>
+                      No classes available
+                    </option>
                   ) : (
-                    classes.map(c => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
+                    classes.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
                     ))
                   )}
                 </Select>
               </div>
-              {errors.class_id && <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>{errors.class_id.message}</p>}
+              {errors.class_id && (
+                <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>
+                  {errors.class_id.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-1.5">
               <div className="relative">
-                <Lock size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Lock
+                  size={16}
+                  className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+                />
                 <Input
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Set Password"
                   autoComplete="new-password"
+                  disabled={busy}
                   className="pl-8 pr-10"
                   {...register('password')}
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(s => !s)}
+                  onClick={() => setShowPassword((s) => !s)}
+                  disabled={busy}
                   className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-muted-foreground transition hover:text-foreground"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-              {errors.password && <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>{errors.password.message}</p>}
+              {errors.password && (
+                <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>
+                  {errors.password.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-1.5">
               <div className="relative">
-                <Lock size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Lock
+                  size={16}
+                  className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+                />
                 <Input
                   type={showConfirm ? 'text' : 'password'}
                   placeholder="Confirm Password"
                   autoComplete="new-password"
+                  disabled={busy}
                   className="pl-8 pr-10"
                   {...register('confirm_password')}
                 />
                 <button
                   type="button"
-                  onClick={() => setShowConfirm(s => !s)}
+                  onClick={() => setShowConfirm((s) => !s)}
+                  disabled={busy}
                   className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-muted-foreground transition hover:text-foreground"
                 >
                   {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-              {errors.confirm_password && <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>{errors.confirm_password.message}</p>}
-            </div>
-            
-            <div className="pt-2 text-center text-xs text-muted-foreground">
-              By continuing, you agree to our{' '}
-              <Link href="/terms-of-service" target="_blank" className="font-medium underline">
-                Terms
-              </Link>{' '}
-              &{' '}
-              <Link href="/privacy-policy" target="_blank" className="font-medium underline">
-                Policy
-              </Link>.
+              {errors.confirm_password && (
+                <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>
+                  {errors.confirm_password.message}
+                </p>
+              )}
             </div>
 
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full"
-            >
-              {isSubmitting && <Loader2 size={16} className="animate-spin mr-2" />}
-              {isSubmitting ? 'Creating account...' : 'Create account'}
+            <div className="pt-2 text-center text-xs text-muted-foreground">
+              By continuing, you agree to our{' '}
+              <Link
+                href="/terms-of-service"
+                target="_blank"
+                className="font-medium underline"
+              >
+                Terms
+              </Link>{' '}
+              &amp;{' '}
+              <Link
+                href="/privacy-policy"
+                target="_blank"
+                className="font-medium underline"
+              >
+                Policy
+              </Link>
+              .
+            </div>
+
+            <Button type="submit" disabled={busy} className="w-full">
+              {busy && <Loader2 size={16} className="mr-2 animate-spin" />}
+              {navigating
+                ? 'Opening dashboard...'
+                : isSubmitting
+                  ? 'Creating account...'
+                  : 'Create account'}
             </Button>
 
             <div className="border-t border-border pt-6 text-center text-sm text-muted-foreground">

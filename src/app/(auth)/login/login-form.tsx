@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
@@ -23,6 +24,37 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>
 
+function LoginSplashOverlay() {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [])
+
+  if (!mounted) return null
+
+  return createPortal(
+    <div
+      role="status"
+      aria-live="polite"
+      aria-label="Loading your dashboard"
+      className="fixed inset-0 z-[9990] flex items-center justify-center bg-background/95 backdrop-blur-sm transition-opacity duration-200"
+    >
+      <img
+        src="/images/logo.png"
+        alt="Logo"
+        className="h-32 w-32 animate-pulse object-contain sm:h-40 sm:w-40"
+      />
+    </div>,
+    document.body,
+  )
+}
+
 export function LoginForm() {
   const router = useRouter()
   const params = useSearchParams()
@@ -32,6 +64,7 @@ export function LoginForm() {
   const { showToast } = useToast()
 
   const [showPassword, setShowPassword] = useState(false)
+  const [navigating, setNavigating] = useState(false)
 
   const pageTitle = getSetting('site.browser_title') || branding.schoolName
 
@@ -67,22 +100,28 @@ export function LoginForm() {
             ? '/teacher/dashboard'
             : '/learner/dashboard'
 
-            router.replace(nextPath || dest)
+      setNavigating(true)
+      router.replace(nextPath || dest)
     } catch {
+      setNavigating(false)
       showToast('Something went wrong. Please try again.', 'error')
     }
   }
 
+  const busy = isSubmitting || navigating
+
   return (
     <>
+      {navigating && <LoginSplashOverlay />}
+
       <div className="w-full space-y-6">
         <div className="flex flex-col items-center text-center">
           <BrandLogo size={150} showText={false} className="mb-4" />
-          
+
           <h1 className="text-2xl font-semibold text-foreground">
             Login to {pageTitle}
           </h1>
-          
+
           <p className="mt-1 text-sm text-muted-foreground">
             {branding.schoolName} {branding.tagline ? ` ${branding.tagline}` : ''}
           </p>
@@ -96,10 +135,13 @@ export function LoginForm() {
                 type="email"
                 autoComplete="email"
                 placeholder="Your Email address"
+                disabled={busy}
                 {...register('email')}
               />
               {errors.email && (
-                <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>{errors.email.message}</p>
+                <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
@@ -110,24 +152,28 @@ export function LoginForm() {
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   placeholder="Your Password"
+                  disabled={busy}
                   className="pr-10"
                   {...register('password')}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((s) => !s)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-accent"
+                  disabled={busy}
+                  className="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-accent"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
               {errors.password && (
-                <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>{errors.password.message}</p>
+                <p className="text-xs" style={{ color: 'var(--danger-fg)' }}>
+                  {errors.password.message}
+                </p>
               )}
             </div>
 
-            <div className="flex items-center justify-between pt-2 pb-4 text-sm">
+            <div className="flex items-center justify-between pb-4 pt-2 text-sm">
               <a
                 href="/forgot-password"
                 className="font-medium hover:underline"
@@ -144,11 +190,15 @@ export function LoginForm() {
 
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={busy}
               className="w-full"
             >
-              {isSubmitting && <Loader2 size={16} className="animate-spin mr-2" />}
-              {isSubmitting ? 'Logging in...' : 'Log in'}
+              {busy && <Loader2 size={16} className="mr-2 animate-spin" />}
+              {navigating
+                ? 'Opening dashboard...'
+                : isSubmitting
+                  ? 'Logging in...'
+                  : 'Log in'}
             </Button>
           </form>
         </Card>
