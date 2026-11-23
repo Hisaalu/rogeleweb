@@ -93,7 +93,6 @@ export function LearnerFilters({ subjects }: { subjects: Subject[] }) {
               className="flex-1 sm:flex-none"
               disabled={pending}
             >
-              <Search size={15} />
               Search
             </Button>
 
@@ -108,8 +107,7 @@ export function LearnerFilters({ subjects }: { subjects: Subject[] }) {
                 }}
                 className="px-3"
               >
-                <X size={15} />
-                <span className="sm:hidden">Clear</span>
+                Clear
               </Button>
             )}
           </div>
