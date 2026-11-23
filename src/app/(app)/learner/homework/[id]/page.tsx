@@ -15,6 +15,26 @@ export const revalidate = 0
 
 export const metadata: Metadata = { title: 'Homework' }
 
+function extractSubmissions(res: unknown): HomeworkSubmission[] {
+  if (!res) return []
+  if (Array.isArray(res)) return res as HomeworkSubmission[]
+  const obj = res as {
+    data?: unknown
+    value?: unknown
+    submissions?: unknown
+  }
+  if (Array.isArray(obj.data)) return obj.data as HomeworkSubmission[]
+  if (Array.isArray(obj.value)) return obj.value as HomeworkSubmission[]
+  if (Array.isArray(obj.submissions)) return obj.submissions as HomeworkSubmission[]
+  return []
+}
+
+function getSubmissionHomeworkId(sub: any): number | null {
+  const raw = sub?.homework_id ?? sub?.homeworkId ?? sub?.assignment_id ?? sub?.assignmentId
+  const num = Number(raw)
+  return Number.isFinite(num) ? num : null
+}
+
 export default async function LearnerHomeworkDetailPage({
   params,
 }: {
@@ -47,10 +67,25 @@ export default async function LearnerHomeworkDetailPage({
     const res = await serverApiRequest<unknown>(
       '/api/v1/homework/my-submissions',
     )
-    const all = Array.isArray(res)
-      ? (res as HomeworkSubmission[])
-      : ((res as { data?: HomeworkSubmission[] }).data ?? [])
-    submission = all.find((s) => s.homework_id === id) ?? null
+    const all = extractSubmissions(res)
+    const matched =
+      all.find((s) => getSubmissionHomeworkId(s) === id) ??
+      hw.submission ??
+      null
+
+    if (matched) {
+      const m = matched as HomeworkSubmission & {
+        textAnswer?: string | null
+        submittedAt?: string
+      }
+      submission = {
+        ...matched,
+        homework_id: getSubmissionHomeworkId(matched) ?? id,
+        text_answer: matched.text_answer ?? m.textAnswer ?? null,
+        submitted_at: matched.submitted_at ?? m.submittedAt ?? '',
+        files: Array.isArray(matched.files) ? matched.files : [],
+      }
+    }
   } catch {
     submission = null
   }

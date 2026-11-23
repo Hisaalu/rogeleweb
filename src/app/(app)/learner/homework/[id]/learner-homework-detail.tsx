@@ -22,6 +22,93 @@ function getInitials(first?: string | null, last?: string | null) {
   return `${first?.[0] ?? ''}${last?.[0] ?? ''}`.toUpperCase() || '?'
 }
 
+function SubmittedWorkSection({
+  submission,
+  learnerName,
+  learnerPhoto,
+  canDelete,
+  canUseFiles,
+  onDeleteClick,
+  onAttachmentClick,
+}: {
+  submission: HomeworkSubmission
+  learnerName: string
+  learnerPhoto: string | null
+  canDelete: boolean
+  canUseFiles: boolean
+  onDeleteClick: () => void
+  onAttachmentClick: (e: React.MouseEvent) => void
+}) {
+  const files = Array.isArray(submission.files) ? submission.files : []
+
+  return (
+    <div
+      className="border-b border-border p-4 sm:p-6 md:p-8"
+      style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 5%, transparent)' }}
+    >
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-3">
+          <Avatar
+            size={36}
+            src={learnerPhoto}
+            fallback={getInitials(learnerName.split(' ')[0], learnerName.split(' ')[1])}
+          />
+          <h2
+            className="flex min-w-0 items-center gap-2 text-lg font-bold"
+          >
+            <span className="truncate">Your submission</span>
+          </h2>
+        </div>
+        {canDelete && (
+          <Button variant="danger" size="sm" onClick={onDeleteClick}>
+            <Trash2 size={13} /> Delete
+          </Button>
+        )}
+      </div>
+
+      {/* <p className="mb-4 text-xs text-muted-foreground">
+        Submitted on {submission.submitted_at ? new Date(submission.submitted_at).toLocaleString() : 'N/A'}
+      </p> */}
+
+      {submission.text_answer && (
+        <div className="mb-4">
+          <p className="mb-2 text-sm font-semibold text-foreground">Submitted Response</p>
+          <div className="whitespace-pre-wrap break-words rounded-xl border border-border bg-card p-4 text-sm text-foreground">
+            {submission.text_answer}
+          </div>
+        </div>
+      )}
+
+      {files.length > 0 && (
+        <div>
+          <p className="mb-2 text-sm font-semibold text-foreground">Click below to download/view file</p>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {files.map(f => (
+              <a
+                key={f.id}
+                href={canUseFiles ? materialDownloadUrl(f.file_path) : undefined}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={onAttachmentClick}
+                className="flex min-w-0 items-center gap-3 rounded-xl border border-border bg-card p-3 text-sm transition hover:border-brand-accent"
+              >
+                <FileText size={16} className="shrink-0" style={{ color: 'var(--brand-accent)' }} />
+                <span className="flex-1 truncate font-medium">{f.file_name}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {!submission.text_answer && files.length === 0 && (
+        <p className="rounded-xl border border-border bg-card p-4 text-sm text-muted-foreground">
+          No text answer or files were attached to this submission.
+        </p>
+      )}
+    </div>
+  )
+}
+
 export function LearnerHomeworkDetail({
   homework,
   attachments,
@@ -49,10 +136,14 @@ export function LearnerHomeworkDetail({
   const dueDate = new Date(homework.due_date)
   const isExpired = dueDate.getTime() < new Date().getTime()
 
-  const isGraded = initialSubmission?.status === 'graded'
-  const isSubmitted = initialSubmission?.status === 'submitted' || initialSubmission?.status === 'late'
+  const isGraded =
+    initialSubmission?.status === 'graded' ||
+    (initialSubmission?.grade !== undefined && initialSubmission?.grade !== null)
+  const isSubmitted =
+    !isGraded &&
+    (initialSubmission?.status === 'submitted' || initialSubmission?.status === 'late')
 
-  const canResubmit = (!initialSubmission || !isGraded)
+  const canResubmit = !initialSubmission || !isGraded
   const canDelete = !!initialSubmission && !isGraded
 
   const canUseFiles = gateReason === null
@@ -234,7 +325,7 @@ export function LearnerHomeworkDetail({
           {attachments.length > 0 && (
             <div className="border-b border-border p-4 sm:p-6 md:p-8">
               <h2 className="mb-3 flex items-center gap-2 text-lg font-bold text-foreground">
-                <Paperclip size={18} style={{ color: 'var(--brand-accent)' }} /> Homework Files
+                <Paperclip size={18} style={{ color: 'var(--brand-accent)' }} /> Assignment file
               </h2>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {attachments.map(a => (
@@ -259,12 +350,30 @@ export function LearnerHomeworkDetail({
             </div>
           )}
 
+          {initialSubmission && (
+            <SubmittedWorkSection
+              submission={initialSubmission}
+              learnerName={learnerName}
+              learnerPhoto={learnerPhoto}
+              canDelete={canDelete}
+              canUseFiles={canUseFiles}
+              onDeleteClick={() => setShowDeleteModal(true)}
+              onAttachmentClick={handleAttachmentClick}
+            />
+          )}
+
           {isGraded && initialSubmission && (
-            <div className="border-b border-border p-4 sm:p-6 md:p-8" style={{ backgroundColor: 'color-mix(in srgb, var(--success-bg) 30%, transparent)' }}>
+            <div
+              className="border-b border-border p-4 sm:p-6 md:p-8"
+              style={{ backgroundColor: 'color-mix(in srgb, var(--success-bg) 30%, transparent)' }}
+            >
               <h2 className="mb-4 flex items-center gap-2 text-lg font-bold" style={{ color: 'var(--success-fg)' }}>
                 <Award size={18} /> Grade &amp; Feedback
               </h2>
-              <div className="rounded-xl border-2 bg-card p-4 sm:p-6" style={{ borderColor: 'var(--success-border)' }}>
+              <div
+                className="rounded-xl border-2 bg-card p-4 sm:p-6"
+                style={{ borderColor: 'var(--success-border)' }}
+              >
                 <div className="flex flex-col items-center justify-center gap-4 sm:flex-row sm:justify-start">
                   <Avatar
                     size={64}
@@ -286,55 +395,6 @@ export function LearnerHomeworkDetail({
                   </div>
                 )}
               </div>
-            </div>
-          )}
-
-          {initialSubmission && !isGraded && (
-            <div className="border-b border-border p-4 sm:p-6 md:p-8" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 5%, transparent)' }}>
-              <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-                <div className="flex min-w-0 items-center gap-3">
-                  <Avatar size={36} src={learnerPhoto} fallback={getInitials(learnerName.split(' ')[0], learnerName.split(' ')[1])} />
-                  <h2 className="flex min-w-0 items-center gap-2 text-lg font-bold" style={{ color: 'var(--brand-primary)' }}>
-                    <span className="truncate">Your Submission</span>
-                  </h2>
-                </div>
-                {canDelete && (
-                  <Button variant="danger" size="sm" onClick={() => setShowDeleteModal(true)}>
-                    <Trash2 size={13} /> Delete
-                  </Button>
-                )}
-              </div>
-              <p className="mb-4 text-xs text-muted-foreground">
-                Submitted on {initialSubmission.submitted_at ? new Date(initialSubmission.submitted_at).toLocaleString() : 'N/A'}
-              </p>
-              {initialSubmission.text_answer && (
-                <div className="mb-4">
-                  <p className="mb-2 text-sm font-semibold text-foreground">Submitted Response</p>
-                  <div className="whitespace-pre-wrap break-words rounded-xl border border-border bg-card p-4 text-sm text-foreground">
-                    {initialSubmission.text_answer}
-                  </div>
-                </div>
-              )}
-              {initialSubmission.files && initialSubmission.files.length > 0 && (
-                <div>
-                  <p className="mb-2 text-sm font-semibold text-foreground">Attached Files</p>
-                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    {initialSubmission.files.map(f => (
-                      <a
-                        key={f.id}
-                        href={canUseFiles ? materialDownloadUrl(f.file_path) : undefined}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={handleAttachmentClick}
-                        className="flex min-w-0 items-center gap-3 rounded-xl border border-border bg-card p-3 text-sm transition hover:border-brand-accent"
-                      >
-                        <FileText size={16} className="shrink-0" style={{ color: 'var(--brand-accent)' }} />
-                        <span className="flex-1 truncate font-medium">{f.file_name}</span>
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           )}
 
