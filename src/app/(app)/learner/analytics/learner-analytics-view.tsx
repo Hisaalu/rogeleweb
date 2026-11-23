@@ -76,7 +76,7 @@ function gateReason(reason: AccessReason): 'trial_expired' | 'no_plan' {
 
 function badgeFor(state: LearnerAccessState): { label: string; tone: 'success' | 'info' | 'warning' } {
   if (state.reason === 'ok') return { label: 'Subscribed', tone: 'success' }
-  if (state.reason === 'trial') return { label: 'On free trial', tone: 'info' }
+  if (state.reason === 'trial') return { label: 'Your on free trial', tone: 'info' }
   if (state.reason === 'trial_expired') return { label: 'Trial ended', tone: 'warning' }
   return { label: 'No plan', tone: 'warning' }
 }
