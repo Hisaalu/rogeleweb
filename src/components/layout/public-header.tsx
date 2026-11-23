@@ -4,18 +4,18 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-import { 
-  Menu, 
-  X, 
-  LogIn, 
-  UserPlus, 
-  Home, 
-  Info, 
-  Tags, 
-  Mail, 
-  Sun, 
+import {
+  Menu,
+  X,
+  LogIn,
+  UserPlus,
+  Home,
+  Info,
+  Tags,
+  Mail,
+  Sun,
   Moon,
-  HelpCircle // <-- Added
+  HelpCircle,
 } from 'lucide-react'
 import { useBranding } from '@/components/brand/brand-provider'
 import { useTheme } from '@/components/theme-provider'
@@ -37,7 +37,9 @@ export function PublicHeader() {
   useEffect(() => {
     if (isOpen) document.body.style.overflow = 'hidden'
     else document.body.style.overflow = ''
-    return () => { document.body.style.overflow = '' }
+    return () => {
+      document.body.style.overflow = ''
+    }
   }, [isOpen])
 
   useEffect(() => {
@@ -73,9 +75,9 @@ export function PublicHeader() {
 
     if (href.startsWith('/#')) {
       e?.preventDefault()
-      
+
       const hash = href.replace('/', '')
-      
+
       if (pathname === '/') {
         const el = document.getElementById(hash.replace('#', ''))
         if (el) {
@@ -94,11 +96,12 @@ export function PublicHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b border-border bg-background">
+      <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/75 shadow-[0_8px_30px_rgb(0,0,0,0.06)] backdrop-blur-xl backdrop-saturate-150 dark:bg-background/70 dark:shadow-[0_8px_32px_rgb(0,0,0,0.35)]">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent dark:via-white/15" />
+
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          
           <Link href="/" onClick={(e) => handleNavClick('/', e)} className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-background/60 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)] ring-1 ring-border/60 backdrop-blur-md">
               {branding.logoUrl ? (
                 <Image
                   src={branding.logoUrl}
@@ -110,20 +113,20 @@ export function PublicHeader() {
                   unoptimized
                 />
               ) : (
-                <div 
-                  className="flex h-full w-full items-center justify-center font-bold text-white"
+                <div
+                  className="flex h-full w-full items-center justify-center rounded-lg font-bold text-white"
                   style={{ backgroundColor: 'var(--brand-primary)' }}
                 >
                   {branding.schoolName.slice(0, 2).toUpperCase()}
                 </div>
               )}
             </div>
-            
+
             <div className="flex flex-col justify-center">
-              <span className="text-sm font-bold leading-tight truncate max-w-[200px] text-foreground">
+              <span className="max-w-[200px] truncate text-sm font-bold leading-tight text-foreground">
                 {branding.schoolName}
               </span>
-              <span className="text-[10px] text-muted-foreground leading-tight truncate max-w-[200px]">
+              <span className="max-w-[200px] truncate text-[10px] leading-tight text-muted-foreground">
                 {branding.tagline}
               </span>
             </div>
@@ -134,10 +137,10 @@ export function PublicHeader() {
               const active = getIsActive(link.href)
               const Icon = link.icon
               const isHashLink = link.href.startsWith('/#')
-              
+
               if (isHashLink) {
                 return (
-                  <a 
+                  <a
                     key={link.name}
                     href={link.href}
                     onClick={(e) => handleNavClick(link.href, e)}
@@ -151,9 +154,9 @@ export function PublicHeader() {
               }
 
               return (
-                <Link 
+                <Link
                   key={link.name}
-                  href={link.href} 
+                  href={link.href}
                   onClick={(e) => handleNavClick(link.href, e)}
                   className={`flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-brand-accent ${
                     active ? 'text-brand-accent' : 'text-foreground'
@@ -168,16 +171,23 @@ export function PublicHeader() {
           <div className="hidden items-center gap-3 lg:flex">
             <button
               onClick={toggleTheme}
-              className="flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-border/60 bg-background/60 text-muted-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.45)] backdrop-blur-md transition hover:bg-muted/80 hover:text-foreground"
               aria-label="Toggle theme"
             >
               {isDark ? <Sun size={20} /> : <Moon size={20} />}
             </button>
 
-            <Link href="/login" className="flex items-center gap-2 rounded-full border-2 border-brand-primary px-5 py-2 text-sm font-semibold text-brand-primary transition hover:bg-brand-primary hover:text-white">
+            <Link
+              href="/login"
+              className="flex items-center gap-2 rounded-full border-2 border-brand-primary bg-background/50 px-5 py-2 text-sm font-semibold text-brand-primary backdrop-blur-md transition hover:bg-brand-primary hover:text-white"
+            >
               <LogIn size={16} /> Login
             </Link>
-            <Link href="/register" className="flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold text-white shadow-md transition hover:opacity-90" style={{ backgroundColor: 'var(--brand-primary)' }}>
+            <Link
+              href="/register"
+              className="flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold text-white shadow-md transition hover:opacity-90"
+              style={{ backgroundColor: 'var(--brand-primary)' }}
+            >
               <UserPlus size={16} /> Sign Up
             </Link>
           </div>
@@ -185,14 +195,18 @@ export function PublicHeader() {
           <div className="flex items-center gap-2 lg:hidden">
             <button
               onClick={toggleTheme}
-              className="rounded-lg p-2 text-muted-foreground hover:bg-muted"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-border/60 bg-background/60 text-muted-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.45)] backdrop-blur-md transition hover:bg-muted/80 hover:text-foreground"
               aria-label="Toggle theme"
             >
-              {isDark ? <Sun size={20} /> : <Moon size={20} />}
+              {isDark ? <Sun size={18} /> : <Moon size={18} />}
             </button>
 
-            <button onClick={() => setIsOpen(true)} className="rounded-lg p-2 hover:bg-muted">
-              <Menu size={24} />
+            <button
+              onClick={() => setIsOpen(true)}
+              aria-label="Open navigation menu"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-border/60 bg-background/60 text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.45)] backdrop-blur-md transition hover:bg-muted/80"
+            >
+              <Menu size={20} />
             </button>
           </div>
         </div>
@@ -200,10 +214,10 @@ export function PublicHeader() {
 
       {isOpen && (
         <div className="fixed inset-0 z-[100] flex justify-end bg-black/50 backdrop-blur-sm lg:hidden">
-          <div className="flex h-full w-[80%] max-w-sm flex-col bg-background">
-            <div className="flex items-center justify-between border-b border-border p-4">
+          <div className="flex h-full w-[80%] max-w-sm flex-col border-l border-border/60 bg-background/85 shadow-2xl backdrop-blur-2xl backdrop-saturate-150">
+            <div className="flex items-center justify-between border-b border-border/60 p-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-background/60 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)] ring-1 ring-border/60">
                   {branding.logoUrl ? (
                     <Image
                       src={branding.logoUrl}
@@ -214,30 +228,34 @@ export function PublicHeader() {
                       unoptimized
                     />
                   ) : (
-                    <div 
-                      className="flex h-full w-full items-center justify-center text-xs font-bold text-white"
+                    <div
+                      className="flex h-full w-full items-center justify-center rounded-lg text-xs font-bold text-white"
                       style={{ backgroundColor: 'var(--brand-primary)' }}
                     >
                       {branding.schoolName.slice(0, 2).toUpperCase()}
                     </div>
                   )}
                 </div>
-                
+
                 <div className="flex flex-col justify-center">
-                  <span className="text-sm font-bold leading-tight truncate max-w-[150px] text-foreground">
+                  <span className="max-w-[150px] truncate text-sm font-bold leading-tight text-foreground">
                     {branding.schoolName}
                   </span>
-                  <span className="text-[10px] text-muted-foreground leading-tight truncate max-w-[150px]">
+                  <span className="max-w-[150px] truncate text-[10px] leading-tight text-muted-foreground">
                     {branding.tagline}
                   </span>
                 </div>
               </div>
-              
-              <button onClick={() => setIsOpen(false)} className="rounded-full bg-muted p-2">
-                <X size={20} />
+
+              <button
+                onClick={() => setIsOpen(false)}
+                aria-label="Close navigation menu"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-border/60 bg-background/60 text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.45)] backdrop-blur-md transition hover:bg-muted/80"
+              >
+                <X size={18} />
               </button>
             </div>
-            
+
             <div className="flex-1 space-y-2 p-4">
               {navLinks.map((link) => {
                 const active = getIsActive(link.href)
@@ -246,12 +264,14 @@ export function PublicHeader() {
 
                 if (isHashLink) {
                   return (
-                    <a 
+                    <a
                       key={link.name}
                       href={link.href}
                       onClick={(e) => handleNavClick(link.href, e)}
-                      className={`flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium transition-colors ${
-                        active ? 'bg-brand-accent/10 text-brand-accent' : 'hover:bg-muted text-foreground'
+                      className={`flex items-center gap-3 rounded-xl px-4 py-3 text-base font-medium transition-colors ${
+                        active
+                          ? 'bg-brand-accent/15 text-brand-accent ring-1 ring-brand-accent/25'
+                          : 'text-foreground hover:bg-muted/70'
                       }`}
                     >
                       <Icon size={18} /> {link.name}
@@ -260,12 +280,14 @@ export function PublicHeader() {
                 }
 
                 return (
-                  <Link 
+                  <Link
                     key={link.name}
-                    href={link.href} 
+                    href={link.href}
                     onClick={(e) => handleNavClick(link.href, e)}
-                    className={`flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium transition-colors ${
-                      active ? 'bg-brand-accent/10 text-brand-accent' : 'hover:bg-muted text-foreground'
+                    className={`flex items-center gap-3 rounded-xl px-4 py-3 text-base font-medium transition-colors ${
+                      active
+                        ? 'bg-brand-accent/15 text-brand-accent ring-1 ring-brand-accent/25'
+                        : 'text-foreground hover:bg-muted/70'
                     }`}
                   >
                     <Icon size={18} /> {link.name}
@@ -274,11 +296,20 @@ export function PublicHeader() {
               })}
             </div>
 
-            <div className="border-t border-border p-4 space-y-3">
-              <Link href="/login" onClick={() => setIsOpen(false)} className="flex w-full items-center justify-center rounded-full border-2 border-brand-primary py-3 text-sm font-semibold text-brand-primary transition hover:bg-brand-primary hover:text-white">
+            <div className="space-y-3 border-t border-border/60 bg-background/50 p-4 backdrop-blur-md">
+              <Link
+                href="/login"
+                onClick={() => setIsOpen(false)}
+                className="flex w-full items-center justify-center rounded-full border-2 border-brand-primary bg-background/60 py-3 text-sm font-semibold text-brand-primary transition hover:bg-brand-primary hover:text-white"
+              >
                 <LogIn size={16} className="mr-2" /> Login
               </Link>
-              <Link href="/register" onClick={() => setIsOpen(false)} className="flex w-full items-center justify-center rounded-full py-3 text-sm font-semibold text-white transition hover:opacity-90" style={{ backgroundColor: 'var(--brand-primary)' }}>
+              <Link
+                href="/register"
+                onClick={() => setIsOpen(false)}
+                className="flex w-full items-center justify-center rounded-full py-3 text-sm font-semibold text-white transition hover:opacity-90"
+                style={{ backgroundColor: 'var(--brand-primary)' }}
+              >
                 <UserPlus size={16} className="mr-2" /> Sign Up
               </Link>
             </div>
