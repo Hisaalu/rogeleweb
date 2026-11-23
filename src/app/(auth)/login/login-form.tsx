@@ -24,33 +24,50 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>
 
-function LoginSplashOverlay() {
+function LoginSplashOverlay({ visible }: { visible: boolean }) {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!visible) return
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     return () => {
       document.body.style.overflow = previousOverflow
     }
-  }, [])
+  }, [visible])
 
   if (!mounted) return null
 
   return createPortal(
-    <div
-      role="status"
-      aria-live="polite"
-      aria-label="Loading your dashboard"
-      className="fixed inset-0 z-[9990] flex items-center justify-center bg-background/95 backdrop-blur-sm transition-opacity duration-200"
-    >
+    <>
       <img
         src="/images/logo.png"
-        alt="Logo"
-        className="h-32 w-32 animate-pulse object-contain sm:h-40 sm:w-40"
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none fixed -left-[9999px] h-40 w-40 opacity-0"
       />
-    </div>,
+
+      {visible && (
+        <div
+          role="status"
+          aria-live="polite"
+          aria-label="Loading your dashboard"
+          className="fixed inset-0 z-[9990] flex items-center justify-center bg-background"
+        >
+          <img
+            src="/images/logo.png"
+            alt="Logo"
+            decoding="sync"
+            fetchPriority="high"
+            className="h-32 w-32 object-contain sm:h-40 sm:w-40"
+          />
+        </div>
+      )}
+    </>,
     document.body,
   )
 }
@@ -112,7 +129,7 @@ export function LoginForm() {
 
   return (
     <>
-      {navigating && <LoginSplashOverlay />}
+      <LoginSplashOverlay visible={navigating} />
 
       <div className="w-full space-y-6">
         <div className="flex flex-col items-center text-center">
