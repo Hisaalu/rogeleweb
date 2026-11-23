@@ -1,8 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowLeft, CheckCircle2, XCircle, Trophy, BookOpen, Calendar } from 'lucide-react'
+import { XCircle, Trophy, BookOpen, Calendar } from 'lucide-react'
 import type { QuizResultDetails } from '@/types/quiz'
+import { PageHeader } from '@/components/layout/page-header'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
@@ -25,201 +26,193 @@ export function ResultView({ attempt }: { attempt: QuizResultDetails }) {
   const correct = attempt.correct_answers ?? 0
   const total = attempt.total_questions ?? 0
   const incorrect = Math.max(0, total - correct)
-  
-  const timeFormatted = attempt.time_taken 
+
+  const timeFormatted = attempt.time_taken
     ? `${Math.floor(attempt.time_taken / 60).toString().padStart(2, '0')}:${(attempt.time_taken % 60).toString().padStart(2, '0')}`
     : '00:00'
 
+  const headerAction = attempt.completed_at ? (
+    <div className="flex items-center gap-1 text-right text-[11px] text-muted-foreground sm:gap-1.5 sm:text-xs">
+      <Calendar size={12} className="hidden shrink-0 sm:block" />
+      <span className="whitespace-nowrap">{formatDate(attempt.completed_at)}</span>
+    </div>
+  ) : null
+
   return (
-    <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">
-      <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 sm:gap-3">
-        <Link
-          href="/learner/quizzes"
-          aria-label="Back to quizzes"
-          className="inline-flex items-center justify-center rounded-full p-2 text-foreground transition hover:bg-muted"
-        >
-          <ArrowLeft size={24} className="shrink-0" />
-        </Link>
+    <>
+      <PageHeader
+        title="Last Attempt"
+        fallbackHref="/learner/quizzes"
+        action={headerAction}
+      />
 
-        <h1 className="truncate text-center text-xl font-bold text-foreground sm:text-3xl">
-          Last Attempt
-        </h1>
-
-        {attempt.completed_at ? (
-          <div className="flex items-center gap-1 text-right text-[10px] text-muted-foreground sm:gap-1.5 sm:text-sm">
-            <Calendar size={10} className="hidden shrink-0 sm:block sm:size-3" />
-            <span className="whitespace-nowrap">{formatDate(attempt.completed_at)}</span>
-          </div>
-        ) : (
-          <div className="w-8 sm:w-10" />
-        )}
-      </div>
-
-      <Card className="p-8 text-center sm:p-12">
-        <div 
-          className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full"
-          style={{ backgroundColor: passed ? 'var(--success-bg)' : 'var(--danger-bg)' }}
-        >
-          {passed ? (
-            <Trophy size={40} style={{ color: 'var(--success-fg)' }} />
-          ) : (
-            <XCircle size={40} style={{ color: 'var(--danger-fg)' }} />
-          )}
-        </div>
-
-        <div className="mb-2 flex items-center justify-center gap-3">
-          <span 
-            className="inline-flex items-center gap-1.5 rounded-full px-4 py-1 text-sm font-bold tracking-wide text-white"
-            style={{ backgroundColor: passed ? 'var(--success-border)' : 'var(--danger-border)' }}
+      <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">
+        <Card className="p-8 text-center sm:p-12">
+          <div
+            className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full"
+            style={{ backgroundColor: passed ? 'var(--success-bg)' : 'var(--danger-bg)' }}
           >
-            {passed ? 'Passed' : 'Failed'}
-          </span>
-          <span className="text-sm font-medium text-muted-foreground">Pass Mark: {attempt.passing_score ?? 70}%</span>
-        </div>
-
-        <h2 className="mb-2 text-3xl font-bold text-foreground">
-          {passed ? 'Congratulations!' : 'Better Luck Next Time!'}
-        </h2>
-        <p className="text-muted-foreground">
-          You scored {correct} out of {total} questions correctly.
-        </p>
-
-        <div className="relative mx-auto my-8 h-40 w-40">
-          <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
-            <circle cx="50" cy="50" r="45" className="stroke-muted stroke-[8px] fill-none" />
-            <circle 
-              cx="50" cy="50" r="45" 
-              className="fill-none stroke-[8px] stroke-linecap-round"
-              stroke={passed ? 'var(--success-border)' : 'var(--danger-border)'}
-              strokeDasharray="283" 
-              strokeDashoffset={283 - (score / 100) * 283} 
-              style={{ transition: 'stroke-dashoffset 1s ease-out' }}
-            />
-          </svg>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-4xl font-extrabold text-foreground">{score}%</span>
+            {passed ? (
+              <Trophy size={40} style={{ color: 'var(--success-fg)' }} />
+            ) : (
+              <XCircle size={40} style={{ color: 'var(--danger-fg)' }} />
+            )}
           </div>
-        </div>
 
-        <div className="grid grid-cols-3 gap-4 border-t border-border pt-8">
-          <div>
-            <div className="mb-1 text-xl font-bold" style={{ color: 'var(--success-fg)' }}>{correct}</div>
-            <div className="text-xs font-medium text-muted-foreground">Correct</div>
+          <div className="mb-2 flex items-center justify-center gap-3">
+            <span
+              className="inline-flex items-center gap-1.5 rounded-full px-4 py-1 text-sm font-bold tracking-wide text-white"
+              style={{ backgroundColor: passed ? 'var(--success-border)' : 'var(--danger-border)' }}
+            >
+              {passed ? 'Passed' : 'Failed'}
+            </span>
+            <span className="text-sm font-medium text-muted-foreground">Pass Mark: {attempt.passing_score ?? 70}%</span>
           </div>
-          <div>
-            <div className="mb-1 text-xl font-bold" style={{ color: 'var(--danger-fg)' }}>{incorrect}</div>
-            <div className="text-xs font-medium text-muted-foreground">Incorrect</div>
-          </div>
-          <div>
-            <div className="mb-1 text-xl font-bold" style={{ color: 'var(--warning-fg)' }}>{timeFormatted}</div>
-            <div className="text-xs font-medium text-muted-foreground">Time Taken</div>
-          </div>
-        </div>
-      </Card>
 
-      <Card className="p-6 sm:p-8">
-        <h2 className="mb-2 text-xl font-bold text-foreground">Review & Corrections</h2>
-        <p className="mb-6 text-sm text-muted-foreground">
-          Review your answers below. Corrections are highlighted in green.
-        </p>
+          <h2 className="mb-2 text-3xl font-bold text-foreground">
+            {passed ? 'Congratulations!' : 'Better Luck Next Time!'}
+          </h2>
+          <p className="text-muted-foreground">
+            You scored {correct} out of {total} questions correctly.
+          </p>
 
-        <div className="space-y-6">
-          {(attempt.questions || []).map((q, idx) => {
-            const userAnswerStr = attempt.user_answers?.[q.id.toString()]
-            const userAnswer = userAnswerStr !== undefined ? Number(userAnswerStr) : null
-            const isCorrect = userAnswer === q.correct_option
-            
-            return (
-              <div 
-                key={q.id} 
-                className="rounded-md border-l-4 bg-muted/30 p-5"
-                style={{ borderLeftColor: isCorrect ? 'var(--success-border)' : 'var(--danger-border)' }}
-              >
-                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-3">
-                    <span className="font-bold text-foreground">Question {idx + 1}</span>
-                    <span 
-                      className="rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider"
+          <div className="relative mx-auto my-8 h-40 w-40">
+            <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
+              <circle cx="50" cy="50" r="45" className="stroke-muted stroke-[8px] fill-none" />
+              <circle
+                cx="50" cy="50" r="45"
+                className="fill-none stroke-[8px] stroke-linecap-round"
+                stroke={passed ? 'var(--success-border)' : 'var(--danger-border)'}
+                strokeDasharray="283"
+                strokeDashoffset={283 - (score / 100) * 283}
+                style={{ transition: 'stroke-dashoffset 1s ease-out' }}
+              />
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-4xl font-extrabold text-foreground">{score}%</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4 border-t border-border pt-8">
+            <div>
+              <div className="mb-1 text-xl font-bold" style={{ color: 'var(--success-fg)' }}>{correct}</div>
+              <div className="text-xs font-medium text-muted-foreground">Correct</div>
+            </div>
+            <div>
+              <div className="mb-1 text-xl font-bold" style={{ color: 'var(--danger-fg)' }}>{incorrect}</div>
+              <div className="text-xs font-medium text-muted-foreground">Incorrect</div>
+            </div>
+            <div>
+              <div className="mb-1 text-xl font-bold" style={{ color: 'var(--warning-fg)' }}>{timeFormatted}</div>
+              <div className="text-xs font-medium text-muted-foreground">Time Taken</div>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-6 sm:p-8">
+          <h2 className="mb-2 text-xl font-bold text-foreground">Review &amp; Corrections</h2>
+          <p className="mb-6 text-sm text-muted-foreground">
+            Review your answers below. Corrections are highlighted in green.
+          </p>
+
+          <div className="space-y-6">
+            {(attempt.questions || []).map((q, idx) => {
+              const userAnswerStr = attempt.user_answers?.[q.id.toString()]
+              const userAnswer = userAnswerStr !== undefined ? Number(userAnswerStr) : null
+              const isCorrect = userAnswer === q.correct_option
+
+              return (
+                <div
+                  key={q.id}
+                  className="rounded-md border-l-4 bg-muted/30 p-5"
+                  style={{ borderLeftColor: isCorrect ? 'var(--success-border)' : 'var(--danger-border)' }}
+                >
+                  <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-3">
+                      <span className="font-bold text-foreground">Question {idx + 1}</span>
+                      <span
+                        className="rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider"
+                        style={{
+                          backgroundColor: isCorrect ? 'var(--success-bg)' : 'var(--danger-bg)',
+                          color: isCorrect ? 'var(--success-fg)' : 'var(--danger-fg)'
+                        }}
+                      >
+                        {isCorrect ? 'Correct' : 'Incorrect'}
+                      </span>
+                    </div>
+                    <span className="text-xs font-medium text-muted-foreground">{q.points} point(s)</span>
+                  </div>
+
+                  <div className="mb-4 text-base font-semibold text-foreground">{q.question_text}</div>
+
+                  <div className="mb-4 space-y-2">
+                    {(q.options || []).map((opt, optIdx) => {
+                      const isAns = optIdx === q.correct_option
+                      const isUser = optIdx === userAnswer
+
+                      let borderColor = 'hsl(var(--border))'
+                      let bgColor = 'hsl(var(--background))'
+                      if (isAns) {
+                        borderColor = 'var(--success-border)'
+                        bgColor = 'var(--success-bg)'
+                      } else if (isUser) {
+                        borderColor = 'var(--danger-border)'
+                        bgColor = 'var(--danger-bg)'
+                      }
+
+                      return (
+                        <div
+                          key={optIdx}
+                          className="flex items-center gap-3 rounded-md border p-3"
+                          style={{ borderColor, backgroundColor: bgColor }}
+                        >
+                          <div
+                            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+                            style={{
+                              backgroundColor: isAns ? 'var(--success-border)' : isUser ? 'var(--danger-border)' : 'hsl(var(--muted))',
+                              color: (isAns || isUser) ? 'white' : 'hsl(var(--muted-foreground))'
+                            }}
+                          >
+                            {['A', 'B', 'C', 'D'][optIdx]}
+                          </div>
+                          <span className="flex-1 text-sm text-foreground">{opt}</span>
+                          {isAns && <span className="text-xs font-bold" style={{ color: 'var(--success-fg)' }}>Correct Answer</span>}
+                          {isUser && !isAns && <span className="text-xs font-bold" style={{ color: 'var(--danger-fg)' }}>Your Answer</span>}
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {q.explanation && (
+                    <div
+                      className="rounded-md border-l-2 p-3 text-sm"
                       style={{
-                        backgroundColor: isCorrect ? 'var(--success-bg)' : 'var(--danger-bg)',
-                        color: isCorrect ? 'var(--success-fg)' : 'var(--danger-fg)'
+                        borderLeftColor: 'var(--warning-border)',
+                        backgroundColor: 'var(--warning-bg)',
+                        color: 'var(--warning-fg)'
                       }}
                     >
-                      {isCorrect ? 'Correct' : 'Incorrect'}
-                    </span>
-                  </div>
-                  <span className="text-xs font-medium text-muted-foreground">{q.points} point(s)</span>
+                      <strong className="mb-1 block">Explanation:</strong>
+                      {q.explanation}
+                    </div>
+                  )}
                 </div>
+              )
+            })}
+          </div>
 
-                <div className="mb-4 text-base font-semibold text-foreground">{q.question_text}</div>
-
-                <div className="mb-4 space-y-2">
-                  {(q.options || []).map((opt, optIdx) => {
-                    const isAns = optIdx === q.correct_option
-                    const isUser = optIdx === userAnswer
-                    
-                    let borderColor = 'hsl(var(--border))'
-                    let bgColor = 'hsl(var(--background))'
-                    if (isAns) {
-                      borderColor = 'var(--success-border)'
-                      bgColor = 'var(--success-bg)'
-                    } else if (isUser) {
-                      borderColor = 'var(--danger-border)'
-                      bgColor = 'var(--danger-bg)'
-                    }
-
-                    return (
-                      <div 
-                        key={optIdx} 
-                        className="flex items-center gap-3 rounded-md border p-3"
-                        style={{ borderColor, backgroundColor: bgColor }}
-                      >
-                        <div 
-                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold"
-                          style={{
-                            backgroundColor: isAns ? 'var(--success-border)' : isUser ? 'var(--danger-border)' : 'hsl(var(--muted))',
-                            color: (isAns || isUser) ? 'white' : 'hsl(var(--muted-foreground))'
-                          }}
-                        >
-                          {['A', 'B', 'C', 'D'][optIdx]}
-                        </div>
-                        <span className="flex-1 text-sm text-foreground">{opt}</span>
-                        {isAns && <span className="text-xs font-bold" style={{ color: 'var(--success-fg)' }}>Correct Answer</span>}
-                        {isUser && !isAns && <span className="text-xs font-bold" style={{ color: 'var(--danger-fg)' }}>Your Answer</span>}
-                      </div>
-                    )
-                  })}
-                </div>
-
-                {q.explanation && (
-                  <div 
-                    className="rounded-md border-l-2 p-3 text-sm"
-                    style={{ 
-                      borderLeftColor: 'var(--warning-border)', 
-                      backgroundColor: 'var(--warning-bg)', 
-                      color: 'var(--warning-fg)' 
-                    }}
-                  >
-                    <strong className="mb-1 block">Explanation:</strong>
-                    {q.explanation}
-                  </div>
-                )}
-              </div>
-            )
-          })}
-        </div>
-
-        <div className="mt-8 flex flex-wrap justify-center gap-4">
-          <Link href="/learner/quizzes">
-            <Button variant="outline">Try Another Quiz</Button>
-          </Link>
-          <Link href="/learner/lessons">
-            <Button>
-              <BookOpen size={16} className="mr-2" /> Continue Learning
-            </Button>
-          </Link>
-        </div>
-      </Card>
-    </div>
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <Link href="/learner/quizzes">
+              <Button variant="outline">Try Another Quiz</Button>
+            </Link>
+            <Link href="/learner/lessons">
+              <Button>
+                <BookOpen size={16} className="mr-2" /> Continue Learning
+              </Button>
+            </Link>
+          </div>
+        </Card>
+      </div>
+    </>
   )
 }

@@ -2,14 +2,14 @@
 
 import { useRouter } from 'nextjs-toploader/app'
 import { useMemo, useState, useCallback } from 'react'
-import Link from 'next/link'
 import {
-  ArrowLeft, AlignLeft, Book, Clock, CloudUpload, FileText, Globe,
+  AlignLeft, Book, Clock, CloudUpload, FileText, Globe,
   GraduationCap, Info, Save, Type, Video, X, type LucideIcon
 } from 'lucide-react'
 import type { Class, Subject } from '@/types/admin'
 import type { CreateLessonPayload, Lesson } from '@/types/lesson'
 import { createLesson, updateLesson, addMaterialFromFile } from '@/lib/lessons.mutations'
+import { PageHeader } from '@/components/layout/page-header'
 import { useToast } from '@/components/ui/toast-provider'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -120,103 +120,86 @@ export function LessonForm({
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 px-3 py-5 sm:px-4 sm:py-6">
-      <div className="relative flex items-center justify-between gap-3">
-        
-        {/* Changed from Link to button with router.back() */}
-        <button
-          type="button"
-          onClick={() => router.back()}
-          aria-label="Go back"
-          className="inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"
-        >
-          <ArrowLeft size={26} className="shrink-0" />
-          <span className="sr-only">Go back</span>
-        </button>
+    <>
+      <PageHeader
+        title={mode === 'create' ? 'Create New Lesson' : 'Edit Lesson'}
+        fallbackHref="/teacher/lessons"
+      />
 
-        <div className="pointer-events-none absolute left-1/2 w-full max-w-[70%] -translate-x-1/2 text-center">
-          <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">
-            {mode === 'create' ? 'Create New Lesson' : 'Edit Lesson'}
-          </h1>
-          <p className="mt-1 truncate text-sm text-muted-foreground">
-            {mode === 'create' ? 'Create engaging content for your students' : `Editing: ${initial?.title ?? ''}`}
-          </p>
-        </div>
-      </div>
+      <div className="mx-auto max-w-3xl space-y-6 px-3 py-5 sm:px-4 sm:py-6">
+        <form onSubmit={handleSubmit} className="space-y-6 rounded-md border border-border bg-card p-5 sm:space-y-8 sm:p-8">
+          <Section icon={Info} title="Basic Information">
+            <Field label="Lesson Title" icon={Type} required>
+              <Input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="e.g., Introduction to Fractions" />
+            </Field>
+            <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
+              <Field label="Class" icon={GraduationCap} required>
+                <Select value={classId} onChange={(e) => handleClassChange(e.target.value)} required>
+                  <option value="">Select a class</option>
+                  {classes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </Select>
+              </Field>
+              <Field label="Subject" icon={Book} required>
+                <Select value={subjectId} onChange={(e) => setSubjectId(e.target.value)} required disabled={!classId}>
+                  <option value="">{classId ? 'Select a subject' : 'First select a class'}</option>
+                  {filteredSubjects.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </Select>
+              </Field>
+            </div>
+          </Section>
 
-      <form onSubmit={handleSubmit} className="space-y-6 rounded-md border border-border bg-card p-5 sm:space-y-8 sm:p-8">
-        <Section icon={Info} title="Basic Information">
-          <Field label="Lesson Title" icon={Type} required>
-            <Input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="e.g., Introduction to Fractions" />
-          </Field>
-          <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
-            <Field label="Class" icon={GraduationCap} required>
-              <Select value={classId} onChange={(e) => handleClassChange(e.target.value)} required>
-                <option value="">Select a class</option>
-                {classes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </Select>
+          <Section icon={AlignLeft} title="Lesson Content">
+            <Field label="Content" icon={FileText}>
+              <textarea value={content} onChange={(e) => setContent(e.target.value)} rows={6} placeholder="Write your lesson content here..." className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm outline-none transition focus:border-brand-accent focus:ring-1 focus:ring-brand-accent/25" />
             </Field>
-            <Field label="Subject" icon={Book} required>
-              <Select value={subjectId} onChange={(e) => setSubjectId(e.target.value)} required disabled={!classId}>
-                <option value="">{classId ? 'Select a subject' : 'First select a class'}</option>
-                {filteredSubjects.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </Select>
-            </Field>
-          </div>
-        </Section>
+          </Section>
 
-        <Section icon={AlignLeft} title="Lesson Content">
-          <Field label="Content" icon={FileText}>
-            <textarea value={content} onChange={(e) => setContent(e.target.value)} rows={6} placeholder="Write your lesson content here..." className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm outline-none transition focus:border-brand-accent focus:ring-1 focus:ring-brand-accent/25" />
-          </Field>
-        </Section>
+          <Section icon={Video} title="Media & Materials">
+            <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
+              <Field label="YouTube Video URL" icon={Video}>
+                <Input type="url" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} placeholder="https://www.youtube.com/watch?v=..." />
+              </Field>
+              <Field label="Duration (minutes)" icon={Clock}>
+                <Input type="number" min={1} max={300} value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="e.g., 45" />
+              </Field>
+            </div>
+            <Field label="Upload Materials" icon={CloudUpload}>
+              <label className="relative block cursor-pointer rounded-md border-2 border-dashed border-border px-4 py-8 text-center transition hover:border-brand-accent sm:px-6 sm:py-10" onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); handleFileAdd(e.dataTransfer.files) }}>
+                <CloudUpload size={36} className="mx-auto mb-3" style={{ color: 'var(--brand-accent)' }} />
+                <p className="text-sm font-medium text-foreground">Drag &amp; drop files here or click to browse</p>
+                <input type="file" multiple accept={ACCEPTED} onChange={(e) => handleFileAdd(e.target.files)} className="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
+              </label>
+              {files.length > 0 && (
+                <ul className="mt-3 space-y-2">
+                  {files.map((f, i) => (
+                    <li key={`${f.name}-${i}`} className="flex items-center gap-3 rounded-md bg-muted px-3 py-2 text-sm">
+                      <FileText size={15} style={{ color: 'var(--brand-accent)' }} className="shrink-0" />
+                      <span className="min-w-0 flex-1 truncate text-foreground">{f.name}</span>
+                      <span className="text-xs text-muted-foreground shrink-0">{(f.size / 1024).toFixed(2)} KB</span>
+                      <button type="button" onClick={() => handleFileRemove(i)} className="shrink-0 transition hover:opacity-70" style={{ color: 'var(--danger-fg)' }}><X size={14} /></button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Field>
+          </Section>
 
-        <Section icon={Video} title="Media & Materials">
-          <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
-            <Field label="YouTube Video URL" icon={Video}>
-              <Input type="url" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} placeholder="https://www.youtube.com/watch?v=..." />
-            </Field>
-            <Field label="Duration (minutes)" icon={Clock}>
-              <Input type="number" min={1} max={300} value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="e.g., 45" />
-            </Field>
-          </div>
-          <Field label="Upload Materials" icon={CloudUpload}>
-            <label className="relative block cursor-pointer rounded-md border-2 border-dashed border-border px-4 py-8 text-center transition hover:border-brand-accent sm:px-6 sm:py-10" onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); handleFileAdd(e.dataTransfer.files) }}>
-              <CloudUpload size={36} className="mx-auto mb-3" style={{ color: 'var(--brand-accent)' }} />
-              <p className="text-sm font-medium text-foreground">Drag &amp; drop files here or click to browse</p>
-              <input type="file" multiple accept={ACCEPTED} onChange={(e) => handleFileAdd(e.target.files)} className="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
+          <Section icon={Globe} title="Publishing Options">
+            <label className="flex items-center gap-2 text-sm text-foreground">
+              <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} className="h-4 w-4 rounded border-input" style={{ accentColor: 'var(--brand-accent)' }} />
+              Publish immediately
             </label>
-            {files.length > 0 && (
-              <ul className="mt-3 space-y-2">
-                {files.map((f, i) => (
-                  <li key={`${f.name}-${i}`} className="flex items-center gap-3 rounded-md bg-muted px-3 py-2 text-sm">
-                    <FileText size={15} style={{ color: 'var(--brand-accent)' }} className="shrink-0" />
-                    <span className="min-w-0 flex-1 truncate text-foreground">{f.name}</span>
-                    <span className="text-xs text-muted-foreground shrink-0">{(f.size / 1024).toFixed(2)} KB</span>
-                    <button type="button" onClick={() => handleFileRemove(i)} className="shrink-0 transition hover:opacity-70" style={{ color: 'var(--danger-fg)' }}><X size={14} /></button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Field>
-        </Section>
+          </Section>
 
-        <Section icon={Globe} title="Publishing Options">
-          <label className="flex items-center gap-2 text-sm text-foreground">
-            <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} className="h-4 w-4 rounded border-input" style={{ accentColor: 'var(--brand-accent)' }} />
-            Publish immediately
-          </label>
-        </Section>
-
-        <div className="flex justify-end border-t border-border pt-4">
-          <Button type="submit" disabled={busy} className="w-full sm:w-auto">
-            <Save size={15} className="mr-2" />
-            {busy ? 'Saving...' : mode === 'create' ? 'Create Lesson' : 'Update Lesson'}
-          </Button>
-        </div>
-      </form>
-      
-    </div>
+          <div className="flex justify-end border-t border-border pt-4">
+            <Button type="submit" disabled={busy} className="w-full sm:w-auto">
+              <Save size={15} className="mr-2" />
+              {busy ? 'Saving...' : mode === 'create' ? 'Create Lesson' : 'Update Lesson'}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </>
   )
 }
 

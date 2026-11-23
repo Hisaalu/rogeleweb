@@ -1,10 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
-  ArrowLeft,
   Users,
   CheckCircle2,
   XCircle,
@@ -14,6 +12,7 @@ import {
   Download,
 } from 'lucide-react'
 import type { Quiz, QuizAttempt } from '@/types/quiz'
+import { PageHeader } from '@/components/layout/page-header'
 import { useToast } from '@/components/ui/toast-provider'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Card } from '@/components/ui/card'
@@ -51,15 +50,13 @@ async function deleteAllAttempts(quizId: number): Promise<boolean> {
 }
 
 export function ResultsView({ quiz, initialAttempts }: { quiz: Quiz, initialAttempts: QuizAttempt[] }) {
-  const router = useRouter()
   const { showToast } = useToast()
   const [attempts, setAttempts] = useState<QuizAttempt[]>(initialAttempts)
   const [clearing, setClearing] = useState(false)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
 
-  const total = attempts.length
   const uniqueStudents = new Set(attempts.map((a) => a.user_id)).size
-  
+
   const completed = attempts.filter((a) => a.status === 'completed')
   const passed = completed.filter((a) => (a.score ?? 0) >= (quiz.passing_score ?? 70))
   const avgScore =
@@ -121,177 +118,163 @@ export function ResultsView({ quiz, initialAttempts }: { quiz: Quiz, initialAtte
     }
   }
 
-  return (
-    <div className="mx-auto max-w-6xl space-y-6 px-4 py-8 sm:px-6 sm:py-10">
-      <div className="flex flex-col gap-4 sm:relative sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-        <div className="flex items-center justify-between gap-3 sm:contents">
-          
-          <button
-            type="button"
-            onClick={() => router.back()}
-            aria-label="Go back"
-            className="inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"
-          >
-            <ArrowLeft size={26} className="shrink-0" />
-            <span className="sr-only">Go back</span>
-          </button>
-
-          <div className="flex flex-wrap gap-2 sm:relative sm:z-10">
-            {completed.length > 0 && (
-              <Button variant="outline" onClick={handleExport}>
-                <Download size={15} className="mr-2" />
-              </Button>
-            )}
-            {attempts.length > 0 && (
-              <Button
-                type="button"
-                variant="danger"
-                onClick={() => setShowClearConfirm(true)}
-                disabled={clearing}
-              >
-                <Trash2 size={15} className="mr-2" />
-              </Button>
-            )}
-          </div>
-        </div>
-
-        <div className="text-center sm:pointer-events-none sm:absolute sm:left-1/2 sm:w-full sm:max-w-[50%] sm:-translate-x-1/2">
-          <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">
-            {quiz.title} — Results
-          </h1>
-          <p className="truncate text-sm text-muted-foreground">
-            {total === 0
-              ? 'No attempts yet'
-              : `${total} total attempt${total === 1 ? '' : 's'} from ${uniqueStudents} unique student${uniqueStudents === 1 ? '' : 's'}`}
-          </p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        <StatCard
-          icon={Users}
-          label="Unique Students"
-          value={uniqueStudents}
-          tone="brand"
-        />
-        <StatCard
-          icon={CheckCircle2}
-          label="Pass Rate"
-          value={`${passRate}%`}
-          tone="success"
-        />
-        <StatCard
-          icon={Trophy}
-          label="Average Score"
-          value={`${avgScore}%`}
-          tone="warning"
-        />
-        <StatCard
-          icon={Clock}
-          label="Avg Time"
-          value={formatDuration(avgTime)}
-          tone="neutral"
-        />
-      </div>
-
-      {attempts.length === 0 ? (
-        <Card className="border-dashed px-6 py-16 text-center">
-          <Users size={48} className="mx-auto mb-4 opacity-30" style={{ color: 'var(--brand-accent)' }} />
-          <h3 className="text-lg font-bold text-foreground">No Attempts Yet</h3>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Student attempts will appear here once they take the quiz.
-          </p>
-        </Card>
-      ) : (
-        <Card className="overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="border-b border-border bg-muted/40 text-xs tracking-wider text-muted-foreground">
-                <tr>
-                  <th className="px-4 py-3 font-semibold">Student</th>
-                  <th className="px-4 py-3 font-semibold">Score</th>
-                  <th className="px-4 py-3 font-semibold">Status</th>
-                  <th className="px-4 py-3 font-semibold">Time Taken</th>
-                  <th className="px-4 py-3 font-semibold">Completed</th>
-                  <th className="px-4 py-3 font-semibold text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {attempts.map((a) => {
-                  const score = a.score ?? 0
-                  const passedAttempt = score >= (quiz.passing_score ?? 70)
-                  const name =
-                    [a.student_first_name, a.student_last_name]
-                      .filter(Boolean)
-                      .join(' ') || a.student_email || `User #${a.user_id}`
-                  return (
-                    <tr key={a.id} className="transition hover:bg-muted/30">
-                      <td className="px-4 py-3">
-                        <p className="font-medium text-foreground">{name}</p>
-                        {a.student_email && (
-                          <p className="text-xs text-muted-foreground">{a.student_email}</p>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold"
-                          style={{
-                            backgroundColor: passedAttempt
-                              ? 'var(--success-bg)'
-                              : 'var(--danger-bg)',
-                            color: passedAttempt
-                              ? 'var(--success-fg)'
-                              : 'var(--danger-fg)',
-                          }}
-                        >
-                          {passedAttempt ? (
-                            <CheckCircle2 size={12} />
-                          ) : (
-                            <XCircle size={12} />
-                          )}
-                          {score}%
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className="text-xs capitalize text-muted-foreground">
-                          {a.status.replace('_', ' ')}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-xs text-muted-foreground">
-                        {formatDuration(a.time_taken)}
-                      </td>
-                      <td className="px-4 py-3 text-xs text-muted-foreground">
-                        {formatDate(a.completed_at)}
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <Link
-                          href={`/teacher/students/${a.user_id}`}
-                          className="text-xs font-semibold hover:underline"
-                          style={{ color: 'var(--brand-accent)' }}
-                        >
-                          View Details
-                        </Link>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        </Card>
+  const headerActions = (completed.length > 0 || attempts.length > 0) && (
+    <div className="flex items-center gap-2">
+      {completed.length > 0 && (
+        <Button variant="outline" size="sm" onClick={handleExport} aria-label="Export results">
+          <Download size={15} />
+        </Button>
       )}
-
-      <ConfirmDialog
-        open={showClearConfirm}
-        onOpenChange={(open) => !open && setShowClearConfirm(false)}
-        title="Clear all attempts?"
-        description="This will permanently delete every student attempt for this quiz. Students will be able to retake it. This action cannot be undone."
-        confirmLabel="Clear All"
-        destructive
-        loading={clearing}
-        onConfirm={handleClearAll}
-      />
+      {attempts.length > 0 && (
+        <Button
+          type="button"
+          variant="danger"
+          size="sm"
+          onClick={() => setShowClearConfirm(true)}
+          disabled={clearing}
+          aria-label="Clear all attempts"
+        >
+          <Trash2 size={15} />
+        </Button>
+      )}
     </div>
+  )
+
+  return (
+    <>
+      <PageHeader
+        title={`${quiz.title} — Results`}
+        fallbackHref="/teacher/quizzes"
+        action={headerActions}
+      />
+
+      <div className="mx-auto max-w-6xl space-y-6 px-4 py-8 sm:px-6 sm:py-10">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+          <StatCard
+            icon={Users}
+            label="Unique Students"
+            value={uniqueStudents}
+            tone="brand"
+          />
+          <StatCard
+            icon={CheckCircle2}
+            label="Pass Rate"
+            value={`${passRate}%`}
+            tone="success"
+          />
+          <StatCard
+            icon={Trophy}
+            label="Average Score"
+            value={`${avgScore}%`}
+            tone="warning"
+          />
+          <StatCard
+            icon={Clock}
+            label="Avg Time"
+            value={formatDuration(avgTime)}
+            tone="neutral"
+          />
+        </div>
+
+        {attempts.length === 0 ? (
+          <Card className="border-dashed px-6 py-16 text-center">
+            <Users size={48} className="mx-auto mb-4 opacity-30" style={{ color: 'var(--brand-accent)' }} />
+            <h3 className="text-lg font-bold text-foreground">No Attempts Yet</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Student attempts will appear here once they take the quiz.
+            </p>
+          </Card>
+        ) : (
+          <Card className="overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="border-b border-border bg-muted/40 text-xs tracking-wider text-muted-foreground">
+                  <tr>
+                    <th className="px-4 py-3 font-semibold">Student</th>
+                    <th className="px-4 py-3 font-semibold">Score</th>
+                    <th className="px-4 py-3 font-semibold">Status</th>
+                    <th className="px-4 py-3 font-semibold">Time Taken</th>
+                    <th className="px-4 py-3 font-semibold">Completed</th>
+                    <th className="px-4 py-3 font-semibold text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {attempts.map((a) => {
+                    const score = a.score ?? 0
+                    const passedAttempt = score >= (quiz.passing_score ?? 70)
+                    const name =
+                      [a.student_first_name, a.student_last_name]
+                        .filter(Boolean)
+                        .join(' ') || a.student_email || `User #${a.user_id}`
+                    return (
+                      <tr key={a.id} className="transition hover:bg-muted/30">
+                        <td className="px-4 py-3">
+                          <p className="font-medium text-foreground">{name}</p>
+                          {a.student_email && (
+                            <p className="text-xs text-muted-foreground">{a.student_email}</p>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold"
+                            style={{
+                              backgroundColor: passedAttempt
+                                ? 'var(--success-bg)'
+                                : 'var(--danger-bg)',
+                              color: passedAttempt
+                                ? 'var(--success-fg)'
+                                : 'var(--danger-fg)',
+                            }}
+                          >
+                            {passedAttempt ? (
+                              <CheckCircle2 size={12} />
+                            ) : (
+                              <XCircle size={12} />
+                            )}
+                            {score}%
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="text-xs capitalize text-muted-foreground">
+                            {a.status.replace('_', ' ')}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-xs text-muted-foreground">
+                          {formatDuration(a.time_taken)}
+                        </td>
+                        <td className="px-4 py-3 text-xs text-muted-foreground">
+                          {formatDate(a.completed_at)}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <Link
+                            href={`/teacher/students/${a.user_id}`}
+                            className="text-xs font-semibold hover:underline"
+                            style={{ color: 'var(--brand-accent)' }}
+                          >
+                            View Details
+                          </Link>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        )}
+
+        <ConfirmDialog
+          open={showClearConfirm}
+          onOpenChange={(open) => !open && setShowClearConfirm(false)}
+          title="Clear all attempts?"
+          description="This will permanently delete every student attempt for this quiz. Students will be able to retake it. This action cannot be undone."
+          confirmLabel="Clear All"
+          destructive
+          loading={clearing}
+          onConfirm={handleClearAll}
+        />
+      </div>
+    </>
   )
 }
 
@@ -315,7 +298,7 @@ function StatCard({
     neutral: { bg: 'hsl(var(--muted-foreground))', fg: 'white' },
   }
   const t = tones[tone]
-  
+
   return (
     <Card className="flex min-w-0 items-center gap-3 p-3 transition hover:-translate-y-1 hover:shadow-lg sm:gap-5 sm:p-6">
       <div

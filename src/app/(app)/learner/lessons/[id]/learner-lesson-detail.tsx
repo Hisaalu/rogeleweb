@@ -2,7 +2,6 @@
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import {
-  ArrowLeft,
   BookOpen,
   Bookmark,
   Clock,
@@ -18,6 +17,7 @@ import {
 import { getYoutubeId, formatNumber, formatDate } from '@/lib/utils'
 import { toggleLessonBookmarkClient } from '@/lib/lessons.client'
 import { formatFileSize, materialDownloadUrl } from '@/lib/materials'
+import { PageHeader } from '@/components/layout/page-header'
 import { useToast } from '@/components/ui/toast-provider'
 import { PremiumGate } from '@/components/premium-gate'
 import { Card } from '@/components/ui/card'
@@ -97,173 +97,166 @@ export function LearnerLessonDetail({
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-5 px-3 py-5 sm:space-y-6 sm:px-4 sm:py-8">
-      <div className="relative flex items-center justify-between gap-3">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          aria-label="Go back"
-          className="inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"
-        >
-          <ArrowLeft size={26} className="shrink-0" />
-          <span className="sr-only">Go back</span>
-        </button>
-
-        <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 text-2xl font-bold text-foreground sm:text-3xl">
-          Lesson
-        </span>
-
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleBookmark}
-          disabled={busy}
-          className="rounded-full"
-          style={bookmarked ? bookmarkOn : bookmarkOff}
-          title={bookmarked ? 'Remove from bookmarks' : 'Add to bookmarks'}
-        >
-          {busy ? (
-            <Loader2 size={16} className="animate-spin" />
-          ) : (
-            <Bookmark size={16} fill={bookmarked ? 'currentColor' : 'none'} />
-          )}
-          <span className="hidden sm:inline">
-            {bookmarked ? 'Bookmarked' : 'Bookmark'}
-          </span>
-        </Button>
-      </div>
-
-      <Card className="p-4 sm:p-6">
-        <h1 className="break-words text-xl font-bold text-foreground sm:text-2xl">
-          {lesson.title}
-        </h1>
-
-        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground sm:text-sm">
-          <span className="inline-flex items-center gap-1">
-            <GraduationCap size={14} style={accentIcon} />
-            {lesson.class_name ?? 'All Levels'}
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <BookOpen size={14} style={accentIcon} />
-            {lesson.subject_name ?? 'General'}
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <User size={14} style={accentIcon} />
-            Tr. {lesson.teacher_name ?? 'Rays of Grace'}
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <Eye size={14} style={accentIcon} />
-            {formatNumber(lesson.views)} views
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <Paperclip size={14} style={accentIcon} />
-            {lesson.materials_count} file
-            {lesson.materials_count === 1 ? '' : 's'}
-          </span>
-          {lesson.duration ? (
-            <span className="inline-flex items-center gap-1">
-              <Clock size={14} style={accentIcon} />
-              {lesson.duration} min
+    <>
+      <PageHeader
+        title="Lesson"
+        fallbackHref="/learner/lessons"
+        action={
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleBookmark}
+            disabled={busy}
+            className="rounded-full"
+            style={bookmarked ? bookmarkOn : bookmarkOff}
+            title={bookmarked ? 'Remove from bookmarks' : 'Add to bookmarks'}
+          >
+            {busy ? (
+              <Loader2 size={15} className="animate-spin" />
+            ) : (
+              <Bookmark size={15} fill={bookmarked ? 'currentColor' : 'none'} />
+            )}
+            <span className="hidden sm:inline">
+              {bookmarked ? 'Bookmarked' : 'Bookmark'}
             </span>
-          ) : null}
-        </div>
+          </Button>
+        }
+      />
 
-        <p className="mt-2 text-xs text-muted-foreground">
-          Published {formatDate(lesson.created_at)}
-          {edited && lesson.updated_at ? (
-            <>
-              {' · '}
-              <span className="inline-flex items-center gap-1 font-medium text-brand-accent">
-                <Pencil size={12} />
-                Updated {formatDate(lesson.updated_at)}
-              </span>
-            </>
-          ) : null}
-        </p>
-      </Card>
-
-      {youtubeId ? (
-        <Card className="aspect-video overflow-hidden p-0">
-          <iframe
-            src={`https://www.youtube.com/embed/${youtubeId}`}
-            title={lesson.title}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="h-full w-full"
-            loading="lazy"
-          />
-        </Card>
-      ) : null}
-
-      {lesson.content ? (
+      <div className="mx-auto max-w-4xl space-y-5 px-3 py-5 sm:space-y-6 sm:px-4 sm:py-8">
         <Card className="p-4 sm:p-6">
-          <h2 className="mb-3 text-xs font-semibold tracking-wide text-muted-foreground sm:text-sm">
-            Lesson content
-          </h2>
-          <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground">
-            {lesson.content}
+          <h1 className="break-words text-xl font-bold text-foreground sm:text-2xl">
+            {lesson.title}
+          </h1>
+
+          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground sm:text-sm">
+            <span className="inline-flex items-center gap-1">
+              <GraduationCap size={14} style={accentIcon} />
+              {lesson.class_name ?? 'All Levels'}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <BookOpen size={14} style={accentIcon} />
+              {lesson.subject_name ?? 'General'}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <User size={14} style={accentIcon} />
+              Tr. {lesson.teacher_name ?? 'Rays of Grace'}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Eye size={14} style={accentIcon} />
+              {formatNumber(lesson.views)} views
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Paperclip size={14} style={accentIcon} />
+              {lesson.materials_count} file
+              {lesson.materials_count === 1 ? '' : 's'}
+            </span>
+            {lesson.duration ? (
+              <span className="inline-flex items-center gap-1">
+                <Clock size={14} style={accentIcon} />
+                {lesson.duration} min
+              </span>
+            ) : null}
+          </div>
+
+          <p className="mt-2 text-xs text-muted-foreground">
+            Published {formatDate(lesson.created_at)}
+            {edited && lesson.updated_at ? (
+              <>
+                {' · '}
+                <span className="inline-flex items-center gap-1 font-medium text-brand-accent">
+                  <Pencil size={12} />
+                  Updated {formatDate(lesson.updated_at)}
+                </span>
+              </>
+            ) : null}
           </p>
         </Card>
-      ) : null}
 
-      {materials.length > 0 ? (
-        <Card className="p-4 sm:p-6">
-          <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground sm:text-base">
-            <Paperclip size={16} style={accentIcon} />
-            Downloadable materials
-          </h2>
-          <ul className="space-y-2">
-            {materials.map((m) => {
-              const href = materialDownloadUrl(m.file_path)
-              const name = m.file_name ?? 'Unnamed file'
-              return (
-                <li key={m.id}>
-                  <a
-                    href={canDownload ? href : undefined}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    download
-                    onClick={handleDownloadClick}
-                    className="group flex flex-col gap-2 rounded-md border border-border bg-muted/40 p-3 text-sm transition hover:border-brand-accent hover:bg-muted sm:flex-row sm:items-center sm:gap-3 sm:p-3.5"
-                  >
-                    <div className="flex min-w-0 flex-1 items-center gap-3">
-                      <FileText
-                        size={18}
-                        style={accentIcon}
-                        className="shrink-0"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate font-medium text-foreground">
-                          {name}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatFileSize(m.file_size)}
-                        </p>
-                      </div>
-                    </div>
-                    <span
-                      className="inline-flex items-center justify-center gap-1.5 self-stretch rounded-md px-3 py-1.5 text-xs font-semibold text-brand-accent transition group-hover:bg-brand-accent group-hover:text-white sm:self-auto"
-                      style={downloadBadgeBg}
+        {youtubeId ? (
+          <Card className="aspect-video overflow-hidden p-0">
+            <iframe
+              src={`https://www.youtube.com/embed/${youtubeId}`}
+              title={lesson.title}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="h-full w-full"
+              loading="lazy"
+            />
+          </Card>
+        ) : null}
+
+        {lesson.content ? (
+          <Card className="p-4 sm:p-6">
+            <h2 className="mb-3 text-xs font-semibold tracking-wide text-muted-foreground sm:text-sm">
+              Lesson content
+            </h2>
+            <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground">
+              {lesson.content}
+            </p>
+          </Card>
+        ) : null}
+
+        {materials.length > 0 ? (
+          <Card className="p-4 sm:p-6">
+            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground sm:text-base">
+              <Paperclip size={16} style={accentIcon} />
+              Downloadable materials
+            </h2>
+            <ul className="space-y-2">
+              {materials.map((m) => {
+                const href = materialDownloadUrl(m.file_path)
+                const name = m.file_name ?? 'Unnamed file'
+                return (
+                  <li key={m.id}>
+                    <a
+                      href={canDownload ? href : undefined}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download
+                      onClick={handleDownloadClick}
+                      className="group flex flex-col gap-2 rounded-md border border-border bg-muted/40 p-3 text-sm transition hover:border-brand-accent hover:bg-muted sm:flex-row sm:items-center sm:gap-3 sm:p-3.5"
                     >
-                      <Download size={13} />
-                      Download
-                    </span>
-                  </a>
-                </li>
-              )
-            })}
-          </ul>
-        </Card>
-      ) : null}
+                      <div className="flex min-w-0 flex-1 items-center gap-3">
+                        <FileText
+                          size={18}
+                          style={accentIcon}
+                          className="shrink-0"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate font-medium text-foreground">
+                            {name}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {formatFileSize(m.file_size)}
+                          </p>
+                        </div>
+                      </div>
+                      <span
+                        className="inline-flex items-center justify-center gap-1.5 self-stretch rounded-md px-3 py-1.5 text-xs font-semibold text-brand-accent transition group-hover:bg-brand-accent group-hover:text-white sm:self-auto"
+                        style={downloadBadgeBg}
+                      >
+                        <Download size={13} />
+                        Download
+                      </span>
+                    </a>
+                  </li>
+                )
+              })}
+            </ul>
+          </Card>
+        ) : null}
 
-      {gateReason && (
-        <PremiumGate
-          open={gateOpen}
-          context="lesson"
-          reason={gateReason}
-          onDismiss={() => setGateOpen(false)}
-        />
-      )}
-    </div>
+        {gateReason && (
+          <PremiumGate
+            open={gateOpen}
+            context="lesson"
+            reason={gateReason}
+            onDismiss={() => setGateOpen(false)}
+          />
+        )}
+      </div>
+    </>
   )
 }

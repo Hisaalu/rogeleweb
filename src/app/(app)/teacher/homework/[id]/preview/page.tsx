@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Edit, Users, GraduationCap, Book, Calendar, Paperclip, Download, Eye, FileText } from 'lucide-react'
+import { Edit, Users, GraduationCap, Book, Calendar, Paperclip, Download, FileText } from 'lucide-react'
 import { getHomeworkServer, listAttachmentsServer } from '@/lib/homework.server'
 import { materialDownloadUrl, formatFileSize } from '@/lib/materials'
 import { fetchPublicSettings } from '@/lib/settings.server'
+import { PageHeader } from '@/components/layout/page-header'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -13,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
   try {
     const settings = await fetchPublicSettings()
     const siteTitle = settings['site.browser_title']?.trim() || 'NexaT'
-    return { title: `Preview Homework` }
+    return { title: `${siteTitle} — Preview Homework` }
   } catch {
     return { title: 'Preview Homework' }
   }
@@ -29,112 +30,105 @@ export default async function PreviewHomeworkPage({ params }: { params: { id: st
   const isExpired = new Date(hw.due_date).getTime() < new Date().getTime()
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">
-      <div className="flex flex-col gap-4 sm:relative sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-        <div className="flex items-center justify-between gap-3 sm:contents">
-          <Link
-            href="/teacher/homework"
-            aria-label="Back to homework"
-            className="inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"          >
-            <ArrowLeft size={26} className="shrink-0" />
-            <span className="sr-only">Homework</span>
-          </Link>
-
-          <div className="flex flex-wrap items-center gap-2 sm:relative sm:z-10">
-            <Link 
-              href={`/teacher/homework/${hw.id}/edit`} 
-              className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition hover:opacity-80"
-              style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }}
+    <>
+      <PageHeader
+        title="Preview Homework"
+        fallbackHref="/teacher/homework"
+        action={
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/teacher/homework/${hw.id}/edit`}
+              className="inline-flex shrink-0 items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-semibold transition hover:opacity-80 sm:px-4 sm:py-2.5 sm:text-sm"
+              style={{
+                backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)',
+                color: 'var(--brand-primary)',
+              }}
             >
               <Edit size={15} /> Edit
             </Link>
-            <Link 
-              href={`/teacher/homework/${hw.id}/submissions`} 
-              className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90" 
+            <Link
+              href={`/teacher/homework/${hw.id}/submissions`}
+              className="inline-flex shrink-0 items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-semibold text-white transition hover:opacity-90 sm:px-4 sm:py-2.5 sm:text-sm"
               style={{ backgroundColor: 'var(--brand-primary)' }}
             >
               <Users size={15} /> Submissions
             </Link>
           </div>
-        </div>
+        }
+      />
 
-        <div className="text-center sm:pointer-events-none sm:absolute sm:left-1/2 sm:w-full sm:max-w-[50%] sm:-translate-x-1/2">
-          <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">
-            Preview Homework
-          </h1>
-        </div>
-      </div>
+      <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-10">
+          <div className="mb-6 flex flex-wrap items-start justify-between gap-4 border-b border-border pb-6">
+            <h2 className="text-2xl font-bold text-foreground">{hw.title}</h2>
+            <span
+              className="rounded-full px-3 py-1 text-sm font-semibold"
+              style={{
+                backgroundColor: isExpired ? 'var(--danger-bg)' : 'var(--success-bg)',
+                color: isExpired ? 'var(--danger-fg)' : 'var(--success-fg)',
+              }}
+            >
+              {isExpired ? 'Expired' : 'Active'}
+            </span>
+          </div>
 
-      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-10">
-        <div className="mb-6 flex flex-wrap items-start justify-between gap-4 border-b border-border pb-6">
-          <h2 className="text-2xl font-bold text-foreground">{hw.title}</h2>
-          <span 
-            className="rounded-full px-3 py-1 text-sm font-semibold"
-            style={{
-              backgroundColor: isExpired ? 'var(--danger-bg)' : 'var(--success-bg)',
-              color: isExpired ? 'var(--danger-fg)' : 'var(--success-fg)'
-            }}
-          >
-            {isExpired ? 'Expired' : 'Active'}
-          </span>
-        </div>
-
-        <div className="mb-8 grid gap-4 rounded-xl bg-muted p-5 sm:grid-cols-3">
-          <div className="flex items-center gap-3">
-            <GraduationCap size={24} style={{ color: 'var(--brand-accent)' }} />
-            <div>
-              <p className="text-xs font-semibold text-muted-foreground">Class</p>
-              <p className="font-semibold">{hw.class_name}</p>
+          <div className="mb-8 grid gap-4 rounded-xl bg-muted p-5 sm:grid-cols-3">
+            <div className="flex items-center gap-3">
+              <GraduationCap size={24} style={{ color: 'var(--brand-accent)' }} />
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground">Class</p>
+                <p className="font-semibold">{hw.class_name}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Book size={24} style={{ color: 'var(--brand-accent)' }} />
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground">Subject</p>
+                <p className="font-semibold">{hw.subject_name}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Calendar size={24} style={{ color: 'var(--brand-accent)' }} />
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground">Due Date</p>
+                <p className="font-semibold">{new Date(hw.due_date).toLocaleString()}</p>
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <Book size={24} style={{ color: 'var(--brand-accent)' }} />
-            <div>
-              <p className="text-xs font-semibold text-muted-foreground">Subject</p>
-              <p className="font-semibold">{hw.subject_name}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Calendar size={24} style={{ color: 'var(--brand-accent)' }} />
-            <div>
-              <p className="text-xs font-semibold text-muted-foreground">Due Date</p>
-              <p className="font-semibold">{new Date(hw.due_date).toLocaleString()}</p>
-            </div>
-          </div>
-        </div>
 
-        <div className="mb-8">
-          <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold">
-            <FileText size={18} style={{ color: 'var(--brand-accent)' }} /> Description & Instructions
-          </h3>
-          <div className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
-            {hw.description || 'No detailed instructions provided.'}
-          </div>
-        </div>
-
-        {attachments.length > 0 && (
-          <div>
+          <div className="mb-8">
             <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold">
-              <Paperclip size={18} style={{ color: 'var(--brand-accent)' }} /> Attached Materials
+              <FileText size={18} style={{ color: 'var(--brand-accent)' }} /> Description &amp; Instructions
             </h3>
-            <div className="space-y-2">
-              {attachments.map(a => (
-                <a 
-                  key={a.id} 
-                  href={materialDownloadUrl(a.file_path)} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="flex items-center gap-3 rounded-lg border border-border bg-background px-4 py-3 text-sm transition hover:border-brand-accent"
-                >
-                  <Download size={16} style={{ color: 'var(--brand-accent)' }} />
-                  <span className="flex-1 font-medium text-foreground">{a.file_name}</span>
-                  <span className="text-xs text-muted-foreground">({formatFileSize(a.file_size)})</span>
-                </a>
-              ))}
+            <div className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
+              {hw.description || 'No detailed instructions provided.'}
             </div>
           </div>
-        )}
+
+          {attachments.length > 0 && (
+            <div>
+              <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold">
+                <Paperclip size={18} style={{ color: 'var(--brand-accent)' }} /> Attached Materials
+              </h3>
+              <div className="space-y-2">
+                {attachments.map(a => (
+                  <a
+                    key={a.id}
+                    href={materialDownloadUrl(a.file_path)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 rounded-lg border border-border bg-background px-4 py-3 text-sm transition hover:border-brand-accent"
+                  >
+                    <Download size={16} style={{ color: 'var(--brand-accent)' }} />
+                    <span className="flex-1 font-medium text-foreground">{a.file_name}</span>
+                    <span className="text-xs text-muted-foreground">({formatFileSize(a.file_size)})</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }

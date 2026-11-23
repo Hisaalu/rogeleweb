@@ -1,14 +1,15 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react' 
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'nextjs-toploader/app'
-import { 
-  Camera, Calendar, Clock, Edit, Save, User, Mail, Phone, 
-  GraduationCap, Loader2, Star, BookOpen, Users, AlignLeft, ArrowLeft, type LucideIcon
+import {
+  Camera, Calendar, Clock, Edit, Save, User, Mail, Phone,
+  GraduationCap, Loader2, Star, BookOpen, Users, AlignLeft, type LucideIcon
 } from 'lucide-react'
 import type { User as ProfileUser } from '@/types/api'
 import { updateProfileClient, uploadAvatarClient } from '@/lib/profile.client'
 import { formatDate } from '@/lib/utils'
+import { PageHeader } from '@/components/layout/page-header'
 import { useToast } from '@/components/ui/toast-provider'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -47,10 +48,10 @@ export function TeacherProfileView({
     setQualification(profile?.qualification ?? '')
     setSpecialization(profile?.specialization ?? '')
   }, [
-    profile?.first_name, 
-    profile?.last_name, 
-    profile?.email, 
-    profile?.phone, 
+    profile?.first_name,
+    profile?.last_name,
+    profile?.email,
+    profile?.phone,
     profile?.bio,
     profile?.qualification,
     profile?.specialization
@@ -61,7 +62,7 @@ export function TeacherProfileView({
   async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
-    
+
     if (file.size > 2 * 1024 * 1024) {
       return showToast('Image exceeds 2MB limit', 'error')
     }
@@ -113,201 +114,186 @@ export function TeacherProfileView({
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 px-3 py-6 sm:space-y-8 sm:px-4 sm:py-8">
-      
-      <div className="relative flex items-center justify-center py-2 min-h-[60px]">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          aria-label="Go back"
-          className="absolute left-0 top-1/2 -translate-y-1/2 inline-flex shrink-0 items-center justify-center rounded-full p-1 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"
-        >
-          <ArrowLeft size={26} className="shrink-0" />
-          <span className="sr-only">Go back</span>
-        </button>
+    <>
+      <PageHeader
+        title="Profile"
+        fallbackHref="/teacher/dashboard"
+      />
 
-        <div className="text-center w-full px-12 sm:px-0">
-          <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
-            Profile
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">Manage your personal information</p>
+      <div className="mx-auto max-w-6xl space-y-6 px-3 py-6 sm:space-y-8 sm:px-4 sm:py-8">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[350px_1fr] lg:gap-8">
+          <Card className="space-y-6 p-5 sm:p-8">
+            <div className="text-center">
+              <div className="relative mx-auto mb-5 h-32 w-32 sm:h-[150px] sm:w-[150px]">
+                {profile?.profile_photo ? (
+                  <img
+                    src={profile.profile_photo}
+                    alt="Profile"
+                    className="h-full w-full rounded-full border-4 border-card object-cover shadow-xl"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center rounded-full border-4 border-card bg-brand-primary text-4xl font-bold text-white shadow-xl sm:text-5xl">
+                    {initials}
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={photoBusy}
+                  className="absolute bottom-1 right-1 flex h-10 w-10 items-center justify-center rounded-full bg-card text-foreground shadow-lg transition hover:scale-110 hover:bg-brand-primary hover:text-white disabled:opacity-50"
+                >
+                  {photoBusy ? <Loader2 size={18} className="animate-spin" /> : <Camera size={18} />}
+                </button>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handlePhotoUpload}
+                  accept="image/jpeg,image/png,image/gif"
+                  className="hidden"
+                />
+              </div>
+
+              <h2 className="text-lg font-bold text-foreground sm:text-xl">{firstName} {lastName}</h2>
+              <p className="capitalize text-sm text-muted-foreground">{profile?.role ?? 'Teacher'}</p>
+            </div>
+
+            <div className="space-y-2 border-t border-border pt-6">
+              <div className="flex items-center gap-3 rounded-md p-2.5 transition hover:bg-muted/50 sm:p-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }}>
+                  <Calendar size={18} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground">Member Since</p>
+                  <p className="truncate text-sm font-semibold text-foreground">{profile?.created_at ? formatDate(profile.created_at) : 'Today'}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 rounded-md p-2.5 transition hover:bg-muted/50 sm:p-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }}>
+                  <Clock size={18} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground">Last Login</p>
+                  <p className="truncate text-sm font-semibold text-foreground">{profile?.last_login ? formatDate(profile.last_login) : 'Today'}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 rounded-md p-2.5 transition hover:bg-muted/50 sm:p-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }}>
+                  <BookOpen size={18} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground">Lessons Taught</p>
+                  <p className="text-sm font-semibold text-foreground">{totalLessons.toLocaleString('en-US')}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 rounded-md p-2.5 transition hover:bg-muted/50 sm:p-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }}>
+                  <Users size={18} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground">Total Students</p>
+                  <p className="text-sm font-semibold text-foreground">{totalStudents.toLocaleString('en-US')}</p>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-5 sm:p-8 lg:p-10">
+            <h3 className="mb-6 flex items-center gap-2 border-b border-border pb-4 text-base font-bold text-foreground sm:mb-8 sm:text-lg">
+              <Edit size={18} style={{ color: 'var(--brand-accent)' }} />
+              Edit Personal Information
+            </h3>
+
+            <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6">
+                <Field label="First Name" icon={User} required>
+                  <Input
+                    type="text"
+                    value={firstName}
+                    onChange={e => setFirstName(e.target.value)}
+                    required
+                    autoComplete="given-name"
+                    placeholder="Enter your first name"
+                  />
+                </Field>
+                <Field label="Last Name" icon={User} required>
+                  <Input
+                    type="text"
+                    value={lastName}
+                    onChange={e => setLastName(e.target.value)}
+                    required
+                    autoComplete="family-name"
+                    placeholder="Enter your last name"
+                  />
+                </Field>
+              </div>
+
+              <Field label="Email Address" icon={Mail} required>
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  required
+                  autoComplete="email"
+                  placeholder="Enter your email address"
+                />
+              </Field>
+
+              <Field label="Phone Number" icon={Phone}>
+                <Input
+                  type="tel"
+                  value={phone}
+                  onChange={e => setPhone(e.target.value)}
+                  autoComplete="tel"
+                  placeholder="Enter your phone number"
+                />
+              </Field>
+
+              <Field label="Bio / About" icon={AlignLeft}>
+                <textarea
+                  value={bio}
+                  onChange={e => setBio(e.target.value)}
+                  rows={4}
+                  placeholder="Tell your students a little about yourself..."
+                  className="w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition focus:border-brand-accent focus:ring-1 focus:ring-brand-accent/25"
+                />
+              </Field>
+
+              <Field label="Qualifications" icon={GraduationCap}>
+                <Input
+                  type="text"
+                  value={qualification}
+                  onChange={e => setQualification(e.target.value)}
+                  placeholder="e.g., Bachelor of Education"
+                />
+              </Field>
+
+              <Field label="Specialization" icon={Star}>
+                <Input
+                  type="text"
+                  value={specialization}
+                  onChange={e => setSpecialization(e.target.value)}
+                  placeholder="e.g., Mathematics, Science"
+                />
+              </Field>
+
+              <div className="flex justify-end border-t border-border pt-5 sm:pt-6">
+                <Button
+                  type="submit"
+                  disabled={busy}
+                  className="w-full sm:w-auto"
+                >
+                  <Save size={16} className="mr-2" /> {busy ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
+            </form>
+          </Card>
         </div>
       </div>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[350px_1fr] lg:gap-8">
-        
-        <Card className="space-y-6 p-5 sm:p-8">
-          <div className="text-center">
-            <div className="relative mx-auto mb-5 h-32 w-32 sm:h-[150px] sm:w-[150px]">
-              {profile?.profile_photo ? (
-                <img 
-                  src={profile.profile_photo} 
-                  alt="Profile" 
-                  className="h-full w-full rounded-full border-4 border-card object-cover shadow-xl"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center rounded-full border-4 border-card bg-brand-primary text-4xl font-bold text-white shadow-xl sm:text-5xl">
-                  {initials}
-                </div>
-              )}
-              
-              <button 
-                onClick={() => fileInputRef.current?.click()}
-                disabled={photoBusy}
-                className="absolute bottom-1 right-1 flex h-10 w-10 items-center justify-center rounded-full bg-card text-foreground shadow-lg transition hover:scale-110 hover:bg-brand-primary hover:text-white disabled:opacity-50"
-              >
-                {photoBusy ? <Loader2 size={18} className="animate-spin" /> : <Camera size={18} />}
-              </button>
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                onChange={handlePhotoUpload} 
-                accept="image/jpeg,image/png,image/gif" 
-                className="hidden" 
-              />
-            </div>
-
-            <h2 className="text-lg font-bold text-foreground sm:text-xl">{firstName} {lastName}</h2>
-            <p className="capitalize text-sm text-muted-foreground">{profile?.role ?? 'Teacher'}</p>
-          </div>
-
-          <div className="space-y-2 border-t border-border pt-6">
-            <div className="flex items-center gap-3 rounded-md p-2.5 transition hover:bg-muted/50 sm:p-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }}>
-                <Calendar size={18} />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">Member Since</p>
-                <p className="truncate text-sm font-semibold text-foreground">{profile?.created_at ? formatDate(profile.created_at) : 'Today'}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 rounded-md p-2.5 transition hover:bg-muted/50 sm:p-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }}>
-                <Clock size={18} />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">Last Login</p>
-                <p className="truncate text-sm font-semibold text-foreground">{profile?.last_login ? formatDate(profile.last_login) : 'Today'}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 rounded-md p-2.5 transition hover:bg-muted/50 sm:p-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }}>
-                <BookOpen size={18} />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">Lessons Taught</p>
-                <p className="text-sm font-semibold text-foreground">{totalLessons.toLocaleString('en-US')}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 rounded-md p-2.5 transition hover:bg-muted/50 sm:p-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md" style={{ backgroundColor: 'color-mix(in srgb, var(--brand-primary) 10%, transparent)', color: 'var(--brand-primary)' }}>
-                <Users size={18} />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">Total Students</p>
-                <p className="text-sm font-semibold text-foreground">{totalStudents.toLocaleString('en-US')}</p>
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-5 sm:p-8 lg:p-10">
-          <h3 className="mb-6 flex items-center gap-2 border-b border-border pb-4 text-base font-bold text-foreground sm:mb-8 sm:text-lg">
-            <Edit size={18} style={{ color: 'var(--brand-accent)' }} />
-            Edit Personal Information
-          </h3>
-
-          <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6">
-              <Field label="First Name" icon={User} required>
-                <Input 
-                  type="text" 
-                  value={firstName} 
-                  onChange={e => setFirstName(e.target.value)} 
-                  required 
-                  autoComplete="given-name"
-                  placeholder="Enter your first name"
-                />
-              </Field>
-              <Field label="Last Name" icon={User} required>
-                <Input 
-                  type="text" 
-                  value={lastName} 
-                  onChange={e => setLastName(e.target.value)} 
-                  required 
-                  autoComplete="family-name"
-                  placeholder="Enter your last name"
-                />
-              </Field>
-            </div>
-
-            <Field label="Email Address" icon={Mail} required>
-              <Input 
-                type="email" 
-                value={email} 
-                onChange={e => setEmail(e.target.value)} 
-                required 
-                autoComplete="email"
-                placeholder="Enter your email address"
-              />
-            </Field>
-
-            <Field label="Phone Number" icon={Phone}>
-              <Input 
-                type="tel" 
-                value={phone} 
-                onChange={e => setPhone(e.target.value)} 
-                autoComplete="tel"
-                placeholder="Enter your phone number"
-              />
-            </Field>
-
-            <Field label="Bio / About" icon={AlignLeft}>
-              <textarea 
-                value={bio} 
-                onChange={e => setBio(e.target.value)} 
-                rows={4} 
-                placeholder="Tell your students a little about yourself..."
-                className="w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition focus:border-brand-accent focus:ring-1 focus:ring-brand-accent/25" 
-              />
-            </Field>
-
-            <Field label="Qualifications" icon={GraduationCap}>
-              <Input 
-                type="text" 
-                value={qualification} 
-                onChange={e => setQualification(e.target.value)} 
-                placeholder="e.g., Bachelor of Education"
-              />
-            </Field>
-
-            <Field label="Specialization" icon={Star}>
-              <Input 
-                type="text" 
-                value={specialization} 
-                onChange={e => setSpecialization(e.target.value)} 
-                placeholder="e.g., Mathematics, Science"
-              />
-            </Field>
-
-            <div className="flex justify-end border-t border-border pt-5 sm:pt-6">
-              <Button 
-                type="submit" 
-                disabled={busy} 
-                className="w-full sm:w-auto"
-              >
-                <Save size={16} className="mr-2" /> {busy ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </div>
-          </form>
-        </Card>
-
-      </div>
-
-    </div>
+    </>
   )
 }
 

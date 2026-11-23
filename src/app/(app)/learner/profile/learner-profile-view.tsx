@@ -3,15 +3,16 @@
 import { useState, useRef, useMemo, useEffect } from 'react'
 import { useRouter } from 'nextjs-toploader/app'
 import Link from 'next/link'
-import { 
-  UserCircle, Camera, Calendar, Clock, Gift, Edit, Save, User, Mail, Phone, 
-  GraduationCap, Loader2, Lock, ArrowLeft
+import {
+  Camera, Calendar, Clock, Gift, Edit, Save, User, Mail, Phone,
+  GraduationCap, Loader2, Lock, type LucideIcon
 } from 'lucide-react'
 import type { User as ProfileUser } from '@/types/api'
 import type { Class } from '@/types/admin'
 import type { SubscriptionSummary, TrialStatus } from '@/types/dashboard'
 import { updateProfileClient, uploadAvatarClient } from '@/lib/profile.client'
 import { formatDate } from '@/lib/utils'
+import { PageHeader } from '@/components/layout/page-header'
 import { useToast } from '@/components/ui/toast-provider'
 import { PremiumGate } from '@/components/premium-gate'
 import { Card } from '@/components/ui/card'
@@ -53,10 +54,10 @@ export function LearnerProfileView({
     setPhone(profile?.phone ?? '')
     setClassId(profile?.class_id ? String(profile.class_id) : '')
   }, [
-    profile?.first_name, 
-    profile?.last_name, 
-    profile?.email, 
-    profile?.phone, 
+    profile?.first_name,
+    profile?.last_name,
+    profile?.email,
+    profile?.phone,
     profile?.class_id
   ])
 
@@ -72,7 +73,7 @@ export function LearnerProfileView({
   async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
-    
+
     if (!canUploadPhoto) {
       return showToast('Upgrade to change your profile photo!', 'error')
     }
@@ -131,38 +132,20 @@ export function LearnerProfileView({
 
   return (
     <>
+      <PageHeader
+        title="Profile"
+        fallbackHref="/learner/dashboard"
+      />
+
       <div className="mx-auto max-w-6xl space-y-6 px-3 py-6 sm:space-y-8 sm:px-4 sm:py-8">
-        
-        {/* Updated Header Block with Back Arrow */}
-        <div className="relative flex items-center justify-center py-2">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            aria-label="Go back"
-            className="absolute left-0 inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"
-          >
-            <ArrowLeft size={26} className="shrink-0" />
-            <span className="sr-only">Go back</span>
-          </button>
-
-          <div className="text-center">
-            <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">
-              Profile
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground">Manage your Personal Information</p>
-          </div>
-        </div>
-
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[350px_1fr] lg:gap-8">
-          
           <Card className="space-y-6 p-5 sm:p-8">
             <div className="text-center">
-              
               <div className="relative mx-auto mb-5 h-32 w-32 sm:h-[150px] sm:w-[150px]">
                 {profile?.profile_photo ? (
-                  <img 
-                    src={profile.profile_photo} 
-                    alt="Profile" 
+                  <img
+                    src={profile.profile_photo}
+                    alt="Profile"
                     className="h-full w-full rounded-full border-4 border-card object-cover shadow-xl"
                   />
                 ) : (
@@ -170,8 +153,9 @@ export function LearnerProfileView({
                     {initials}
                   </div>
                 )}
-                
-                <button 
+
+                <button
+                  type="button"
                   onClick={handlePhotoClick}
                   disabled={photoBusy}
                   className="absolute bottom-1 right-1 flex h-10 w-10 items-center justify-center rounded-full bg-card text-foreground shadow-lg transition hover:scale-110 hover:bg-brand-primary hover:text-white disabled:opacity-50"
@@ -185,19 +169,19 @@ export function LearnerProfileView({
                     <Lock size={18} style={{ color: 'var(--warning-border)' }} />
                   )}
                 </button>
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  onChange={handlePhotoUpload} 
-                  accept="image/*" 
-                  className="hidden" 
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handlePhotoUpload}
+                  accept="image/*"
+                  className="hidden"
                   disabled={!canUploadPhoto}
                 />
               </div>
 
               <h2 className="text-lg font-bold text-foreground sm:text-xl">{firstName} {lastName}</h2>
               <p className="capitalize text-sm text-muted-foreground">{profile?.role ?? 'Learner'}</p>
-              
+
               {canUploadPhoto ? (
                 <div className="mx-auto mt-4 inline-flex items-center gap-2 rounded-full bg-muted px-4 py-1.5 text-xs text-muted-foreground">
                   <Camera size={13} style={{ color: 'var(--brand-accent)' }} />
@@ -205,6 +189,7 @@ export function LearnerProfileView({
                 </div>
               ) : (
                 <button
+                  type="button"
                   onClick={handlePhotoClick}
                   className="mx-auto mt-4 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold transition hover:opacity-80"
                   style={{ backgroundColor: 'var(--warning-bg)', color: 'var(--warning-fg)' }}
@@ -243,9 +228,7 @@ export function LearnerProfileView({
                 <div>
                   <p className="text-xs text-muted-foreground">Plan Status</p>
                   {hasActiveSubscription ? (
-                    <>
-                      <p className="text-sm font-bold" style={{ color: 'var(--success-fg)' }}>Active Subscription</p>
-                    </>
+                    <p className="text-sm font-bold" style={{ color: 'var(--success-fg)' }}>Active Subscription</p>
                   ) : isInTrial ? (
                     <>
                       <p className="text-sm font-semibold text-foreground">{trial?.days_remaining} days left</p>
@@ -268,21 +251,21 @@ export function LearnerProfileView({
             <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6">
                 <Field label="First Name" icon={User}>
-                  <Input 
-                    type="text" 
-                    value={firstName} 
-                    onChange={e => setFirstName(e.target.value)} 
-                    required 
+                  <Input
+                    type="text"
+                    value={firstName}
+                    onChange={e => setFirstName(e.target.value)}
+                    required
                     autoComplete="given-name"
                     placeholder="Enter your first name"
                   />
                 </Field>
                 <Field label="Last Name" icon={User}>
-                  <Input 
-                    type="text" 
-                    value={lastName} 
-                    onChange={e => setLastName(e.target.value)} 
-                    required 
+                  <Input
+                    type="text"
+                    value={lastName}
+                    onChange={e => setLastName(e.target.value)}
+                    required
                     autoComplete="family-name"
                     placeholder="Enter your last name"
                   />
@@ -290,21 +273,21 @@ export function LearnerProfileView({
               </div>
 
               <Field label="Email Address" icon={Mail}>
-                <Input 
-                  type="email" 
-                  value={email} 
-                  onChange={e => setEmail(e.target.value)} 
-                  required 
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  required
                   autoComplete="email"
                   placeholder="Enter your email address"
                 />
               </Field>
 
               <Field label="Phone Number" icon={Phone}>
-                <Input 
-                  type="tel" 
-                  value={phone} 
-                  onChange={e => setPhone(e.target.value)} 
+                <Input
+                  type="tel"
+                  value={phone}
+                  onChange={e => setPhone(e.target.value)}
                   autoComplete="tel"
                   placeholder="Enter your phone number"
                 />
@@ -312,8 +295,8 @@ export function LearnerProfileView({
 
               <Field label="Class / Club" icon={GraduationCap}>
                 {hasAccess ? (
-                  <Select 
-                    value={classId} 
+                  <Select
+                    value={classId}
                     onChange={e => setClassId(e.target.value)}
                   >
                     <option value="">Select your class</option>
@@ -322,15 +305,15 @@ export function LearnerProfileView({
                     ))}
                   </Select>
                 ) : (
-                  <div 
+                  <div
                     className="flex flex-col gap-2 rounded-md border border-border bg-muted/30 px-4 py-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div className="flex items-center gap-2">
                       <Lock size={14} className="shrink-0" style={{ color: 'var(--warning-border)' }} />
                       <span>Upgrade to change your class</span>
                     </div>
-                    <Link 
-                      href="/learner/subscription" 
+                    <Link
+                      href="/learner/subscription"
                       className="font-bold hover:underline"
                       style={{ color: 'var(--brand-accent)' }}
                     >
@@ -341,9 +324,9 @@ export function LearnerProfileView({
               </Field>
 
               <div className="flex justify-end border-t border-border pt-5 sm:pt-6">
-                <Button 
-                  type="submit" 
-                  disabled={busy} 
+                <Button
+                  type="submit"
+                  disabled={busy}
                   className="w-full sm:w-auto"
                 >
                   <Save size={16} className="mr-2" /> {busy ? 'Saving...' : 'Save Changes'}
@@ -351,7 +334,6 @@ export function LearnerProfileView({
               </div>
             </form>
           </Card>
-
         </div>
       </div>
 
@@ -367,7 +349,7 @@ export function LearnerProfileView({
   )
 }
 
-function Field({ label, icon: Icon, children }: { label: string, icon: any, children: React.ReactNode }) {
+function Field({ label, icon: Icon, children }: { label: string, icon: LucideIcon, children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
       <label className="flex items-center gap-2 text-sm font-semibold text-foreground">

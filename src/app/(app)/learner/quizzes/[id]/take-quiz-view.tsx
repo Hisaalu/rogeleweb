@@ -245,10 +245,7 @@ export function TakeQuizView({
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader2
-          className="animate-spin"
-          size={32}
-        />
+        <Loader2 className="animate-spin" size={32} />
       </div>
     )
   }
@@ -269,19 +266,21 @@ export function TakeQuizView({
   return (
     <div className="min-h-screen">
       <div
-        className="fixed inset-x-0 top-0 z-50 flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3 text-white shadow-lg sm:px-6"
+        className="fixed inset-x-0 top-0 z-50 flex h-[60px] items-center justify-between gap-3 border-b border-white/10 px-4 text-white shadow-lg sm:h-[70px] sm:px-6"
         style={{ backgroundColor: 'var(--brand-primary)' }}
       >
-        <div className="flex min-w-0 items-center gap-2 font-semibold">
+        <div className="flex shrink-0 items-center">
           <button
             type="button"
             onClick={() => router.back()}
             aria-label="Go back"
-            className="inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-white transition hover:bg-white/15"
           >
-            <ArrowLeft size={26} className="shrink-0" />
-            <span className="sr-only">Go back</span>
+            <ArrowLeft size={20} className="shrink-0" />
           </button>
+        </div>
+
+        <div className="flex min-w-0 flex-1 items-center justify-center gap-2 font-semibold">
           <Clock size={18} className="shrink-0 sm:h-5 sm:w-5" />
           <span
             className={`font-mono text-lg tabular-nums sm:text-xl ${
@@ -292,17 +291,18 @@ export function TakeQuizView({
             {formatTime(timeLeft)}
           </span>
         </div>
-        <div className="flex min-w-0 items-center gap-2 text-xs font-semibold sm:text-sm">
+
+        <div className="flex shrink-0 items-center justify-end gap-1.5 text-xs font-semibold sm:text-sm">
           <CheckCircle2 size={16} className="shrink-0 sm:h-5 sm:w-5" />
-          <span className="truncate">
-            {answeredCount} / {questions.length} answered
+          <span className="tabular-nums">
+            {answeredCount}/{questions.length}
           </span>
         </div>
       </div>
 
-      <div className="mx-auto max-w-3xl space-y-6 px-4 pb-8 pt-24 sm:pt-28">
+      <div className="mx-auto max-w-3xl space-y-6 px-4 pb-8 pt-20 sm:pt-24">
         <Card className="p-6">
-          <h1 className="text-2xl font-bold text-foreground">{quiz.title}</h1>
+          <h1 className="text-center text-2xl font-bold text-foreground">{quiz.title}</h1>
 
           <div
             className="mt-4 flex items-start gap-3 rounded-md border-l-4 p-4"

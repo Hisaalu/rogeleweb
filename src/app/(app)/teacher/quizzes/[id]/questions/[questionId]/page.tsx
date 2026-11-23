@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
 import { getQuizServer, listQuestionsServer } from '@/lib/quizzes.server'
+import { PageHeader } from '@/components/layout/page-header'
 import { EditQuestionForm } from './edit-question-form'
 
 export const dynamic = 'force-dynamic'
@@ -17,33 +16,19 @@ export default async function EditQuestionPage({ params }: { params: { id: strin
 
   const [quiz, questions] = await Promise.all([getQuizServer(quizId), listQuestionsServer(quizId)])
   const question = questions.find(q => q.id === qId)
-  
+
   if (!quiz || !question) notFound()
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
-      <div className="relative flex items-center justify-between gap-3">
-        
-        <Link
-          href={`/teacher/quizzes/${quiz.id}/questions`}
-          aria-label="Go back"
-          className="inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"
-        >
-          <ArrowLeft size={26} className="shrink-0" />
-          <span className="sr-only">Go back</span>
-        </Link>
+    <>
+      <PageHeader
+        title={`Edit Question — ${quiz.title}`}
+        fallbackHref={`/teacher/quizzes/${quiz.id}/questions`}
+      />
 
-        <div className="pointer-events-none absolute left-1/2 w-full max-w-[70%] -translate-x-1/2 text-center">
-          <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">
-            Edit Question
-          </h1>
-          <p className="mt-1 truncate text-sm text-muted-foreground">
-            Editing question for: {quiz.title}
-          </p>
-        </div>
+      <div className="mx-auto max-w-3xl px-4 py-8">
+        <EditQuestionForm quizId={quiz.id} question={question} />
       </div>
-
-      <EditQuestionForm quizId={quiz.id} question={question} />
-    </div>
+    </>
   )
 }
