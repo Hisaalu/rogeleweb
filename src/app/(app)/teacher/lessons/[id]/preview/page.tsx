@@ -2,11 +2,12 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import {
-  ArrowLeft, Book, Clock, Pencil, Eye, FileText, GraduationCap, Paperclip, Video,
+  Book, Clock, Pencil, FileText, GraduationCap, Paperclip, Video,
 } from 'lucide-react'
 import { getLessonServer, listMaterialsServer } from '@/lib/lessons.server'
 import { getYoutubeId, formatDate } from '@/lib/utils'
 import { formatFileSize, materialDownloadUrl } from '@/lib/materials'
+import { BackButton } from '@/components/ui/back-button'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -35,14 +36,8 @@ export default async function LessonPreviewPage({
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-3 py-5 sm:px-4 sm:py-6">
       <div className="relative flex items-center justify-between gap-3">
-        <Link
-          href=".."
-          aria-label="Go back"
-          className="inline-flex items-center gap-1.5 rounded-full p-1.5 text-2xl font-bold text-foreground transition hover:bg-muted hover:opacity-100 sm:text-3xl"
-        >
-          <ArrowLeft size={26} className="shrink-0" />
-          <span className="sr-only">Go back</span>
-        </Link>
+        
+        <BackButton fallbackHref="/teacher/lessons" />
 
         <div className="pointer-events-none absolute left-1/2 w-full max-w-[70%] -translate-x-1/2 text-center">
           <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">
