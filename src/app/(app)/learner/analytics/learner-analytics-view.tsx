@@ -196,6 +196,7 @@ export function LearnerAnalyticsView({
                 : 'Not graded yet'
             }
             tone="default"
+            className="text-center sm:text-left"
           />
         </Link>
         <Link href="/learner/homework" className="block transition hover:-translate-y-0.5">
@@ -212,6 +213,7 @@ export function LearnerAnalyticsView({
                 : undefined
             }
             tone="success"
+            className="text-center sm:text-left"
           />
         </Link>
         <Link href="/learner/quizzes" className="block transition hover:-translate-y-0.5">
