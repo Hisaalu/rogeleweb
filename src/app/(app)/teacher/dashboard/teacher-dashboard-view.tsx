@@ -61,10 +61,30 @@ export function TeacherDashboardView({
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
-        <StatCard icon={BookOpen} label="Total Lessons" value={data.totalLessons} />
-        <StatCard icon={HelpCircle} label="Total Quizzes" value={data.totalQuizzes} />
-        <StatCard icon={Users} label="Total Students" value={data.totalStudents} />
-        <StatCard icon={Activity} label="Class Average" value={displayAverage} />
+        <StatCard
+          icon={BookOpen}
+          label="Total Lessons"
+          value={data.totalLessons}
+          href="/teacher/lessons"
+        />
+        <StatCard
+          icon={HelpCircle}
+          label="Total Quizzes"
+          value={data.totalQuizzes}
+          href="/teacher/quizzes"
+        />
+        <StatCard
+          icon={Users}
+          label="Total Students"
+          value={data.totalStudents}
+          href="/teacher/students"
+        />
+        <StatCard
+          icon={Activity}
+          label="Class Average"
+          value={displayAverage}
+          href="/teacher/analytics"
+        />
       </div>
 
       <section>
@@ -123,8 +143,9 @@ export function TeacherDashboardView({
             ) : (
               <div className="space-y-1.5 sm:space-y-2">
                 {data.recentLessons.map((lesson) => (
-                  <div
+                  <Link
                     key={lesson.id}
+                    href={`/teacher/lessons/${lesson.id}/preview`}
                     className="flex items-center gap-3 rounded-md p-2.5 transition hover:bg-muted sm:gap-4 sm:p-3"
                   >
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-brand-accent/10 sm:h-11 sm:w-11">
@@ -154,7 +175,7 @@ export function TeacherDashboardView({
                     >
                       {lesson.is_published ? 'Published' : 'Draft'}
                     </span>
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}
@@ -188,7 +209,10 @@ export function TeacherDashboardView({
                     key={quiz.id}
                     className="flex flex-col gap-2 rounded-md p-2.5 transition hover:bg-muted sm:flex-row sm:items-center sm:gap-4 sm:p-3"
                   >
-                    <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
+                    <Link 
+                      href={`/teacher/quizzes/${quiz.id}/results`}
+                      className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4"
+                    >
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-brand-accent/10 sm:h-11 sm:w-11">
                         <HelpCircle size={18} className="text-brand-accent" />
                       </div>
@@ -207,7 +231,7 @@ export function TeacherDashboardView({
                           </span>
                         </div>
                       </div>
-                    </div>
+                    </Link>
                     <Link
                       href={`/teacher/quizzes/${quiz.id}/results`}
                       className="shrink-0 self-end sm:self-auto"
@@ -231,15 +255,17 @@ function StatCard({
   icon: Icon,
   label,
   value,
+  href,
 }: {
   icon: typeof BookOpen
   label: string
   value: number | string
+  href?: string
 }) {
   const display = typeof value === 'number' ? value.toLocaleString('en-US') : value
 
-  return (
-    <Card className="flex items-center gap-3 p-3 transition hover:-translate-y-1 hover:shadow-lg sm:gap-5 sm:p-6">
+  const content = (
+    <Card className="flex items-center gap-3 p-3 transition hover:-translate-y-1 hover:shadow-lg sm:gap-5 sm:p-6 h-full">
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-brand-accent text-white sm:h-14 sm:w-14">
         <Icon size={18} className="sm:hidden" />
         <Icon size={24} className="hidden sm:block" />
@@ -252,6 +278,16 @@ function StatCard({
       </div>
     </Card>
   )
+
+  if (href) {
+    return (
+      <Link href={href} className="block h-full outline-none focus-visible:ring-2 focus-visible:ring-brand-accent rounded-md">
+        {content}
+      </Link>
+    )
+  }
+
+  return content
 }
 
 function ActionCard({
