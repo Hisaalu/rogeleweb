@@ -159,7 +159,7 @@ export function LearnerAnalyticsView({
                 onClick={handleExport}
                 disabled={busy}
                 aria-label="Export analytics as CSV"
-                className="gap-1.5 h-7 rounded-full px-3 text-[11px] sm:hidden"
+                className="h-7 w-7 shrink-0 rounded-full p-0 sm:hidden"
               >
                 <Download size={12} />
               </Button>
