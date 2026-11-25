@@ -1,3 +1,4 @@
+// src/components/layout/mobile-menu.tsx
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
@@ -12,10 +13,11 @@ import {
   HelpCircle,
   Rocket,
   User,
-  LogOut,
   Users,
   BarChart3,
   Settings,
+  Sun,
+  Moon,
   type LucideIcon,
 } from 'lucide-react'
 import { getInitials, cn } from '@/lib/utils'
@@ -42,8 +44,6 @@ const TEACHER_NAV: NavItem[] = [
   { label: 'Lessons', href: '/teacher/lessons', icon: BookOpen },
   { label: 'Quizzes', href: '/teacher/quizzes', icon: HelpCircle },
   { label: 'Homework', href: '/teacher/homework', icon: ClipboardList },
-  { label: 'Profile', href: '/teacher/profile', icon: User },
-  { label: 'Settings', href: '/teacher/settings', icon: Settings },
 ]
 
 const LEARNER_NAV: NavItem[] = [
@@ -54,8 +54,6 @@ const LEARNER_NAV: NavItem[] = [
   { label: 'Quizzes', href: '/learner/quizzes', icon: HelpCircle },
   { label: 'Homework', href: '/learner/homework', icon: ClipboardList },
   { label: 'Library', href: '/learner/bookmarks', icon: BookmarkCheck },
-  { label: 'Profile', href: '/learner/profile', icon: User },
-  { label: 'Settings', href: '/learner/settings', icon: Settings },
 ]
 
 export function MobileMenu({
@@ -72,12 +70,27 @@ export function MobileMenu({
   const items = user.role === 'teacher' ? TEACHER_NAV : LEARNER_NAV
   const analyticsHref =
     user.role === 'teacher' ? '/teacher/analytics' : '/learner/analytics'
+  const profileHref =
+    user.role === 'teacher' ? '/teacher/profile' : '/learner/profile'
+  const settingsHref =
+    user.role === 'teacher' ? '/teacher/settings' : '/learner/settings'
+
+  const utilityItems: NavItem[] = [
+    { label: 'Profile', href: profileHref, icon: User },
+    { label: 'Settings and privacy', href: settingsHref, icon: Settings },
+    { label: 'Help center', href: '/contact', icon: HelpCircle },
+  ]
 
   const hintRole = toHintRole(user.role)
   const [hintDismissed, setHintDismissed] = useState(true)
+  const [isDark, setIsDark] = useState(false)
 
   const closeRef = useRef<HTMLButtonElement>(null)
   const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    setIsDark(document.documentElement.classList.contains('dark'))
+  }, [open])
 
   useEffect(() => {
     if (!hintRole) return
@@ -114,6 +127,17 @@ export function MobileMenu({
     }
   }, [open, onClose])
 
+  function handleToggleTheme() {
+    const nextDark = !isDark
+    setIsDark(nextDark)
+    document.documentElement.classList.toggle('dark', nextDark)
+    try {
+      localStorage.setItem('theme', nextDark ? 'dark' : 'light')
+    } catch {
+      // Ignore storage access errors in restricted contexts
+    }
+  }
+
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST' })
     router.replace('/login')
@@ -129,6 +153,16 @@ export function MobileMenu({
 
   return (
     <div className="fixed inset-0 z-[60] lg:hidden">
+      <style>{`
+        .mobile-drawer-scroll {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+        .mobile-drawer-scroll::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
+
       <div
         className={cn(
           'absolute inset-0 bg-black/45 transition-opacity duration-200',
@@ -143,11 +177,11 @@ export function MobileMenu({
         aria-modal="true"
         aria-label="Navigation menu"
         className={cn(
-          'absolute inset-y-0 left-0 flex w-[82%] max-w-[340px] flex-col border-r border-border bg-card shadow-2xl transition-transform duration-300 ease-out',
+          'absolute inset-y-0 left-0 flex w-[82%] max-w-[340px] flex-col overflow-hidden border-r border-border bg-card shadow-2xl transition-transform duration-300 ease-out',
           visible ? 'translate-x-0' : '-translate-x-full',
         )}
       >
-        <div className="px-5 pb-4 pt-5">
+        <div className="shrink-0 px-5 pb-4 pt-5">
           <div className="flex items-start justify-between gap-3">
             <Avatar
               src={user.profile_photo}
@@ -181,7 +215,7 @@ export function MobileMenu({
           </div>
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-2 py-2">
+        <nav className="mobile-drawer-scroll min-h-0 flex-1 overflow-y-auto px-2 py-2">
           <ul className="space-y-1">
             {items.map((item) => {
               const active =
@@ -225,18 +259,59 @@ export function MobileMenu({
                 </li>
               )
             })}
-            <li className="mt-3 border-t border-border pt-3">
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="flex w-full items-center gap-5 rounded-xl px-4 py-3 text-[19px] font-bold tracking-[-0.01em] text-foreground transition hover:bg-muted/60"
-              >
-                <LogOut size={22} strokeWidth={2.1} className="shrink-0" />
-                <span>Log out</span>
-              </button>
-            </li>
           </ul>
+
+          <div className="mt-3 border-t border-border pt-3">
+            <ul className="space-y-0.5">
+              {utilityItems.map((item) => {
+                const active =
+                  pathname === item.href || pathname.startsWith(item.href + '/')
+                const Icon = item.icon
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      onClick={onClose}
+                      aria-current={active ? 'page' : undefined}
+                      className={cn(
+                        'flex items-center gap-4 rounded-xl px-4 py-2 text-[16px] font-medium transition',
+                        active
+                          ? 'nav-active bg-muted/70 text-foreground'
+                          : 'text-foreground hover:bg-muted/60',
+                      )}
+                    >
+                      <Icon
+                        size={19}
+                        strokeWidth={1.9}
+                        className={cn(
+                          'shrink-0',
+                          active ? 'text-brand-accent' : 'text-foreground',
+                        )}
+                      />
+                      <span className="truncate">{item.label}</span>
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
         </nav>
+
+        <div className="shrink-0 px-5 py-3">
+          <button
+            type="button"
+            onClick={handleToggleTheme}
+            aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
+            aria-pressed={isDark}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-foreground transition hover:bg-muted/60"
+          >
+            {isDark ? (
+              <Moon size={22} strokeWidth={2.1} />
+            ) : (
+              <Sun size={22} strokeWidth={2.1} />
+            )}
+          </button>
+        </div>
       </aside>
     </div>
   )
