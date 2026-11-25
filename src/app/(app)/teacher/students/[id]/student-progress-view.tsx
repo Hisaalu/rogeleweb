@@ -121,9 +121,9 @@ export function StudentProgressView({
     improvementTrend === 'Needs Attention' ? 'danger' : improvementTrend === 'Slipping' ? 'warning' : 'success'
 
   const handleExport = useCallback(() => {
-    const headers = ['Quiz ID', 'Score', 'Result', 'Date']
+    const headers = ['Quiz Name', 'Score', 'Result', 'Date']
     const rows = completedAttempts.map((a) => [
-      a.quiz_id,
+      `"${a.quiz_title || `Quiz #${a.quiz_id}`}"`, 
       `${a.score}%`,
       (a.score || 0) >= 50 ? 'Passed' : 'Failed',
       a.completed_at ? new Date(a.completed_at).toLocaleDateString() : 'N/A',
@@ -266,7 +266,7 @@ export function StudentProgressView({
                       <tr key={attempt.id} className="hover:bg-muted/30">
                         <td className="px-4 py-3 text-muted-foreground sm:px-6">{idx + 1}</td>
                         <td className="px-4 py-3 font-medium text-foreground sm:px-6">
-                          Quiz #{attempt.quiz_id}
+                          {attempt.quiz_title ? attempt.quiz_title : `Quiz #${attempt.quiz_id}`}
                         </td>
                         <td className="px-4 py-3 text-center sm:px-6">
                           <span

@@ -78,7 +78,7 @@ export function MobileMenu({
   const utilityItems: NavItem[] = [
     { label: 'Profile', href: profileHref, icon: User },
     { label: 'Settings and privacy', href: settingsHref, icon: Settings },
-    { label: 'Help center', href: '/contact', icon: HelpCircle },
+    { label: 'Help Center', href: '/contact', icon: HelpCircle },
   ]
 
   const hintRole = toHintRole(user.role)
@@ -147,7 +147,7 @@ export function MobileMenu({
   const fullName =
     [user.first_name, user.last_name].filter(Boolean).join(' ') || user.email
   const roleLabel =
-    user.role === 'teacher' ? "Teacher account" : "Student account"
+    user.role === 'teacher' ? "Teacher account" : "Student Account"
 
   if (!open) return null
 

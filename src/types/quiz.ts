@@ -46,6 +46,7 @@ export interface QuizAttempt {
   student_email?: string
   student_first_name?: string
   student_last_name?: string
+  quiz_title?: string
 }
 
 export interface QuizResultDetails extends QuizAttempt {

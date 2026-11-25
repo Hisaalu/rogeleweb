@@ -66,7 +66,7 @@ export function LearnerProfileView({
   }, [firstName, lastName])
 
   const roleAccountLabel =
-    profile?.role === 'teacher' ? 'Teacher account' : 'Student account'
+    profile?.role === 'teacher' ? 'Teacher Account' : 'Student Account'
 
   const hasActiveSubscription = subscription?.status === 'active'
   const isInTrial = !hasActiveSubscription && trial?.is_in_trial
