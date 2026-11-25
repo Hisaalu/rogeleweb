@@ -56,6 +56,31 @@ const LEARNER_NAV: NavItem[] = [
   { label: 'Library', href: '/learner/bookmarks', icon: BookmarkCheck },
 ]
 
+function OfferTimerIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className="shrink-0"
+    >
+      <path d="M10 2h4" />
+      <path d="M12 14v-3" />
+      <path d="M12 14l2.2 1.4" />
+      <path d="M12 6a7.5 7.5 0 1 0 7.5 7.5" />
+      <path d="M18.5 4.5l1.5-1.5" />
+      <path d="M21 7.5h2" />
+      <path d="M15.5 2.5V1" />
+    </svg>
+  )
+}
+
 export function MobileMenu({
   user,
   open,
@@ -177,7 +202,7 @@ export function MobileMenu({
         aria-modal="true"
         aria-label="Navigation menu"
         className={cn(
-          'absolute inset-y-0 left-0 flex w-[82%] max-w-[340px] flex-col overflow-hidden border-r border-border bg-card shadow-2xl transition-transform duration-300 ease-out',
+          'mobile-drawer-scroll absolute inset-y-0 left-0 flex w-[82%] max-w-[340px] flex-col overflow-hidden border-r border-border bg-card shadow-2xl transition-transform duration-300 ease-out',
           visible ? 'translate-x-0' : '-translate-x-full',
         )}
       >
@@ -246,8 +271,9 @@ export function MobileMenu({
                     />
                     <span className="truncate">{item.label}</span>
                     {item.isDiscount && (
-                      <span className="shrink-0 rounded-sm bg-brand-accent px-2 py-0.5 text-[15px] leading-none tracking-wider text-white shadow-sm">
-                        Offer
+                      <span className="inline-flex shrink-0 items-center gap-1 rounded-sm bg-brand-accent px-2 py-0.5 text-[15px] leading-none tracking-wider text-white shadow-sm">
+                        <OfferTimerIcon />
+                        <span>Offer</span>
                       </span>
                     )}
                     {item.isNew && !hideBadge && (
