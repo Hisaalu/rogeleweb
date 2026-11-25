@@ -147,7 +147,7 @@ export function MobileMenu({
   const fullName =
     [user.first_name, user.last_name].filter(Boolean).join(' ') || user.email
   const roleLabel =
-    user.role === 'teacher' ? "Teacher's account" : "Learner's account"
+    user.role === 'teacher' ? "Teacher account" : "Student account"
 
   if (!open) return null
 

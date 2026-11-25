@@ -65,6 +65,9 @@ export function LearnerProfileView({
     return [firstName, lastName].filter(Boolean).map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'U'
   }, [firstName, lastName])
 
+  const roleAccountLabel =
+    profile?.role === 'teacher' ? 'Teacher account' : 'Student account'
+
   const hasActiveSubscription = subscription?.status === 'active'
   const isInTrial = !hasActiveSubscription && trial?.is_in_trial
 
@@ -180,7 +183,7 @@ export function LearnerProfileView({
               </div>
 
               <h2 className="text-lg font-bold text-foreground sm:text-xl">{firstName} {lastName}</h2>
-              <p className="capitalize text-sm text-muted-foreground">{profile?.role ?? 'Learner'}</p>
+              <p className="text-sm text-muted-foreground">{roleAccountLabel}</p>
 
               {canUploadPhoto ? (
                 <div className="mx-auto mt-4 inline-flex items-center gap-2 rounded-full bg-muted px-4 py-1.5 text-xs text-muted-foreground">
