@@ -122,6 +122,8 @@ export function MobileMenu({
 
   const fullName =
     [user.first_name, user.last_name].filter(Boolean).join(' ') || user.email
+  const roleLabel =
+    user.role === 'teacher' ? "Teacher's account" : "Learner's account"
 
   if (!open) return null
 
@@ -129,7 +131,7 @@ export function MobileMenu({
     <div className="fixed inset-0 z-[60] lg:hidden">
       <div
         className={cn(
-          'absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-200',
+          'absolute inset-0 bg-black/45 transition-opacity duration-200',
           visible ? 'opacity-100' : 'opacity-0',
         )}
         onClick={onClose}
@@ -141,41 +143,46 @@ export function MobileMenu({
         aria-modal="true"
         aria-label="Navigation menu"
         className={cn(
-          'absolute inset-y-0 right-0 flex w-[85%] max-w-[360px] flex-col bg-card shadow-2xl transition-transform duration-300',
-          visible ? 'translate-x-0' : 'translate-x-full',
+          'absolute inset-y-0 left-0 flex w-[82%] max-w-[340px] flex-col border-r border-border bg-card shadow-2xl transition-transform duration-300 ease-out',
+          visible ? 'translate-x-0' : '-translate-x-full',
         )}
       >
-        <div className="relative overflow-hidden bg-brand-primary px-5 py-6 sm:px-6 sm:py-8">
-          <button
-            ref={closeRef}
-            type="button"
-            onClick={onClose}
-            aria-label="Close menu"
-            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white transition hover:rotate-90 hover:bg-white/30"
-          >
-            <X size={20} />
-          </button>
-
-          <div className="mt-6 flex items-center gap-4">
+        <div className="px-5 pb-4 pt-5">
+          <div className="flex items-start justify-between gap-3">
             <Avatar
               src={user.profile_photo}
               fallback={getInitials(fullName)}
               size={48}
-              className="h-12 w-12 ring-1 ring-white/30"
+              className="h-12 w-12 shrink-0 ring-1 ring-border"
             />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-base font-bold text-white">
-                {fullName}
+            <button
+              ref={closeRef}
+              type="button"
+              onClick={onClose}
+              aria-label="Close menu"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-foreground transition hover:bg-muted"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          <div className="mt-3 min-w-0">
+            <p className="truncate text-[18px] font-bold leading-tight text-foreground">
+              {fullName}
+            </p>
+            {user.email && (
+              <p className="mt-0.5 truncate text-sm text-muted-foreground">
+                {user.email}
               </p>
-              <p className="truncate text-xs capitalize text-white/80">
-                {user.role}
-              </p>
-            </div>
+            )}
+            <p className="mt-2.5 text-sm font-medium text-muted-foreground">
+              <span className="text-foreground">{roleLabel}</span>
+            </p>
           </div>
         </div>
 
-        <nav className="flex-1 overflow-y-auto p-3 sm:p-4">
-          <ul className="space-y-0.5 sm:space-y-1">
+        <nav className="flex-1 overflow-y-auto px-2 py-2">
+          <ul className="space-y-1">
             {items.map((item) => {
               const active =
                 pathname === item.href || pathname.startsWith(item.href + '/')
@@ -189,20 +196,24 @@ export function MobileMenu({
                     onClick={onClose}
                     aria-current={active ? 'page' : undefined}
                     className={cn(
-                      'flex items-center gap-3 rounded-lg px-4 py-2.5 text-[20px] font-semibold transition sm:py-3',
+                      'flex items-center gap-5 rounded-xl px-4 py-3 text-[19px] font-bold tracking-[-0.01em] transition',
                       active
-                        ? 'nav-active font-bold'
-                        : 'text-foreground hover:bg-muted',
+                        ? 'nav-active bg-muted/70 text-foreground'
+                        : 'text-foreground hover:bg-muted/60',
                     )}
                   >
                     <Icon
-                      size={25}
-                      className={active ? 'text-brand-accent' : 'text-brand-accent/70'}
+                      size={22}
+                      strokeWidth={2.1}
+                      className={cn(
+                        'shrink-0',
+                        active ? 'text-brand-accent' : 'text-foreground',
+                      )}
                     />
                     <span className="truncate">{item.label}</span>
                     {item.isDiscount && (
                       <span className="shrink-0 rounded-sm bg-brand-accent px-2 py-0.5 text-[15px] leading-none tracking-wider text-white shadow-sm">
-                        50% off
+                        Offer
                       </span>
                     )}
                     {item.isNew && !hideBadge && (
@@ -214,13 +225,14 @@ export function MobileMenu({
                 </li>
               )
             })}
-            <li className="mt-3 border-t border-border pt-3 sm:mt-4 sm:pt-4">
+            <li className="mt-3 border-t border-border pt-3">
               <button
                 type="button"
                 onClick={handleLogout}
-                className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-[20px] font-semibold text-danger-fg transition hover:bg-danger-bg sm:py-3"
+                className="flex w-full items-center gap-5 rounded-xl px-4 py-3 text-[19px] font-bold tracking-[-0.01em] text-foreground transition hover:bg-muted/60"
               >
-                <LogOut size={25} /> Logout
+                <LogOut size={22} strokeWidth={2.1} className="shrink-0" />
+                <span>Log out</span>
               </button>
             </li>
           </ul>
