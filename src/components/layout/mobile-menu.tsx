@@ -48,8 +48,8 @@ const TEACHER_NAV: NavItem[] = [
 
 const LEARNER_NAV: NavItem[] = [
   { label: 'Dashboard', href: '/learner/dashboard', icon: LayoutDashboard },
-  { label: 'Analytics', href: '/learner/analytics', icon: BarChart3, isNew: true },
   { label: 'Premium', href: '/learner/subscription', icon: Rocket, isDiscount: true },
+  { label: 'Analytics', href: '/learner/analytics', icon: BarChart3, isNew: true },
   { label: 'Lessons', href: '/learner/lessons', icon: BookOpen },
   { label: 'Quizzes', href: '/learner/quizzes', icon: HelpCircle },
   { label: 'Homework', href: '/learner/homework', icon: ClipboardList },
@@ -134,7 +134,6 @@ export function MobileMenu({
     try {
       localStorage.setItem('theme', nextDark ? 'dark' : 'light')
     } catch {
-      // Ignore storage access errors in restricted contexts
     }
   }
 
