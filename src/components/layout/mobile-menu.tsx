@@ -84,6 +84,8 @@ export function MobileMenu({
   const hintRole = toHintRole(user.role)
   const [hintDismissed, setHintDismissed] = useState(true)
   const [isDark, setIsDark] = useState(false)
+  
+  const [isScrolled, setIsScrolled] = useState(false)
 
   const closeRef = useRef<HTMLButtonElement>(null)
   const [visible, setVisible] = useState(false)
@@ -110,6 +112,7 @@ export function MobileMenu({
   useEffect(() => {
     if (!open) {
       setVisible(false)
+      setIsScrolled(false)
       return
     }
     const prev = document.body.style.overflow
@@ -180,41 +183,49 @@ export function MobileMenu({
           visible ? 'translate-x-0' : '-translate-x-full',
         )}
       >
-        <div className="shrink-0 px-5 pb-4 pt-5">
-          <div className="flex items-start justify-between gap-3">
-            <Avatar
-              src={user.profile_photo}
-              fallback={getInitials(fullName)}
-              size={48}
-              className="h-12 w-12 shrink-0 ring-1 ring-border"
-            />
-            <button
-              ref={closeRef}
-              type="button"
-              onClick={onClose}
-              aria-label="Close menu"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-foreground transition hover:bg-muted"
-            >
-              <X size={18} />
-            </button>
-          </div>
+        <div className={cn(
+          "shrink-0 transition-colors duration-200",
+          isScrolled ? "border-b border-border mx-5" : "border-b border-transparent mx-5"
+        )}>
+          <div className="px-0 pb-4 pt-5">
+            <div className="flex items-start justify-between gap-3">
+              <Avatar
+                src={user.profile_photo}
+                fallback={getInitials(fullName)}
+                size={48}
+                className="h-12 w-12 shrink-0 ring-1 ring-border"
+              />
+              <button
+                ref={closeRef}
+                type="button"
+                onClick={onClose}
+                aria-label="Close menu"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-foreground transition hover:bg-muted"
+              >
+                <X size={18} />
+              </button>
+            </div>
 
-          <div className="mt-3 min-w-0">
-            <p className="truncate text-[18px] font-bold leading-tight text-foreground">
-              {fullName}
-            </p>
-            {user.email && (
-              <p className="mt-0.5 truncate text-sm text-muted-foreground">
-                {user.email}
+            <div className="mt-3 min-w-0">
+              <p className="truncate text-[18px] font-bold leading-tight text-foreground">
+                {fullName}
               </p>
-            )}
-            <p className="mt-2.5 text-sm text-muted-foreground">
-              <span className="text-foreground">{roleLabel}</span>
-            </p>
+              {user.email && (
+                <p className="mt-0.5 truncate text-sm text-muted-foreground">
+                  {user.email}
+                </p>
+              )}
+              <p className="mt-2.5 text-sm text-muted-foreground">
+                <span className="text-foreground">{roleLabel}</span>
+              </p>
+            </div>
           </div>
         </div>
 
-        <nav className="mobile-drawer-scroll min-h-0 flex-1 overflow-y-auto px-2 py-2">
+        <nav 
+          onScroll={(e) => setIsScrolled(e.currentTarget.scrollTop > 0)}
+          className="mobile-drawer-scroll min-h-0 flex-1 overflow-y-auto px-2 py-2"
+        >
           <ul className="space-y-1">
             {items.map((item) => {
               const active =
