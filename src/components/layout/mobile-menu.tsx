@@ -1,4 +1,3 @@
-// src/components/layout/mobile-menu.tsx
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
@@ -18,6 +17,7 @@ import {
   Settings,
   Sun,
   Moon,
+  AlarmClock,
   type LucideIcon,
 } from 'lucide-react'
 import { getInitials, cn } from '@/lib/utils'
@@ -55,31 +55,6 @@ const LEARNER_NAV: NavItem[] = [
   { label: 'Homework', href: '/learner/homework', icon: ClipboardList },
   { label: 'Library', href: '/learner/bookmarks', icon: BookmarkCheck },
 ]
-
-function OfferTimerIcon() {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      className="shrink-0"
-    >
-      <path d="M10 2h4" />
-      <path d="M12 14v-3" />
-      <path d="M12 14l2.2 1.4" />
-      <path d="M12 6a7.5 7.5 0 1 0 7.5 7.5" />
-      <path d="M18.5 4.5l1.5-1.5" />
-      <path d="M21 7.5h2" />
-      <path d="M15.5 2.5V1" />
-    </svg>
-  )
-}
 
 export function MobileMenu({
   user,
@@ -272,7 +247,7 @@ export function MobileMenu({
                     <span className="truncate">{item.label}</span>
                     {item.isDiscount && (
                       <span className="inline-flex shrink-0 items-center gap-1 rounded-sm bg-brand-accent px-2 py-0.5 text-[15px] leading-none tracking-wider text-white shadow-sm">
-                        <OfferTimerIcon />
+                        <AlarmClock size={14} strokeWidth={2.2} className="shrink-0" />
                         <span>Offer</span>
                       </span>
                     )}
