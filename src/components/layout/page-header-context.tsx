@@ -6,6 +6,8 @@ export interface ActivePageHeader {
   title: string
   fallbackHref?: string
   action?: ReactNode
+  strict?: boolean
+  hideBack?: boolean // ADD THIS
 }
 
 interface PageHeaderContextValue {

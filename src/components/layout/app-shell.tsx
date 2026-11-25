@@ -38,6 +38,8 @@ function ShellBody({
             title={header.title}
             fallbackHref={header.fallbackHref}
             action={header.action}
+            strict={header.strict}
+            hideBack={header.hideBack}
           />
         ) : (
           <Header

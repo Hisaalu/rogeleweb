@@ -9,14 +9,20 @@ export function PageHeaderBar({
   title,
   fallbackHref,
   action,
+  strict,
+  hideBack, 
 }: ActivePageHeader) {
   const router = useRouter()
 
   function handleBack() {
-    if (typeof window !== 'undefined' && window.history.length > 1) {
-      router.back()
-    } else if (fallbackHref) {
+    if (strict && fallbackHref) {
       router.push(fallbackHref)
+    } else {
+      if (typeof window !== 'undefined' && window.history.length > 1) {
+        router.back()
+      } else if (fallbackHref) {
+        router.push(fallbackHref)
+      }
     }
   }
 
@@ -28,14 +34,17 @@ export function PageHeaderBar({
       />
 
       <div className="relative flex shrink-0 items-center">
-        <button
-          type="button"
-          onClick={handleBack}
-          aria-label="Go back"
-          className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-background/40 text-foreground ring-1 ring-inset ring-white/20 transition hover:bg-muted/80"
-        >
-          <ArrowLeft size={20} />
-        </button>
+        {!hideBack && (
+          <button
+            type="button"
+            onClick={handleBack}
+            aria-label="Go back"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-background/40 text-foreground ring-1 ring-inset ring-white/20 transition hover:bg-muted/80"
+          >
+            <ArrowLeft size={20} />
+          </button>
+        )}
+        {hideBack && <div className="h-9 w-9" />}
       </div>
 
       <h1 className="relative min-w-0 flex-1 truncate text-center text-base font-bold text-foreground sm:text-lg">
@@ -49,13 +58,13 @@ export function PageHeaderBar({
   )
 }
 
-export function PageHeader({ title, fallbackHref, action }: ActivePageHeader) {
+export function PageHeader({ title, fallbackHref, action, strict, hideBack }: ActivePageHeader) {
   const { setHeader } = usePageHeader()
 
   useEffect(() => {
-    setHeader({ title, fallbackHref, action })
+    setHeader({ title, fallbackHref, action, strict, hideBack })
     return () => setHeader(null)
-  }, [title, fallbackHref, action, setHeader])
+  }, [title, fallbackHref, action, strict, hideBack, setHeader])
 
   return null
 }

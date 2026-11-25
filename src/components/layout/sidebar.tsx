@@ -15,6 +15,7 @@ import {
   BarChart3,
   Settings,
   LogOut,
+  AlarmClock,
   type LucideIcon,
 } from 'lucide-react'
 import { BrandLogo } from '@/components/brand/brand-logo'
@@ -160,11 +161,14 @@ const NavLink = memo(function NavLink({
           className={active ? 'text-brand-accent' : 'text-brand-accent/70'}
         />
         <span className="truncate">{item.label}</span>
+        
         {item.isDiscount && (
-          <span className="shrink-0 rounded-sm bg-brand-accent px-2 py-0.5 text-[15px] leading-none tracking-wider text-white shadow-sm">
-            50% off
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-sm bg-brand-accent px-2 py-0.5 text-[15px] leading-none tracking-wider text-white shadow-sm">
+            <AlarmClock size={14} strokeWidth={2.2} className="shrink-0" />
+            <span>Offer</span>
           </span>
         )}
+        
         {item.isNew && !hideBadge && (
           <span className="ml-auto shrink-0 rounded-sm bg-brand-accent px-2 py-0.5 text-[15px] leading-none tracking-wider text-white shadow-sm">
             New

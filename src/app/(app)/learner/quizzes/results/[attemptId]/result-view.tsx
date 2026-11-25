@@ -14,7 +14,7 @@ function formatDate(iso: string | null | undefined) {
   return d.toLocaleString('en-US', {
     month: 'short',
     day: 'numeric',
-    year: '2-digit',
+    year: 'numeric',
     hour: 'numeric',
     minute: '2-digit',
   })
@@ -44,6 +44,8 @@ export function ResultView({ attempt }: { attempt: QuizResultDetails }) {
         title="Last Attempt"
         fallbackHref="/learner/quizzes"
         action={headerAction}
+        strict={true}
+        hideBack={true}
       />
 
       <div className="mx-auto max-w-4xl space-y-6 px-4 py-8">

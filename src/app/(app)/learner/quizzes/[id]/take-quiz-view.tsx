@@ -71,8 +71,7 @@ export function TakeQuizView({
       await submitAttemptClient(attemptId, answers)
       localStorage.removeItem(answerStorageKey)
       localStorage.removeItem(attemptStorageKey)
-      router.refresh()
-      router.push(`/learner/quizzes/results/${attemptId}`)
+      router.replace(`/learner/quizzes/results/${attemptId}`)
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Auto-submit failed.'
@@ -226,8 +225,7 @@ export function TakeQuizView({
       localStorage.removeItem(answerStorageKey)
       localStorage.removeItem(attemptStorageKey)
       showToast('Quiz submitted successfully!', 'success')
-      router.refresh()
-      router.push(`/learner/quizzes/results/${attemptId}`)
+      router.replace(`/learner/quizzes/results/${attemptId}`)
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Submission failed.'
       setError(message)
@@ -272,7 +270,9 @@ export function TakeQuizView({
         <div className="flex shrink-0 items-center">
           <button
             type="button"
-            onClick={() => router.back()}
+            onClick={() => {
+              router.replace('/learner/quizzes')
+            }}
             aria-label="Go back"
             className="inline-flex h-9 w-9 items-center justify-center rounded-full text-white transition hover:bg-white/15"
           >
