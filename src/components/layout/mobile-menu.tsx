@@ -209,7 +209,7 @@ export function MobileMenu({
                 {user.email}
               </p>
             )}
-            <p className="mt-2.5 text-sm font-medium text-muted-foreground">
+            <p className="mt-2.5 text-sm text-muted-foreground">
               <span className="text-foreground">{roleLabel}</span>
             </p>
           </div>
