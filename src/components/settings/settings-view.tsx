@@ -1,15 +1,24 @@
 'use client'
 
 import { useState } from 'react'
-import { ShieldCheck, Lock, Loader2, Eye, EyeOff, Trash2, AlertTriangle } from 'lucide-react'
+import {
+  ShieldCheck,
+  Lock,
+  Loader2,
+  Eye,
+  EyeOff,
+  Trash2,
+  Shield,
+} from 'lucide-react'
 import { changePasswordClient } from '@/lib/settings.client'
 import { PageHeader } from '@/components/layout/page-header'
+import { SettingsLinkRow } from '@/components/layout/settings-link-row'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { useToast } from '@/components/ui/toast-provider'
 
-export function SettingsView({ role: _role }: { role: string }) {
+export function SettingsView({ role }: { role: string }) {
   const { showToast } = useToast()
 
   const [currentPassword, setCurrentPassword] = useState('')
@@ -21,6 +30,9 @@ export function SettingsView({ role: _role }: { role: string }) {
   const [showConfirm, setShowConfirm] = useState(false)
 
   const [busy, setBusy] = useState(false)
+
+  const base = role === 'teacher' ? '/teacher/settings' : '/learner/settings'
+  const dashboardHref = role === 'teacher' ? '/teacher/dashboard' : '/learner/dashboard'
 
   async function handlePasswordChange(e: React.FormEvent) {
     e.preventDefault()
@@ -54,10 +66,7 @@ export function SettingsView({ role: _role }: { role: string }) {
 
   return (
     <>
-      <PageHeader
-        title="Settings"
-        fallbackHref="/teacher/dashboard"
-      />
+      <PageHeader title="Settings" fallbackHref={dashboardHref} />
 
       <div className="mx-auto max-w-3xl space-y-6 px-3 py-6 sm:space-y-8 sm:px-4 sm:py-8">
         <div className="space-y-6">
@@ -129,16 +138,24 @@ export function SettingsView({ role: _role }: { role: string }) {
               </div>
 
               <div className="flex justify-end pt-2">
-                <Button
-                  type="submit"
-                  disabled={busy}
-                  className="w-full sm:w-auto"
-                >
+                <Button type="submit" disabled={busy} className="w-full sm:w-auto">
                   {busy && <Loader2 size={16} className="animate-spin mr-2" />}
                   Update Password
                 </Button>
               </div>
             </form>
+          </Card>
+
+          <Card className="p-5 sm:p-8">
+            <h2 className="mb-2 flex items-center gap-2 text-base font-semibold text-foreground sm:text-lg">
+              <Shield size={18} style={{ color: 'var(--brand-accent)' }} />
+              Legal &amp; Support
+            </h2>
+            <div className="mt-2 divide-y divide-border">
+              <SettingsLinkRow label="Privacy Policy" href={`${base}/privacy`} />
+              <SettingsLinkRow label="Terms of Service" href={`${base}/terms`} />
+              <SettingsLinkRow label="Contact Us" href={`${base}/contact`} />
+            </div>
           </Card>
 
           <Card className="p-5 sm:p-8">
@@ -155,8 +172,9 @@ export function SettingsView({ role: _role }: { role: string }) {
               }}
             >
               <div>
-                <p className="flex items-center gap-2 font-semibold" style={{ color: 'var(--danger-fg)' }}>
-                  <AlertTriangle size={16} /> Delete account
+                {/* AlertTriangle icon removed — plain text now */}
+                <p className="font-semibold" style={{ color: 'var(--danger-fg)' }}>
+                  Delete account
                 </p>
                 <p className="mt-1 text-sm opacity-80" style={{ color: 'var(--danger-fg)' }}>
                   Permanently remove your account and all associated data. This action cannot be undone.
@@ -168,7 +186,7 @@ export function SettingsView({ role: _role }: { role: string }) {
                 className="w-full shrink-0 pointer-events-none sm:w-auto"
                 style={{
                   borderColor: 'color-mix(in srgb, var(--danger-border) 40%, transparent)',
-                  color: 'var(--danger-fg)'
+                  color: 'var(--danger-fg)',
                 }}
               >
                 <Trash2 size={16} /> Delete Account
