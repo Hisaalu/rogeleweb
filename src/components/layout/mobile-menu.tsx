@@ -74,11 +74,13 @@ export function MobileMenu({
     user.role === 'teacher' ? '/teacher/profile' : '/learner/profile'
   const settingsHref =
     user.role === 'teacher' ? '/teacher/settings' : '/learner/settings'
+    const helpCenterHref =
+  user.role === 'teacher' ? '/teacher/contact' : '/learner/contact'
 
   const utilityItems: NavItem[] = [
     { label: 'Profile', href: profileHref, icon: User },
     { label: 'Settings and privacy', href: settingsHref, icon: Settings },
-    { label: 'Help Center', href: '/contact', icon: HelpCircle },
+    { label: 'Help Center', href: helpCenterHref, icon: HelpCircle },
   ]
 
   const hintRole = toHintRole(user.role)

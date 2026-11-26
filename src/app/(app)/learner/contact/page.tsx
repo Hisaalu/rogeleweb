@@ -1,0 +1,16 @@
+import type { Metadata } from 'next'
+import { PageHeader } from '@/components/layout/page-header'
+import { ContactContent } from '@/components/legal/contact-content'
+import { PublicFooter } from '@/components/layout/public-footer'
+
+export const metadata: Metadata = { title: 'Send us a message' }
+
+export default function LearnerContactPage() {
+  return (
+    <>
+      <PageHeader title="Send us a message" fallbackHref="/learner/dashboard" />
+      <ContactContent />
+      <PublicFooter />
+    </>
+  )
+}

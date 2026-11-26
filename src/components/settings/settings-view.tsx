@@ -172,7 +172,6 @@ export function SettingsView({ role }: { role: string }) {
               }}
             >
               <div>
-                {/* AlertTriangle icon removed — plain text now */}
                 <p className="font-semibold" style={{ color: 'var(--danger-fg)' }}>
                   Delete account
                 </p>
