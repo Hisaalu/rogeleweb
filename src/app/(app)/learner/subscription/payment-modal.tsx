@@ -30,7 +30,7 @@ export function PaymentModal({
   onSuccess: () => void
 }) {
   const { showToast } = useToast()
-  const [method, setMethod] = useState<PaymentMethod>('mtn')
+  const [method, setMethod] = useState<PaymentMethod>('airtel')
   const [phone, setPhone] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [statusText, setStatusText] = useState<string | null>(null)
